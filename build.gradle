@@ -1,28 +1,28 @@
 plugins {
-    id 'java'
-    id 'eclipse'
-    id 'maven'
-    id 'maven-publish'
-    id "com.jfrog.bintray" version "1.7"
-    id 'signing'
+  id 'java'
+  id 'eclipse'
+  id 'maven'
+  id 'maven-publish'
+  id "com.jfrog.bintray" version "1.7"
+  id 'signing'
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
-    allprojects {
-        tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
-        }
+  allprojects {
+    tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
     }
+  }
 }
 
 // The project version is controlled externally by the "version.sh" script.
 def getVersion = { ->
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'bash', 'version.sh'
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
+  def stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine 'bash', 'version.sh'
+    standardOutput = stdout
+  }
+  return stdout.toString().trim()
 }
 
 group = 'com.cinchapi'
@@ -36,119 +36,128 @@ ext.mavenVersion = ext.mavenVersion.join(".").replace(".-", "-").replaceAll('\\.
 ext.concourseVersion = '0.6.0-SNAPSHOT'
 
 jar {
-    manifest {
-        attributes("Specificiation-Title": "CCL", "Specificiation-Version": version, "Implementation-Version": version)
-    }
+  manifest {
+    attributes("Specificiation-Title": "CCL", "Specificiation-Version": version, "Implementation-Version": version)
+  }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
+  classifier = 'sources'
+  from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier = 'javadoc'
-	from javadoc.destinationDir
+  classifier = 'javadoc'
+  from javadoc.destinationDir
 }
 
 artifacts {
-	archives sourcesJar
-	archives javadocJar
+  archives sourcesJar
+  archives javadocJar
 }
 
 publishing {
-    publications {
-        BintrayPublication(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-            groupId group
-            artifactId project.name
-            version mavenVersion
-        }
+  publications {
+    BintrayPublication(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+      groupId group
+      artifactId project.name
+      version mavenVersion
     }
+  }
 }
 
 bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications = ['BintrayPublication']
-    pkg {
-        repo = mavenVersion.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+){0,1}$') ? 'maven' : 'maven-snapshots'
-        name = 'ccl'
-        publish = true
-        userOrg = 'cinchapi'
-        version {
-            name = mavenVersion
-            released = new Date()
-        }
+  user = System.getenv('BINTRAY_USER')
+  key = System.getenv('BINTRAY_KEY')
+  publications = ['BintrayPublication']
+  pkg {
+    repo = mavenVersion.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+){0,1}$') ? 'maven' : 'maven-snapshots'
+    name = project.name
+    publish = true
+    userOrg = 'cinchapi'
+    version {
+      name = mavenVersion
+      released = new Date()
     }
+  }
 }
 
 signing {
-    required { gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
+  required { gradle.taskGraph.hasTask("uploadArchives") }
+  sign configurations.archives
 }
 
 uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            pom.version = mavenVersion
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+      pom.version = mavenVersion
 
-            pom.project {
-               name 'ccl'
-               packaging 'jar'
-               description 'Library for the Concourse Criteria Language'
-               url 'https://cinchapi.com'
+      pom.project {
+        name project.name
+        packaging 'jar'
+        description 'Library for the Concourse Criteria Language'
+        url 'https://cinchapi.com'
 
-               scm {
-                   url 'git@github.com:cinchapi/impromptu-recipe-api.git'
-                   connection 'git@github.com:cinchapi/impromptu-recipe-api.git'
-                   developerConnection 'git@github.com:cinchapi/impromptu-recipe-api.git'
-               }
-
-               licenses {
-                   license {
-                       name 'The Apache License'
-                       url 'http://opensource.org/licenses/Apache-2.0'
-                       distribution 'repo'
-                   }
-               }
-
-               developers {
-                   developer {
-                       id 'jnelson'
-                       name 'Jeff Nelson'
-                   }
-               }
-           }
-
-           def mavenUrl = pom.version.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+){0,1}$') ? 'https://oss.sonatype.org/service/local/staging/deploy/maven2' : 'https://oss.sonatype.org/content/repositories/snapshots'
-           repository(url: mavenUrl) {
-               authentication(userName: sonatypeUsername, password: sonatypePassword)
-           }
+        scm {
+          url 'git@github.com:cinchapi/impromptu-recipe-api.git'
+          connection 'git@github.com:cinchapi/impromptu-recipe-api.git'
+          developerConnection 'git@github.com:cinchapi/impromptu-recipe-api.git'
         }
+
+        licenses {
+          license {
+            name 'The Apache License'
+            url 'http://opensource.org/licenses/Apache-2.0'
+            distribution 'repo'
+          }
+        }
+
+        developers {
+          developer {
+            id 'jnelson'
+            name 'Jeff Nelson'
+          }
+        }
+      }
+
+      def mavenUrl = pom.version.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+){0,1}$') ? 'https://oss.sonatype.org/service/local/staging/deploy/maven2' : 'https://oss.sonatype.org/content/repositories/snapshots'
+      repository(url: mavenUrl) {
+        authentication(userName: sonatypeUsername, password: sonatypePassword)
+      }
     }
+  }
 }
 
 test {
-    testLogging {
-        showStandardStreams = true
-    }
+  testLogging {
+    showStandardStreams = true
+  }
 }
 
 repositories {
-    mavenCentral()
-    maven {
-      url 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
-    maven {
-      url  'http://cinchapi.bintray.com/maven'
-    }
+  mavenCentral()
+  maven {
+    url 'https://oss.sonatype.org/content/repositories/snapshots/'
+  }
+  maven {
+    url  'http://cinchapi.bintray.com/maven'
+  }
 }
 
+ext.concourseVersion = '0.7.2'
+
 dependencies {
-    compile group: 'com.cinchapi', name: 'concourse-driver-java', version: concourseVersion, changing:true
-    compile 'com.joestelmach:natty:0.13'
+  compile 'com.google.code.findbugs:jsr305:2.0.1'
+  compile 'com.google.guava:guava:23.5-jre'
+  compile (group: 'com.cinchapi', name: 'concourse-driver-java', version: concourseVersion, changing:true) {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
+  compile 'com.joestelmach:natty:0.13'
+  compile (group: 'com.cinchapi', name: 'accent4j', version: '1.0.0-SNAPSHOT', changing:true) {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
 }

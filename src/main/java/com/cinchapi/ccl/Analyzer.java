@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.concourse.lang;
+package com.cinchapi.ccl;
 
 import java.util.Collections;
-import java.util.Queue;
 import java.util.Set;
 
-import com.cinchapi.concourse.lang.Parser;
-import com.cinchapi.concourse.lang.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.Expression;
 import com.google.common.collect.Sets;
 
 /**
@@ -57,11 +55,9 @@ public class Analyzer {
     public Set<String> keys() {
         if(keys == null) {
             keys = Sets.newHashSet();
-            Queue<PostfixNotationSymbol> symbols = Parser
-                    .toPostfixNotation(ccl);
-            symbols.forEach((symbol) -> {
+            Parser.toPostfixNotation(ccl).forEach((symbol) -> {
                 if(symbol instanceof Expression) {
-                    keys.add(((Expression) symbol).getKeyRaw());
+                    keys.add(((Expression) symbol).key().key());
                 }
             });
             keys = Collections.unmodifiableSet(keys);

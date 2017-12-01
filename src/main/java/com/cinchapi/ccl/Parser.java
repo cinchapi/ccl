@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.concourse.lang;
+package com.cinchapi.ccl;
 
 import java.text.MessageFormat;
 import java.util.ArrayDeque;
@@ -25,31 +25,34 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Multimap;
-
 import org.apache.commons.lang.StringUtils;
 
-import com.cinchapi.concourse.lang.ConjunctionSymbol;
-import com.cinchapi.concourse.lang.KeySymbol;
-import com.cinchapi.concourse.lang.OperatorSymbol;
-import com.cinchapi.concourse.lang.ParenthesisSymbol;
-import com.cinchapi.concourse.lang.PostfixNotationSymbol;
-import com.cinchapi.concourse.lang.Symbol;
-import com.cinchapi.concourse.lang.TimestampSymbol;
-import com.cinchapi.concourse.lang.ValueSymbol;
-import com.cinchapi.concourse.lang.ast.AST;
-import com.cinchapi.concourse.lang.ast.AndTree;
-import com.cinchapi.concourse.lang.ast.ExpressionTree;
-import com.cinchapi.concourse.lang.ast.OrTree;
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
+import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.util.NaturalLanguage;
+import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.common.reflect.Reflection;
 import com.cinchapi.concourse.thrift.Operator;
+import com.cinchapi.concourse.util.Convert;
+import com.cinchapi.concourse.util.StringSplitter;
 import com.cinchapi.concourse.util.QuoteAwareStringSplitter;
 import com.cinchapi.concourse.util.SplitOption;
-import com.cinchapi.concourse.util.StringSplitter;
-import com.cinchapi.concourse.util.Strings;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 /**
@@ -62,18 +65,19 @@ public final class Parser {
 
     /**
      * Convert a valid and well-formed list of {@link Symbol} objects into a
-     * an {@link AST}.
+     * an {@link AbstractSyntaxTree}.
      * <p>
      * NOTE: This method will group non-conjunctive symbols into
      * {@link Expression} objects.
      * </p>
      * 
      * @param symbols
-     * @return the symbols in an AST
+     * @return the symbols in an AbstractSyntaxTree
      */
-    public static AST toAbstractSyntaxTree(List<Symbol> symbols) {
+    public static AbstractSyntaxTree toAbstractSyntaxTree(
+            List<Symbol> symbols) {
         Deque<Symbol> operatorStack = new ArrayDeque<Symbol>();
-        Deque<AST> operandStack = new ArrayDeque<AST>();
+        Deque<AbstractSyntaxTree> operandStack = new ArrayDeque<AbstractSyntaxTree>();
         symbols = groupExpressions(symbols);
         main: for (Symbol symbol : symbols) {
             if(symbol == ParenthesisSymbol.LEFT) {
@@ -86,21 +90,22 @@ public final class Parser {
                         continue main;
                     }
                     else {
-                        addASTNode(operandStack, popped);
+                        addAbstractSyntaxTreeNode(operandStack, popped);
                     }
                 }
                 throw new SyntaxException(MessageFormat.format(
-                        "Syntax error in {0}: Mismatched parenthesis", symbols));
+                        "Syntax error in {0}: Mismatched parenthesis",
+                        symbols));
             }
             else if(symbol instanceof Expression) {
-                operandStack.add(ExpressionTree.create((Expression) symbol));
+                operandStack.add(new ExpressionTree((Expression) symbol));
             }
             else {
                 operatorStack.push(symbol);
             }
         }
         while (!operatorStack.isEmpty()) {
-            addASTNode(operandStack, operatorStack.pop());
+            addAbstractSyntaxTreeNode(operandStack, operatorStack.pop());
         }
         return operandStack.pop();
     }
@@ -118,12 +123,11 @@ public final class Parser {
      */
     public static Queue<PostfixNotationSymbol> toPostfixNotation(
             List<Symbol> symbols) {
-        Preconditions
-                .checkState(
-                        symbols.size() >= 3,
-                        "The parsed query %s does not have"
-                                + "enough symbols to process. It should have at least 3 symbols but "
-                                + "only has %s", symbols, symbols.size());
+        Preconditions.checkState(symbols.size() >= 3,
+                "The parsed query %s does not have"
+                        + "enough symbols to process. It should have at least 3 symbols but "
+                        + "only has %s",
+                symbols, symbols.size());
         Deque<Symbol> stack = new ArrayDeque<Symbol>();
         Queue<PostfixNotationSymbol> queue = new LinkedList<PostfixNotationSymbol>();
         symbols = groupExpressions(symbols);
@@ -132,7 +136,8 @@ public final class Parser {
                 while (!stack.isEmpty()) {
                     Symbol top = stack.peek();
                     if(symbol == ConjunctionSymbol.OR
-                            && (top == ConjunctionSymbol.OR || top == ConjunctionSymbol.AND)) {
+                            && (top == ConjunctionSymbol.OR
+                                    || top == ConjunctionSymbol.AND)) {
                         queue.add((PostfixNotationSymbol) stack.pop());
                     }
                     else {
@@ -173,7 +178,8 @@ public final class Parser {
             Symbol top = stack.peek();
             if(top instanceof ParenthesisSymbol) {
                 throw new SyntaxException(MessageFormat.format(
-                        "Syntax error in {0}: Mismatched parenthesis", symbols));
+                        "Syntax error in {0}: Mismatched parenthesis",
+                        symbols));
             }
             else {
                 queue.add((PostfixNotationSymbol) stack.pop());
@@ -257,13 +263,14 @@ public final class Parser {
                 continue;
             }
             else if(guess == GuessState.KEY) {
-                symbols.add(KeySymbol.parse(tok));
+                symbols.add(new KeySymbol(tok));
                 guess = GuessState.OPERATOR;
             }
             else if(guess == GuessState.OPERATOR) {
-                OperatorSymbol symbol = OperatorSymbol.parse(tok);
+                OperatorSymbol symbol = new OperatorSymbol(
+                        Convert.stringToOperator(tok));
                 symbols.add(symbol);
-                if(symbol.getOperator() != Operator.BETWEEN) {
+                if(symbol.operator() != Operator.BETWEEN) {
                     buffer = new StringBuilder();
                 }
                 guess = GuessState.VALUE;
@@ -278,13 +285,13 @@ public final class Parser {
                     }
                     catch (IllegalArgumentException e) {
                         String err = "Unable to resolve variable {} because multiple values exist locally: {}";
-                        throw new IllegalStateException(Strings.format(err,
-                                tok, data.get(var)));
+                        throw new IllegalStateException(
+                                AnyStrings.format(err, tok, data.get(var)));
                     }
                     catch (NoSuchElementException e) {
                         String err = "Unable to resolve variable {} because no values exist locally";
                         throw new IllegalStateException(
-                                Strings.format(err, tok));
+                                AnyStrings.format(err, tok));
                     }
                 }
                 else if(tok.length() > 2 && tok.charAt(0) == '\\'
@@ -295,7 +302,8 @@ public final class Parser {
                     buffer.append(tok).append(" ");
                 }
                 else {
-                    symbols.add(ValueSymbol.parse(tok));
+                    symbols.add(new ValueSymbol(
+                            Convert.javaToThrift(Convert.stringToJava(tok))));
                 }
             }
             else if(guess == GuessState.TIMESTAMP) {
@@ -333,13 +341,13 @@ public final class Parser {
                     OperatorSymbol operator = (OperatorSymbol) it.next();
                     ValueSymbol value = (ValueSymbol) it.next();
                     Expression expression;
-                    if(operator.getOperator() == Operator.BETWEEN) {
+                    if(operator.operator() == Operator.BETWEEN) {
                         ValueSymbol value2 = (ValueSymbol) it.next();
-                        expression = Expression.create((KeySymbol) symbol,
+                        expression = new Expression((KeySymbol) symbol,
                                 operator, value, value2);
                     }
                     else {
-                        expression = Expression.create((KeySymbol) symbol,
+                        expression = new Expression((KeySymbol) symbol,
                                 operator, value);
                     }
                     grouped.add(expression);
@@ -349,8 +357,8 @@ public final class Parser {
                                                              // previously
                                                              // generated
                                                              // Expression
-                    ((Expression) Iterables.getLast(grouped))
-                            .setTimestamp((TimestampSymbol) symbol);
+                    Reflection.set("timestamp", symbol,
+                            Iterables.getLast(grouped)); // (authorized)
                 }
                 else {
                     grouped.add(symbol);
@@ -364,20 +372,22 @@ public final class Parser {
     }
 
     /**
-     * An the appropriate {@link AST} node to the {@code stack} based on
+     * An the appropriate {@link AbstractSyntaxTree} node to the {@code stack}
+     * based on
      * {@code operator}.
      * 
      * @param stack
      * @param operator
      */
-    private static void addASTNode(Deque<AST> stack, Symbol operator) {
-        AST right = stack.pop();
-        AST left = stack.pop();
+    private static void addAbstractSyntaxTreeNode(
+            Deque<AbstractSyntaxTree> stack, Symbol operator) {
+        AbstractSyntaxTree right = stack.pop();
+        AbstractSyntaxTree left = stack.pop();
         if(operator == ConjunctionSymbol.AND) {
-            stack.push(AndTree.create(left, right));
+            stack.push(new AndTree(left, right));
         }
         else {
-            stack.push(OrTree.create(left, right));
+            stack.push(new OrTree(left, right));
         }
     }
 
@@ -392,7 +402,8 @@ public final class Parser {
             List<Symbol> symbols) {
         if(buffer != null && buffer.length() > 0) {
             buffer.delete(buffer.length() - 1, buffer.length());
-            symbols.add(ValueSymbol.parse(buffer.toString()));
+            symbols.add(new ValueSymbol(Convert
+                    .javaToThrift(Convert.stringToJava(buffer.toString()))));
             buffer.delete(0, buffer.length());
         }
     }
@@ -402,7 +413,7 @@ public final class Parser {
         if(buffer != null && buffer.length() > 0) {
             buffer.delete(buffer.length() - 1, buffer.length());
             long ts = NaturalLanguage.parseMicros(buffer.toString());
-            symbols.add(TimestampSymbol.create(ts));
+            symbols.add(new TimestampSymbol(ts));
             buffer.delete(0, buffer.length());
         }
     }
@@ -411,8 +422,8 @@ public final class Parser {
      * A collection of tokens that indicate the parser should pivot to expecting
      * a timestamp token.
      */
-    private final static Set<String> TIMESTAMP_PIVOT_TOKENS = Sets.newHashSet(
-            "at", "on", "during", "in");
+    private final static Set<String> TIMESTAMP_PIVOT_TOKENS = Sets
+            .newHashSet("at", "on", "during", "in");
 
     /**
      * An empty multimap to use in {@link #toPostfixNotation(String, Multimap)}

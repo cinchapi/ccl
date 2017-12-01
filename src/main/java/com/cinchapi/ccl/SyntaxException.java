@@ -13,38 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.concourse.lang.ast;
-
-import javax.annotation.concurrent.Immutable;
-
-import com.cinchapi.concourse.lang.Expression;
+package com.cinchapi.ccl;
 
 /**
- * A {@link ExpressionTree} is an {@link AST} that holds an {@link Expression}
- * symbol and does not have any children.
+ * An unchecked exception that indicates an error occurred while doing a
+ * language parse operation.
  * 
  * @author Jeff Nelson
  */
-@Immutable
-public class ExpressionTree extends AST {
-
-    /**
-     * Create a new {@link ExpressionTree}.
-     * 
-     * @param expression
-     * @return the new ExpressionTree
-     */
-    public static ExpressionTree create(Expression expression) {
-        return new ExpressionTree(expression);
-    }
+@SuppressWarnings("serial")
+public class SyntaxException extends RuntimeException {
 
     /**
      * Construct a new instance.
      * 
-     * @param symbol
+     * @param message
      */
-    protected ExpressionTree(Expression symbol) {
-        super(symbol);
+    public SyntaxException(String message) {
+        super(message);
     }
 
+    /**
+     * Construct a new instance.
+     */
+    public SyntaxException() {
+        super();
+    }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,30 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.concourse.lang;
+package com.cinchapi.ccl.grammar;
 
 /**
- * An unchecked exception that indicates an error occurred while doing a
- * language parse operation.
+ * An abstract implementation of the {@link Symbol} interface that provides
+ * {@link #hashCode()} and {@link #equals(Object)}.
  * 
  * @author Jeff Nelson
  */
-@SuppressWarnings("serial")
-public class SyntaxException extends RuntimeException {
+class BaseSymbol implements Symbol {
 
-    /**
-     * Construct a new instance.
-     * 
-     * @param message
-     */
-    public SyntaxException(String message) {
-        super(message);
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
     }
 
-    /**
-     * Construct a new instance.
-     */
-    public SyntaxException() {
-        super();
+    @Override
+    public boolean equals(Object obj) {
+        if(obj.getClass() == getClass()) {
+            return toString().equals(obj.toString());
+        }
+        else {
+            return false;
+        }
     }
+
 }
