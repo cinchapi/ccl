@@ -15,7 +15,6 @@
  */
 package com.cinchapi.ccl;
 
-import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -224,8 +223,8 @@ final class CustomParser implements Parser {
                     }
                 }
                 if(!foundLeftParen) {
-                    throw new SyntaxException(MessageFormat.format(
-                            "Syntax error in {0}: Mismatched parenthesis",
+                    throw new SyntaxException(AnyStrings.format(
+                            "Syntax error in {}: Mismatched parenthesis",
                             symbols));
                 }
                 else {
@@ -239,9 +238,8 @@ final class CustomParser implements Parser {
         while (!stack.isEmpty()) {
             Symbol top = stack.peek();
             if(top instanceof ParenthesisSymbol) {
-                throw new SyntaxException(MessageFormat.format(
-                        "Syntax error in {0}: Mismatched parenthesis",
-                        symbols));
+                throw new SyntaxException(AnyStrings.format(
+                        "Syntax error in {}: Mismatched parenthesis", symbols));
             }
             else {
                 queue.add((PostfixNotationSymbol) stack.pop());
@@ -269,9 +267,8 @@ final class CustomParser implements Parser {
                         addAbstractSyntaxTreeNode(operandStack, popped);
                     }
                 }
-                throw new SyntaxException(MessageFormat.format(
-                        "Syntax error in {0}: Mismatched parenthesis",
-                        symbols));
+                throw new SyntaxException(AnyStrings.format(
+                        "Syntax error in {}: Mismatched parenthesis", symbols));
             }
             else if(symbol instanceof Expression) {
                 operandStack.add(new ExpressionTree((Expression) symbol));
