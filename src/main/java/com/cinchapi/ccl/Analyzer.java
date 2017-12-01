@@ -55,7 +55,7 @@ public class Analyzer {
     public Set<String> keys() {
         if(keys == null) {
             keys = Sets.newHashSet();
-            Parser.toPostfixNotation(ccl).forEach((symbol) -> {
+            StaticParser.toPostfixNotation(ccl).forEach((symbol) -> {
                 if(symbol instanceof Expression) {
                     keys.add(((Expression) symbol).key().key());
                 }
