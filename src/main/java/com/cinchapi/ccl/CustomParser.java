@@ -23,6 +23,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -41,14 +42,13 @@ import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.common.base.QuoteAwareStringSplitter;
+import com.cinchapi.common.base.SplitOption;
+import com.cinchapi.common.base.StringSplitter;
 import com.cinchapi.common.reflect.Reflection;
-import com.cinchapi.concourse.thrift.Operator;
-import com.cinchapi.concourse.util.Convert;
-import com.cinchapi.concourse.util.QuoteAwareStringSplitter;
-import com.cinchapi.concourse.util.SplitOption;
-import com.cinchapi.concourse.util.StringSplitter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -62,13 +62,6 @@ import com.google.common.collect.Sets;
  */
 @ThreadSafe
 final class CustomParser implements Parser {
-
-    /**
-     * Singleton.
-     */
-    static final CustomParser INSTANCE = new CustomParser();
-
-    private CustomParser() {/* singleton */}
 
     /**
      * A collection of tokens that indicate the parser should pivot to expecting
@@ -100,7 +93,7 @@ final class CustomParser implements Parser {
                     OperatorSymbol operator = (OperatorSymbol) it.next();
                     ValueSymbol value = (ValueSymbol) it.next();
                     Expression expression;
-                    if(operator.operator() == Operator.BETWEEN) {
+                    if(operator.operator().operands() == 2) {
                         ValueSymbol value2 = (ValueSymbol) it.next();
                         expression = new Expression((KeySymbol) symbol,
                                 operator, value, value2);
@@ -130,58 +123,13 @@ final class CustomParser implements Parser {
         }
     }
 
-    /**
-     * An the appropriate {@link AbstractSyntaxTree} node to the {@code stack}
-     * based on
-     * {@code operator}.
-     * 
-     * @param stack
-     * @param operator
-     */
-    private static void addAbstractSyntaxTreeNode(
-            Deque<AbstractSyntaxTree> stack, Symbol operator) {
-        AbstractSyntaxTree right = stack.pop();
-        AbstractSyntaxTree left = stack.pop();
-        if(operator == ConjunctionSymbol.AND) {
-            stack.push(new AndTree(left, right));
-        }
-        else {
-            stack.push(new OrTree(left, right));
-        }
-    }
+    private final Function<String, Object> valueTransformFunction;
+    private final Function<String, Operator> operatorTransformFunction;
 
-    /**
-     * This is a helper method for {@link #tokenize(String, Multimap)} that
-     * contains logic to create a {@link TimestampSymbol} from a buffered value.
-     * 
-     * @param buffer
-     * @param symbols
-     */
-    private static void addBufferedTime(StringBuilder buffer,
-            List<Symbol> symbols) {
-        if(buffer != null && buffer.length() > 0) {
-            buffer.delete(buffer.length() - 1, buffer.length());
-            long ts = NaturalLanguage.parseMicros(buffer.toString());
-            symbols.add(new TimestampSymbol(ts));
-            buffer.delete(0, buffer.length());
-        }
-    }
-
-    /**
-     * This is a helper method for {@link #tokenize(String, Multimap)} that
-     * contains the logic to create a {@link ValueSymbol} from a buffered value.
-     * 
-     * @param buffer
-     * @param symbols
-     */
-    private static void addBufferedValue(StringBuilder buffer,
-            List<Symbol> symbols) {
-        if(buffer != null && buffer.length() > 0) {
-            buffer.delete(buffer.length() - 1, buffer.length());
-            symbols.add(new ValueSymbol(Convert
-                    .javaToThrift(Convert.stringToJava(buffer.toString()))));
-            buffer.delete(0, buffer.length());
-        }
+    protected CustomParser(Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        this.valueTransformFunction = valueTransformFunction;
+        this.operatorTransformFunction = operatorTransformFunction;
     }
 
     @Override
@@ -334,9 +282,9 @@ final class CustomParser implements Parser {
             }
             else if(guess == TokenTypeGuess.OPERATOR) {
                 OperatorSymbol symbol = new OperatorSymbol(
-                        Convert.stringToOperator(tok));
+                        transformOperator(tok));
                 symbols.add(symbol);
-                if(symbol.operator() != Operator.BETWEEN) {
+                if(symbol.operator().operands() == 1) {
                     buffer = new StringBuilder();
                 }
                 guess = TokenTypeGuess.VALUE;
@@ -367,8 +315,7 @@ final class CustomParser implements Parser {
                     buffer.append(tok).append(" ");
                 }
                 else {
-                    symbols.add(new ValueSymbol(
-                            Convert.javaToThrift(Convert.stringToJava(tok))));
+                    symbols.add(new ValueSymbol(transformValue(tok)));
                 }
             }
             else if(guess == TokenTypeGuess.TIMESTAMP) {
@@ -381,6 +328,67 @@ final class CustomParser implements Parser {
         addBufferedValue(buffer, symbols);
         addBufferedTime(timeBuffer, symbols);
         return symbols;
+    }
+
+    @Override
+    public Operator transformOperator(String token) {
+        return operatorTransformFunction.apply(token);
+    }
+
+    @Override
+    public Object transformValue(String token) {
+        return valueTransformFunction.apply(token);
+    }
+
+    /**
+     * An the appropriate {@link AbstractSyntaxTree} node to the {@code stack}
+     * based on
+     * {@code operator}.
+     * 
+     * @param stack
+     * @param operator
+     */
+    private void addAbstractSyntaxTreeNode(Deque<AbstractSyntaxTree> stack,
+            Symbol operator) {
+        AbstractSyntaxTree right = stack.pop();
+        AbstractSyntaxTree left = stack.pop();
+        if(operator == ConjunctionSymbol.AND) {
+            stack.push(new AndTree(left, right));
+        }
+        else {
+            stack.push(new OrTree(left, right));
+        }
+    }
+
+    /**
+     * This is a helper method for {@link #tokenize(String, Multimap)} that
+     * contains logic to create a {@link TimestampSymbol} from a buffered value.
+     * 
+     * @param buffer
+     * @param symbols
+     */
+    private void addBufferedTime(StringBuilder buffer, List<Symbol> symbols) {
+        if(buffer != null && buffer.length() > 0) {
+            buffer.delete(buffer.length() - 1, buffer.length());
+            long ts = NaturalLanguage.parseMicros(buffer.toString());
+            symbols.add(new TimestampSymbol(ts));
+            buffer.delete(0, buffer.length());
+        }
+    }
+
+    /**
+     * This is a helper method for {@link #tokenize(String, Multimap)} that
+     * contains the logic to create a {@link ValueSymbol} from a buffered value.
+     * 
+     * @param buffer
+     * @param symbols
+     */
+    private void addBufferedValue(StringBuilder buffer, List<Symbol> symbols) {
+        if(buffer != null && buffer.length() > 0) {
+            buffer.delete(buffer.length() - 1, buffer.length());
+            symbols.add(new ValueSymbol(transformValue(buffer.toString())));
+            buffer.delete(0, buffer.length());
+        }
     }
 
     /**

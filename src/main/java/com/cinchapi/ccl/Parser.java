@@ -17,12 +17,14 @@ package com.cinchapi.ccl;
 
 import java.util.List;
 import java.util.Queue;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.type.Operator;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
@@ -40,8 +42,11 @@ public interface Parser {
      * 
      * @return a {@link Parser}
      */
-    public static Parser instance() {
-        return CustomParser.INSTANCE;
+    public static Parser instance(
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        return new CustomParser(valueTransformFunction,
+                operatorTransformFunction);
     }
 
     /**
@@ -89,5 +94,21 @@ public interface Parser {
      * @return a list of {@link Symbol} tokens
      */
     public List<Symbol> tokenize(String ccl, Multimap<String, Object> data);
+
+    /**
+     * Implement a function that converts string operators to the appropriate
+     * {@link Operator} object.
+     * 
+     * @return the transformed operator
+     */
+    public Operator transformOperator(String token);
+
+    /**
+     * Implement a function that converts string values to analogous java
+     * objects.
+     * 
+     * @return the transformed value
+     */
+    public Object transformValue(String token);
 
 }

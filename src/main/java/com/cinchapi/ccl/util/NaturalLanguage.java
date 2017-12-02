@@ -17,13 +17,15 @@ package com.cinchapi.ccl.util;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 
-import com.cinchapi.concourse.Timestamp;
 import com.google.common.primitives.Longs;
 import com.joestelmach.natty.DateGroup;
 
@@ -33,6 +35,25 @@ import com.joestelmach.natty.DateGroup;
  * @author Jeff Nelson
  */
 public final class NaturalLanguage {
+
+    /**
+     * The default formatter that is used to display objects of this class.
+     */
+    public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormat
+            .forPattern("E MMM dd, yyyy @ h:mm:ss:SS a z");
+
+    /**
+     * A parser to convert natural language text strings to Timestamp objects.
+     */
+    private final static com.joestelmach.natty.Parser TIMESTAMP_PARSER = new com.joestelmach.natty.Parser();
+
+    static {
+        // Turn off logging in 3rd party code
+        ((ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger("com.joestelmach")).setLevel(Level.OFF);
+        ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("net.fortuna"))
+                .setLevel(Level.OFF);
+    }
 
     /**
      * Parse the number of microseconds from the UNIX epoch that are described
@@ -50,10 +71,8 @@ public final class NaturalLanguage {
         }
         else {
             try {
-                return Timestamp
-                        .fromJoda(
-                                Timestamp.DEFAULT_FORMATTER.parseDateTime(str))
-                        .getMicros();
+                return TimeUnit.MILLISECONDS.toMicros(
+                        DEFAULT_FORMATTER.parseDateTime(str).getMillis());
             }
             catch (Exception e) {
                 List<DateGroup> groups = TIMESTAMP_PARSER.parse(str);
@@ -63,7 +82,8 @@ public final class NaturalLanguage {
                     break;
                 }
                 if(date != null) {
-                    return Timestamp.fromJoda(new DateTime(date)).getMicros();
+                    return TimeUnit.MILLISECONDS
+                            .toMicros(new DateTime(date).getMillis());
                 }
                 else {
                     throw new IllegalStateException(
@@ -71,19 +91,6 @@ public final class NaturalLanguage {
                 }
             }
         }
-    }
-
-    /**
-     * A parser to convert natural language text strings to Timestamp objects.
-     */
-    private final static com.joestelmach.natty.Parser TIMESTAMP_PARSER = new com.joestelmach.natty.Parser();
-
-    static {
-        // Turn off logging in 3rd party code
-        ((ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger("com.joestelmach")).setLevel(Level.OFF);
-        ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("net.fortuna"))
-                .setLevel(Level.OFF);
     }
 
     private NaturalLanguage() {/* noop */}

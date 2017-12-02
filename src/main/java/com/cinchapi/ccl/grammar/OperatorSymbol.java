@@ -15,9 +15,7 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.concourse.lang.Symbol;
-import com.cinchapi.concourse.thrift.Operator;
-import com.cinchapi.concourse.util.Convert;
+import com.cinchapi.ccl.type.Operator;
 
 /**
  * A {@link Symbol} that contains an {@link Operator}.
@@ -52,7 +50,7 @@ public final class OperatorSymbol extends BaseSymbol implements
 
     @Override
     public String toString() {
-        return Convert.operatorToString(operator);
+        return operator.toString();
     }
 
 }

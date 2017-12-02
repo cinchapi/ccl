@@ -17,8 +17,7 @@ package com.cinchapi.ccl.grammar;
 
 import java.util.Collection;
 
-import com.cinchapi.concourse.lang.Symbol;
-import com.cinchapi.concourse.util.Strings;
+import com.cinchapi.common.base.AnyStrings;
 import com.google.common.collect.Lists;
 
 /**
@@ -105,7 +104,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
 
     @Override
     public String toString() {
-        String string = Strings.joinWithSpace(key, operator);
+        String string = AnyStrings.format("{} {}", key, operator);
         for (ValueSymbol value : values) {
             string += " " + value;
         }

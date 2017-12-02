@@ -13,41 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.type;
 
 /**
- * A {@link Symbol} that contains a value.;
+ * An interface representing the input to an {@link OperatorSymbol}.
  *
  * @author Jeff Nelson
  */
-public final class ValueSymbol extends BaseSymbol {
+public interface Operator {
 
     /**
-     * The content of the {@link Symbol}.
-     */
-    private final Object value;
-
-    /**
-     * Construct a new instance.
+     * Return the number of operands operated on by this {@link Operator}.
      * 
-     * @param value
+     * @return the expected number of operands
      */
-    public ValueSymbol(Object value) {
-        this.value = value;
-    }
-
-    /**
-     * Return the value associated with this {@link Symbol}.
-     * 
-     * @return the value
-     */
-    public Object value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return value.toString();
-    }
+    public int operands();
 
 }

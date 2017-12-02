@@ -38,13 +38,16 @@ public class Analyzer {
      */
     private Set<String> keys = null;
 
+    private final Parser parser;
+
     /**
      * Construct a new instance.
      * 
      * @param ccl
      */
-    public Analyzer(String ccl) {
+    public Analyzer(Parser parser, String ccl) {
         this.ccl = ccl;
+        this.parser = parser;
     }
 
     /**
@@ -55,7 +58,7 @@ public class Analyzer {
     public Set<String> keys() {
         if(keys == null) {
             keys = Sets.newHashSet();
-            StaticParser.toPostfixNotation(ccl).forEach((symbol) -> {
+            parser.tokenize(ccl).forEach((symbol) -> {
                 if(symbol instanceof Expression) {
                     keys.add(((Expression) symbol).key().key());
                 }
