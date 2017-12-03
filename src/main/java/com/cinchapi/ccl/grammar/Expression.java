@@ -15,8 +15,9 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import java.util.Collection;
+import java.util.List;
 
+import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.AnyStrings;
 import com.google.common.collect.Lists;
 
@@ -37,6 +38,11 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
     private final OperatorSymbol operator;
     private final ValueSymbol[] values;
     private final TimestampSymbol timestamp;
+
+    /**
+     * The symbol {@link Content} returned from the {@link #raw()} method.
+     */
+    private final Content content = new Content();
 
     /**
      * Construct a new instance.
@@ -85,12 +91,12 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
     }
 
     /**
-     * Return the values associated with this {@link Expression}.
+     * Return the raw symbol {@link Content}.
      * 
-     * @return the values
+     * @return the raw symbol content
      */
-    public Collection<ValueSymbol> values() {
-        return Lists.newArrayList(values);
+    public Content raw() {
+        return content;
     }
 
     /**
@@ -112,6 +118,66 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
             string += " at " + timestamp;
         }
         return string;
+    }
+
+    /**
+     * Return the values associated with this {@link Expression}.
+     * 
+     * @return the values
+     */
+    public List<ValueSymbol> values() {
+        return Lists.newArrayList(values);
+    }
+
+    /**
+     * A wrapper class that contains the content of the symbols in this
+     * {@link Expression}.
+     *
+     * @author Jeff Nelson
+     */
+    public class Content {
+
+        /**
+         * Return the content of the {@link KeySymbol}.
+         * 
+         * @return key content
+         */
+        public String key() {
+            return Expression.this.key().key();
+        }
+
+        /**
+         * Return the content of the {@link OperatorSymbol}.
+         * 
+         * @return operator content
+         */
+        public Operator operator() {
+            return Expression.this.operator().operator();
+        }
+
+        /**
+         * Return the content of the {@link TimestampSymbol}.
+         * 
+         * @return timestamp content
+         */
+        public long timestamp() {
+            return Expression.this.timestamp().timestamp();
+        }
+
+        /**
+         * Return the content of each {@link ValueSymbol}.
+         * 
+         * @return value content
+         */
+        public List<Object> values() {
+            List<Object> values = Lists
+                    .newArrayListWithCapacity(Expression.this.values.length);
+            for (ValueSymbol symbol : Expression.this.values) {
+                values.add(symbol.value());
+            }
+            return values;
+        }
+
     }
 
 }

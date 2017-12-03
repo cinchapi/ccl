@@ -19,7 +19,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
@@ -48,7 +47,6 @@ import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.QuoteAwareStringSplitter;
 import com.cinchapi.common.base.SplitOption;
 import com.cinchapi.common.base.StringSplitter;
-import com.cinchapi.common.reflect.Reflection;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -70,59 +68,6 @@ final class CustomParser implements Parser {
     private final static Set<String> TIMESTAMP_PIVOT_TOKENS = Sets
             .newHashSet("at", "on", "during", "in");
 
-    /**
-     * Go through a list of symbols and group the expressions together in a
-     * {@link Expression} object.
-     * 
-     * @param symbols
-     * @return the expression
-     */
-    protected static List<Symbol> groupExpressions(List<Symbol> symbols) { // visible
-                                                                           // for
-                                                                           // testing
-        try {
-            List<Symbol> grouped = Lists.newArrayList();
-            ListIterator<Symbol> it = symbols.listIterator();
-            while (it.hasNext()) {
-                Symbol symbol = it.next();
-                if(symbol instanceof KeySymbol) {
-                    // NOTE: We are assuming that the list of symbols is well
-                    // formed, and, as such, the next elements will be an
-                    // operator and one or more symbols. If this is not the
-                    // case, this method will throw a ClassCastException
-                    OperatorSymbol operator = (OperatorSymbol) it.next();
-                    ValueSymbol value = (ValueSymbol) it.next();
-                    Expression expression;
-                    if(operator.operator().operands() == 2) {
-                        ValueSymbol value2 = (ValueSymbol) it.next();
-                        expression = new Expression((KeySymbol) symbol,
-                                operator, value, value2);
-                    }
-                    else {
-                        expression = new Expression((KeySymbol) symbol,
-                                operator, value);
-                    }
-                    grouped.add(expression);
-                }
-                else if(symbol instanceof TimestampSymbol) { // Add the
-                                                             // timestamp to the
-                                                             // previously
-                                                             // generated
-                                                             // Expression
-                    Reflection.set("timestamp", symbol,
-                            Iterables.getLast(grouped)); // (authorized)
-                }
-                else {
-                    grouped.add(symbol);
-                }
-            }
-            return grouped;
-        }
-        catch (ClassCastException e) {
-            throw new SyntaxException(e.getMessage());
-        }
-    }
-
     private final Function<String, Object> valueTransformFunction;
     private final Function<String, Operator> operatorTransformFunction;
 
@@ -139,7 +84,7 @@ final class CustomParser implements Parser {
                 symbols, symbols.size());
         Deque<Symbol> stack = new ArrayDeque<Symbol>();
         Queue<PostfixNotationSymbol> queue = new LinkedList<PostfixNotationSymbol>();
-        symbols = groupExpressions(symbols);
+        symbols = Parser.group(symbols);
         for (Symbol symbol : symbols) {
             if(symbol instanceof ConjunctionSymbol) {
                 while (!stack.isEmpty()) {
@@ -200,7 +145,7 @@ final class CustomParser implements Parser {
     public AbstractSyntaxTree parse(List<Symbol> symbols) {
         Deque<Symbol> operatorStack = new ArrayDeque<Symbol>();
         Deque<AbstractSyntaxTree> operandStack = new ArrayDeque<AbstractSyntaxTree>();
-        symbols = groupExpressions(symbols);
+        symbols = Parser.group(symbols);
         main: for (Symbol symbol : symbols) {
             if(symbol == ParenthesisSymbol.LEFT) {
                 operatorStack.push(symbol);

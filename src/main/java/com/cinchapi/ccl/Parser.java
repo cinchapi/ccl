@@ -16,16 +16,25 @@
 package com.cinchapi.ccl;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Queue;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.common.reflect.Reflection;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 /**
@@ -36,6 +45,58 @@ import com.google.common.collect.Multimap;
  */
 @ThreadSafe
 public interface Parser {
+
+    /**
+     * Go through a list of symbols and group the expressions together in a
+     * {@link Expression} object.
+     * 
+     * @param symbols
+     * @return the expression
+     */
+    public static List<Symbol> group(List<Symbol> symbols) { // visible for
+                                                             // testing
+        try {
+            List<Symbol> grouped = Lists.newArrayList();
+            ListIterator<Symbol> it = symbols.listIterator();
+            while (it.hasNext()) {
+                Symbol symbol = it.next();
+                if(symbol instanceof KeySymbol) {
+                    // NOTE: We are assuming that the list of symbols is well
+                    // formed, and, as such, the next elements will be an
+                    // operator and one or more symbols. If this is not the
+                    // case, this method will throw a ClassCastException
+                    OperatorSymbol operator = (OperatorSymbol) it.next();
+                    ValueSymbol value = (ValueSymbol) it.next();
+                    Expression expression;
+                    if(operator.operator().operands() == 2) {
+                        ValueSymbol value2 = (ValueSymbol) it.next();
+                        expression = new Expression((KeySymbol) symbol,
+                                operator, value, value2);
+                    }
+                    else {
+                        expression = new Expression((KeySymbol) symbol,
+                                operator, value);
+                    }
+                    grouped.add(expression);
+                }
+                else if(symbol instanceof TimestampSymbol) { // Add the
+                                                             // timestamp to the
+                                                             // previously
+                                                             // generated
+                                                             // Expression
+                    Reflection.set("timestamp", symbol,
+                            Iterables.getLast(grouped)); // (authorized)
+                }
+                else {
+                    grouped.add(symbol);
+                }
+            }
+            return grouped;
+        }
+        catch (ClassCastException e) {
+            throw new SyntaxException(e.getMessage());
+        }
+    }
 
     /**
      * Return a {@link Parser} instance.
