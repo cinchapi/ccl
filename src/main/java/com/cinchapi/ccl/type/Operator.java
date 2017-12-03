@@ -29,4 +29,11 @@ public interface Operator {
      */
     public int operands();
 
+    /**
+     * Return the symbol that represents this {@link Operator}.
+     * 
+     * @return the operator's symbol
+     */
+    public String symbol();
+
 }
