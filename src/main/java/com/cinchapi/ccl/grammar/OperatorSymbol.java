@@ -50,7 +50,7 @@ public final class OperatorSymbol extends BaseSymbol implements
 
     @Override
     public String toString() {
-        return operator.toString();
+        return operator.symbol();
     }
 
 }
