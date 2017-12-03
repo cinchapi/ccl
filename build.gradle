@@ -33,7 +33,6 @@ ext.mavenVersion = version.split('\\.')
 ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+-", "-")
 ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+", "").trim()
 ext.mavenVersion = ext.mavenVersion.join(".").replace(".-", "-").replaceAll('\\.$', "")
-ext.concourseVersion = '0.6.0-SNAPSHOT'
 
 jar {
   manifest {
@@ -99,13 +98,13 @@ uploadArchives {
       pom.project {
         name project.name
         packaging 'jar'
-        description 'Library for the Concourse Criteria Language'
+        description 'The official specificiation and library for the Concourse Criteria Language'
         url 'https://cinchapi.com'
 
         scm {
-          url 'git@github.com:cinchapi/impromptu-recipe-api.git'
-          connection 'git@github.com:cinchapi/impromptu-recipe-api.git'
-          developerConnection 'git@github.com:cinchapi/impromptu-recipe-api.git'
+          url 'git@github.com:cinchapi/ccl.git'
+          connection 'git@github.com:cinchapi/ccl.git'
+          developerConnection 'git@github.com:cinchapi/ccl.git'
         }
 
         licenses {
