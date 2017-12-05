@@ -56,6 +56,7 @@ public class Analyzer {
      * @return the keys.
      */
     public Set<String> keys() {
+        /*
         if(keys == null) {
             keys = Sets.newHashSet();
             parser.tokenize(ccl).forEach((symbol) -> {
@@ -66,6 +67,8 @@ public class Analyzer {
             keys = Collections.unmodifiableSet(keys);
         }
         return keys;
+     */
+        return null;
     }
 
 }
