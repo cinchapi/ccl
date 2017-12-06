@@ -15,9 +15,11 @@
  */
 package com.cinchapi.ccl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Queue;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -36,6 +38,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 /**
  * A {@link Parser} transforms raw CCL strings and groups of {@link Symbol
@@ -111,6 +114,41 @@ public interface Parser {
     }
 
     /**
+     * Return the {@link Analysis} about the CCL statement.
+     * 
+     * @param ccl
+     * @return the {@link Analysis}
+     */
+    public default Analysis analyze(String ccl) {
+        return analyze(tokenize(ccl));
+    }
+
+    /**
+     * Return {@link Analysis} about the {@link #tokenize(String) tokenized} CCL
+     * statement.
+     * 
+     * @param tokens
+     * @return the {@link Analysis}
+     */
+    public default Analysis analyze(List<Symbol> tokens) {
+        return new Analysis() {
+
+            @Override
+            public Set<String> keys() {
+                Set<String> keys = Sets
+                        .newLinkedHashSetWithExpectedSize(tokens.size());
+                tokens.forEach((symbol) -> {
+                    if(symbol instanceof Expression) {
+                        keys.add(((Expression) symbol).raw().key());
+                    }
+                });
+                return Collections.unmodifiableSet(keys);
+            }
+
+        };
+    }
+
+    /**
      * Transform a sequential list of {@link Symbol} tokens to an {@link Queue}
      * of symbols in {@link PostfixNotationSymbol postfix notation} that are
      * sorted by the proper order of operations.
@@ -171,5 +209,22 @@ public interface Parser {
      * @return the transformed value
      */
     public Object transformValue(String token);
+
+    /**
+     * A collection of insights about a CCL statement that is
+     * {@link #analyze(String)} by this {@link Parser}.
+     * 
+     * @author Jeff Nelson
+     */
+    public interface Analysis {
+
+        /**
+         * Return an ordered list of keys that are included in the CCL
+         * statement.
+         * 
+         * @return the included keys
+         */
+        public Set<String> keys();
+    }
 
 }
