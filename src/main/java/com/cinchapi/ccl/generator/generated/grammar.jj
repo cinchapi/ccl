@@ -36,7 +36,7 @@ options {
 
 PARSER_BEGIN(Grammar)
 
-/** An Arithmetic Grammar. */
+/** An Arithmetic com.cinchapi.ccl.generator.generated.Grammar. */
 public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants/*@egen*/ {/*@bgen(jjtree)*/
   protected static JJTGrammarState jjtree = new JJTGrammarState();
 

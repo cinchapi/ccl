@@ -28,7 +28,7 @@
 
 /**
  *  This is an example of how the Visitor pattern might be used to
- *  implement the dumping code that comes with SimpleNode.  It's a bit
+ *  implement the dumping code that comes with com.cinchapi.ccl.generator.generated.SimpleNode.  It's a bit
  *  long-winded, but it does illustrate a couple of the main points.
  *  <ol>
  *  <li> the visitor can maintain state between the nodes that it visits
@@ -36,7 +36,7 @@
  *  </li>
  *
  *  <li>if you don't implement a jjtAccept() method for a subclass of
- *  SimpleNode, then SimpleNode's acceptor will get called.
+ *  com.cinchapi.ccl.generator.generated.SimpleNode, then com.cinchapi.ccl.generator.generated.SimpleNode's acceptor will get called.
  *  </li>
  *  <li> the utility method childrenAccept() can be useful when
  *  implementing preorder or postorder tree walks.
