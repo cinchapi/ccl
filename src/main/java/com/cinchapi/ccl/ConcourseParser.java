@@ -59,7 +59,7 @@ import com.google.common.collect.Sets;
  * @author jeff
  */
 @ThreadSafe
-final class CustomParser implements Parser {
+final class ConcourseParser extends Parser {
 
     /**
      * A collection of tokens that indicate the parser should pivot to expecting
@@ -71,20 +71,31 @@ final class CustomParser implements Parser {
     private final Function<String, Object> valueTransformFunction;
     private final Function<String, Operator> operatorTransformFunction;
 
-    protected CustomParser(Function<String, Object> valueTransformFunction,
+    /**
+     * Construct a new instance.
+     * 
+     * @param ccl
+     * @param data
+     * @param valueTransformFunction
+     * @param operatorTransformFunction
+     */
+    protected ConcourseParser(String ccl, Multimap<String, Object> data,
+            Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
+        super(ccl, data);
         this.valueTransformFunction = valueTransformFunction;
         this.operatorTransformFunction = operatorTransformFunction;
     }
 
     @Override
-    public Queue<PostfixNotationSymbol> order(List<Symbol> symbols) {
+    public Queue<PostfixNotationSymbol> order() {
+        List<Symbol> symbols = tokenize();
         Preconditions.checkState(symbols.size() >= 3,
                 "Not enough symbols to process. It should have at least 3 symbols but only has %s",
                 symbols, symbols.size());
         Deque<Symbol> stack = new ArrayDeque<Symbol>();
         Queue<PostfixNotationSymbol> queue = new LinkedList<PostfixNotationSymbol>();
-        symbols = Parser.group(symbols);
+        symbols = Parsing.groupExpressions(symbols);
         for (Symbol symbol : symbols) {
             if(symbol instanceof ConjunctionSymbol) {
                 while (!stack.isEmpty()) {
@@ -142,10 +153,11 @@ final class CustomParser implements Parser {
     }
 
     @Override
-    public AbstractSyntaxTree parse(List<Symbol> symbols) {
+    public AbstractSyntaxTree parse() {
+        List<Symbol> symbols = tokenize();
         Deque<Symbol> operatorStack = new ArrayDeque<Symbol>();
         Deque<AbstractSyntaxTree> operandStack = new ArrayDeque<AbstractSyntaxTree>();
-        symbols = Parser.group(symbols);
+        symbols = Parsing.groupExpressions(symbols);
         main: for (Symbol symbol : symbols) {
             if(symbol == ParenthesisSymbol.LEFT) {
                 operatorStack.push(symbol);
@@ -177,7 +189,7 @@ final class CustomParser implements Parser {
     }
 
     @Override
-    public List<Symbol> tokenize(String ccl, Multimap<String, Object> data) {
+    public List<Symbol> tokenize() {
         // This method uses a value buffer to correct cases when a string value
         // is specified without quotes (because its a common mistake to make).
         // If an operator other than BETWEEN is specified, we use logic that

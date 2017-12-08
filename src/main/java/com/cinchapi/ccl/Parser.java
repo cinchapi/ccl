@@ -17,110 +17,85 @@ package com.cinchapi.ccl;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
+import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.common.reflect.Reflection;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 /**
- * A {@link Parser} transforms raw CCL strings and groups of {@link Symbol
- * tokens} into organized structures that can be logically evaluated.
+ * A {@link Parser} is a stateful object that transforms raw CCL strings into
+ * organized structures that can be logically evaluated.
  *
  * @author Jeff Nelson
  */
 @ThreadSafe
-public interface Parser {
+@Immutable
+public abstract class Parser {
 
     /**
-     * Go through a list of symbols and group the expressions together in a
-     * {@link Expression} object.
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
      * 
-     * @param symbols
-     * @return the expression
+     * @param ccl
+     * @param valueTransformFunction
+     * @param operatorTransformFunction
+     * @return the {@link Parser}
      */
-    public static List<Symbol> group(List<Symbol> symbols) { // visible for
-                                                             // testing
-        try {
-            List<Symbol> grouped = Lists.newArrayList();
-            ListIterator<Symbol> it = symbols.listIterator();
-            while (it.hasNext()) {
-                Symbol symbol = it.next();
-                if(symbol instanceof KeySymbol) {
-                    // NOTE: We are assuming that the list of symbols is well
-                    // formed, and, as such, the next elements will be an
-                    // operator and one or more symbols. If this is not the
-                    // case, this method will throw a ClassCastException
-                    OperatorSymbol operator = (OperatorSymbol) it.next();
-                    ValueSymbol value = (ValueSymbol) it.next();
-                    Expression expression;
-                    if(operator.operator().operands() == 2) {
-                        ValueSymbol value2 = (ValueSymbol) it.next();
-                        expression = new Expression((KeySymbol) symbol,
-                                operator, value, value2);
-                    }
-                    else {
-                        expression = new Expression((KeySymbol) symbol,
-                                operator, value);
-                    }
-                    grouped.add(expression);
-                }
-                else if(symbol instanceof TimestampSymbol) { // Add the
-                                                             // timestamp to the
-                                                             // previously
-                                                             // generated
-                                                             // Expression
-                    Reflection.set("timestamp", symbol,
-                            Iterables.getLast(grouped)); // (authorized)
-                }
-                else {
-                    grouped.add(symbol);
-                }
-            }
-            return grouped;
-        }
-        catch (ClassCastException e) {
-            throw new SyntaxException(e.getMessage());
-        }
-    }
-
-    /**
-     * Return a {@link Parser} instance.
-     * 
-     * @return a {@link Parser}
-     */
-    public static Parser instance(
+    public static Parser newParser(String ccl,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
-        return new CustomParser(valueTransformFunction,
+        return newParser(ccl, ImmutableMultimap.of(), valueTransformFunction,
                 operatorTransformFunction);
     }
 
     /**
-     * Return the {@link Analysis} about the CCL statement.
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code data} for location resolution and the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
      * 
      * @param ccl
-     * @return the {@link Analysis}
+     * @param data
+     * @param valueTransformFunction
+     * @param operatorTransformFunction
+     * @return the {@link Parser}
      */
-    public default Analysis analyze(String ccl) {
-        return analyze(tokenize(ccl));
+    public static Parser newParser(String ccl, Multimap<String, Object> data,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        return new ConcourseParser(ccl, data, valueTransformFunction,
+                operatorTransformFunction);
+    }
+
+    /**
+     * The ccl statement being parsed.
+     */
+    protected final String ccl;
+    
+    /**
+     * The dataset used for location resolution.
+     */
+    protected final Multimap<String, Object> data;
+
+    /**
+     * Construct a new instance.
+     * 
+     * @param ccl
+     * @param data
+     */
+    public Parser(String ccl, Multimap<String, Object> data) {
+        this.ccl = ccl;
+        this.data = data;
     }
 
     /**
@@ -130,11 +105,12 @@ public interface Parser {
      * @param tokens
      * @return the {@link Analysis}
      */
-    public default Analysis analyze(List<Symbol> tokens) {
+    public Analysis analyze() {
         return new Analysis() {
 
             @Override
             public Set<String> keys() {
+                List<Symbol> tokens = tokenize();
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
@@ -157,7 +133,7 @@ public interface Parser {
      * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}
      */
-    public Queue<PostfixNotationSymbol> order(List<Symbol> symbols);
+    public abstract Queue<PostfixNotationSymbol> order();
 
     /**
      * Transform a sequential list of {@link Symbol} tokens to an
@@ -172,17 +148,7 @@ public interface Parser {
      * @return an {@link AbstractSyntaxTree} containing the parsed structure
      *         inherent in the symbols
      */
-    public AbstractSyntaxTree parse(List<Symbol> symbols);
-
-    /**
-     * Convert a CCL statement to a list of {@link Symbol} tokens.
-     * 
-     * @param ccl the CCL statement
-     * @return a list of {@link Symbol} tokens
-     */
-    public default List<Symbol> tokenize(String ccl) {
-        return tokenize(ccl, ImmutableMultimap.of());
-    }
+    public abstract AbstractSyntaxTree parse();
 
     /**
      * Convert a CCL statement to a list of {@link Symbol} tokens and bind any
@@ -192,7 +158,7 @@ public interface Parser {
      * @param data the data to use for binding local variables
      * @return a list of {@link Symbol} tokens
      */
-    public List<Symbol> tokenize(String ccl, Multimap<String, Object> data);
+    public abstract List<Symbol> tokenize();
 
     /**
      * Implement a function that converts string operators to the appropriate
@@ -200,7 +166,7 @@ public interface Parser {
      * 
      * @return the transformed operator
      */
-    public Operator transformOperator(String token);
+    protected abstract Operator transformOperator(String token);
 
     /**
      * Implement a function that converts string values to analogous java
@@ -208,7 +174,7 @@ public interface Parser {
      * 
      * @return the transformed value
      */
-    public Object transformValue(String token);
+    protected abstract Object transformValue(String token);
 
     /**
      * A collection of insights about a CCL statement that is
