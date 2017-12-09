@@ -25,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
@@ -81,7 +82,7 @@ public abstract class Parser {
      * The ccl statement being parsed.
      */
     protected final String ccl;
-    
+
     /**
      * The dataset used for location resolution.
      */
@@ -116,6 +117,9 @@ public abstract class Parser {
                 tokens.forEach((symbol) -> {
                     if(symbol instanceof Expression) {
                         keys.add(((Expression) symbol).raw().key());
+                    }
+                    else if(symbol instanceof KeySymbol) {
+                        keys.add(((KeySymbol) symbol).key());
                     }
                 });
                 return Collections.unmodifiableSet(keys);
