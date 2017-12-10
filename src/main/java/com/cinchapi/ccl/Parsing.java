@@ -42,9 +42,7 @@ public final class Parsing {
      * @param symbols
      * @return the expression
      */
-    public static List<Symbol> groupExpressions(List<Symbol> symbols) { // visible
-                                                                        // for
-                                                                        // testing
+    public static List<Symbol> groupExpressions(List<Symbol> symbols) {
         try {
             List<Symbol> grouped = Lists.newArrayList();
             ListIterator<Symbol> it = symbols.listIterator();
@@ -86,6 +84,32 @@ public final class Parsing {
         catch (ClassCastException e) {
             throw new SyntaxException(e.getMessage());
         }
+    }
+
+    /**
+     * Go through the list of symbols and break up any {@link Expression
+     * expressions} into individual symbol tokens.
+     * 
+     * @param symbols
+     * @return the list of symbols with no expressions
+     */
+    public static List<Symbol> ungroupExpressions(List<Symbol> symbols) {
+        List<Symbol> ungrouped = Lists.newArrayList();
+        symbols.forEach((symbol) -> {
+            if(symbol instanceof Expression) {
+                Expression expression = (Expression) symbol;
+                ungrouped.add(expression.key());
+                ungrouped.add(expression.operator());
+                ungrouped.addAll(expression.values());
+                if(expression.timestamp().timestamp() > 0) {
+                    ungrouped.add(expression.timestamp());
+                }
+            }
+            else {
+                ungrouped.add(symbol);
+            }
+        });
+        return ungrouped;
     }
 
 }
