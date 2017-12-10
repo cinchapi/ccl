@@ -115,7 +115,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
             string += " " + value;
         }
         if(timestamp.timestamp() > 0) {
-            string += " at " + timestamp;
+            string += timestamp;
         }
         return string;
     }
