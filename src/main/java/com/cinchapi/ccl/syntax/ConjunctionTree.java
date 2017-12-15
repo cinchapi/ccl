@@ -17,6 +17,7 @@ package com.cinchapi.ccl.syntax;
 
 import java.util.Collection;
 
+import afu.org.checkerframework.checker.oigj.qual.O;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.google.common.collect.Lists;
@@ -75,6 +76,11 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
     @Override
     public Symbol root() {
         return conjunction;
+    }
+
+    @Override
+    public Object accept(Visitor visitor, Object data) {
+        return visitor.visit(this, data);
     }
 
 }

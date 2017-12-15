@@ -15,28 +15,13 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
- * @author Jeff Nelson
+ * An implementation of the visitor pattern. This interface should be
+ * implemented by any class attempting to visit an {@link AbstractSyntaxTree}.
+ * In order to do so, the {@link AbstractSyntaxTree#accept(Visitor, Object)}
+ * method must be called with a {@link Visitor} as a paramter.
  */
-public final class OrTree extends ConjunctionTree {
-
-    /**
-     * Construct a new instance.
-     * 
-     * @param left
-     * @param right
-     */
-    public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
-        super(ConjunctionSymbol.OR, left, right);
-    }
-
-    @Override
-    public Object accept(Visitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
+public interface Visitor {
+    public Object visit(ConjunctionTree tree, Object data);
+    public Object visit(ExpressionTree tree, Object data);
 }
