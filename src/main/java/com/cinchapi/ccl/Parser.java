@@ -133,7 +133,6 @@ public abstract class Parser {
      * of symbols in {@link PostfixNotationSymbol postfix notation} that are
      * sorted by the proper order of operations.
      * 
-     * @param symbols a sequential list of tokens
      * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}
      */
