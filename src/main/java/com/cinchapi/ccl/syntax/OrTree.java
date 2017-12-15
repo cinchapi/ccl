@@ -34,9 +34,4 @@ public final class OrTree extends ConjunctionTree {
         super(ConjunctionSymbol.OR, left, right);
     }
 
-    @Override
-    public Object accept(Visitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
 }
