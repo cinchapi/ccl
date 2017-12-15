@@ -19,14 +19,16 @@ import com.cinchapi.common.base.CheckedExceptions;
 import org.javacc.jjtree.JJTree;
 
 /**
- *
+ * A command line interface to generate the JavaCC grammar files
  */
 public class ParserGenerator {
-
     public static void main(String... args) {
-
-        String[] jjtree_args = {"-OUTPUT_DIRECTORY=src/main/java/com/cinchapi/ccl/generator/generated", "src/main/java/com/cinchapi/ccl/generator/grammar.jjt"};
-        String[] jj_args = {"-OUTPUT_DIRECTORY=src/main/java/com/cinchapi/ccl/generator/generated", "src/main/java/com/cinchapi/ccl/generator/generated/grammar.jj"};
+        String[] jjtree_args = {
+                "-OUTPUT_DIRECTORY=src/main/java/com/cinchapi/ccl/generator",
+                "src/main/java/com/cinchapi/ccl/generator/grammar.jjt" };
+        String[] jj_args = {
+                "-OUTPUT_DIRECTORY=src/main/java/com/cinchapi/ccl/generator",
+                "src/main/java/com/cinchapi/ccl/generator/grammar.jj" };
 
         if(args.length > 0) {
             String command = args[0];
@@ -54,4 +56,5 @@ public class ParserGenerator {
             System.exit(1);
         }
     }
+
 }
