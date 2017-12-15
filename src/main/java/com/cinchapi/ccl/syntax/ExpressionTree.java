@@ -18,7 +18,6 @@ package com.cinchapi.ccl.syntax;
 import java.util.Collection;
 import java.util.Collections;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.Symbol;
 

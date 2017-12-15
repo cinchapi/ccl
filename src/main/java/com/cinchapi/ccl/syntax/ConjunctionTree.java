@@ -17,7 +17,6 @@ package com.cinchapi.ccl.syntax;
 
 import java.util.Collection;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.google.common.collect.Lists;
