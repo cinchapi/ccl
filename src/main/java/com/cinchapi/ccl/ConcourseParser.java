@@ -17,7 +17,6 @@ package com.cinchapi.ccl;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -47,7 +46,6 @@ import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.QuoteAwareStringSplitter;
 import com.cinchapi.common.base.SplitOption;
 import com.cinchapi.common.base.StringSplitter;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
