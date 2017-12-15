@@ -17,7 +17,6 @@ package com.cinchapi.ccl;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -47,7 +46,6 @@ import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.QuoteAwareStringSplitter;
 import com.cinchapi.common.base.SplitOption;
 import com.cinchapi.common.base.StringSplitter;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -89,67 +87,7 @@ final class ConcourseParser extends Parser {
 
     @Override
     public Queue<PostfixNotationSymbol> order() {
-        List<Symbol> symbols = tokenize();
-        Preconditions.checkState(symbols.size() >= 3,
-                "Not enough symbols to process. It should have at least 3 symbols but only has %s",
-                symbols, symbols.size());
-        Deque<Symbol> stack = new ArrayDeque<Symbol>();
-        Queue<PostfixNotationSymbol> queue = new LinkedList<PostfixNotationSymbol>();
-        symbols = Parsing.groupExpressions(symbols);
-        for (Symbol symbol : symbols) {
-            if(symbol instanceof ConjunctionSymbol) {
-                while (!stack.isEmpty()) {
-                    Symbol top = stack.peek();
-                    if(symbol == ConjunctionSymbol.OR
-                            && (top == ConjunctionSymbol.OR
-                                    || top == ConjunctionSymbol.AND)) {
-                        queue.add((PostfixNotationSymbol) stack.pop());
-                    }
-                    else {
-                        break;
-                    }
-                }
-                stack.push(symbol);
-            }
-            else if(symbol == ParenthesisSymbol.LEFT) {
-                stack.push(symbol);
-            }
-            else if(symbol == ParenthesisSymbol.RIGHT) {
-                boolean foundLeftParen = false;
-                while (!stack.isEmpty()) {
-                    Symbol top = stack.peek();
-                    if(top == ParenthesisSymbol.LEFT) {
-                        foundLeftParen = true;
-                        break;
-                    }
-                    else {
-                        queue.add((PostfixNotationSymbol) stack.pop());
-                    }
-                }
-                if(!foundLeftParen) {
-                    throw new SyntaxException(AnyStrings.format(
-                            "Syntax error in {}: Mismatched parenthesis",
-                            symbols));
-                }
-                else {
-                    stack.pop();
-                }
-            }
-            else {
-                queue.add((PostfixNotationSymbol) symbol);
-            }
-        }
-        while (!stack.isEmpty()) {
-            Symbol top = stack.peek();
-            if(top instanceof ParenthesisSymbol) {
-                throw new SyntaxException(AnyStrings.format(
-                        "Syntax error in {}: Mismatched parenthesis", symbols));
-            }
-            else {
-                queue.add((PostfixNotationSymbol) stack.pop());
-            }
-        }
-        return queue;
+        return Parsing.toPostfixNotation(tokenize());
     }
 
     @Override
