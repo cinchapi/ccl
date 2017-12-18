@@ -33,7 +33,6 @@ ext.mavenVersion = version.split('\\.')
 ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+-", "-")
 ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+", "").trim()
 ext.mavenVersion = ext.mavenVersion.join(".").replace(".-", "-").replaceAll('\\.$', "")
-ext.concourseVersion = '0.6.0-SNAPSHOT'
 
 jar {
   manifest {
@@ -49,21 +48,6 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
   classifier = 'javadoc'
   from javadoc.destinationDir
-}
-
-sourceSets {
-  external {
-    java {
-      srcDir "$projectDir/.."
-      exclude "src/main/java/com/cinchapi/ccl/generator/ParserGenerator.java"
-    }
-  }
-}
-
-task javaccGenerator(type: JavaExec, dependsOn: compileExternalJava) {
-  main = 'com.cinchapi.ccl.generator.ParserGenerator'
-  classpath = sourceSets.external.runtimeClasspath
-  args 'generate'
 }
 
 artifacts {
@@ -114,13 +98,13 @@ uploadArchives {
       pom.project {
         name project.name
         packaging 'jar'
-        description 'Library for the Concourse Criteria Language'
+        description 'The official specificiation and library for the Concourse Criteria Language'
         url 'https://cinchapi.com'
 
         scm {
-          url 'git@github.com:cinchapi/impromptu-recipe-api.git'
-          connection 'git@github.com:cinchapi/impromptu-recipe-api.git'
-          developerConnection 'git@github.com:cinchapi/impromptu-recipe-api.git'
+          url 'git@github.com:cinchapi/ccl.git'
+          connection 'git@github.com:cinchapi/ccl.git'
+          developerConnection 'git@github.com:cinchapi/ccl.git'
         }
 
         licenses {
@@ -167,16 +151,19 @@ ext.concourseVersion = '0.7.2'
 
 dependencies {
   compile 'com.google.code.findbugs:jsr305:2.0.1'
-  compile 'com.google.guava:guava:23.5-jre'
-  compile group: 'net.java.dev.javacc', name: 'javacc', version: '7.0.3'
-  compile (group: 'com.cinchapi', name: 'concourse-driver-java', version: concourseVersion, changing:true) {
-    exclude group: 'com.google.guava', module: 'guava'
-  }
+  compile 'com.google.guava:guava:19.0'
   compile 'com.joestelmach:natty:0.13'
   compile (group: 'com.cinchapi', name: 'accent4j', version: '1.0.0-SNAPSHOT', changing:true) {
     exclude group: 'com.google.guava', module: 'guava'
   }
   compile 'joda-time:joda-time:2.2'
-  
+
   testCompile 'junit:junit:4.11'
 }
+
+task generateJavaCCParser(type: Exec) {
+  commandLine './javacc-parser-generator.sh', 'generate', '--jjt-source', 'grammar/grammar.jjt', '--jjt-out', 'src/main/java/com/cinchapi/ccl/v2/generated', '--jj-source', 'grammar/grammar.jj', '--jj-out', 'src/main/java/com/cinchapi/ccl/v2/generated'
+}
+
+compileJava.dependsOn generateJavaCCParser
+eclipseClasspath.dependsOn generateJavaCCParser
