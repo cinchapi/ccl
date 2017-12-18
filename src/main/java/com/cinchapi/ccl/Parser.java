@@ -79,6 +79,40 @@ public abstract class Parser {
     }
 
     /**
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
+     *
+     * @param ccl the ccl query to parse
+     * @param valueTransformFunction value function
+     * @param operatorTransformFunction operator function
+     * @return the {@link Parser}
+     */
+    public static Parser create(String ccl,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        return new JavaCCParser(ccl, valueTransformFunction,
+                operatorTransformFunction);
+    }
+
+    /**
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code data} for location resolution and the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
+     *
+     * @param ccl the ccl query to parse
+     * @param data the local data
+     * @param valueTransformFunction value function
+     * @param operatorTransformFunction operator function
+     * @return the {@link Parser}
+     */
+    public static Parser create(String ccl, Multimap<String, Object> data,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        return new JavaCCParser(ccl, data, valueTransformFunction,
+                operatorTransformFunction);
+    }
+
+    /**
      * The ccl statement being parsed.
      */
     protected final String ccl;

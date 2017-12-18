@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.v2;
 
+import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.Parser;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
@@ -29,7 +30,6 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.ccl.v2.JavaCCParser;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;

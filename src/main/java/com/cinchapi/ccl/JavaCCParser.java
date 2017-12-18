@@ -1,6 +1,5 @@
-package com.cinchapi.ccl.v2;
+package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.Parser;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
@@ -11,7 +10,6 @@ import com.cinchapi.ccl.v2.generated.GrammarTokenizeVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
 import com.cinchapi.ccl.v2.generated.SimpleNode;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import java.io.ByteArrayInputStream;
@@ -27,40 +25,6 @@ import java.util.function.Function;
 public class JavaCCParser extends Parser {
     private final Function<String, Object> valueTransformFunction;
     private final Function<String, Operator> operatorTransformFunction;
-
-    /**
-     * Return a new {@link Parser} for the {@code ccl} statement that uses the
-     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
-     *
-     * @param ccl the ccl query to parse
-     * @param valueTransformFunction value function
-     * @param operatorTransformFunction operator function
-     * @return the {@link Parser}
-     */
-    public static Parser newParser(String ccl,
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction) {
-        return newParser(ccl, ImmutableMultimap.of(), valueTransformFunction,
-                operatorTransformFunction);
-    }
-
-    /**
-     * Return a new {@link Parser} for the {@code ccl} statement that uses the
-     * {@code data} for location resolution and the
-     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
-     *
-     * @param ccl the ccl query to parse
-     * @param data the local data
-     * @param valueTransformFunction value function
-     * @param operatorTransformFunction operator function
-     * @return the {@link Parser}
-     */
-    public static Parser newParser(String ccl, Multimap<String, Object> data,
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction) {
-        return new JavaCCParser(ccl, data, valueTransformFunction,
-                operatorTransformFunction);
-    }
 
     /**
      * Construct a new instance.
@@ -97,13 +61,15 @@ public class JavaCCParser extends Parser {
     @Override
     public Queue<PostfixNotationSymbol> order() {
         try {
-            InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                    StandardCharsets.UTF_8.name()));
+            InputStream stream = new ByteArrayInputStream(
+                    ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream);
 
             SimpleNode start = grammar.Start();
-            GrammarPostfixVisitor visitor = new GrammarPostfixVisitor(this, data);
-            return (Queue<PostfixNotationSymbol>) start.jjtAccept(visitor, null);
+            GrammarPostfixVisitor visitor = new GrammarPostfixVisitor(this,
+                    data);
+            return (Queue<PostfixNotationSymbol>) start.jjtAccept(visitor,
+                    null);
         }
         catch (Exception exception) {
             Throwables.propagate(exception);
@@ -114,8 +80,8 @@ public class JavaCCParser extends Parser {
     @Override
     public AbstractSyntaxTree parse() {
         try {
-            InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                    StandardCharsets.UTF_8.name()));
+            InputStream stream = new ByteArrayInputStream(
+                    ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream);
 
             SimpleNode start = grammar.Start();
@@ -132,12 +98,13 @@ public class JavaCCParser extends Parser {
     @Override
     public List<Symbol> tokenize() {
         try {
-            InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                    StandardCharsets.UTF_8.name()));
+            InputStream stream = new ByteArrayInputStream(
+                    ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream);
 
             SimpleNode start = grammar.Start();
-            GrammarTokenizeVisitor visitor = new GrammarTokenizeVisitor(this, data);
+            GrammarTokenizeVisitor visitor = new GrammarTokenizeVisitor(this,
+                    data);
             return (List<Symbol>) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {

@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
@@ -24,7 +25,6 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.util.NaturalLanguage;
-import com.cinchapi.ccl.v2.JavaCCParser;
 import com.cinchapi.common.base.AnyStrings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
