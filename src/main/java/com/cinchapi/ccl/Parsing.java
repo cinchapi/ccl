@@ -15,16 +15,25 @@
  */
 package com.cinchapi.ccl;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Queue;
 
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
+import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.reflect.Reflection;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -42,9 +51,7 @@ public final class Parsing {
      * @param symbols
      * @return the expression
      */
-    public static List<Symbol> groupExpressions(List<Symbol> symbols) { // visible
-                                                                        // for
-                                                                        // testing
+    public static List<Symbol> groupExpressions(List<Symbol> symbols) {
         try {
             List<Symbol> grouped = Lists.newArrayList();
             ListIterator<Symbol> it = symbols.listIterator();
@@ -86,6 +93,104 @@ public final class Parsing {
         catch (ClassCastException e) {
             throw new SyntaxException(e.getMessage());
         }
+    }
+
+    /**
+     * Transform a sequential list of {@link Symbol} tokens to an {@link Queue}
+     * of symbols in {@link PostfixNotationSymbol postfix notation} that are
+     * sorted by the proper order of operations.
+     * 
+     * @param symbols a sequential list of tokens
+     * @return a {@link Queue} of {@link PostfixNotationSymbol
+     *         PostfixNotationSymbols}
+     */
+    public static Queue<PostfixNotationSymbol> toPostfixNotation(List<Symbol> symbols) {
+        Preconditions.checkState(symbols.size() >= 3,
+                "Not enough symbols to process. It should have at least 3 symbols but only has %s",
+                symbols, symbols.size());
+        Deque<Symbol> stack = new ArrayDeque<Symbol>();
+        Queue<PostfixNotationSymbol> queue = new LinkedList<PostfixNotationSymbol>();
+        symbols = Parsing.groupExpressions(symbols);
+        for (Symbol symbol : symbols) {
+            if(symbol instanceof ConjunctionSymbol) {
+                while (!stack.isEmpty()) {
+                    Symbol top = stack.peek();
+                    if(symbol == ConjunctionSymbol.OR
+                            && (top == ConjunctionSymbol.OR
+                                    || top == ConjunctionSymbol.AND)) {
+                        queue.add((PostfixNotationSymbol) stack.pop());
+                    }
+                    else {
+                        break;
+                    }
+                }
+                stack.push(symbol);
+            }
+            else if(symbol == ParenthesisSymbol.LEFT) {
+                stack.push(symbol);
+            }
+            else if(symbol == ParenthesisSymbol.RIGHT) {
+                boolean foundLeftParen = false;
+                while (!stack.isEmpty()) {
+                    Symbol top = stack.peek();
+                    if(top == ParenthesisSymbol.LEFT) {
+                        foundLeftParen = true;
+                        break;
+                    }
+                    else {
+                        queue.add((PostfixNotationSymbol) stack.pop());
+                    }
+                }
+                if(!foundLeftParen) {
+                    throw new SyntaxException(AnyStrings.format(
+                            "Syntax error in {}: Mismatched parenthesis",
+                            symbols));
+                }
+                else {
+                    stack.pop();
+                }
+            }
+            else {
+                queue.add((PostfixNotationSymbol) symbol);
+            }
+        }
+        while (!stack.isEmpty()) {
+            Symbol top = stack.peek();
+            if(top instanceof ParenthesisSymbol) {
+                throw new SyntaxException(AnyStrings.format(
+                        "Syntax error in {}: Mismatched parenthesis", symbols));
+            }
+            else {
+                queue.add((PostfixNotationSymbol) stack.pop());
+            }
+        }
+        return queue;
+    }
+
+    /**
+     * Go through the list of symbols and break up any {@link Expression
+     * expressions} into individual symbol tokens.
+     * 
+     * @param symbols
+     * @return the list of symbols with no expressions
+     */
+    public static List<Symbol> ungroupExpressions(List<Symbol> symbols) {
+        List<Symbol> ungrouped = Lists.newArrayList();
+        symbols.forEach((symbol) -> {
+            if(symbol instanceof Expression) {
+                Expression expression = (Expression) symbol;
+                ungrouped.add(expression.key());
+                ungrouped.add(expression.operator());
+                ungrouped.addAll(expression.values());
+                if(expression.timestamp().timestamp() > 0) {
+                    ungrouped.add(expression.timestamp());
+                }
+            }
+            else {
+                ungrouped.add(symbol);
+            }
+        });
+        return ungrouped;
     }
 
 }
