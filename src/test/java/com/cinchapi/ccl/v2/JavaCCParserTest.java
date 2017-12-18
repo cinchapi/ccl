@@ -65,8 +65,7 @@ public class JavaCCParserTest {
         expectedTokens.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         List<Symbol> tokens = parser.tokenize();
 
@@ -98,8 +97,7 @@ public class JavaCCParserTest {
         expectedTokens.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         List<Symbol> tokens = parser.tokenize();
 
@@ -131,8 +129,7 @@ public class JavaCCParserTest {
         expectedTokens.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         List<Symbol> tokens = parser.tokenize();
 
@@ -173,8 +170,7 @@ public class JavaCCParserTest {
         expectedTokens.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         List<Symbol> tokens = parser.tokenize();
 
@@ -215,8 +211,7 @@ public class JavaCCParserTest {
         expectedTokens.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         List<Symbol> tokens = parser.tokenize();
 
@@ -257,8 +252,7 @@ public class JavaCCParserTest {
         expectedTokens.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         List<Symbol> tokens = parser.tokenize();
 
@@ -299,8 +293,7 @@ public class JavaCCParserTest {
         expectedTokens.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         List<Symbol> tokens = parser.tokenize();
 
@@ -323,8 +316,7 @@ public class JavaCCParserTest {
         expectedOrder.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         Queue<PostfixNotationSymbol> order = parser.order();
 
@@ -365,8 +357,7 @@ public class JavaCCParserTest {
         expectedTokens.add(expression);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         List<Symbol> tokens = parser.tokenize();
 
@@ -398,8 +389,7 @@ public class JavaCCParserTest {
         expectedOrder.add(ConjunctionSymbol.AND);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         Queue<PostfixNotationSymbol> order = parser.order();
 
@@ -430,8 +420,7 @@ public class JavaCCParserTest {
         expectedOrder.add(ConjunctionSymbol.OR);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         Queue<PostfixNotationSymbol> order = parser.order();
 
@@ -472,8 +461,7 @@ public class JavaCCParserTest {
         expectedOrder.add(ConjunctionSymbol.AND);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         Queue<PostfixNotationSymbol> order = parser.order();
 
@@ -514,8 +502,7 @@ public class JavaCCParserTest {
         expectedOrder.add(ConjunctionSymbol.OR);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         Queue<PostfixNotationSymbol> order = parser.order();
 
@@ -556,8 +543,7 @@ public class JavaCCParserTest {
         expectedOrder.add(ConjunctionSymbol.OR);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         Queue<PostfixNotationSymbol> order = parser.order();
 
@@ -598,8 +584,7 @@ public class JavaCCParserTest {
         expectedOrder.add(ConjunctionSymbol.AND);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         Queue<PostfixNotationSymbol> order = parser.order();
 
@@ -639,8 +624,7 @@ public class JavaCCParserTest {
         expectedOrder.add(ConjunctionSymbol.OR);
 
         // Generate queue
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         Queue<PostfixNotationSymbol> order = parser.order();
 
@@ -652,8 +636,7 @@ public class JavaCCParserTest {
         String ccl = "a = 1";
 
         // Generate tree
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -669,8 +652,7 @@ public class JavaCCParserTest {
     public void testSingleConjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 and b = 2";
 
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
         AbstractSyntaxTree tree = parser.parse();
@@ -698,8 +680,7 @@ public class JavaCCParserTest {
     public void testSingleDisjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 or b = 2";
 
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
         AbstractSyntaxTree tree = parser.parse();
@@ -727,8 +708,7 @@ public class JavaCCParserTest {
     public void testDoubleConjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 and b = 2 and c = 3";
 
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
         AbstractSyntaxTree tree = parser.parse();
@@ -769,8 +749,7 @@ public class JavaCCParserTest {
     public void testDoubleDisjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 or b = 2 or c = 3";
 
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
         AbstractSyntaxTree tree = parser.parse();
@@ -810,8 +789,7 @@ public class JavaCCParserTest {
     public void testConjunctionDisjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 and b = 2 or c = 3";
 
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
         AbstractSyntaxTree tree = parser.parse();
@@ -851,8 +829,7 @@ public class JavaCCParserTest {
     public void testDisjunctionConjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 or b = 2 and c = 3";
 
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
         AbstractSyntaxTree tree = parser.parse();
@@ -892,8 +869,7 @@ public class JavaCCParserTest {
     public void testDisjunctionParenthesizedConjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 or (b = 2 and c = 3)";
 
-        Parser parser = JavaCCParser.newParser(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
         AbstractSyntaxTree tree = parser.parse();
@@ -940,7 +916,7 @@ public class JavaCCParserTest {
         data.put("team", "Cleveland Cavaliers");
 
         // Generate tree
-        Parser parser = JavaCCParser.newParser(ccl, data,
+        Parser parser = Parser.create(ccl, data,
                 PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
