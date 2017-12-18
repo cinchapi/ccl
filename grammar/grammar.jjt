@@ -60,6 +60,7 @@ SKIP :
 TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN : { < TIMESTAMP: "at" | "on" | "during" | "in" > }
+TOKEN : { < WHERE: "where" > }
 
 TOKEN : /* CONJUNCTIONS */
 {
@@ -116,14 +117,14 @@ TOKEN : /* IDENTIFIERS */
 /** Main production. */
 ASTStart Start() #Start : {}
 {
-  Expression() <EOF>
+  (<WHERE>)? Expression() <EOF>
   { return jjtThis; }
 }
 
 /** Main production. */
 ASTStart StartCommandLine() #Start : {}
 {
-  Expression() "\n"
+  (<WHERE>)? Expression() "\n"
   { return jjtThis; }
 }
 
