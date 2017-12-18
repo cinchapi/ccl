@@ -20,3 +20,8 @@ build/
 .project
 .settings
 gradle.properties
+
+# IDEA generated files #
+########################
+*.iml
+*.idea/
