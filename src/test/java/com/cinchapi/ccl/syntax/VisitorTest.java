@@ -15,7 +15,6 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
