@@ -104,19 +104,23 @@ TOKEN [IGNORE_CASE]:
 
 TOKEN :
 {
+  < QUOTED_STRING : "\"" (~["\""])+ "\"">
+|
   < SIGNED_DECIMAL : (("-")? ( (<DIGIT>)+|(<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~["_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")"] >
+  < #NON_ALPHANUMERIC: ~["_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
   < #DIGIT: ["0"-"9"] >
 |
   < #PERIOD: "." >
+|
+  < #ESCAPE: "\\" >
 }
 
 
@@ -162,12 +166,12 @@ void RelationalExpression() #RelationalExpression :
 
   (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<UNARY_OPERATOR> { jjtThis.operator(o.image);}
-  ((v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.appendValue(v.image); })+
-  (<TIMESTAMP> (t=<ALPHANUMERIC> { jjtThis.timestamp(t.image);})+ )?
+  ((v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.appendValue(v.image); })+
+  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 |
   (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<BINARY_OPERATOR> { jjtThis.operator(o.image);}
-  (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
-  (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
-  (<TIMESTAMP> (t=<ALPHANUMERIC> { jjtThis.timestamp(t.image);})+ )?
+  (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
+  (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
+  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 }
