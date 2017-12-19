@@ -103,8 +103,36 @@ public class GrammarTest {
     }
 
     @Test
+    public void validQuotedValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name = \"name\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test
     public void validLocalResolution() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = $name";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+
+    @Test
+    public void validEscapedLocalResolution() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name = \\$name";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test
+    public void validLink() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name = @name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);

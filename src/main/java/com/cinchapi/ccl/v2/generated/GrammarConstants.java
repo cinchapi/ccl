@@ -17,47 +17,55 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int TIMESTAMP = 5;
   /** RegularExpression Id. */
-  int CONJ = 6;
+  int WHERE = 6;
   /** RegularExpression Id. */
-  int CONJUNCTION = 7;
+  int CONJ = 7;
   /** RegularExpression Id. */
-  int DISJUNCTION = 8;
+  int CONJUNCTION = 8;
   /** RegularExpression Id. */
-  int UNARY_OPERATOR = 9;
+  int DISJUNCTION = 9;
   /** RegularExpression Id. */
-  int BINARY_OPERATOR = 10;
+  int UNARY_OPERATOR = 10;
   /** RegularExpression Id. */
-  int EQUALS = 11;
+  int BINARY_OPERATOR = 11;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 12;
+  int EQUALS = 12;
   /** RegularExpression Id. */
-  int GREATER_THAN = 13;
+  int NOT_EQUALS = 13;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 14;
+  int GREATER_THAN = 14;
   /** RegularExpression Id. */
-  int LESS_THAN = 15;
+  int GREATER_THAN_OR_EQUALS = 15;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 16;
+  int LESS_THAN = 16;
   /** RegularExpression Id. */
-  int LINKS_TO = 17;
+  int LESS_THAN_OR_EQUALS = 17;
   /** RegularExpression Id. */
-  int REGEX = 18;
+  int LINKS_TO = 18;
   /** RegularExpression Id. */
-  int NOT_REGEX = 19;
+  int REGEX = 19;
   /** RegularExpression Id. */
-  int LIKE = 20;
+  int NOT_REGEX = 20;
   /** RegularExpression Id. */
-  int NOT_LIKE = 21;
+  int LIKE = 21;
   /** RegularExpression Id. */
-  int BETWEEN = 22;
+  int NOT_LIKE = 22;
   /** RegularExpression Id. */
-  int IDENTIFIER = 23;
+  int BETWEEN = 23;
   /** RegularExpression Id. */
-  int SYMBOL = 24;
+  int SIGNED_DECIMAL = 24;
   /** RegularExpression Id. */
-  int LETTER = 25;
+  int ALPHANUMERIC = 25;
   /** RegularExpression Id. */
-  int DIGIT = 26;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 26;
+  /** RegularExpression Id. */
+  int NON_ALPHANUMERIC = 27;
+  /** RegularExpression Id. */
+  int LETTER = 28;
+  /** RegularExpression Id. */
+  int DIGIT = 29;
+  /** RegularExpression Id. */
+  int PERIOD = 30;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -70,6 +78,7 @@ public interface GrammarConstants {
     "\"(\"",
     "\")\"",
     "<TIMESTAMP>",
+    "\"where\"",
     "<CONJ>",
     "<CONJUNCTION>",
     "<DISJUNCTION>",
@@ -87,10 +96,13 @@ public interface GrammarConstants {
     "\"like\"",
     "\"nlike\"",
     "<BETWEEN>",
-    "<IDENTIFIER>",
-    "\"$\"",
+    "<SIGNED_DECIMAL>",
+    "<ALPHANUMERIC>",
+    "<NON_ALPHANUMERIC_AND_ALPHANUMERIC>",
+    "<NON_ALPHANUMERIC>",
     "<LETTER>",
     "<DIGIT>",
+    "\".\"",
     "\"\\n\"",
   };
 
