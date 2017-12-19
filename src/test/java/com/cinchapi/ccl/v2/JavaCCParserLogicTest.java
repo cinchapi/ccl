@@ -48,7 +48,7 @@ import java.util.function.Function;
  * These tests include utput tests (postfix, abstract
  * syntax tree, tokens)
  */
-public class JavaCCParserTest {
+public class JavaCCParserLogicTest {
 
     @Test
     public void testSingleExpressionTokenize() {
