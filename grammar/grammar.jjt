@@ -59,10 +59,10 @@ SKIP :
 
 TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
-TOKEN : { < TIMESTAMP: "at" | "on" | "during" | "in" > }
-TOKEN : { < WHERE: "where" > }
+TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" > }
+TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
 
-TOKEN : /* CONJUNCTIONS */
+TOKEN [IGNORE_CASE]:
 {
   < CONJ: <CONJUNCTION> | <DISJUNCTION> >
 |
@@ -71,7 +71,7 @@ TOKEN : /* CONJUNCTIONS */
   < #DISJUNCTION: "or" | "||" | "|" >
 }
 
-TOKEN :
+TOKEN [IGNORE_CASE]:
 {
   < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> | <REGEX> | <NOT_REGEX> >
 |
