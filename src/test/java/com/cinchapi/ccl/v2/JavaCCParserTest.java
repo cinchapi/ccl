@@ -30,6 +30,7 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -972,61 +973,16 @@ public class JavaCCParserTest {
     }
 
     /**
-     *
-     *
-     * @param value
-     * @return the converted value
-     */
-    // public static Object stringToJava(String value) {
-    // if(value.isEmpty()) {
-    // return value;
-    // }
-    // char first = value.charAt(0);
-    // char last = value.charAt(value.length() - 1);
-    // Long record;
-    // if(Strings.isWithinQuotes(value)) {
-    // // keep value as string since its between single or double quotes
-    // return value.substring(1, value.length() - 1);
-    // }
-    // else if(value.equalsIgnoreCase("true")) {
-    // return true;
-    // }
-    // else if(value.equalsIgnoreCase("false")) {
-    // return false;
-    // }
-    // else if(first == '`' && last == '`') {
-    // return Tag.create(value.substring(1, value.length() - 1));
-    // }
-    // else {
-    // return MoreObjects.firstNonNull(Strings.tryParseNumber(value),
-    // value);
-    // }
-    // }
-
-    /**
-     * Convert the {@code symbol} into the appropriate {@link Operator}.
-     *
-     * @param symbol - the string form of a symbol (i.e. =, >, >=, etc) or a
-     *            CaSH shortcut (i.e. eq, gt, gte, etc)
-     * @return the {@link Operator} that is parsed from the string
-     *         {@code symbol}
-     */
-    public Operator stringToOperator(String symbol) {
-        return new DummyOperator(symbol);
-    }
-
-    /**
      * The canonical function to transform strings to java values in a
      * {@link Parser}.
      */
-    public final Function<String, Object> PARSER_TRANSFORM_VALUE_FUNCTION = value -> value;
+    public final Function<String, Object> PARSER_TRANSFORM_VALUE_FUNCTION = value -> Convert.stringToJava(value);
 
     /**
      * The canonical function to transform strings to operators in a
      * {@link Parser}.
      */
-    public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> stringToOperator(
-            operator);
+    public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert.stringToOperator(operator);
 
     /**
      *
@@ -1036,27 +992,6 @@ public class JavaCCParserTest {
         System.out.println(tree.root());
         for (AbstractSyntaxTree child : tree.children()) {
             printPreOrder(child);
-        }
-    }
-
-    /**
-     *
-     */
-    private class DummyOperator implements Operator {
-        String symbol;
-
-        DummyOperator(String symbol) {
-            this.symbol = symbol;
-        }
-
-        @Override
-        public int operands() {
-            return 0;
-        }
-
-        @Override
-        public String symbol() {
-            return symbol;
         }
     }
 }
