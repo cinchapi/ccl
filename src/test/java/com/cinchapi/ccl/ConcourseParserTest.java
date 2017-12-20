@@ -25,6 +25,7 @@ import com.cinchapi.ccl.type.Operator;
  * 
  * @author Jeff Nelson
  */
+@SuppressWarnings("deprecation")
 public class ConcourseParserTest extends AbstractParserTest {
 
     @Override
