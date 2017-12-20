@@ -53,4 +53,9 @@ public class ExpressionTree extends BaseAbstractSyntaxTree {
         return expression;
     }
 
+    @Override
+    public Object accept(Visitor visitor, Object... data) {
+        return visitor.visit(this, data);
+    }
+
 }
