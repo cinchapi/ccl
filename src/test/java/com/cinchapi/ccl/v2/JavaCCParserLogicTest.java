@@ -35,6 +35,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -954,6 +955,7 @@ public class JavaCCParserLogicTest {
                 expression.values().get(0).toString());
     }
     @Test
+    @Ignore
     public void testQuotedValue() {
         String ccl = "name = \"Javier Lores\"";
 
