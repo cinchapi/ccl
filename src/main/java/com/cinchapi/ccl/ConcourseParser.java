@@ -54,9 +54,11 @@ import com.google.common.collect.Sets;
 /**
  * A {@link Parser} implemented using custom logic.
  *
- * @author jeff
+ * @author Jeff Nelson
+ * @deprecated Deprecated since version 2.2.0 in favor of {@link JavaCCParser}.
  */
 @ThreadSafe
+@Deprecated
 final class ConcourseParser extends Parser {
 
     /**
