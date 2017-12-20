@@ -52,7 +52,10 @@ public abstract class Parser {
      * @param valueTransformFunction
      * @param operatorTransformFunction
      * @return the {@link Parser}
+     * @deprecated Deprecated since version 2.2.0; use
+     *             {@link #create(String, Function, Function)} instead.
      */
+    @Deprecated
     public static Parser newParser(String ccl,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
@@ -70,11 +73,49 @@ public abstract class Parser {
      * @param valueTransformFunction
      * @param operatorTransformFunction
      * @return the {@link Parser}
+     * @deprecated Deprecated since version 2.2.0; use
+     *             {@link #create(String, Multimap, Function, Function)}
+     *             instead.
      */
+    @Deprecated
     public static Parser newParser(String ccl, Multimap<String, Object> data,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
         return new ConcourseParser(ccl, data, valueTransformFunction,
+                operatorTransformFunction);
+    }
+
+    /**
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
+     *
+     * @param ccl the ccl query to parse
+     * @param valueTransformFunction value function
+     * @param operatorTransformFunction operator function
+     * @return the {@link Parser}
+     */
+    public static Parser create(String ccl,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        return new JavaCCParser(ccl, valueTransformFunction,
+                operatorTransformFunction);
+    }
+
+    /**
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code data} for location resolution and the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
+     *
+     * @param ccl the ccl query to parse
+     * @param data the local data
+     * @param valueTransformFunction value function
+     * @param operatorTransformFunction operator function
+     * @return the {@link Parser}
+     */
+    public static Parser create(String ccl, Multimap<String, Object> data,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        return new JavaCCParser(ccl, data, valueTransformFunction,
                 operatorTransformFunction);
     }
 
