@@ -67,6 +67,10 @@ public interface AbstractSyntaxTree {
      */
     public Symbol root();
 
+    public default Object accept(Visitor visitor) {
+        return accept(visitor, new Object[] {});
+    }
+
     /**
      * This method is part of the visitor design pattern It accepts an
      * {@link Visitor} as {@code visitor} and some data {@code data}.
@@ -75,5 +79,5 @@ public interface AbstractSyntaxTree {
      * @param data the data
      * @return the data
      */
-    public Object accept(Visitor visitor, Object data);
+    public Object accept(Visitor visitor, Object... data);
 }
