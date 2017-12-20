@@ -15,17 +15,24 @@
  */
 package com.cinchapi.ccl.syntax;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
- * An implementation of the visitor pattern. This interface should be
- * implemented by any class attempting to visit an {@link AbstractSyntaxTree}.
- * In order to do so, the {@link AbstractSyntaxTree#accept(Visitor, Object)}
- * method must be called with a {@link Visitor} as a paramter.
+ * A {@link BooleanTree} contains a boolean.
+ * 
+ * @author Jeff Nelson
  */
-public interface Visitor {
-    
-    public Object visit(ConjunctionTree tree, Object... data);
-    
-    public Object visit(ExpressionTree tree, Object... data);
-    
-    public Object visit(BooleanTree tree, Object... data);
+public abstract class BooleanTree extends BaseAbstractSyntaxTree {
+
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Object accept(Visitor visitor, Object... data) {
+        return visitor.visit(this, data);
+    }
+
 }

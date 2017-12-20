@@ -15,17 +15,19 @@
  */
 package com.cinchapi.ccl.syntax;
 
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+
 /**
- * An implementation of the visitor pattern. This interface should be
- * implemented by any class attempting to visit an {@link AbstractSyntaxTree}.
- * In order to do so, the {@link AbstractSyntaxTree#accept(Visitor, Object)}
- * method must be called with a {@link Visitor} as a paramter.
+ * A {@code true} {@link BooleanTree}
+ * 
+ * @author Jeff Nelson
  */
-public interface Visitor {
-    
-    public Object visit(ConjunctionTree tree, Object... data);
-    
-    public Object visit(ExpressionTree tree, Object... data);
-    
-    public Object visit(BooleanTree tree, Object... data);
+public class TrueTree extends BooleanTree {
+
+    @Override
+    public Symbol root() {
+        return new ValueSymbol(true);
+    }
+
 }
