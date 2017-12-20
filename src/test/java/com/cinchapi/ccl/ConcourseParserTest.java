@@ -21,8 +21,9 @@ import com.google.common.collect.Multimap;
 import com.cinchapi.ccl.type.Operator;
 
 /**
- * @author jnelson
- *
+ * {@link ParserTest} that uses the {@link ConcourseParser}
+ * 
+ * @author Jeff Nelson
  */
 public class ConcourseParserTest extends AbstractParserTest {
 

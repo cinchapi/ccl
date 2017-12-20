@@ -41,6 +41,8 @@ import com.google.common.collect.Sets;
 
 /**
  * Unit tests for {@link Parser} functionality.
+ * 
+ * @author Jeff Nelson
  */
 public abstract class ParserTest {
     

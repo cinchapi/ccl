@@ -17,12 +17,20 @@ package com.cinchapi.ccl;
 
 import java.util.function.Function;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.type.Operator;
 import com.google.common.collect.Multimap;
 
 /**
- * @author jnelson
- *
+ * {@link ParserTest} that uses the {@link JavaCCParser}
+ * 
+ * @author Jeff Nelson
  */
 public class JavaCCParserTest extends AbstractParserTest {
 
@@ -40,6 +48,17 @@ public class JavaCCParserTest extends AbstractParserTest {
             Function<String, Operator> operatorTransformFunction) {
         return Parser.create(ccl, data, valueTransformFunction,
                 operatorTransformFunction);
+    }
+
+    @Test
+    public void testParseCclNoSpaces() {
+        String ccl = "name=jeff";
+        Parser parser = createParser(ccl);
+        parser.order();
+        Assert.assertEquals(new Expression(new KeySymbol("name"),
+                new OperatorSymbol(
+                        com.cinchapi.concourse.thrift.Operator.EQUALS),
+                new ValueSymbol("jeff")), parser.order().peek());
     }
 
 }

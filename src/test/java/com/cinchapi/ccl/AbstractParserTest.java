@@ -22,8 +22,9 @@ import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.Multimap;
 
 /**
- * @author jnelson
- *
+ * Abstract implementation of {@link ParserTest}.
+ * 
+ * @author Jeff Nelson
  */
 public abstract class AbstractParserTest extends ParserTest {
 
