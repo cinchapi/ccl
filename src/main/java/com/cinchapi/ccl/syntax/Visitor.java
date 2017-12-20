@@ -22,6 +22,8 @@ package com.cinchapi.ccl.syntax;
  * method must be called with a {@link Visitor} as a paramter.
  */
 public interface Visitor {
-    public Object visit(ConjunctionTree tree, Object data);
-    public Object visit(ExpressionTree tree, Object data);
+    
+    public Object visit(ConjunctionTree tree, Object... data);
+    
+    public Object visit(ExpressionTree tree, Object... data);
 }

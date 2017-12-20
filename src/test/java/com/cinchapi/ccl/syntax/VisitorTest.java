@@ -20,7 +20,6 @@ import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.concourse.thrift.Operator;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,13 +50,13 @@ public class VisitorTest {
         // Test visitor
         Visitor visitor = new Visitor() {
             @Override
-            public Object visit(ConjunctionTree tree, Object data) {
+            public Object visit(ConjunctionTree tree, Object... data) {
                 Assert.assertTrue(tree instanceof AndTree);
                 return data;
             }
 
             @Override
-            public Object visit(ExpressionTree tree, Object data) {
+            public Object visit(ExpressionTree tree, Object... data) {
                 Assert.assertTrue(((Expression) tree.root()).key().toString()
                         .equals("key"));
                 Assert.assertTrue(((Expression) tree.root()).operator()
