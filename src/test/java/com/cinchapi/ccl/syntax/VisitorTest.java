@@ -48,7 +48,7 @@ public class VisitorTest {
         AndTree tree = new AndTree(leftTree, rightTree);
 
         // Test visitor
-        Visitor visitor = new Visitor() {
+        Visitor<Object> visitor = new Visitor<Object>() {
             @Override
             public Object visit(ConjunctionTree tree, Object... data) {
                 Assert.assertTrue(tree instanceof AndTree);

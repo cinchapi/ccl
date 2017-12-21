@@ -21,13 +21,13 @@ package com.cinchapi.ccl.syntax;
  * In order to do so, the {@link AbstractSyntaxTree#accept(Visitor, Object)}
  * method must be called with a {@link Visitor} as a paramter.
  */
-public interface Visitor {
+public interface Visitor<T> {
     
-    public Object visit(ConjunctionTree tree, Object... data);
+    public T visit(ConjunctionTree tree, Object... data);
     
-    public Object visit(ExpressionTree tree, Object... data);
+    public T visit(ExpressionTree tree, Object... data);
     
-    public Object visit(BooleanTree tree, Object... data);
+    public T visit(BooleanTree tree, Object... data);
     
-    public Object visit(ResultSetTree tree, Object...data);
+    public T visit(ResultSetTree tree, Object...data);
 }
