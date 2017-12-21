@@ -65,18 +65,7 @@ public class VisitorTest {
                         .toString().equals("value"));
                 return data;
             }
-
-            @Override
-            public Object visit(BooleanTree tree, Object... data) {
-                Assert.fail();
-                return data;
-            }
-
-            @Override
-            public Object visit(ResultSetTree tree, Object... data) {
-                Assert.fail();
-                return data;
-            }
+            
         };
         tree.accept(visitor);
     }

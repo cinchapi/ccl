@@ -27,7 +27,4 @@ public interface Visitor<T> {
     
     public T visit(ExpressionTree tree, Object... data);
     
-    public T visit(BooleanTree tree, Object... data);
-    
-    public T visit(ResultSetTree tree, Object...data);
 }
