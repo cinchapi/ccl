@@ -15,9 +15,6 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
-
 /**
  * A {@code false} {@link BooleanTree}.
  * 
@@ -26,8 +23,8 @@ import com.cinchapi.ccl.grammar.ValueSymbol;
 public class FalseTree extends BooleanTree {
 
     @Override
-    public Symbol root() {
-        return new ValueSymbol(false);
+    public boolean value() {
+        return false;
     }
 
 }

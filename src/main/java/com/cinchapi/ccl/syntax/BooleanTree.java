@@ -18,6 +18,9 @@ package com.cinchapi.ccl.syntax;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+
 /**
  * A {@link BooleanTree} contains a boolean.
  * 
@@ -34,5 +37,17 @@ public abstract class BooleanTree extends BaseAbstractSyntaxTree {
     public Object accept(Visitor visitor, Object... data) {
         return visitor.visit(this, data);
     }
+
+    @Override
+    public final Symbol root() {
+        return new ValueSymbol(value());
+    }
+
+    /**
+     * Return the value expressed by this {@link BooleanTree}.
+     * 
+     * @return the value
+     */
+    public abstract boolean value();
 
 }
