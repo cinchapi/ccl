@@ -34,7 +34,7 @@ public abstract class BooleanTree extends BaseAbstractSyntaxTree {
     }
 
     @Override
-    public Object accept(Visitor visitor, Object... data) {
+    public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
     }
 

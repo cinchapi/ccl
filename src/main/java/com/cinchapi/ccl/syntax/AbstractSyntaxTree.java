@@ -67,7 +67,7 @@ public interface AbstractSyntaxTree {
      */
     public Symbol root();
 
-    public default Object accept(Visitor visitor) {
+    public default <T> T accept(Visitor<T> visitor) {
         return accept(visitor, new Object[] {});
     }
 
@@ -79,5 +79,5 @@ public interface AbstractSyntaxTree {
      * @param data the data
      * @return the data
      */
-    public Object accept(Visitor visitor, Object... data);
+    public <T> T accept(Visitor<T> visitor, Object... data);
 }
