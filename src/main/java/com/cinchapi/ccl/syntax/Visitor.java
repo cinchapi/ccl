@@ -28,4 +28,6 @@ public interface Visitor {
     public Object visit(ExpressionTree tree, Object... data);
     
     public Object visit(BooleanTree tree, Object... data);
+    
+    public Object visit(ResultSetTree tree, Object...data);
 }

@@ -71,6 +71,12 @@ public class VisitorTest {
                 Assert.fail();
                 return data;
             }
+
+            @Override
+            public Object visit(ResultSetTree tree, Object... data) {
+                Assert.fail();
+                return data;
+            }
         };
         tree.accept(visitor);
     }
