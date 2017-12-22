@@ -130,6 +130,9 @@ final class ConcourseParser extends Parser {
                         operatorStack.pop();
                         addAbstractSyntaxTreeNode(operandStack, con2);
                     }
+                    else {
+                        break;
+                    }
                 }
                 operatorStack.push(symbol);
             }
