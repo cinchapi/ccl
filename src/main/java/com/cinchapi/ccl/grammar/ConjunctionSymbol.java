@@ -34,7 +34,15 @@ public enum ConjunctionSymbol implements PostfixNotationSymbol {
      *         parenthetical groupings must be used to determine precedence.
      */
     public int comparePrecedence(ConjunctionSymbol symbol) {
-        return 0;
+        if(this == symbol) {
+            return 0;
+        }
+        else if(this == AND && symbol == OR) {
+            return 1;
+        }
+        else { // this == OR && symbol == AND
+            return -1;
+        }
     }
 
     /**

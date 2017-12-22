@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Queue;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
@@ -866,7 +865,7 @@ public abstract class ParserTest {
     public void testAbstractSyntaxTreeGenerationSimpleAndOr() {
         String ccl = "graduation_rate > 90 AND percent_undergrad_black >= 5 OR total_cost_out_of_state > 50000";
         Parser parser = createParser(ccl);
-        Visitor<Queue<Symbol>> leftFirstVisitor = new Visitor<Queue<Symbol>>() {
+        Visitor<Queue<Symbol>> visitor = new Visitor<Queue<Symbol>>() {
 
             @SuppressWarnings("unchecked")
             @Override
@@ -887,41 +886,16 @@ public abstract class ParserTest {
             }
 
         };
-        Visitor<Queue<Symbol>> rightFirstVisitor = new Visitor<Queue<Symbol>>() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public Queue<Symbol> visit(ConjunctionTree tree, Object... data) {
-                Queue<Symbol> queue = (Queue<Symbol>) data[0];
-                tree.right().accept(this, data);
-                tree.left().accept(this, data);
-                queue.add(tree.root());
-                return queue;
-            }
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public Queue<Symbol> visit(ExpressionTree tree, Object... data) {
-                Queue<Symbol> queue = (Queue<Symbol>) data[0];
-                queue.add(tree.root());
-                return queue;
-            }
-
-        };
-        Queue<Symbol> leftFirstQueue = parser.parse().accept(leftFirstVisitor,
+        Queue<Symbol> queue = parser.parse().accept(visitor,
                 new LinkedList<Symbol>());
-        Queue<Symbol> rightFirstQueue = parser.parse().accept(rightFirstVisitor,
-                new LinkedList<Symbol>());
-        Assert.assertTrue(leftFirstQueue.equals(parser.order())
-                || rightFirstQueue.equals(parser.order()));
+        Assert.assertEquals(queue, parser.order());
     }
-    
+
     @Test
-    @Ignore
-    public void testAbstractSyntaxTreeGenerationSimpleAOrAnd() {
+    public void testAbstractSyntaxTreeGenerationSimpleOrAnd() {
         String ccl = "graduation_rate > 90 OR percent_undergrad_black >= 5 AND total_cost_out_of_state > 50000";
         Parser parser = createParser(ccl);
-        Visitor<Queue<Symbol>> leftFirstVisitor = new Visitor<Queue<Symbol>>() {
+        Visitor<Queue<Symbol>> visitor = new Visitor<Queue<Symbol>>() {
 
             @SuppressWarnings("unchecked")
             @Override
@@ -942,36 +916,9 @@ public abstract class ParserTest {
             }
 
         };
-        Visitor<Queue<Symbol>> rightFirstVisitor = new Visitor<Queue<Symbol>>() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public Queue<Symbol> visit(ConjunctionTree tree, Object... data) {
-                Queue<Symbol> queue = (Queue<Symbol>) data[0];
-                tree.right().accept(this, data);
-                tree.left().accept(this, data);
-                queue.add(tree.root());
-                return queue;
-            }
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public Queue<Symbol> visit(ExpressionTree tree, Object... data) {
-                Queue<Symbol> queue = (Queue<Symbol>) data[0];
-                queue.add(tree.root());
-                return queue;
-            }
-
-        };
-        Queue<Symbol> leftFirstQueue = parser.parse().accept(leftFirstVisitor,
+        Queue<Symbol> queue = parser.parse().accept(visitor,
                 new LinkedList<Symbol>());
-        Queue<Symbol> rightFirstQueue = parser.parse().accept(rightFirstVisitor,
-                new LinkedList<Symbol>());
-        System.out.println(parser.order());
-        System.out.println(leftFirstQueue);
-        System.out.println(rightFirstQueue);
-        Assert.assertTrue(leftFirstQueue.equals(parser.order())
-                || rightFirstQueue.equals(parser.order()));
+        Assert.assertEquals(queue, parser.order());
     }
 
     protected abstract Parser createParser(String ccl);
