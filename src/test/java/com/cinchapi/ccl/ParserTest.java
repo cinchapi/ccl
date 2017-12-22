@@ -862,7 +862,7 @@ public abstract class ParserTest {
     }
 
     @Test
-    public void testAbstractSyntaxTreeGeneration() {
+    public void testAbstractSyntaxTreeGenerationSimpleAndOr() {
         String ccl = "graduation_rate > 90 AND percent_undergrad_black >= 5 OR total_cost_out_of_state > 50000";
         Parser parser = createParser(ccl);
         Visitor<Queue<Symbol>> leftFirstVisitor = new Visitor<Queue<Symbol>>() {
@@ -911,6 +911,64 @@ public abstract class ParserTest {
                 new LinkedList<Symbol>());
         Queue<Symbol> rightFirstQueue = parser.parse().accept(rightFirstVisitor,
                 new LinkedList<Symbol>());
+        Assert.assertTrue(leftFirstQueue.equals(parser.order())
+                || rightFirstQueue.equals(parser.order()));
+    }
+    
+    @Test
+    @Ignore
+    public void testAbstractSyntaxTreeGenerationSimpleAOrAnd() {
+        String ccl = "graduation_rate > 90 OR percent_undergrad_black >= 5 AND total_cost_out_of_state > 50000";
+        Parser parser = createParser(ccl);
+        Visitor<Queue<Symbol>> leftFirstVisitor = new Visitor<Queue<Symbol>>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<Symbol> visit(ConjunctionTree tree, Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                tree.left().accept(this, data);
+                tree.right().accept(this, data);
+                queue.add(tree.root());
+                return queue;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<Symbol> visit(ExpressionTree tree, Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                queue.add(tree.root());
+                return queue;
+            }
+
+        };
+        Visitor<Queue<Symbol>> rightFirstVisitor = new Visitor<Queue<Symbol>>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<Symbol> visit(ConjunctionTree tree, Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                tree.right().accept(this, data);
+                tree.left().accept(this, data);
+                queue.add(tree.root());
+                return queue;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<Symbol> visit(ExpressionTree tree, Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                queue.add(tree.root());
+                return queue;
+            }
+
+        };
+        Queue<Symbol> leftFirstQueue = parser.parse().accept(leftFirstVisitor,
+                new LinkedList<Symbol>());
+        Queue<Symbol> rightFirstQueue = parser.parse().accept(rightFirstVisitor,
+                new LinkedList<Symbol>());
+        System.out.println(parser.order());
+        System.out.println(leftFirstQueue);
+        System.out.println(rightFirstQueue);
         Assert.assertTrue(leftFirstQueue.equals(parser.order())
                 || rightFirstQueue.equals(parser.order()));
     }

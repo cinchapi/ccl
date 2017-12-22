@@ -115,9 +115,6 @@ final class ConcourseParser extends Parser {
                 throw new SyntaxException(AnyStrings.format(
                         "Syntax error in {}: Mismatched parenthesis", symbols));
             }
-            else if(symbol instanceof Expression) {
-                operandStack.add(new ExpressionTree((Expression) symbol));
-            }
             else if(symbol instanceof ConjunctionSymbol) {
                 final ConjunctionSymbol con1 = (ConjunctionSymbol) symbol;
                 ConjunctionSymbol con2;
@@ -136,9 +133,8 @@ final class ConcourseParser extends Parser {
                 }
                 operatorStack.push(symbol);
             }
-            else {
-                throw new UnsupportedOperationException(
-                        "Unsure what to do with symbol " + symbol);
+            else if(symbol instanceof Expression) {
+                operandStack.add(new ExpressionTree((Expression) symbol));
             }
         }
         while (!operatorStack.isEmpty()) {
