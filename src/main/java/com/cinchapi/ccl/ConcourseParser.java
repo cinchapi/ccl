@@ -118,8 +118,24 @@ final class ConcourseParser extends Parser {
             else if(symbol instanceof Expression) {
                 operandStack.add(new ExpressionTree((Expression) symbol));
             }
-            else {
+            else if(symbol instanceof ConjunctionSymbol) {
+                final ConjunctionSymbol con1 = (ConjunctionSymbol) symbol;
+                ConjunctionSymbol con2;
+                while (!operatorStack.isEmpty()
+                        && (con2 = (ConjunctionSymbol) operatorStack
+                                .peek()) != null) {
+                    if((!con1.isRightAssociative()
+                            && con1.comparePrecedence(con2) == 0)
+                            || con1.comparePrecedence(con2) < 0) {
+                        operatorStack.pop();
+                        addAbstractSyntaxTreeNode(operandStack, con2);
+                    }
+                }
                 operatorStack.push(symbol);
+            }
+            else {
+                throw new UnsupportedOperationException(
+                        "Unsure what to do with symbol " + symbol);
             }
         }
         while (!operatorStack.isEmpty()) {
