@@ -134,7 +134,7 @@ final class ConcourseParser extends Parser {
                 operatorStack.push(symbol);
             }
             else if(symbol instanceof Expression) {
-                operandStack.add(new ExpressionTree((Expression) symbol));
+                operandStack.push(new ExpressionTree((Expression) symbol));
             }
         }
         while (!operatorStack.isEmpty()) {
