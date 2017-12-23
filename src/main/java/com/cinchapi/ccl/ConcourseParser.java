@@ -117,10 +117,11 @@ final class ConcourseParser extends Parser {
             }
             else if(symbol instanceof ConjunctionSymbol) {
                 final ConjunctionSymbol con1 = (ConjunctionSymbol) symbol;
-                ConjunctionSymbol con2;
+                Symbol symbol2;
                 while (!operatorStack.isEmpty()
-                        && (con2 = (ConjunctionSymbol) operatorStack
-                                .peek()) != null) {
+                        && (symbol2 = operatorStack.peek()) != null
+                        && symbol2 instanceof ConjunctionSymbol) {
+                    ConjunctionSymbol con2 = (ConjunctionSymbol) symbol2;
                     if((!con1.isRightAssociative()
                             && con1.comparePrecedence(con2) == 0)
                             || con1.comparePrecedence(con2) < 0) {
