@@ -23,6 +23,26 @@ package com.cinchapi.ccl.grammar;
 public final class ValueSymbol extends BaseSymbol {
 
     /**
+     * Do any escaping of the {@code value} in order to preserve it during the
+     * translation.
+     * 
+     * @param value
+     * @return the escaped value
+     */
+    private static Object escape(Object value) {
+        if(value instanceof String && ((String) value).matches("`([^`]+)`")) {
+            // CON-167: surround by quotes so the backticks are not interpreted
+            // as indicators of an encoded Tag. This case would happen if the
+            // user manually placed text wrapped in backticks in the Criteria
+            // instead of using the #Tag.create() method.
+            return "\"" + value + "\"";
+        }
+        else {
+            return value;
+        }
+    }
+
+    /**
      * The content of the {@link Symbol}.
      */
     private final Object value;
@@ -36,6 +56,11 @@ public final class ValueSymbol extends BaseSymbol {
         this.value = value;
     }
 
+    @Override
+    public String toString() {
+        return escape(value).toString();
+    }
+
     /**
      * Return the value associated with this {@link Symbol}.
      * 
@@ -43,11 +68,6 @@ public final class ValueSymbol extends BaseSymbol {
      */
     public Object value() {
         return value;
-    }
-
-    @Override
-    public String toString() {
-        return value.toString();
     }
 
 }

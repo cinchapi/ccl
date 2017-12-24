@@ -1,5 +1,9 @@
 # Changelog
 
+#### Version 2.2.0
+* Added support for traversing an `AbstractSyntaxTree` using the visitor pattern.
+* Fixed bugs in the `AbstractSyntaxTree` generation for the `ConcourseParser`.
+
 #### Version 2.1.0
 * Added a `Parsing#toPostfixNotation` utility method that transforms a list of `Symbol`s into a `Queue` of `PostfixNotationSymbol`s.
 

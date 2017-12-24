@@ -47,6 +47,40 @@ public abstract class Parser {
     /**
      * Return a new {@link Parser} for the {@code ccl} statement that uses the
      * {@code valueTransformFunction} and {@code operatorTransformFunction}.
+     *
+     * @param ccl the ccl query to parse
+     * @param valueTransformFunction value function
+     * @param operatorTransformFunction operator function
+     * @return the {@link Parser}
+     */
+    public static Parser create(String ccl,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        return new JavaCCParser(ccl, valueTransformFunction,
+                operatorTransformFunction);
+    }
+
+    /**
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code data} for location resolution and the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
+     *
+     * @param ccl the ccl query to parse
+     * @param data the local data
+     * @param valueTransformFunction value function
+     * @param operatorTransformFunction operator function
+     * @return the {@link Parser}
+     */
+    public static Parser create(String ccl, Multimap<String, Object> data,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction) {
+        return new JavaCCParser(ccl, data, valueTransformFunction,
+                operatorTransformFunction);
+    }
+
+    /**
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
      * 
      * @param ccl
      * @param valueTransformFunction
@@ -163,6 +197,11 @@ public abstract class Parser {
      */
     public abstract List<Symbol> tokenize();
 
+    @Override
+    public String toString() {
+        return ccl;
+    }
+
     /**
      * Implement a function that converts string operators to the appropriate
      * {@link Operator} object.
@@ -170,7 +209,7 @@ public abstract class Parser {
      * @return the transformed operator
      */
     protected abstract Operator transformOperator(String token);
-
+    
     /**
      * Implement a function that converts string values to analogous java
      * objects.

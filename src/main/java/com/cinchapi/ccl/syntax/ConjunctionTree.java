@@ -77,4 +77,9 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
         return conjunction;
     }
 
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return visitor.visit(this, data);
+    }
+
 }

@@ -54,7 +54,7 @@ import com.google.common.collect.Sets;
 /**
  * A {@link Parser} implemented using custom logic.
  *
- * @author jeff
+ * @author Jeff Nelson
  */
 @ThreadSafe
 final class ConcourseParser extends Parser {
@@ -113,11 +113,27 @@ final class ConcourseParser extends Parser {
                 throw new SyntaxException(AnyStrings.format(
                         "Syntax error in {}: Mismatched parenthesis", symbols));
             }
-            else if(symbol instanceof Expression) {
-                operandStack.add(new ExpressionTree((Expression) symbol));
-            }
-            else {
+            else if(symbol instanceof ConjunctionSymbol) {
+                final ConjunctionSymbol con1 = (ConjunctionSymbol) symbol;
+                Symbol symbol2;
+                while (!operatorStack.isEmpty()
+                        && (symbol2 = operatorStack.peek()) != null
+                        && symbol2 instanceof ConjunctionSymbol) {
+                    ConjunctionSymbol con2 = (ConjunctionSymbol) symbol2;
+                    if((!con1.isRightAssociative()
+                            && con1.comparePrecedence(con2) == 0)
+                            || con1.comparePrecedence(con2) < 0) {
+                        operatorStack.pop();
+                        addAbstractSyntaxTreeNode(operandStack, con2);
+                    }
+                    else {
+                        break;
+                    }
+                }
                 operatorStack.push(symbol);
+            }
+            else if(symbol instanceof Expression) {
+                operandStack.push(new ExpressionTree((Expression) symbol));
             }
         }
         while (!operatorStack.isEmpty()) {

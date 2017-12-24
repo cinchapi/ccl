@@ -21,5 +21,36 @@ package com.cinchapi.ccl.grammar;
  * @author Jeff Nelson
  */
 public enum ConjunctionSymbol implements PostfixNotationSymbol {
-    AND, OR
+    AND, OR;
+
+    /***
+     * Compares the precedence of this conjunction against another conjunction.
+     *
+     * @param symbol The conjunction to compare against.
+     *
+     * @return -1 if this conjunction is of lower precedence, 1 if it's of
+     *         greater precedence, and 0 if they're of equal precedence. If two
+     *         conjunctions are of equal precedence, right associativity and
+     *         parenthetical groupings must be used to determine precedence.
+     */
+    public int comparePrecedence(ConjunctionSymbol symbol) {
+        if(this == symbol) {
+            return 0;
+        }
+        else if(this == AND && symbol == OR) {
+            return 1;
+        }
+        else { // this == OR && symbol == AND
+            return -1;
+        }
+    }
+
+    /**
+     * @return <code>true</code> if the conjunction is right associative, and
+     *         <code>false</code> otherwise. By definition, any conjunction that
+     *         isn't right associative is left associative.
+     */
+    public boolean isRightAssociative() {
+        return false;
+    }
 }
