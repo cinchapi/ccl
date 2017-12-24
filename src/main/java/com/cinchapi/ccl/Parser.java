@@ -86,10 +86,7 @@ public abstract class Parser {
      * @param valueTransformFunction
      * @param operatorTransformFunction
      * @return the {@link Parser}
-     * @deprecated Deprecated since version 2.2.0; use
-     *             {@link #create(String, Function, Function)} instead.
      */
-    @Deprecated
     public static Parser newParser(String ccl,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
@@ -107,11 +104,7 @@ public abstract class Parser {
      * @param valueTransformFunction
      * @param operatorTransformFunction
      * @return the {@link Parser}
-     * @deprecated Deprecated since version 2.2.0; use
-     *             {@link #create(String, Multimap, Function, Function)}
-     *             instead.
      */
-    @Deprecated
     public static Parser newParser(String ccl, Multimap<String, Object> data,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
