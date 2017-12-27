@@ -91,28 +91,35 @@ public class GrammarPostfixVisitor implements GrammarVisitor
     }
 
     /**
-     * Visitor for a {@link ASTConj}
+     * Visitor for a {@link ASTAnd}
      *
      * @param node the node
      * @param data the data
      * @return the queue of postfix symbols
      */
     @SuppressWarnings({ "unchecked", "unused" })
-    public Object visit(ASTConj node, Object data) {
-        Queue<PostfixNotationSymbol> left = (Queue<PostfixNotationSymbol>) node.jjtGetChild(0).jjtAccept(this, data);
-        // Same queue is returned, only need to use left queue
-        Queue<PostfixNotationSymbol> right =(Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+    public Object visit(ASTAnd node, Object data) {
+        // Return value isn't needed
+        node.jjtGetChild(0).jjtAccept(this, data);
+        Queue<PostfixNotationSymbol> symbols = (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+        symbols.add(ConjunctionSymbol.AND);
+        return symbols;
+    }
 
-        if(node.symbol().equalsIgnoreCase("&&") || node.symbol().equalsIgnoreCase("&")
-                || node.symbol().equalsIgnoreCase("and")) {
-            left.add(ConjunctionSymbol.AND);
-        }
-        else if(node.symbol().equalsIgnoreCase("||") || node.symbol().equalsIgnoreCase("|")
-                || node.symbol().equalsIgnoreCase("or")) {
-            left.add(ConjunctionSymbol.OR);
-        }
-
-        return left;
+    /**
+     * Visitor for a {@link ASTOr}
+     *
+     * @param node the node
+     * @param data the data
+     * @return the queue of postfix symbols
+     */
+    @SuppressWarnings({ "unchecked", "unused" })
+    public Object visit(ASTOr node, Object data) {
+        // Return value isn't needed
+        node.jjtGetChild(0).jjtAccept(this, data);
+        Queue<PostfixNotationSymbol> symbols = (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+        symbols.add(ConjunctionSymbol.OR);
+        return symbols;
     }
 
     /**

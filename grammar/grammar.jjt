@@ -64,11 +64,9 @@ TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
 
 TOKEN [IGNORE_CASE]:
 {
-  < CONJ: <CONJUNCTION> | <DISJUNCTION> >
+  < CONJUNCTION: "and" | "&&" | "&" >
 |
-  < #CONJUNCTION: "and" | "&&" | "&" >
-|
-  < #DISJUNCTION: "or" | "||" | "|" >
+  < DISJUNCTION: "or" | "||" | "|" >
 }
 
 TOKEN [IGNORE_CASE]:
@@ -127,31 +125,34 @@ TOKEN :
 /** Main production. */
 ASTStart Start() #Start : {}
 {
-  (<WHERE>)? Expression() <EOF>
+  (<WHERE>)? DisjunctionExpression() <EOF>
   { return jjtThis; }
 }
 
 /** Main production. */
 ASTStart StartCommandLine() #Start : {}
 {
-  (<WHERE>)? Expression() "\n"
+  (<WHERE>)? DisjunctionExpression() "\n"
   { return jjtThis; }
 }
 
-/** An Expression. */
-void Expression() :
-{
-  Token o;
-}
+void DisjunctionExpression() : {}
 {
   (
-    UnaryExpression() ((o=<CONJ> { jjtThis.symbol(o.image); } UnaryExpression()) #Conj(2))*
+    ConjunctionExpression() ((<DISJUNCTION> ConjunctionExpression()) #Or(2))*
+  )
+}
+
+void ConjunctionExpression() : {}
+{
+  (
+    UnaryExpression() ((<CONJUNCTION> UnaryExpression()) #And(2))*
   )
 }
 
 void UnaryExpression() : {}
 {
-   <OPEN_PARENTHESES> Expression() <CLOSE_PARENTHESES> | RelationalExpression()
+   <OPEN_PARENTHESES> DisjunctionExpression() <CLOSE_PARENTHESES> | RelationalExpression()
 }
 
 void RelationalExpression() #RelationalExpression :
