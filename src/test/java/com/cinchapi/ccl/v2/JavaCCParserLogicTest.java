@@ -954,6 +954,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("$name",
                 expression.values().get(0).toString());
     }
+
     @Test
     @Ignore
     public void testQuotedValue() {
@@ -972,6 +973,24 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("\"Javier Lores\"",
                 expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testJsonReservedIdentifier() {
+        String ccl = "$id$ != 40";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("$id$", expression.key().toString());
+        Assert.assertEquals("!=", expression.operator().toString());
+        Assert.assertEquals("40", expression.values().get(0).toString());
     }
 
     /**
