@@ -574,8 +574,6 @@ public class JavaCCParserLogicTest {
         expression = new Expression(key, operator, value);
         expectedOrder.add(expression);
 
-        expectedOrder.add(ConjunctionSymbol.OR);
-
         key = new KeySymbol("c");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
@@ -584,6 +582,7 @@ public class JavaCCParserLogicTest {
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
+        expectedOrder.add(ConjunctionSymbol.OR);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -837,34 +836,33 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof AndTree);
+        Assert.assertTrue(tree instanceof OrTree);
         ConjunctionTree rootNode = (ConjunctionTree) tree;
 
-        // left node
-        Assert.assertTrue(rootNode.left() instanceof OrTree);
-        ConjunctionTree leftNode = (ConjunctionTree) rootNode.left();
+        // Right node
+        Assert.assertTrue(rootNode.right() instanceof AndTree);
+        ConjunctionTree rightNode = (ConjunctionTree) rootNode.right();
 
         // right node
-        Assert.assertTrue(rootNode.right() instanceof ExpressionTree);
-        Expression rightExpression = (Expression) (rootNode.right()).root();
-        Assert.assertEquals("c", rightExpression.key().toString());
-        Assert.assertEquals("=", rightExpression.operator().toString());
-        Assert.assertEquals("3", rightExpression.values().get(0).toString());
+        Assert.assertTrue(rootNode.left() instanceof ExpressionTree);
+        Expression leftExpression = (Expression) (rootNode.left()).root();
+        Assert.assertEquals("a", leftExpression.key().toString());
+        Assert.assertEquals("=", leftExpression.operator().toString());
+        Assert.assertEquals("1", leftExpression.values().get(0).toString());
 
-        // Left left node
-        Assert.assertTrue(leftNode.left() instanceof ExpressionTree);
-        Expression leftLeftExpression = (Expression) (leftNode.left()).root();
-        Assert.assertEquals("a", leftLeftExpression.key().toString());
-        Assert.assertEquals("=", leftLeftExpression.operator().toString());
-        Assert.assertEquals("1", leftLeftExpression.values().get(0).toString());
+        // Right left node
+        Assert.assertTrue(rightNode.left() instanceof ExpressionTree);
+        Expression rightLeftExpression = (Expression) (rightNode.left()).root();
+        Assert.assertEquals("b", rightLeftExpression.key().toString());
+        Assert.assertEquals("=", rightLeftExpression.operator().toString());
+        Assert.assertEquals("2", rightLeftExpression.values().get(0).toString());
 
-        // Left right node
-        Assert.assertTrue(leftNode.right() instanceof ExpressionTree);
-        Expression leftRightExpression = (Expression) (leftNode.right()).root();
-        Assert.assertEquals("b", leftRightExpression.key().toString());
-        Assert.assertEquals("=", leftRightExpression.operator().toString());
-        Assert.assertEquals("2",
-                leftRightExpression.values().get(0).toString());
+        // Right right node
+        Assert.assertTrue(rightNode.right() instanceof ExpressionTree);
+        Expression rightRightExpression = (Expression) (rightNode.right()).root();
+        Assert.assertEquals("c", rightRightExpression.key().toString());
+        Assert.assertEquals("=", rightRightExpression.operator().toString());
+        Assert.assertEquals("3", rightRightExpression.values().get(0).toString());
     }
 
     @Test
