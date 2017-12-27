@@ -19,57 +19,59 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int WHERE = 6;
   /** RegularExpression Id. */
-  int CONJ = 7;
+  int RESERVED_IDENTIFIER = 7;
   /** RegularExpression Id. */
-  int CONJUNCTION = 8;
+  int CONJ = 8;
   /** RegularExpression Id. */
-  int DISJUNCTION = 9;
+  int CONJUNCTION = 9;
   /** RegularExpression Id. */
-  int UNARY_OPERATOR = 10;
+  int DISJUNCTION = 10;
   /** RegularExpression Id. */
-  int BINARY_OPERATOR = 11;
+  int UNARY_OPERATOR = 11;
   /** RegularExpression Id. */
-  int EQUALS = 12;
+  int BINARY_OPERATOR = 12;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 13;
+  int EQUALS = 13;
   /** RegularExpression Id. */
-  int GREATER_THAN = 14;
+  int NOT_EQUALS = 14;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 15;
+  int GREATER_THAN = 15;
   /** RegularExpression Id. */
-  int LESS_THAN = 16;
+  int GREATER_THAN_OR_EQUALS = 16;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 17;
+  int LESS_THAN = 17;
   /** RegularExpression Id. */
-  int LINKS_TO = 18;
+  int LESS_THAN_OR_EQUALS = 18;
   /** RegularExpression Id. */
-  int REGEX = 19;
+  int LINKS_TO = 19;
   /** RegularExpression Id. */
-  int NOT_REGEX = 20;
+  int REGEX = 20;
   /** RegularExpression Id. */
-  int LIKE = 21;
+  int NOT_REGEX = 21;
   /** RegularExpression Id. */
-  int NOT_LIKE = 22;
+  int LIKE = 22;
   /** RegularExpression Id. */
-  int BETWEEN = 23;
+  int NOT_LIKE = 23;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 24;
+  int BETWEEN = 24;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 25;
+  int QUOTED_STRING = 25;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 26;
+  int SIGNED_DECIMAL = 26;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 27;
+  int ALPHANUMERIC = 27;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 28;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 28;
   /** RegularExpression Id. */
-  int LETTER = 29;
+  int NON_ALPHANUMERIC = 29;
   /** RegularExpression Id. */
-  int DIGIT = 30;
+  int LETTER = 30;
   /** RegularExpression Id. */
-  int PERIOD = 31;
+  int DIGIT = 31;
   /** RegularExpression Id. */
-  int ESCAPE = 32;
+  int PERIOD = 32;
+  /** RegularExpression Id. */
+  int ESCAPE = 33;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -83,6 +85,7 @@ public interface GrammarConstants {
     "\")\"",
     "<TIMESTAMP>",
     "\"where\"",
+    "\"$id$\"",
     "<CONJ>",
     "<CONJUNCTION>",
     "<DISJUNCTION>",
