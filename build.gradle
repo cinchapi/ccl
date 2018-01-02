@@ -3,7 +3,7 @@ plugins {
   id 'eclipse'
   id 'maven'
   id 'maven-publish'
-  id "com.jfrog.bintray" version "1.7"
+  id "com.jfrog.bintray" version "1.7.3"
   id 'signing'
 }
 
@@ -72,6 +72,7 @@ bintray {
   user = System.getenv('BINTRAY_USER')
   key = System.getenv('BINTRAY_KEY')
   publications = ['BintrayPublication']
+  override = true
   pkg {
     repo = mavenVersion.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+){0,1}$') ? 'maven' : 'maven-snapshots'
     name = project.name
