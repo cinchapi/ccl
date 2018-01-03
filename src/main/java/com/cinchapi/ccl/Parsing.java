@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Queue;
 
+import com.cinchapi.ccl.grammar.BaseKeySymbol;
+import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
@@ -57,21 +59,21 @@ public final class Parsing {
             ListIterator<Symbol> it = symbols.listIterator();
             while (it.hasNext()) {
                 Symbol symbol = it.next();
-                if(symbol instanceof KeySymbol) {
+                if(symbol instanceof BaseKeySymbol) {
                     // NOTE: We are assuming that the list of symbols is well
                     // formed, and, as such, the next elements will be an
                     // operator and one or more symbols. If this is not the
                     // case, this method will throw a ClassCastException
                     OperatorSymbol operator = (OperatorSymbol) it.next();
-                    ValueSymbol value = (ValueSymbol) it.next();
+                    BaseValueSymbol value = (BaseValueSymbol) it.next();
                     Expression expression;
                     if(operator.operator().operands() == 2) {
-                        ValueSymbol value2 = (ValueSymbol) it.next();
-                        expression = new Expression((KeySymbol) symbol,
+                        BaseValueSymbol value2 = (BaseValueSymbol) it.next();
+                        expression = new Expression((BaseKeySymbol) symbol,
                                 operator, value, value2);
                     }
                     else {
-                        expression = new Expression((KeySymbol) symbol,
+                        expression = new Expression((BaseKeySymbol) symbol,
                                 operator, value);
                     }
                     grouped.add(expression);
