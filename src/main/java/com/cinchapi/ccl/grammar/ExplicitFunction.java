@@ -35,4 +35,12 @@ public abstract class ExplicitFunction<T> extends Function {
         super(function, key);
         this.value = value;
     }
+
+    /**
+     *
+     * @return
+     */
+    public T value() {
+        return value;
+    }
 }
