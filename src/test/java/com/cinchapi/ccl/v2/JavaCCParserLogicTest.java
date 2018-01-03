@@ -793,7 +793,7 @@ public class JavaCCParserLogicTest {
     @Test
     public void testDisjunctionParenthesizedConjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 and (b = 2 or c = 3)";
-        
+
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
