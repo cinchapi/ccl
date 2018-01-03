@@ -3,6 +3,11 @@
 package com.cinchapi.ccl.v2.generated;
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.ExplicitCclFunction;
+import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
+import com.cinchapi.ccl.grammar.FunctionKeySymbol;
+import com.cinchapi.ccl.grammar.FunctionValueSymbol;
+import com.cinchapi.ccl.grammar.ImplicitFunction;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
@@ -47,6 +52,12 @@ private int jjMoveStringLiteralDfa0_0(){
       case 41:
          jjmatchedKind = 4;
          return jjMoveNfa_0(5, 0);
+      case 44:
+         jjmatchedKind = 33;
+         return jjMoveStringLiteralDfa1_0(0x100000000L);
+      case 63:
+         jjmatchedKind = 34;
+         return jjMoveNfa_0(5, 0);
       case 87:
          return jjMoveStringLiteralDfa1_0(0x40L);
       case 119:
@@ -62,6 +73,8 @@ private int jjMoveStringLiteralDfa1_0(long active0){
    }
    switch(curChar)
    {
+      case 32:
+         return jjMoveStringLiteralDfa2_0(active0, 0x100000000L);
       case 72:
          return jjMoveStringLiteralDfa2_0(active0, 0x40L);
       case 104:
@@ -80,6 +93,13 @@ private int jjMoveStringLiteralDfa2_0(long old0, long active0){
    }
    switch(curChar)
    {
+      case 63:
+         if ((active0 & 0x100000000L) != 0L)
+         {
+            jjmatchedKind = 32;
+            jjmatchedPos = 2;
+         }
+         break;
       case 69:
          return jjMoveStringLiteralDfa3_0(active0, 0x40L);
       case 101:
@@ -606,7 +626,7 @@ private int jjMoveNfa_0(int startState, int curPos)
 public static final String[] jjstrLiteralImages = {
 "", null, null, "\50", "\51", null, null, null, null, null, null, null, null, 
 null, null, null, null, null, null, null, null, null, null, null, null, null, null, 
-null, null, null, null, null, };
+null, null, null, null, null, "\54\40\77", "\54", "\77", };
 protected Token jjFillToken()
 {
    final Token t;
@@ -817,10 +837,10 @@ public static final String[] lexStateNames = {
 /** Lex State array. */
 public static final int[] jjnewLexState = {
    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
-   -1, -1, -1, -1, -1, -1, -1, 
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
 };
 static final long[] jjtoToken = {
-   0x78007f9L, 
+   0x7078007f9L, 
 };
 static final long[] jjtoSkip = {
    0x6L, 
