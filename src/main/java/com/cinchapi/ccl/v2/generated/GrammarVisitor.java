@@ -4,9 +4,5 @@ package com.cinchapi.ccl.v2.generated;
 public interface GrammarVisitor
 {
   public Object visit(SimpleNode node, Object data);
-  public Object visit(ASTStart node, Object data);
-  public Object visit(ASTOr node, Object data);
-  public Object visit(ASTAnd node, Object data);
-  public Object visit(ASTRelationalExpression node, Object data);
 }
-/* JavaCC - OriginalChecksum=45d95d3ba7f7daf96a26b5aeaa1ea00b (do not edit this line) */
+/* JavaCC - OriginalChecksum=7fee710c4eadfa596afb7be23690a23e (do not edit this line) */
