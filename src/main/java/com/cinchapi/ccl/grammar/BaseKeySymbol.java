@@ -18,7 +18,8 @@ package com.cinchapi.ccl.grammar;
 /**
  * A {@link Symbol} that contains a key.
  */
-public abstract class BaseKeySymbol<T> extends BaseSymbol {
+public abstract class BaseKeySymbol<T> extends BaseSymbol
+        implements PostfixNotationSymbol {
 
     /**
      * The content of the {@link Symbol}.
