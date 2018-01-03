@@ -77,6 +77,12 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
     throw new Error("Missing return statement in function");
 }
 
+  final public List<Symbol> Ccl() throws ParseException {List<Symbol> symbols = Lists.newArrayList();
+    DisjunctionExpression(symbols);
+{if ("" != null) return symbols;}
+    throw new Error("Missing return statement in function");
+}
+
   final public void DisjunctionExpression(List<Symbol> symbols) throws ParseException {
     ConjunctionExpression(symbols);
     label_1:
@@ -179,27 +185,14 @@ symbols.add(ParenthesisSymbol.RIGHT);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case OPEN_PARENTHESES:{
       jj_consume_token(OPEN_PARENTHESES);
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case SIGNED_DECIMAL:{
-        f = jj_consume_token(SIGNED_DECIMAL);
-        break;
-        }
-      case ALPHANUMERIC:{
-        f = jj_consume_token(ALPHANUMERIC);
-        break;
-        }
-      default:
-        jj_la1[6] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      jj_consume_token(32);
+      f = jj_consume_token(FUNCTION_ALPHANUMERIC);
+      jj_consume_token(33);
       jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionKeySymbol(new ImplicitFunction(k.image, f.image)));
+symbols.add(new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1))));
       break;
       }
     default:
-      jj_la1[7] = jj_gen;
+      jj_la1[6] = jj_gen;
 symbols.add(new KeySymbol(k.image));
     }
 }
@@ -213,60 +206,60 @@ symbols.add(new KeySymbol(k.image));
     if (jj_2_3(2)) {
       f = jj_consume_token(ALPHANUMERIC);
       jj_consume_token(OPEN_PARENTHESES);
+      k = jj_consume_token(FUNCTION_ALPHANUMERIC);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case SIGNED_DECIMAL:{
-        k = jj_consume_token(SIGNED_DECIMAL);
-        break;
-        }
-      case ALPHANUMERIC:{
-        k = jj_consume_token(ALPHANUMERIC);
-        break;
-        }
-      default:
-        jj_la1[8] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      jj_consume_token(33);
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 34:{
-        jj_consume_token(34);
+      case 33:{
+        jj_consume_token(33);
         jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image)));
+symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));
         break;
         }
       default:
-        jj_la1[10] = jj_gen;
+        jj_la1[9] = jj_gen;
         if (jj_2_1(2)) {
           label_3:
           while (true) {
-            v = jj_consume_token(SIGNED_DECIMAL);
-records.add(v.image);
             switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-            case SIGNED_DECIMAL:{
+            case FUNCTION_ALPHANUMERIC:{
               ;
               break;
               }
             default:
-              jj_la1[9] = jj_gen;
+              jj_la1[7] = jj_gen;
               break label_3;
             }
+            v = jj_consume_token(FUNCTION_ALPHANUMERIC);
+records.add(v.image.substring(0, v.image.length()-1));
           }
-          jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image, records)));
-        } else {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-          case OPEN_PARENTHESES:
-          case WHERE:
-          case SIGNED_DECIMAL:
+          case SIGNED_DECIMAL:{
+            v = jj_consume_token(SIGNED_DECIMAL);
+            break;
+            }
           case ALPHANUMERIC:{
-            ccl = Start();
-            jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image, ccl)));
+            v = jj_consume_token(ALPHANUMERIC);
             break;
             }
           default:
-            jj_la1[11] = jj_gen;
+            jj_la1[8] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
+records.add(v.image);
+          jj_consume_token(CLOSE_PARENTHESES);
+symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));
+        } else {
+          switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+          case OPEN_PARENTHESES:
+          case SIGNED_DECIMAL:
+          case ALPHANUMERIC:{
+            ccl = Ccl();
+            jj_consume_token(CLOSE_PARENTHESES);
+symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));
+            break;
+            }
+          default:
+            jj_la1[10] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -298,7 +291,7 @@ symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image, cc
             break;
             }
           default:
-            jj_la1[12] = jj_gen;
+            jj_la1[11] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -332,7 +325,7 @@ if(value.charAt(0) == '$') {
         break;
         }
       default:
-        jj_la1[13] = jj_gen;
+        jj_la1[12] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -348,60 +341,60 @@ if(value.charAt(0) == '$') {
     if (jj_2_5(2)) {
       f = jj_consume_token(ALPHANUMERIC);
       jj_consume_token(OPEN_PARENTHESES);
+      k = jj_consume_token(FUNCTION_ALPHANUMERIC);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case SIGNED_DECIMAL:{
-        k = jj_consume_token(SIGNED_DECIMAL);
-        break;
-        }
-      case ALPHANUMERIC:{
-        k = jj_consume_token(ALPHANUMERIC);
-        break;
-        }
-      default:
-        jj_la1[14] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      jj_consume_token(33);
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 34:{
-        jj_consume_token(34);
+      case 33:{
+        jj_consume_token(33);
         jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image)));
+symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));
         break;
         }
       default:
-        jj_la1[16] = jj_gen;
+        jj_la1[15] = jj_gen;
         if (jj_2_4(2)) {
           label_5:
           while (true) {
-            v = jj_consume_token(SIGNED_DECIMAL);
-records.add(v.image);
             switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-            case SIGNED_DECIMAL:{
+            case FUNCTION_ALPHANUMERIC:{
               ;
               break;
               }
             default:
-              jj_la1[15] = jj_gen;
+              jj_la1[13] = jj_gen;
               break label_5;
             }
+            v = jj_consume_token(FUNCTION_ALPHANUMERIC);
+records.add(v.image.substring(0, v.image.length()-1));
           }
-          jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image, records)));
-        } else {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-          case OPEN_PARENTHESES:
-          case WHERE:
-          case SIGNED_DECIMAL:
+          case SIGNED_DECIMAL:{
+            v = jj_consume_token(SIGNED_DECIMAL);
+            break;
+            }
           case ALPHANUMERIC:{
-            ccl = Start();
-            jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image, ccl)));
+            v = jj_consume_token(ALPHANUMERIC);
             break;
             }
           default:
-            jj_la1[17] = jj_gen;
+            jj_la1[14] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
+records.add(v.image);
+          jj_consume_token(CLOSE_PARENTHESES);
+symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));
+        } else {
+          switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+          case OPEN_PARENTHESES:
+          case SIGNED_DECIMAL:
+          case ALPHANUMERIC:{
+            ccl = Ccl();
+            jj_consume_token(CLOSE_PARENTHESES);
+symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));
+            break;
+            }
+          default:
+            jj_la1[16] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -431,7 +424,7 @@ symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image, cc
           break;
           }
         default:
-          jj_la1[18] = jj_gen;
+          jj_la1[17] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -459,7 +452,7 @@ value = v.image;
         break;
         }
       default:
-        jj_la1[19] = jj_gen;
+        jj_la1[18] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -501,7 +494,7 @@ symbols.add(new OperatorSymbol(transformOperator(o.image)));
           break;
           }
         default:
-          jj_la1[20] = jj_gen;
+          jj_la1[19] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -515,7 +508,7 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
           break;
           }
         default:
-          jj_la1[21] = jj_gen;
+          jj_la1[20] = jj_gen;
           break label_6;
         }
       }
@@ -523,7 +516,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
       break;
       }
     default:
-      jj_la1[22] = jj_gen;
+      jj_la1[21] = jj_gen;
       ;
     }
 }
@@ -570,7 +563,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 
   private boolean jj_3R_7()
  {
-    if (jj_scan_token(SIGNED_DECIMAL)) return true;
+    if (jj_scan_token(FUNCTION_ALPHANUMERIC)) return true;
     return false;
   }
 
@@ -581,21 +574,25 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
     return false;
   }
 
+  private boolean jj_3R_8()
+ {
+    if (jj_scan_token(FUNCTION_ALPHANUMERIC)) return true;
+    return false;
+  }
+
   private boolean jj_3_1()
  {
     Token xsp;
-    if (jj_3R_7()) return true;
     while (true) {
       xsp = jj_scanpos;
       if (jj_3R_7()) { jj_scanpos = xsp; break; }
     }
+    xsp = jj_scanpos;
+    if (jj_scan_token(25)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(26)) return true;
+    }
     if (jj_scan_token(CLOSE_PARENTHESES)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_8()
- {
-    if (jj_scan_token(SIGNED_DECIMAL)) return true;
     return false;
   }
 
@@ -612,11 +609,11 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
     xsp = jj_scanpos;
     if (jj_scan_token(23)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(24)) {
-    jj_scanpos = xsp;
     if (jj_scan_token(25)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(26)) return true;
+    if (jj_scan_token(26)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(27)) return true;
     }
     }
     }
@@ -626,10 +623,14 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
   private boolean jj_3_4()
  {
     Token xsp;
-    if (jj_3R_8()) return true;
     while (true) {
       xsp = jj_scanpos;
       if (jj_3R_8()) { jj_scanpos = xsp; break; }
+    }
+    xsp = jj_scanpos;
+    if (jj_scan_token(25)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(26)) return true;
     }
     if (jj_scan_token(CLOSE_PARENTHESES)) return true;
     return false;
@@ -646,7 +647,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[23];
+  final private int[] jj_la1 = new int[22];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -654,10 +655,10 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x100,0x80,0x3000008,0x600,0x3000000,0x3000000,0x8,0x3000000,0x1000000,0x0,0x3000048,0x7800000,0x7800000,0x3000000,0x1000000,0x0,0x3000048,0x7800000,0x7800000,0x7800000,0x7800000,0x20,};
+	   jj_la1_0 = new int[] {0x40,0x100,0x80,0x6000008,0x600,0x6000000,0x8,0x1000000,0x6000000,0x0,0x6000008,0xe800000,0xe800000,0x1000000,0x6000000,0x0,0x6000008,0xe800000,0xe800000,0xe800000,0xe800000,0x20,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x4,0x0,0x0,0x0,0x0,0x0,0x4,0x0,0x0,0x0,0x0,0x0,0x0,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2,0x0,0x0,0x0,0x0,0x0,0x2,0x0,0x0,0x0,0x0,0x0,0x0,};
 	}
   final private JJCalls[] jj_2_rtns = new JJCalls[5];
   private boolean jj_rescan = false;
@@ -674,7 +675,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 23; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 22; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -690,7 +691,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 	 jj_ntk = -1;
 	 jjtree.reset();
 	 jj_gen = 0;
-	 for (int i = 0; i < 23; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 22; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -701,7 +702,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 23; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 22; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -721,7 +722,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 	 jj_ntk = -1;
 	 jjtree.reset();
 	 jj_gen = 0;
-	 for (int i = 0; i < 23; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 22; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -731,7 +732,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 23; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 22; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -742,7 +743,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 	 jj_ntk = -1;
 	 jjtree.reset();
 	 jj_gen = 0;
-	 for (int i = 0; i < 23; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 22; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -868,12 +869,12 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[35];
+	 boolean[] la1tokens = new boolean[34];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 23; i++) {
+	 for (int i = 0; i < 22; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -885,7 +886,7 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 35; i++) {
+	 for (int i = 0; i < 34; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;
