@@ -26,7 +26,7 @@ public class ImplicitFunction extends Function {
      * @param function the function
      * @param key      the key
      */
-    protected ImplicitFunction(String function, String key) {
+    public ImplicitFunction(String function, String key) {
         super(function, key);
     }
 
