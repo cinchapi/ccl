@@ -115,7 +115,6 @@ public interface GrammarConstants {
     "<DIGIT>",
     "\".\"",
     "\"\\\\\"",
-    "\"\\n\"",
   };
 
 }
