@@ -172,6 +172,60 @@ public class GrammarTest {
         grammar.Start();
     }
 
+    @Test
+    public void validExplicitFunctionAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
+        String ccl = "count(friends, ?) > 3";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.Start();
+    }
+
+    @Test
+    public void validImplicitFunctionAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age > avg(age, ?)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.Start();
+    }
+
+    @Test
+    public void validExplicitFunctionWithSingleRecordAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age > avg(age, 1)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.Start();
+    }
+
+    @Test
+    public void validExplicitFunctionWithMultpleRecordsAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age > avg(age, 1, 2)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.Start();
+    }
+
+    @Test
+    public void validExplicitFunctionWithCCLAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age > avg(age, age < 30)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.Start();
+    }
+
+    @Test
+    public void validExplicitFunctionAsEvalutionKeyAndExplicitFunctionWithCCLAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "count(friends, ?) > avg(age, age < 30)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.Start();
+    }
+
     @Test (expected = ParseException.class)
     public void missingSecondOperandBinaryOperator() throws UnsupportedEncodingException, ParseException {
         String ccl = "a >< 1";
