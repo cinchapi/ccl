@@ -3,19 +3,11 @@ package com.cinchapi.ccl.v2.generated;
 
 public interface GrammarTreeConstants
 {
-  public int JJTSTART = 0;
-  public int JJTVOID = 1;
-  public int JJTOR = 2;
-  public int JJTAND = 3;
-  public int JJTRELATIONALEXPRESSION = 4;
+  public int JJTVOID = 0;
 
 
   public String[] jjtNodeName = {
-    "Start",
     "void",
-    "Or",
-    "And",
-    "RelationalExpression",
   };
 }
-/* JavaCC - OriginalChecksum=f9a8026a213b38f8b0fb8b4d98725d8c (do not edit this line) */
+/* JavaCC - OriginalChecksum=e3f43c6ba56d41f53b70fdc8c38e0dc7 (do not edit this line) */
