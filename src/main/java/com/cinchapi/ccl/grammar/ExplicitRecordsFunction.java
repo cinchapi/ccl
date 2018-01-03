@@ -30,7 +30,7 @@ public class ExplicitRecordsFunction extends ExplicitFunction<List<String>> {
      * @param key      the key
      * @param records  the records
      */
-    protected ExplicitRecordsFunction(String function, String key,
+    public ExplicitRecordsFunction(String function, String key,
             List<String> records) {
         super(function, key, records);
     }
