@@ -142,6 +142,8 @@ TOKEN :
 {
   < QUOTED_STRING : "\"" (~["\""])+ "\"">
 |
+  < FUNCTION_ALPHANUMERIC : (<SIGNED_DECIMAL> | <ALPHANUMERIC>)+ ",">
+|
   < SIGNED_DECIMAL : (("-")? ( (<DIGIT>)+|(<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
@@ -161,11 +163,20 @@ TOKEN :
 
 List<Symbol> Start() :
 {
-  List<Symbol> symbols = Lists.newArrayList();
+   List<Symbol> symbols = Lists.newArrayList();
 }
 {
-  (<WHERE>)? DisjunctionExpression(symbols) <EOF>
-  { return symbols; }
+   (<WHERE>)? DisjunctionExpression(symbols) <EOF>
+   { return symbols; }
+}
+
+List<Symbol> Ccl() :
+{
+   List<Symbol> symbols = Lists.newArrayList();
+}
+{
+   DisjunctionExpression(symbols)
+   { return symbols; }
 }
 
 void DisjunctionExpression(List<Symbol> symbols) : {}
@@ -205,8 +216,8 @@ void Key(List<Symbol> symbols) :
 {
   (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>)
   (
-    <OPEN_PARENTHESES> (f=<SIGNED_DECIMAL> | f=<ALPHANUMERIC>) ", ?" <CLOSE_PARENTHESES>
-    { symbols.add(new FunctionKeySymbol(new ImplicitFunction(k.image, f.image)));}
+    <OPEN_PARENTHESES> f=<FUNCTION_ALPHANUMERIC> " ?" <CLOSE_PARENTHESES>
+    { symbols.add(new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1))));}
   |
     { symbols.add(new KeySymbol(k.image)); }
   )
@@ -224,18 +235,19 @@ void UnaryValue(List<Symbol> symbols) :
 {
   LOOKAHEAD(2)
 
-  f=<ALPHANUMERIC> <OPEN_PARENTHESES> (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) ","
+  f=<ALPHANUMERIC> <OPEN_PARENTHESES> k=<FUNCTION_ALPHANUMERIC>
    (
-     "?" <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image)));}
+     " ?" <CLOSE_PARENTHESES>
+     { symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));}
    |
      LOOKAHEAD(2)
 
-     (v=<SIGNED_DECIMAL> { records.add(v.image); })+ <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image, records)));}
+     (v=<FUNCTION_ALPHANUMERIC> { records.add(v.image.substring(0, v.image.length()-1)); })*
+     (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC>) { records.add(v.image);} <CLOSE_PARENTHESES>
+     { symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));}
    |
-     ccl=Start() <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image, ccl)));}
+     ccl=Ccl() <CLOSE_PARENTHESES>
+     { symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));}
    )
 |
   ( LOOKAHEAD(2) (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? v.image : " " + v.image; })+
@@ -275,18 +287,19 @@ void BinaryValue(List<Symbol> symbols) :
 {
   LOOKAHEAD(2)
 
-  f=<ALPHANUMERIC> <OPEN_PARENTHESES> (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) ","
+  f=<ALPHANUMERIC> <OPEN_PARENTHESES> k=<FUNCTION_ALPHANUMERIC>
    (
-     "?" <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image)));}
+     " ?" <CLOSE_PARENTHESES>
+     { symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));}
    |
      LOOKAHEAD(2)
 
-     (v=<SIGNED_DECIMAL> { records.add(v.image); })+ <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image, records)));}
+     (v=<FUNCTION_ALPHANUMERIC> { records.add(v.image.substring(0, v.image.length()-1)); })*
+     (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC>) { records.add(v.image);} <CLOSE_PARENTHESES>
+     { symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));}
    |
-     ccl=Start() <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image, ccl)));}
+     ccl=Ccl() <CLOSE_PARENTHESES>
+     { symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));}
    )
 |
   (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
