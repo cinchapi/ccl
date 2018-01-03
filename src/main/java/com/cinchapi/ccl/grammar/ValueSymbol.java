@@ -23,7 +23,16 @@ import com.cinchapi.common.reflect.Reflection;
  *
  * @author Jeff Nelson
  */
-public final class ValueSymbol extends BaseSymbol {
+public final class ValueSymbol extends BaseValueSymbol<Object> {
+
+    /**
+     * Construct a new instance.
+     *
+     * @param value
+     */
+    public ValueSymbol(Object value) {
+        super(value);
+    }
 
     /**
      * Do any escaping of the {@code value} in order to preserve it during the
@@ -63,32 +72,9 @@ public final class ValueSymbol extends BaseSymbol {
         }
     }
 
-    /**
-     * The content of the {@link Symbol}.
-     */
-    private final Object value;
-
-    /**
-     * Construct a new instance.
-     * 
-     * @param value
-     */
-    public ValueSymbol(Object value) {
-        this.value = value;
-    }
-
     @Override
     public String toString() {
         return escape(value).toString();
-    }
-
-    /**
-     * Return the value associated with this {@link Symbol}.
-     * 
-     * @return the value
-     */
-    public Object value() {
-        return value;
     }
 
 }
