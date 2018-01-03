@@ -41,6 +41,22 @@ public abstract class Function {
     }
 
     /**
+     *
+     * @return
+     */
+    public String function() {
+        return function;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String key() {
+        return key;
+    }
+
+    /**
      * Return a string representation
      *
      * @return the string representation
