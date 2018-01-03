@@ -1,20 +1,29 @@
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
 import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarTokenizeVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
 import com.cinchapi.ccl.v2.generated.SimpleNode;
+import com.cinchapi.common.base.AnyStrings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Multimap;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Function;
@@ -58,55 +67,72 @@ public class JavaCCParser extends Parser {
         this.operatorTransformFunction = operatorTransformFunction;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Queue<PostfixNotationSymbol> order() {
-        try {
-            InputStream stream = new ByteArrayInputStream(
-                    ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
-
-            SimpleNode start = grammar.Start();
-            GrammarPostfixVisitor visitor = new GrammarPostfixVisitor(this,
-                    data);
-            return (Queue<PostfixNotationSymbol>) start.jjtAccept(visitor,
-                    null);
-        }
-        catch (Exception exception) {
-            Throwables.propagate(exception);
-        }
-        return null;
+        return Parsing.toPostfixNotation(tokenize());
     }
 
     @Override
     public AbstractSyntaxTree parse() {
-        try {
-            InputStream stream = new ByteArrayInputStream(
-                    ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
-
-            SimpleNode start = grammar.Start();
-            GrammarTreeVisitor visitor = new GrammarTreeVisitor(this, data);
-            return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
+        List<Symbol> symbols = tokenize();
+        Deque<Symbol> operatorStack = new ArrayDeque<Symbol>();
+        Deque<AbstractSyntaxTree> operandStack = new ArrayDeque<AbstractSyntaxTree>();
+        symbols = Parsing.groupExpressions(symbols);
+        main: for (Symbol symbol : symbols) {
+            if(symbol == ParenthesisSymbol.LEFT) {
+                operatorStack.push(symbol);
+            }
+            else if(symbol == ParenthesisSymbol.RIGHT) {
+                while (!operatorStack.isEmpty()) {
+                    Symbol popped = operatorStack.pop();
+                    if(popped == ParenthesisSymbol.LEFT) {
+                        continue main;
+                    }
+                    else {
+                        addAbstractSyntaxTreeNode(operandStack, popped);
+                    }
+                }
+                throw new SyntaxException(AnyStrings.format(
+                        "Syntax error in {}: Mismatched parenthesis", symbols));
+            }
+            else if(symbol instanceof ConjunctionSymbol) {
+                final ConjunctionSymbol con1 = (ConjunctionSymbol) symbol;
+                Symbol symbol2;
+                while (!operatorStack.isEmpty()
+                        && (symbol2 = operatorStack.peek()) != null
+                        && symbol2 instanceof ConjunctionSymbol) {
+                    ConjunctionSymbol con2 = (ConjunctionSymbol) symbol2;
+                    if((!con1.isRightAssociative()
+                            && con1.comparePrecedence(con2) == 0)
+                            || con1.comparePrecedence(con2) < 0) {
+                        operatorStack.pop();
+                        addAbstractSyntaxTreeNode(operandStack, con2);
+                    }
+                    else {
+                        break;
+                    }
+                }
+                operatorStack.push(symbol);
+            }
+            else if(symbol instanceof Expression) {
+                operandStack.push(new ExpressionTree((Expression) symbol));
+            }
         }
-        catch (Exception exception) {
-            Throwables.propagate(exception);
+        while (!operatorStack.isEmpty()) {
+            addAbstractSyntaxTreeNode(operandStack, operatorStack.pop());
         }
-        return null;
+        return operandStack.pop();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Symbol> tokenize() {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data);
 
-            SimpleNode start = grammar.Start();
-            GrammarTokenizeVisitor visitor = new GrammarTokenizeVisitor(this,
-                    data);
-            return (List<Symbol>) start.jjtAccept(visitor, null);
+            return grammar.Start();
         }
         catch (Exception exception) {
             Throwables.propagate(exception);
@@ -122,5 +148,25 @@ public class JavaCCParser extends Parser {
     @Override
     public Object transformValue(String token) {
         return valueTransformFunction.apply(token);
+    }
+
+    /**
+     * An the appropriate {@link AbstractSyntaxTree} node to the {@code stack}
+     * based on
+     * {@code operator}.
+     *
+     * @param stack
+     * @param operator
+     */
+    private void addAbstractSyntaxTreeNode(Deque<AbstractSyntaxTree> stack,
+            Symbol operator) {
+        AbstractSyntaxTree right = stack.pop();
+        AbstractSyntaxTree left = stack.pop();
+        if(operator == ConjunctionSymbol.AND) {
+            stack.push(new AndTree(left, right));
+        }
+        else {
+            stack.push(new OrTree(left, right));
+        }
     }
 }
