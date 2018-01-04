@@ -1,14 +1,8 @@
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
 import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
@@ -24,8 +18,6 @@ import com.google.common.collect.Multimap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Function;
@@ -73,7 +65,6 @@ public class JavaCCParser extends Parser {
         this.operatorTransformFunction = operatorTransformFunction;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Queue<PostfixNotationSymbol> order() {
         try {
@@ -132,25 +123,5 @@ public class JavaCCParser extends Parser {
     @Override
     public Object transformValue(String token) {
         return valueTransformFunction.apply(token);
-    }
-
-    /**
-     * An the appropriate {@link AbstractSyntaxTree} node to the {@code stack}
-     * based on
-     * {@code operator}.
-     *
-     * @param stack
-     * @param operator
-     */
-    private void addAbstractSyntaxTreeNode(Deque<AbstractSyntaxTree> stack,
-            Symbol operator) {
-        AbstractSyntaxTree right = stack.pop();
-        AbstractSyntaxTree left = stack.pop();
-        if(operator == ConjunctionSymbol.AND) {
-            stack.push(new AndTree(left, right));
-        }
-        else {
-            stack.push(new OrTree(left, right));
-        }
     }
 }
