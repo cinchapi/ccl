@@ -148,13 +148,17 @@ TOKEN :
 |
   < SINGLE_QUOTED_STRING : ("'" ("\\" ~[] | ~["'", "\\"])+ "'") | ("‘" ("\\" ~[] | ~["’", "\\"])+ "’") >
 |
-  < FUNCTION_ALPHANUMERIC : (<SIGNED_DECIMAL> | <ALPHANUMERIC>)+ ",">
+  < FUNCTION_SIGNED_INTEGER : <SIGNED_INTEGER> ",">
 |
   < SIGNED_DECIMAL : (("-")? ((<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
 |
   < NUMERIC: (<DIGIT>)+ >
 |
-  < SIGNED_DECIMAL : (("-")? ( (<DIGIT>)+|(<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
+  < FUNCTION_ALPHANUMERIC : <ALPHANUMERIC> ",">
+|
+  < SIGNED_INTEGER : (("-" | "+")? (<DIGIT>)+) >
+|
+  < SIGNED_DECIMAL : (("-" | "+")?  (<DIGIT>)+<PERIOD>(<DIGIT>)+ ) >
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
@@ -224,9 +228,9 @@ void Key(List<Symbol> symbols) :
   Token k;
 }
 {
-  (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>)
+  (k=<SIGNED_INTEGER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>)
   (
-    <OPEN_PARENTHESES> f=<FUNCTION_ALPHANUMERIC> " ?" <CLOSE_PARENTHESES>
+    <OPEN_PARENTHESES> (f=<FUNCTION_SIGNED_INTEGER> | f=<FUNCTION_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
     { symbols.add(new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1))));}
   |
     { symbols.add(new KeySymbol(k.image)); }
@@ -245,22 +249,22 @@ void UnaryValue(List<Symbol> symbols) :
 {
   LOOKAHEAD(2)
 
-  f=<ALPHANUMERIC> <OPEN_PARENTHESES> k=<FUNCTION_ALPHANUMERIC>
+  f=<ALPHANUMERIC> <OPEN_PARENTHESES> (k=<FUNCTION_SIGNED_INTEGER> | k=<FUNCTION_ALPHANUMERIC>)
    (
      " ?" <CLOSE_PARENTHESES>
      { symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));}
    |
      LOOKAHEAD(2)
 
-     (v=<FUNCTION_ALPHANUMERIC> { records.add(v.image.substring(0, v.image.length()-1)); })*
-     (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC>) { records.add(v.image);} <CLOSE_PARENTHESES>
+     (v=<FUNCTION_SIGNED_INTEGER> { records.add(v.image.substring(0, v.image.length()-1)); })*
+     (v=<SIGNED_INTEGER>) { records.add(v.image);} <CLOSE_PARENTHESES>
      { symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));}
    |
      ccl=Ccl() <CLOSE_PARENTHESES>
      { symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));}
    )
 |
-  ( LOOKAHEAD(2) (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? v.image : " " + v.image; })+
+  ( LOOKAHEAD(2) (v=<QUOTED_STRING> | v=<SIGNED_INTEGER> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? v.image : " " + v.image; })+
   {
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
@@ -297,22 +301,22 @@ void BinaryValue(List<Symbol> symbols) :
 {
   LOOKAHEAD(2)
 
-  f=<ALPHANUMERIC> <OPEN_PARENTHESES> k=<FUNCTION_ALPHANUMERIC>
+  f=<ALPHANUMERIC> <OPEN_PARENTHESES> (k=<FUNCTION_SIGNED_INTEGER> | k=<FUNCTION_ALPHANUMERIC>)
    (
      " ?" <CLOSE_PARENTHESES>
      { symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));}
    |
      LOOKAHEAD(2)
 
-     (v=<FUNCTION_ALPHANUMERIC> { records.add(v.image.substring(0, v.image.length()-1)); })*
-     (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC>) { records.add(v.image);} <CLOSE_PARENTHESES>
+     (v=<FUNCTION_SIGNED_INTEGER> { records.add(v.image.substring(0, v.image.length()-1)); })*
+     (v=<SIGNED_INTEGER>) { records.add(v.image);} <CLOSE_PARENTHESES>
      { symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));}
    |
      ccl=Ccl() <CLOSE_PARENTHESES>
      { symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));}
    )
 |
-  (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+  (v=<QUOTED_STRING> | v=<SIGNED_INTEGER> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
   {
     value = v.image;
     if(value.charAt(0) == '$') {
@@ -360,6 +364,6 @@ void Timestamp(List<Symbol> symbols) :
   String ts = "";
 }
 {
-  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { ts += (ts.equals("")) ? t.image : " " + t.image; })+
+  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_INTEGER> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { ts += (ts.equals("")) ? t.image : " " + t.image; })+
   { symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts))); })?
 }
