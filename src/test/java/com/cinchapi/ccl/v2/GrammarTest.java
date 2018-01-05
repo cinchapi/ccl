@@ -351,6 +351,14 @@ public class GrammarTest {
         grammar.Start();
     }
 
+    @Test
+    public void validParenthesizedExpression() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 1 or (b = 2 and c = 3)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.Start();
+    }
+
     @Test (expected = ParseException.class)
     public void missingKeyExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "= 1";
