@@ -3,6 +3,8 @@
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.SyntaxException;
+import com.cinchapi.ccl.grammar.BaseKeySymbol;
+import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExplicitCclFunction;
 import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
@@ -61,19 +63,44 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
         return valueTransformFunction.apply(token);
     }
 
-  final public List<Symbol> Start() throws ParseException {List<Symbol> symbols = Lists.newArrayList();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case WHERE:{
-      jj_consume_token(WHERE);
-      break;
+  final public ASTStart Start() throws ParseException {/*@bgen(jjtree) Start */
+   ASTStart jjtn000 = new ASTStart(JJTSTART);
+   boolean jjtc000 = true;
+   jjtree.openNodeScope(jjtn000);List<Symbol> symbols = Lists.newArrayList();
+    try {
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case WHERE:{
+        jj_consume_token(WHERE);
+        break;
+        }
+      default:
+        jj_la1[0] = jj_gen;
+        ;
       }
-    default:
-      jj_la1[0] = jj_gen;
-      ;
+      DisjunctionExpression(symbols);
+      jj_consume_token(0);
+jjtree.closeNodeScope(jjtn000, true);
+     jjtc000 = false;
+{if ("" != null) return jjtn000;}
+    } catch (Throwable jjte000) {
+if (jjtc000) {
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       {if (true) throw (RuntimeException)jjte000;}
+     }
+     if (jjte000 instanceof ParseException) {
+       {if (true) throw (ParseException)jjte000;}
+     }
+     {if (true) throw (Error)jjte000;}
+    } finally {
+if (jjtc000) {
+       jjtree.closeNodeScope(jjtn000, true);
+     }
     }
-    DisjunctionExpression(symbols);
-    jj_consume_token(0);
-{if ("" != null) return symbols;}
     throw new Error("Missing return statement in function");
 }
 
@@ -96,9 +123,32 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
         jj_la1[1] = jj_gen;
         break label_1;
       }
-      jj_consume_token(DISJUNCTION);
+ASTOr jjtn001 = new ASTOr(JJTOR);
+                                      boolean jjtc001 = true;
+                                      jjtree.openNodeScope(jjtn001);
+      try {
+        jj_consume_token(DISJUNCTION);
 symbols.add(ConjunctionSymbol.OR);
-      ConjunctionExpression(symbols);
+        ConjunctionExpression(symbols);
+      } catch (Throwable jjte001) {
+if (jjtc001) {
+                                        jjtree.clearNodeScope(jjtn001);
+                                        jjtc001 = false;
+                                      } else {
+                                        jjtree.popNode();
+                                      }
+                                      if (jjte001 instanceof RuntimeException) {
+                                        {if (true) throw (RuntimeException)jjte001;}
+                                      }
+                                      if (jjte001 instanceof ParseException) {
+                                        {if (true) throw (ParseException)jjte001;}
+                                      }
+                                      {if (true) throw (Error)jjte001;}
+      } finally {
+if (jjtc001) {
+                                        jjtree.closeNodeScope(jjtn001,  2);
+                                      }
+      }
     }
 }
 
@@ -115,9 +165,32 @@ symbols.add(ConjunctionSymbol.OR);
         jj_la1[2] = jj_gen;
         break label_2;
       }
-      jj_consume_token(CONJUNCTION);
+ASTAnd jjtn001 = new ASTAnd(JJTAND);
+                                boolean jjtc001 = true;
+                                jjtree.openNodeScope(jjtn001);
+      try {
+        jj_consume_token(CONJUNCTION);
 symbols.add(ConjunctionSymbol.AND);
-      UnaryExpression(symbols);
+        UnaryExpression(symbols);
+      } catch (Throwable jjte001) {
+if (jjtc001) {
+                                  jjtree.clearNodeScope(jjtn001);
+                                  jjtc001 = false;
+                                } else {
+                                  jjtree.popNode();
+                                }
+                                if (jjte001 instanceof RuntimeException) {
+                                  {if (true) throw (RuntimeException)jjte001;}
+                                }
+                                if (jjte001 instanceof ParseException) {
+                                  {if (true) throw (ParseException)jjte001;}
+                                }
+                                {if (true) throw (Error)jjte001;}
+      } finally {
+if (jjtc001) {
+                                  jjtree.closeNodeScope(jjtn001,  2);
+                                }
+      }
     }
 }
 
@@ -144,30 +217,70 @@ symbols.add(ParenthesisSymbol.RIGHT);
     }
 }
 
-  final public void RelationalExpression(List<Symbol> symbols) throws ParseException {
-    Key(symbols);
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case UNARY_OPERATOR:{
-      UnaryOperator(symbols);
-      UnaryValue(symbols);
-      Timestamp(symbols);
-      break;
+  final public void RelationalExpression(List<Symbol> symbols) throws ParseException {/*@bgen(jjtree) RelationalExpression */
+    ASTRelationalExpression jjtn000 = new ASTRelationalExpression(JJTRELATIONALEXPRESSION);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);BaseKeySymbol key = null;
+    OperatorSymbol operator = null;
+    BaseValueSymbol value1 = null;
+    BaseValueSymbol value2 = null;
+    TimestampSymbol timestamp = null;
+    try {
+      key = Key();
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case UNARY_OPERATOR:{
+        operator = UnaryOperator();
+        value1 = UnaryValue();
+        timestamp = Timestamp();
+        break;
+        }
+      case BINARY_OPERATOR:{
+        operator = BinaryOperator();
+        value1 = BinaryValue();
+        value2 = BinaryValue();
+        timestamp = Timestamp();
+        break;
+        }
+      default:
+        jj_la1[4] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
       }
-    case BINARY_OPERATOR:{
-      BinaryOperator(symbols);
-      BinaryValue(symbols);
-      BinaryValue(symbols);
-      Timestamp(symbols);
-      break;
+jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+jjtn000.key(key);
+          jjtn000.operator(operator);
+          jjtn000.addValue(value1);
+          if(value2 != null) jjtn000.addValue(value2);
+          if(timestamp != null) jjtn000.timestamp(timestamp);
+
+          symbols.add(key);
+          symbols.add(operator);
+          symbols.add(value1);
+          if(value2 != null) symbols.add(value2);
+          if(timestamp != null) symbols.add(timestamp);
+    } catch (Throwable jjte000) {
+if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
       }
-    default:
-      jj_la1[4] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+      if (jjte000 instanceof RuntimeException) {
+        {if (true) throw (RuntimeException)jjte000;}
+      }
+      if (jjte000 instanceof ParseException) {
+        {if (true) throw (ParseException)jjte000;}
+      }
+      {if (true) throw (Error)jjte000;}
+    } finally {
+if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
     }
 }
 
-  final public void Key(List<Symbol> symbols) throws ParseException {Token f;
+  final public BaseKeySymbol Key() throws ParseException {Token f;
   Token k;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case SIGNED_INTEGER:{
@@ -206,16 +319,17 @@ symbols.add(ParenthesisSymbol.RIGHT);
       }
       jj_consume_token(35);
       jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1))));
+{if ("" != null) return new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1)));}
       break;
       }
     default:
       jj_la1[7] = jj_gen;
-symbols.add(new KeySymbol(k.image));
+{if ("" != null) return new KeySymbol(k.image);}
     }
+    throw new Error("Missing return statement in function");
 }
 
-  final public void UnaryValue(List<Symbol> symbols) throws ParseException {Token f;
+  final public BaseValueSymbol UnaryValue() throws ParseException {Token f;
   Token k;
   Token v;
   String value = "";
@@ -242,7 +356,7 @@ symbols.add(new KeySymbol(k.image));
       case 35:{
         jj_consume_token(35);
         jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));
+{if ("" != null) return new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1)));}
         break;
         }
       default:
@@ -265,7 +379,7 @@ records.add(v.image.substring(0, v.image.length()-1));
           v = jj_consume_token(SIGNED_INTEGER);
 records.add(v.image);
           jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));
+{if ("" != null) return new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records));}
         } else {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case OPEN_PARENTHESES:
@@ -274,7 +388,7 @@ symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image
           case ALPHANUMERIC:{
             ccl = Ccl();
             jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));
+{if ("" != null) return new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl));}
             break;
             }
           default:
@@ -345,7 +459,7 @@ if(value.charAt(0) == '$') {
         value = value.substring(1);
     }
 
-    symbols.add(new ValueSymbol(transformValue(value)));
+    {if ("" != null) return new ValueSymbol(transformValue(value));}
         break;
         }
       default:
@@ -354,9 +468,10 @@ if(value.charAt(0) == '$') {
         throw new ParseException();
       }
     }
+    throw new Error("Missing return statement in function");
 }
 
-  final public void BinaryValue(List<Symbol> symbols) throws ParseException {Token f;
+  final public BaseValueSymbol BinaryValue() throws ParseException {Token f;
   Token k;
   Token v;
   String value = "";
@@ -383,7 +498,7 @@ if(value.charAt(0) == '$') {
       case 35:{
         jj_consume_token(35);
         jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));
+{if ("" != null) return new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1)));}
         break;
         }
       default:
@@ -406,7 +521,7 @@ records.add(v.image.substring(0, v.image.length()-1));
           v = jj_consume_token(SIGNED_INTEGER);
 records.add(v.image);
           jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));
+{if ("" != null) return new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records));}
         } else {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case OPEN_PARENTHESES:
@@ -415,7 +530,7 @@ symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image
           case ALPHANUMERIC:{
             ccl = Ccl();
             jj_consume_token(CLOSE_PARENTHESES);
-symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));
+{if ("" != null) return new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl));}
             break;
             }
           default:
@@ -478,7 +593,7 @@ value = v.image;
         value = value.substring(1);
     }
 
-    symbols.add(new ValueSymbol(transformValue(value)));
+    {if ("" != null) return new ValueSymbol(transformValue(value));}
         break;
         }
       default:
@@ -487,19 +602,22 @@ value = v.image;
         throw new ParseException();
       }
     }
+    throw new Error("Missing return statement in function");
 }
 
-  final public void UnaryOperator(List<Symbol> symbols) throws ParseException {Token o;
+  final public OperatorSymbol UnaryOperator() throws ParseException {Token o;
     o = jj_consume_token(UNARY_OPERATOR);
-symbols.add(new OperatorSymbol(transformOperator(o.image)));
+{if ("" != null) return new OperatorSymbol(transformOperator(o.image));}
+    throw new Error("Missing return statement in function");
 }
 
-  final public void BinaryOperator(List<Symbol> symbols) throws ParseException {Token o;
+  final public OperatorSymbol BinaryOperator() throws ParseException {Token o;
     o = jj_consume_token(BINARY_OPERATOR);
-symbols.add(new OperatorSymbol(transformOperator(o.image)));
+{if ("" != null) return new OperatorSymbol(transformOperator(o.image));}
+    throw new Error("Missing return statement in function");
 }
 
-  final public void Timestamp(List<Symbol> symbols) throws ParseException {Token t;
+  final public TimestampSymbol Timestamp() throws ParseException {Token t;
   String ts = "";
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TIMESTAMP:{
@@ -547,13 +665,15 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
           break label_6;
         }
       }
-symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
+{if ("" != null) return new TimestampSymbol(NaturalLanguage.parseMicros(ts));}
       break;
       }
     default:
       jj_la1[22] = jj_gen;
       ;
     }
+{if ("" != null) return null;}
+    throw new Error("Missing return statement in function");
 }
 
   private boolean jj_2_1(int xla)
@@ -594,6 +714,24 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
     try { return (!jj_3_5()); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(4, xla); }
+  }
+
+  private boolean jj_3R_8()
+ {
+    if (jj_scan_token(FUNCTION_SIGNED_INTEGER)) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_7()) { jj_scanpos = xsp; break; }
+    }
+    if (jj_scan_token(SIGNED_INTEGER)) return true;
+    if (jj_scan_token(CLOSE_PARENTHESES)) return true;
+    return false;
   }
 
   private boolean jj_3_5()
@@ -645,24 +783,6 @@ symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts)));
  {
     if (jj_scan_token(ALPHANUMERIC)) return true;
     if (jj_scan_token(OPEN_PARENTHESES)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_8()
- {
-    if (jj_scan_token(FUNCTION_SIGNED_INTEGER)) return true;
-    return false;
-  }
-
-  private boolean jj_3_1()
- {
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_7()) { jj_scanpos = xsp; break; }
-    }
-    if (jj_scan_token(SIGNED_INTEGER)) return true;
-    if (jj_scan_token(CLOSE_PARENTHESES)) return true;
     return false;
   }
 
