@@ -26,6 +26,8 @@ PARSER_BEGIN(Grammar)
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.SyntaxException;
+import com.cinchapi.ccl.grammar.BaseKeySymbol;
+import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExplicitCclFunction;
 import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
@@ -165,13 +167,13 @@ TOKEN :
   < #ESCAPE: "\\" >
 }
 
-List<Symbol> Start() :
+ASTStart Start() #Start :
 {
    List<Symbol> symbols = Lists.newArrayList();
 }
 {
    (<WHERE>)? DisjunctionExpression(symbols) <EOF>
-   { return symbols; }
+   { return jjtThis; }
 }
 
 List<Symbol> Ccl() :
@@ -186,33 +188,52 @@ List<Symbol> Ccl() :
 void DisjunctionExpression(List<Symbol> symbols) : {}
 {
   (
-    ConjunctionExpression(symbols) (((<DISJUNCTION>) { symbols.add(ConjunctionSymbol.OR); } ConjunctionExpression(symbols)) )*
+    ConjunctionExpression(symbols) (((<DISJUNCTION>) { symbols.add(ConjunctionSymbol.OR); } ConjunctionExpression(symbols)) #Or(2) )*
   )
 }
 
 void ConjunctionExpression(List<Symbol> symbols) : {}
 {
   (
-    UnaryExpression(symbols) (((<CONJUNCTION>) { symbols.add(ConjunctionSymbol.AND); } UnaryExpression(symbols)) )*
+    UnaryExpression(symbols) (((<CONJUNCTION>) { symbols.add(ConjunctionSymbol.AND); } UnaryExpression(symbols)) #And(2) )*
   )
 }
 
 void UnaryExpression(List<Symbol> symbols) : {}
 {
    (<OPEN_PARENTHESES>) { symbols.add(ParenthesisSymbol.LEFT); } DisjunctionExpression(symbols) (<CLOSE_PARENTHESES>) { symbols.add(ParenthesisSymbol.RIGHT); } | RelationalExpression(symbols)
+
 }
 
-void RelationalExpression(List<Symbol> symbols) : {}
+void RelationalExpression(List<Symbol> symbols) #RelationalExpression :
 {
-    Key(symbols)
+    BaseKeySymbol key = null;
+    OperatorSymbol operator = null;
+    BaseValueSymbol value1 = null;
+    BaseValueSymbol value2 = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    key=Key()
       (
-        UnaryOperator(symbols) UnaryValue(symbols) Timestamp(symbols)
+        operator=UnaryOperator() value1=UnaryValue() timestamp=Timestamp()
       |
-        BinaryOperator(symbols) BinaryValue(symbols) BinaryValue(symbols) Timestamp(symbols)
-      )
+        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() timestamp=Timestamp()
+      ) { jjtThis.key(key);
+          jjtThis.operator(operator);
+          jjtThis.addValue(value1);
+          if(value2 != null) jjtThis.addValue(value2);
+          if(timestamp != null) jjtThis.timestamp(timestamp);
+
+          symbols.add(key);
+          symbols.add(operator);
+          symbols.add(value1);
+          if(value2 != null) symbols.add(value2);
+          if(timestamp != null) symbols.add(timestamp);
+        }
 }
 
-void Key(List<Symbol> symbols) :
+BaseKeySymbol Key() :
 {
   Token f;
   Token k;
@@ -221,13 +242,13 @@ void Key(List<Symbol> symbols) :
   (k=<SIGNED_INTEGER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>)
   (
     <OPEN_PARENTHESES> (f=<FUNCTION_SIGNED_INTEGER> | f=<FUNCTION_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
-    { symbols.add(new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1))));}
+    { return new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1)));}
   |
-    { symbols.add(new KeySymbol(k.image)); }
+    { return new KeySymbol(k.image); }
   )
 }
 
-void UnaryValue(List<Symbol> symbols) :
+BaseValueSymbol UnaryValue() :
 {
   Token f;
   Token k;
@@ -242,16 +263,16 @@ void UnaryValue(List<Symbol> symbols) :
   f=<ALPHANUMERIC> <OPEN_PARENTHESES> (k=<FUNCTION_SIGNED_INTEGER> | k=<FUNCTION_ALPHANUMERIC>)
    (
      " ?" <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));}
+     { return new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1)));}
    |
      LOOKAHEAD(2)
 
      (v=<FUNCTION_SIGNED_INTEGER> { records.add(v.image.substring(0, v.image.length()-1)); })*
      (v=<SIGNED_INTEGER>) { records.add(v.image);} <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));}
+     { return new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records));}
    |
      ccl=Ccl() <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));}
+     { return new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl));}
    )
 |
   ( LOOKAHEAD(2) (v=<QUOTED_STRING> | v=<SIGNED_INTEGER> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? v.image : " " + v.image; })+
@@ -275,11 +296,11 @@ void UnaryValue(List<Symbol> symbols) :
         value = value.substring(1);
     }
 
-    symbols.add(new ValueSymbol(transformValue(value)));
+    return new ValueSymbol(transformValue(value));
   }
 }
 
-void BinaryValue(List<Symbol> symbols) :
+BaseValueSymbol BinaryValue() :
 {
   Token f;
   Token k;
@@ -294,16 +315,16 @@ void BinaryValue(List<Symbol> symbols) :
   f=<ALPHANUMERIC> <OPEN_PARENTHESES> (k=<FUNCTION_SIGNED_INTEGER> | k=<FUNCTION_ALPHANUMERIC>)
    (
      " ?" <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1))));}
+     { return new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1)));}
    |
      LOOKAHEAD(2)
 
      (v=<FUNCTION_SIGNED_INTEGER> { records.add(v.image.substring(0, v.image.length()-1)); })*
      (v=<SIGNED_INTEGER>) { records.add(v.image);} <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records)));}
+     { return new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records));}
    |
      ccl=Ccl() <CLOSE_PARENTHESES>
-     { symbols.add(new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl)));}
+     { return new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl));}
    )
 |
   (v=<QUOTED_STRING> | v=<SIGNED_INTEGER> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
@@ -328,32 +349,33 @@ void BinaryValue(List<Symbol> symbols) :
         value = value.substring(1);
     }
 
-    symbols.add(new ValueSymbol(transformValue(value)));
+    return new ValueSymbol(transformValue(value));
   }
 }
 
-void UnaryOperator(List<Symbol> symbols) :
+OperatorSymbol UnaryOperator() :
 {
   Token o;
 }
 {
-  o=<UNARY_OPERATOR> { symbols.add(new OperatorSymbol(transformOperator(o.image))); }
+  o=<UNARY_OPERATOR> { return new OperatorSymbol(transformOperator(o.image)); }
 }
 
-void BinaryOperator(List<Symbol> symbols) :
+OperatorSymbol BinaryOperator() :
 {
   Token o;
 }
 {
-  o=<BINARY_OPERATOR> { symbols.add(new OperatorSymbol(transformOperator(o.image))); }
+  o=<BINARY_OPERATOR> { return new OperatorSymbol(transformOperator(o.image)); }
 }
 
-void Timestamp(List<Symbol> symbols) :
+TimestampSymbol Timestamp() :
 {
   Token t;
   String ts = "";
 }
 {
   (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_INTEGER> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { ts += (ts.equals("")) ? t.image : " " + t.image; })+
-  { symbols.add(new TimestampSymbol(NaturalLanguage.parseMicros(ts))); })?
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(ts)); })?
+  { return null; }
 }
