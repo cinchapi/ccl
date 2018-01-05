@@ -362,6 +362,8 @@ public class JavaCCParserLogicTest {
         expression = new Expression(key, operator, value);
         expectedOrder.add(expression);
 
+        expectedOrder.add(ConjunctionSymbol.AND);
+
         key = new KeySymbol("c");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
@@ -369,7 +371,6 @@ public class JavaCCParserLogicTest {
         expression = new Expression(key, operator, value);
         expectedOrder.add(expression);
 
-        expectedOrder.add(ConjunctionSymbol.AND);
         expectedOrder.add(ConjunctionSymbol.AND);
 
         // Generate queue
@@ -795,15 +796,21 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testDisjunctionParenthesizedConjunctionAbstractSyntaxTree() {
-        String ccl = "a = 1 or (b = 2 and c = 3)";
+        String ccl = "a = 1 and (b = 2 or c = 3)";
+
+        long start = System.nanoTime();
 
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
+        long end = System.nanoTime();
+        System.out.println(end-start / 1000000);
+
+
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof OrTree);
+        Assert.assertTrue(tree instanceof AndTree);
         ConjunctionTree rootNode = (ConjunctionTree) tree;
 
         // Left node
@@ -814,7 +821,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("1", leftExpression.values().get(0).toString());
 
         // Right node
-        Assert.assertTrue(rootNode.right() instanceof AndTree);
+        Assert.assertTrue(rootNode.right() instanceof OrTree);
         ConjunctionTree rightNode = (ConjunctionTree) rootNode.right();
 
         // Right left node
