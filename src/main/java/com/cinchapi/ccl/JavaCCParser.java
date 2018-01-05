@@ -6,6 +6,9 @@ import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
 import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
+import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
+import com.cinchapi.ccl.v2.generated.SimpleNode;
+import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarTokenizeVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
 import com.cinchapi.ccl.v2.generated.SimpleNode;
@@ -65,6 +68,7 @@ public class JavaCCParser extends Parser {
         this.operatorTransformFunction = operatorTransformFunction;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Queue<PostfixNotationSymbol> order() {
         try {
@@ -84,22 +88,27 @@ public class JavaCCParser extends Parser {
         return Parsing.toPostfixNotation(tokenize());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public AbstractSyntaxTree parse() {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data);
 
             SimpleNode start = grammar.Start();
-            GrammarTreeVisitor visitor = new GrammarTreeVisitor(this, data);
+
+            GrammarTreeVisitor visitor = new GrammarTreeVisitor();
             return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            Throwables.propagate(exception);
         }
+        return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<Symbol> tokenize() {
         try {
@@ -107,8 +116,7 @@ public class JavaCCParser extends Parser {
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream, valueTransformFunction,
                     operatorTransformFunction, data);
-
-            return grammar.Start();
+            return grammar.Ccl();
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, this);

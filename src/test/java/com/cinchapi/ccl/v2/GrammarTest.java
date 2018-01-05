@@ -20,6 +20,7 @@ import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.cinchapi.ccl.v2.generated.Grammar;
@@ -262,6 +263,14 @@ public class GrammarTest {
     @Test
     public void validDisjunctionExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 or b = 2";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.Start();
+    }
+
+    @Test
+    public void validParenthesizedExpression() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 1 or (b = 2 and c = 3)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
         grammar.Start();

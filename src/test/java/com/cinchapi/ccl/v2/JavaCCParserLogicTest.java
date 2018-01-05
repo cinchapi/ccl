@@ -83,6 +83,26 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
+    public void testSingleBinaryExpressionTokenize() {
+        String ccl = "a >< 1 3";
+
+        // Build expected queue
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("><")));
+        expectedTokens.add(new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
+        expectedTokens.add(new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
+
+        // Generate queue
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
     public void testSingleConjunctionTokenize() {
         String ccl = "a = 1 and b = 2";
 
@@ -350,6 +370,8 @@ public class JavaCCParserLogicTest {
         expression = new Expression(key, operator, value);
         expectedOrder.add(expression);
 
+        expectedOrder.add(ConjunctionSymbol.AND);
+
         key = new KeySymbol("c");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
@@ -357,7 +379,6 @@ public class JavaCCParserLogicTest {
         expression = new Expression(key, operator, value);
         expectedOrder.add(expression);
 
-        expectedOrder.add(ConjunctionSymbol.AND);
         expectedOrder.add(ConjunctionSymbol.AND);
 
         // Generate queue
@@ -545,6 +566,24 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("a", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("1", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testSingleBinaryExpressionAbstractSyntaxTree() {
+        String ccl = "a >< 1 2";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("a", expression.key().toString());
+        Assert.assertEquals("><", expression.operator().toString());
+        Assert.assertEquals("1", expression.values().get(0).toString());
+        Assert.assertEquals("2", expression.values().get(1).toString());
     }
 
     @Test
@@ -765,15 +804,21 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testDisjunctionParenthesizedConjunctionAbstractSyntaxTree() {
-        String ccl = "a = 1 or (b = 2 and c = 3)";
+        String ccl = "a = 1 and (b = 2 or c = 3)";
+
+        long start = System.nanoTime();
 
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
+        long end = System.nanoTime();
+        System.out.println(end-start / 1000000);
+
+
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof OrTree);
+        Assert.assertTrue(tree instanceof AndTree);
         ConjunctionTree rootNode = (ConjunctionTree) tree;
 
         // Left node
@@ -784,7 +829,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("1", leftExpression.values().get(0).toString());
 
         // Right node
-        Assert.assertTrue(rootNode.right() instanceof AndTree);
+        Assert.assertTrue(rootNode.right() instanceof OrTree);
         ConjunctionTree rightNode = (ConjunctionTree) rootNode.right();
 
         // Right left node
