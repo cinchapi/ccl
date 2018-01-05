@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2013-2017 Cinchapi Inc.
  *
