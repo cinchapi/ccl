@@ -16,7 +16,9 @@
 package com.cinchapi.ccl.util;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Longs;
 import com.joestelmach.natty.DateGroup;
 
@@ -55,6 +58,16 @@ public final class NaturalLanguage {
                 .setLevel(Level.OFF);
     }
 
+    // @formatter:off
+    private static Set<DateTimeFormatter> DATETIME_FORMATTERS = ImmutableSet.of(
+            DEFAULT_FORMATTER,
+            DateTimeFormat.forPattern("MMM dd, yyyy"),
+            DateTimeFormat.forPattern("MM/dd/yyyy"),
+            DateTimeFormat.forPattern("MM-dd-yyyy")
+            
+    );
+    // @formatter:on
+
     /**
      * Parse the number of microseconds from the UNIX epoch that are described
      * by {@code str}.
@@ -70,11 +83,20 @@ public final class NaturalLanguage {
             return micros;
         }
         else {
-            try {
-                return TimeUnit.MILLISECONDS.toMicros(
-                        DEFAULT_FORMATTER.parseDateTime(str).getMillis());
+            Iterator<DateTimeFormatter> it = DATETIME_FORMATTERS.iterator();
+            while (micros == null && it.hasNext()) {
+                DateTimeFormatter formatter = it.next();
+                try {
+                    long millis = formatter.parseMillis(str);
+                    micros = TimeUnit.MILLISECONDS.toMicros(millis);
+                    break;
+                }
+                catch (IllegalArgumentException e) {/* no-op */}
             }
-            catch (Exception e) {
+            if(micros != null) {
+                return micros;
+            }
+            else {
                 List<DateGroup> groups = TIMESTAMP_PARSER.parse(str);
                 Date date = null;
                 for (DateGroup group : groups) {
@@ -92,6 +114,12 @@ public final class NaturalLanguage {
             }
         }
     }
+
+    // @formatter:off
+    static {  // Warm up the NLP so the first invocation isn't slow
+        NaturalLanguage.parseMicros("now"); 
+    }
+    // @formatter:on
 
     private NaturalLanguage() {/* noop */}
 

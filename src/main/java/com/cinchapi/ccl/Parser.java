@@ -26,6 +26,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
@@ -166,6 +167,39 @@ public abstract class Parser {
                 return Collections.unmodifiableSet(keys);
             }
 
+            @Override
+            public Set<String> keys(Operator operator) {
+                List<Symbol> tokens = tokenize();
+                tokens = Parsing.groupExpressions(tokens);
+                Set<String> keys = Sets
+                        .newLinkedHashSetWithExpectedSize(tokens.size());
+                tokens.forEach((symbol) -> {
+                    Expression expression;
+                    if(symbol instanceof Expression
+                            && (expression = (Expression) symbol).raw()
+                                    .operator().equals(operator)) {
+                        keys.add(expression.raw().key());
+                    }
+                });
+                return Collections.unmodifiableSet(keys);
+            }
+
+            @Override
+            public Set<Operator> operators() {
+                List<Symbol> tokens = tokenize();
+                Set<Operator> operators = Sets
+                        .newLinkedHashSetWithExpectedSize(tokens.size());
+                tokens.forEach((symbol) -> {
+                    if(symbol instanceof Expression) {
+                        operators.add(((Expression) symbol).raw().operator());
+                    }
+                    else if(symbol instanceof OperatorSymbol) {
+                        operators.add(((OperatorSymbol) symbol).operator());
+                    }
+                });
+                return operators;
+            }
+
         };
     }
 
@@ -216,7 +250,7 @@ public abstract class Parser {
      * @return the transformed operator
      */
     protected abstract Operator transformOperator(String token);
-    
+
     /**
      * Implement a function that converts string values to analogous java
      * objects.
@@ -234,12 +268,29 @@ public abstract class Parser {
     public interface Analysis {
 
         /**
-         * Return an ordered list of keys that are included in the CCL
+         * Return an ordered collection of keys that are included in the CCL
+         * statement in an expression that contains the specified
+         * {@code operator}.
+         * 
+         * @return the included keys that are evaluated against the
+         *         {@code operator}
+         */
+        public Set<String> keys(Operator operator);
+
+        /**
+         * Return an ordered collection of keys that are included in the CCL
          * statement.
          * 
          * @return the included keys
          */
         public Set<String> keys();
+
+        /**
+         * Return all the operators used in the CCL statement.
+         * 
+         * @return the included operators
+         */
+        public Set<Operator> operators();
     }
 
 }
