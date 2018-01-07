@@ -915,7 +915,7 @@ public abstract class ParserTest {
                 Operator.GREATER_THAN, Operator.NOT_EQUALS),
                 parser.analyze().operators());
     }
-    
+
     @Test
     public void testConjunctionPrecedence() {
         String ccl = "name = jeff OR name = bob AND age > 100";
@@ -923,7 +923,7 @@ public abstract class ParserTest {
         AbstractSyntaxTree ast = parser.parse();
         Assert.assertEquals(ConjunctionSymbol.OR, ast.root());
     }
-    
+
     @Test
     public void testParseLinksTo() {
         String ccl1 = "friend lnk2 1";
@@ -932,16 +932,41 @@ public abstract class ParserTest {
         Parser parser1 = createParser(ccl1);
         Parser parser2 = createParser(ccl2);
         Parser parser3 = createParser(ccl3);
-        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO), parser1.analyze().operators());
-        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO), parser2.analyze().operators());
-        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO), parser3.analyze().operators());
+        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO),
+                parser1.analyze().operators());
+        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO),
+                parser2.analyze().operators());
+        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO),
+                parser3.analyze().operators());
     }
-    
+
+    @Test
+    public void testTokenizeUnquotedValueStringWithSpace() {
+        Criteria criteria = Criteria.where().key("name")
+                .operator(Operator.EQUALS).value("Jeff Nelson").and()
+                .group(Criteria.where().key("company").operator(Operator.EQUALS)
+                        .value("Cinchapi").or().key("company")
+                        .operator(Operator.EQUALS).value("Blavity"))
+                .build();
+        String ccl = criteria.getCclString();
+        Parser parser = createParser(ccl);
+        List<Symbol> symbols = parser.tokenize();
+        Assert.assertEquals(Lists.newArrayList(new KeySymbol("name"),
+                new OperatorSymbol(Operator.EQUALS),
+                new ValueSymbol("Jeff Nelson"), ConjunctionSymbol.AND,
+                ParenthesisSymbol.LEFT, new KeySymbol("company"),
+                new OperatorSymbol(Operator.EQUALS),
+                new ValueSymbol("Cinchapi"), ConjunctionSymbol.OR,
+                new KeySymbol("company"), new OperatorSymbol(Operator.EQUALS),
+                new ValueSymbol("Blavity"), ParenthesisSymbol.RIGHT), symbols);
+    }
+
     @Test
     public void testParseSingleQuotedValue() {
         String ccl = "location = 'Atlanta (HQ)'";
         Parser parser = createParser(ccl);
-        Assert.assertEquals("Atlanta (HQ)", ((Expression) parser.order().poll()).raw().values().get(0));
+        Assert.assertEquals("Atlanta (HQ)",
+                ((Expression) parser.order().poll()).raw().values().get(0));
     }
 
     protected abstract Parser createParser(String ccl);
