@@ -16,21 +16,16 @@
 package com.cinchapi.ccl.v2.generated;
 
 /**
- * Represents a conjunction node in the CCL grammar.
+ * Represents a And node in the CCL grammar.
  */
-public class ASTConj extends SimpleNode {
-    /**
-     * The symbol
-     */
-    private String symbol = "";
-
+public class ASTAnd extends SimpleNode {
     /**
      * Constructs a new instance.
      *
      * @param id the id
      */
-    public ASTConj(int id) {
-    super(id);
+    public ASTAnd(int id) {
+        super(id);
     }
 
     /**
@@ -39,26 +34,8 @@ public class ASTConj extends SimpleNode {
      * @param grammar the grammar
      * @param id the id
      */
-    public ASTConj(Grammar grammar, int id) {
-    super(grammar, id);
-    }
-
-    /**
-     * Set the symbol
-     *
-     * @param symbol the symbol
-     */
-    public void symbol(String symbol) {
-    this.symbol = symbol;
-    }
-
-    /**
-     * Get the symbol
-     *
-     * @return the symbol
-     */
-    public String symbol() {
-    return symbol;
+    public ASTAnd(Grammar grammar, int id) {
+        super(grammar, id);
     }
 
     /**
@@ -67,7 +44,7 @@ public class ASTConj extends SimpleNode {
      * @return the string
      */
     public String toString() {
-    return symbol;
+        return "and";
     }
 
     /**

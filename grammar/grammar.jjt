@@ -61,19 +61,18 @@ TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" > }
 TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
+TOKEN [IGNORE_CASE]: { < RESERVED_IDENTIFIER: "$id$" > }
 
 TOKEN [IGNORE_CASE]:
 {
-  < CONJ: <CONJUNCTION> | <DISJUNCTION> >
+  < CONJUNCTION: "and" | "&&" | "&" >
 |
-  < #CONJUNCTION: "and" | "&&" | "&" >
-|
-  < #DISJUNCTION: "or" | "||" | "|" >
+  < DISJUNCTION: "or" | "||" | "|" >
 }
 
 TOKEN [IGNORE_CASE]:
 {
-  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> | <REGEX> | <NOT_REGEX> >
+  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> | <REGEX> | <NOT_REGEX> | <LINKS_TO> >
 |
   < BINARY_OPERATOR: <BETWEEN> >
 |
@@ -104,7 +103,11 @@ TOKEN [IGNORE_CASE]:
 
 TOKEN :
 {
-  < QUOTED_STRING : "\"" (~["\""])+ "\"">
+  < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
+|
+  < DOUBLE_QUOTED_STRING : "\"" (~["\""])+ "\"">
+|
+  < SINGLE_QUOTED_STRING : "'" (~["'"])+ "'">
 |
   < SIGNED_DECIMAL : (("-")? ( (<DIGIT>)+|(<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
 |
@@ -127,31 +130,34 @@ TOKEN :
 /** Main production. */
 ASTStart Start() #Start : {}
 {
-  (<WHERE>)? Expression() <EOF>
+  (<WHERE>)? DisjunctionExpression() <EOF>
   { return jjtThis; }
 }
 
 /** Main production. */
 ASTStart StartCommandLine() #Start : {}
 {
-  (<WHERE>)? Expression() "\n"
+  (<WHERE>)? DisjunctionExpression() "\n"
   { return jjtThis; }
 }
 
-/** An Expression. */
-void Expression() :
-{
-  Token o;
-}
+void DisjunctionExpression() : {}
 {
   (
-    UnaryExpression() ((o=<CONJ> { jjtThis.symbol(o.image); } UnaryExpression()) #Conj(2))*
+    ConjunctionExpression() ((<DISJUNCTION> ConjunctionExpression()) #Or(2))*
+  )
+}
+
+void ConjunctionExpression() : {}
+{
+  (
+    UnaryExpression() ((<CONJUNCTION> UnaryExpression()) #And(2))*
   )
 }
 
 void UnaryExpression() : {}
 {
-   <OPEN_PARENTHESES> Expression() <CLOSE_PARENTHESES> | RelationalExpression()
+   <OPEN_PARENTHESES> DisjunctionExpression() <CLOSE_PARENTHESES> | RelationalExpression()
 }
 
 void RelationalExpression() #RelationalExpression :
@@ -164,12 +170,12 @@ void RelationalExpression() #RelationalExpression :
 {
   LOOKAHEAD(2)
 
-  (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<UNARY_OPERATOR> { jjtThis.operator(o.image);}
   ((v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.appendValue(v.image); })+
   (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 |
-  (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<BINARY_OPERATOR> { jjtThis.operator(o.image);}
   (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
   (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }

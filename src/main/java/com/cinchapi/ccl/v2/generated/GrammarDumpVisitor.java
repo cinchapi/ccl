@@ -58,13 +58,28 @@ public class GrammarDumpVisitor implements GrammarVisitor
     }
 
     /**
-     * Visitor for a {@link ASTConj}
+     * Visitor for a {@link ASTAnd}
      *
      * @param node the node
      * @param data the data
      * @return the data
      */
-    public Object visit(ASTConj node, Object data) {
+    public Object visit(ASTAnd node, Object data) {
+        System.out.println(indentString() + node);
+        ++indent;
+        data = node.childrenAccept(this, data);
+        --indent;
+        return data;
+    }
+
+    /**
+     * Visitor for a {@link ASTOr}
+     *
+     * @param node the node
+     * @param data the data
+     * @return the data
+     */
+    public Object visit(ASTOr node, Object data) {
         System.out.println(indentString() + node);
         ++indent;
         data = node.childrenAccept(this, data);
