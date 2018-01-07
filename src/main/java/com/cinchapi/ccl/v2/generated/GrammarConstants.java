@@ -55,21 +55,25 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int QUOTED_STRING = 24;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 25;
+  int DOUBLE_QUOTED_STRING = 25;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 26;
+  int SINGLE_QUOTED_STRING = 26;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 27;
+  int SIGNED_DECIMAL = 27;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 28;
+  int ALPHANUMERIC = 28;
   /** RegularExpression Id. */
-  int LETTER = 29;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 29;
   /** RegularExpression Id. */
-  int DIGIT = 30;
+  int NON_ALPHANUMERIC = 30;
   /** RegularExpression Id. */
-  int PERIOD = 31;
+  int LETTER = 31;
   /** RegularExpression Id. */
-  int ESCAPE = 32;
+  int DIGIT = 32;
+  /** RegularExpression Id. */
+  int PERIOD = 33;
+  /** RegularExpression Id. */
+  int ESCAPE = 34;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -101,6 +105,8 @@ public interface GrammarConstants {
     "\"nlike\"",
     "<BETWEEN>",
     "<QUOTED_STRING>",
+    "<DOUBLE_QUOTED_STRING>",
+    "<SINGLE_QUOTED_STRING>",
     "<SIGNED_DECIMAL>",
     "<ALPHANUMERIC>",
     "<NON_ALPHANUMERIC_AND_ALPHANUMERIC>",

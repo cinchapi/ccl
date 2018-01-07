@@ -103,7 +103,11 @@ TOKEN [IGNORE_CASE]:
 
 TOKEN :
 {
-  < QUOTED_STRING : "\"" (~["\""])+ "\"">
+  < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
+|
+  < DOUBLE_QUOTED_STRING : "\"" (~["\""])+ "\"">
+|
+  < SINGLE_QUOTED_STRING : "'" (~["'"])+ "'">
 |
   < SIGNED_DECIMAL : (("-")? ( (<DIGIT>)+|(<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
 |
