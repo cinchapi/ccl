@@ -923,6 +923,19 @@ public abstract class ParserTest {
         AbstractSyntaxTree ast = parser.parse();
         Assert.assertEquals(ConjunctionSymbol.OR, ast.root());
     }
+    
+    @Test
+    public void testParseLinksTo() {
+        String ccl1 = "friend lnk2 1";
+        String ccl2 = "friend lnks2 1";
+        String ccl3 = "friend -> 1";
+        Parser parser1 = createParser(ccl1);
+        Parser parser2 = createParser(ccl2);
+        Parser parser3 = createParser(ccl3);
+        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO), parser1.analyze().operators());
+        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO), parser2.analyze().operators());
+        Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO), parser3.analyze().operators());
+    }
 
     protected abstract Parser createParser(String ccl);
 
