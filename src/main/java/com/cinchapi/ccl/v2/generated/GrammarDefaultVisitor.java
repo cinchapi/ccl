@@ -12,11 +12,14 @@ public class GrammarDefaultVisitor implements GrammarVisitor{
   public Object visit(ASTStart node, Object data){
     return defaultVisit(node, data);
   }
-  public Object visit(ASTConj node, Object data){
+  public Object visit(ASTOr node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTAnd node, Object data){
     return defaultVisit(node, data);
   }
   public Object visit(ASTRelationalExpression node, Object data){
     return defaultVisit(node, data);
   }
 }
-/* JavaCC - OriginalChecksum=63c3988c348f6b5697cbb9659f6ec57e (do not edit this line) */
+/* JavaCC - OriginalChecksum=68777a66574313a7ae7a4e7549669079 (do not edit this line) */

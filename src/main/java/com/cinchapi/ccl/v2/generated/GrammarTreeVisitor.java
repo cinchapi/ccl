@@ -89,27 +89,29 @@ public class GrammarTreeVisitor implements GrammarVisitor
     }
 
     /**
-     * Visitor for a {@link ASTConj}
+     * Visitor for a {@link ASTAnd}
      *
      * @param node the node
      * @param data a reference to the tree
      * @return the tree
      */
-    public Object visit(ASTConj node, Object data) {
+    public Object visit(ASTAnd node, Object data) {
         AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
         AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+        return new AndTree(left, right);
+    }
 
-        if(node.symbol().equalsIgnoreCase("&&") || node.symbol().equalsIgnoreCase("&")
-                || node.symbol().equalsIgnoreCase("and")) {
-            return new AndTree(left, right);
-        }
-        else if(node.symbol().equalsIgnoreCase("||") || node.symbol().equalsIgnoreCase("|")
-            || node.symbol().equalsIgnoreCase("or")) {
-            return new OrTree(left, right);
-        }
-        else {
-            return null;
-        }
+    /**
+     * Visitor for a {@link ASTOr}
+     *
+     * @param node the node
+     * @param data a reference to the tree
+     * @return the tree
+     */
+    public Object visit(ASTOr node, Object data) {
+        AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+        AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+        return new OrTree(left, right);
     }
 
     /**

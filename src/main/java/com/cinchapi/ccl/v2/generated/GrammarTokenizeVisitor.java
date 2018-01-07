@@ -88,28 +88,33 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
     }
 
     /**
-     * Visitor for a {@link ASTConj}
+     * Visitor for a {@link ASTAnd}
      *
      * @param node the node
      * @param data a reference to the list of symbols
      * @return the list of symbols
      */
     @SuppressWarnings("unchecked")
-    public Object visit(ASTConj node, Object data) {
-        List<Symbol> left = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
+    public Object visit(ASTAnd node, Object data) {
+        List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
+        symbols.add(ConjunctionSymbol.AND);
+        symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
+        return symbols;
+    }
 
-        if(node.symbol().equalsIgnoreCase("&&") || node.symbol().equalsIgnoreCase("&")
-                || node.symbol().equalsIgnoreCase("and")) {
-            left.add(ConjunctionSymbol.AND);
-        }
-        else if(node.symbol().equalsIgnoreCase("||") || node.symbol().equalsIgnoreCase("|")
-                || node.symbol().equalsIgnoreCase("or")) {
-            left.add(ConjunctionSymbol.OR);
-        }
-
-        List<Symbol> right =(List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
-
-        return right;
+    /**
+     * Visitor for a {@link ASTOr}
+     *
+     * @param node the node
+     * @param data a reference to the list of symbols
+     * @return the list of symbols
+     */
+    @SuppressWarnings("unchecked")
+    public Object visit(ASTOr node, Object data) {
+        List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
+        symbols.add(ConjunctionSymbol.OR);
+        symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
+        return symbols;
     }
 
     /**

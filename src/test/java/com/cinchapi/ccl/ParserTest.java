@@ -30,6 +30,7 @@ import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
@@ -913,6 +914,14 @@ public abstract class ParserTest {
         Assert.assertEquals(Sets.newHashSet(Operator.EQUALS,
                 Operator.GREATER_THAN, Operator.NOT_EQUALS),
                 parser.analyze().operators());
+    }
+    
+    @Test
+    public void testConjunctionPrecedence() {
+        String ccl = "name = jeff OR name = bob AND age > 100";
+        Parser parser = createParser(ccl);
+        AbstractSyntaxTree ast = parser.parse();
+        Assert.assertEquals(ConjunctionSymbol.OR, ast.root());
     }
 
     protected abstract Parser createParser(String ccl);

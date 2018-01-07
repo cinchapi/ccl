@@ -5,7 +5,8 @@ public interface GrammarVisitor
 {
   public Object visit(SimpleNode node, Object data);
   public Object visit(ASTStart node, Object data);
-  public Object visit(ASTConj node, Object data);
+  public Object visit(ASTOr node, Object data);
+  public Object visit(ASTAnd node, Object data);
   public Object visit(ASTRelationalExpression node, Object data);
 }
-/* JavaCC - OriginalChecksum=7d3f5fa775cf3939d9036b1f43b5d90f (do not edit this line) */
+/* JavaCC - OriginalChecksum=45d95d3ba7f7daf96a26b5aeaa1ea00b (do not edit this line) */
