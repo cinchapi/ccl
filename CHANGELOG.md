@@ -3,6 +3,7 @@
 #### Version 2.4.0 (TBD)
 
 #### Version 2.3.1 (TBD)
+* Fixed a bug that caused the `v2` parser to incorrectly tokenize CCL statements that contained unquoted string values containing spaces.
 
 #### Version 2.3.0 (January 7, 2018)
 * Deprecated `Parser#newParser` static factory methods in favor of the `Parser#create` static factory methods.
