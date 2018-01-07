@@ -61,6 +61,7 @@ TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" > }
 TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
+TOKEN [IGNORE_CASE]: { < RESERVED_IDENTIFIER: "$id$" > }
 
 TOKEN [IGNORE_CASE]:
 {
@@ -165,12 +166,12 @@ void RelationalExpression() #RelationalExpression :
 {
   LOOKAHEAD(2)
 
-  (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<UNARY_OPERATOR> { jjtThis.operator(o.image);}
   ((v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.appendValue(v.image); })+
   (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 |
-  (k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<BINARY_OPERATOR> { jjtThis.operator(o.image);}
   (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
   (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }

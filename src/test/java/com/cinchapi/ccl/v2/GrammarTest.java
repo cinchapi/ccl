@@ -85,6 +85,15 @@ public class GrammarTest {
     }
 
     @Test
+    public void validJsonReservedIdentifier() throws UnsupportedEncodingException, ParseException {
+        String ccl = "$id$ != 40";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test
     public void validMultiwordTimestamp() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 on last christmas";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
