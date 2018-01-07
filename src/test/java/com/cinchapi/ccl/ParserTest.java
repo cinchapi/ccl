@@ -30,11 +30,13 @@ import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.common.reflect.Reflection;
 import com.cinchapi.concourse.lang.Criteria;
+import com.cinchapi.concourse.thrift.Operator;
 import com.cinchapi.concourse.time.Time;
 import com.cinchapi.concourse.util.Random;
 import com.google.common.collect.Iterables;
@@ -52,7 +54,8 @@ public abstract class ParserTest {
 
     @Test
     public void testAbstractSyntaxTreeGenerationAndGroupOr() {
-        doTestAbstractSyntaxTreeGeneration("graduation_rate > 90 and (percent_undergrad_black >= 5 or total_cost_out_state > 50000)");
+        doTestAbstractSyntaxTreeGeneration(
+                "graduation_rate > 90 and (percent_undergrad_black >= 5 or total_cost_out_state > 50000)");
     }
 
     @Test
@@ -63,7 +66,8 @@ public abstract class ParserTest {
 
     @Test
     public void testAbstractSyntaxTreeGenerationGroupOrAndGroupOr() {
-        doTestAbstractSyntaxTreeGeneration("(graduation_rate > 90 or yield_min = 20) and (percent_undergrad_black >= 5 or total_cost_out_state > 50000)");
+        doTestAbstractSyntaxTreeGeneration(
+                "(graduation_rate > 90 or yield_min = 20) and (percent_undergrad_black >= 5 or total_cost_out_state > 50000)");
     }
 
     @Test
@@ -893,6 +897,31 @@ public abstract class ParserTest {
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ValueSymbol(2)));
         Assert.assertEquals(Iterables.get(pfn, 2), ConjunctionSymbol.OR);
+    }
+
+    @Test
+    public void testAnalyzeKeysOperator() {
+        String ccl = "name = jeff AND company = Cinchapi and age > 20 or name != bob";
+        Parser parser = createParser(ccl);
+        Assert.assertEquals(Sets.newHashSet("name", "company"),
+                parser.analyze().keys(Operator.EQUALS));
+    }
+
+    @Test
+    public void testAnalyzeOperators() {
+        String ccl = "name = jeff AND company = Cinchapi and age > 20 or name != bob";
+        Parser parser = createParser(ccl);
+        Assert.assertEquals(Sets.newHashSet(Operator.EQUALS,
+                Operator.GREATER_THAN, Operator.NOT_EQUALS),
+                parser.analyze().operators());
+    }
+    
+    @Test
+    public void testConjunctionPrecedence() {
+        String ccl = "name = jeff OR name = bob AND age > 100";
+        Parser parser = createParser(ccl);
+        AbstractSyntaxTree ast = parser.parse();
+        Assert.assertEquals(ConjunctionSymbol.OR, ast.root());
     }
 
     protected abstract Parser createParser(String ccl);
