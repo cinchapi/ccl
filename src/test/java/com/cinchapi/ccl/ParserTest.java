@@ -936,6 +936,13 @@ public abstract class ParserTest {
         Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO), parser2.analyze().operators());
         Assert.assertEquals(Sets.newHashSet(Operator.LINKS_TO), parser3.analyze().operators());
     }
+    
+    @Test
+    public void testParseSingleQuotedValue() {
+        String ccl = "location = 'Atlanta (HQ)'";
+        Parser parser = createParser(ccl);
+        Assert.assertEquals("Atlanta (HQ)", ((Expression) parser.order().poll()).raw().values().get(0));
+    }
 
     protected abstract Parser createParser(String ccl);
 
