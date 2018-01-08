@@ -149,9 +149,9 @@ TOKEN :
 |
   < SINGLE_QUOTED_STRING : "'" (~["'"])+ "'">
 |
-  < FUNCTION_SIGNED_INTEGER : <SIGNED_INTEGER> ",">
+  < COMMA_SEPARATED_SIGNED_INTEGER : <SIGNED_INTEGER> ",">
 |
-  < FUNCTION_ALPHANUMERIC : <ALPHANUMERIC> ",">
+  < COMMA_SEPARATED_ALPHANUMERIC : <ALPHANUMERIC> ",">
 |
   < SIGNED_INTEGER : (("-" | "+")? (<DIGIT>)+) >
 |
@@ -207,10 +207,9 @@ void ConjunctionExpression(List<Symbol> symbols) : {}
 void UnaryExpression(List<Symbol> symbols) : {}
 {
    (<OPEN_PARENTHESES>) { symbols.add(ParenthesisSymbol.LEFT); } DisjunctionExpression(symbols) (<CLOSE_PARENTHESES>) { symbols.add(ParenthesisSymbol.RIGHT); } | RelationalExpression(symbols)
-
 }
 
-void RelationalExpression(List<Symbol> symbols) #RelationalExpression :
+void RelationalExpression(List<Symbol> symbols) #Expression :
 {
     BaseKeySymbol key = null;
     OperatorSymbol operator = null;
@@ -240,24 +239,24 @@ void RelationalExpression(List<Symbol> symbols) #RelationalExpression :
 
 BaseKeySymbol Key() :
 {
-  Token f;
-  Token k;
+  Token key;
+  Token function;
 }
 {
-  (k=<SIGNED_INTEGER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>)
   (
-    <OPEN_PARENTHESES> (f=<FUNCTION_SIGNED_INTEGER> | f=<FUNCTION_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
-    { return new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1)));}
+    function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<FUNCTION_SIGNED_INTEGER> | key=<FUNCTION_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
+    { return new FunctionKeySymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));} // Remove the comma
   |
-    { return new KeySymbol(k.image); }
+    (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
+    { return new KeySymbol(key.image); }
   )
 }
 
 BaseValueSymbol UnaryValue() :
 {
-  Token f;
-  Token k;
-  Token v;
+  Token function;
+  Token key;
+  Token word;
   String value = "";
   List<String> records = Lists.newArrayList();
   List<Symbol> ccl;
@@ -265,22 +264,22 @@ BaseValueSymbol UnaryValue() :
 {
   LOOKAHEAD(2)
 
-  f=<ALPHANUMERIC> <OPEN_PARENTHESES> (k=<FUNCTION_SIGNED_INTEGER> | k=<FUNCTION_ALPHANUMERIC>)
+  function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
    (
      " ?" <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1)));}
+     { return new FunctionValueSymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));}
    |
      LOOKAHEAD(2)
 
-     (v=<FUNCTION_SIGNED_INTEGER> { records.add(v.image.substring(0, v.image.length()-1)); })*
-     (v=<SIGNED_INTEGER>) { records.add(v.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records));}
+     (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
+     (word=<SIGNED_INTEGER>) { records.add(word.image);} <CLOSE_PARENTHESES>
+     { return new FunctionValueSymbol(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
      ccl=Ccl() <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl));}
+     { return new FunctionValueSymbol(new ExplicitCclFunction(function.image, key.image.substring(0, key.image.length()-1), ccl));}
    )
 |
-  ( LOOKAHEAD(2) (v=<QUOTED_STRING> | v=<SIGNED_INTEGER> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? v.image : " " + v.image; })+
+  ( LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   {
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
@@ -307,9 +306,9 @@ BaseValueSymbol UnaryValue() :
 
 BaseValueSymbol BinaryValue() :
 {
-  Token f;
-  Token k;
-  Token v;
+  Token function;
+  Token key;
+  Token word;
   String value = "";
   List<String> records = Lists.newArrayList();
   List<Symbol> ccl;
@@ -317,24 +316,24 @@ BaseValueSymbol BinaryValue() :
 {
   LOOKAHEAD(2)
 
-  f=<ALPHANUMERIC> <OPEN_PARENTHESES> (k=<FUNCTION_SIGNED_INTEGER> | k=<FUNCTION_ALPHANUMERIC>)
+  function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
    (
      " ?" <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1)));}
+     { return new FunctionValueSymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));}
    |
      LOOKAHEAD(2)
 
-     (v=<FUNCTION_SIGNED_INTEGER> { records.add(v.image.substring(0, v.image.length()-1)); })*
-     (v=<SIGNED_INTEGER>) { records.add(v.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records));}
+     (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
+     (word=<SIGNED_INTEGER>) { records.add(word.image);} <CLOSE_PARENTHESES>
+     { return new FunctionValueSymbol(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
      ccl=Ccl() <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl));}
+     { return new FunctionValueSymbol(new ExplicitCclFunction(function.image, key.image.substring(0, key.image.length()-1), ccl));}
    )
 |
-  (v=<QUOTED_STRING> | v=<SIGNED_INTEGER> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+  (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
   {
-    value = v.image;
+    value = word.image;
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
         try {
@@ -360,27 +359,27 @@ BaseValueSymbol BinaryValue() :
 
 OperatorSymbol UnaryOperator() :
 {
-  Token o;
+  Token operator;
 }
 {
-  o=<UNARY_OPERATOR> { return new OperatorSymbol(transformOperator(o.image)); }
+  operator=<UNARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 OperatorSymbol BinaryOperator() :
 {
-  Token o;
+  Token operator;
 }
 {
-  o=<BINARY_OPERATOR> { return new OperatorSymbol(transformOperator(o.image)); }
+  operator=<BINARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 TimestampSymbol Timestamp() :
 {
-  Token t;
-  String ts = "";
+  Token word;
+  String timestamp = "";
 }
 {
-  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_INTEGER> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { ts += (ts.equals("")) ? t.image : " " + t.image; })+
-  { return new TimestampSymbol(NaturalLanguage.parseMicros(ts)); })?
+  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); })?
   { return null; }
 }
