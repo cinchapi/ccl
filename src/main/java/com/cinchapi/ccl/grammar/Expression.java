@@ -32,7 +32,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Jeff Nelson
  */
-public class Expression extends BaseSymbol implements PostfixNotationSymbol {
+public class Expression extends BaseSymbol implements PostfixNotationSymbol, BaseExpression {
 
     private final BaseKeySymbol key;
     private final OperatorSymbol operator;

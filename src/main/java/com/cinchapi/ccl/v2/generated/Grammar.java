@@ -217,8 +217,8 @@ symbols.add(ParenthesisSymbol.RIGHT);
     }
 }
 
-  final public void RelationalExpression(List<Symbol> symbols) throws ParseException {/*@bgen(jjtree) RelationalExpression */
-    ASTRelationalExpression jjtn000 = new ASTRelationalExpression(JJTRELATIONALEXPRESSION);
+  final public void RelationalExpression(List<Symbol> symbols) throws ParseException {/*@bgen(jjtree) Expression */
+    ASTExpression jjtn000 = new ASTExpression(JJTEXPRESSION);
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);BaseKeySymbol key = null;
     OperatorSymbol operator = null;
@@ -716,6 +716,13 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
     finally { jj_save(4, xla); }
   }
 
+  private boolean jj_3_3()
+ {
+    if (jj_scan_token(ALPHANUMERIC)) return true;
+    if (jj_scan_token(OPEN_PARENTHESES)) return true;
+    return false;
+  }
+
   private boolean jj_3R_8()
  {
     if (jj_scan_token(FUNCTION_SIGNED_INTEGER)) return true;
@@ -776,13 +783,6 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
   private boolean jj_3R_7()
  {
     if (jj_scan_token(FUNCTION_SIGNED_INTEGER)) return true;
-    return false;
-  }
-
-  private boolean jj_3_3()
- {
-    if (jj_scan_token(ALPHANUMERIC)) return true;
-    if (jj_scan_token(OPEN_PARENTHESES)) return true;
     return false;
   }
 
