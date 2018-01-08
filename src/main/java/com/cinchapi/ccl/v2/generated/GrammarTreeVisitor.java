@@ -80,19 +80,19 @@ public class GrammarTreeVisitor implements GrammarVisitor
     }
 
     /**
-     * Visitor for a {@link ASTRelationalExpression}
+     * Visitor for a {@link ASTExpression}
      *
      * @param node the node
      * @param data a reference to the tree
      * @return the expression tree
      */
-    public Object visit(ASTRelationalExpression node, Object data) {
+    public Object visit(ASTExpression node, Object data) {
         Expression expression;
         if (node.timestamp() != null) {
-            expression = new Expression(node.timestamp(), node.key(), node.operator(), node.value().toArray(new BaseValueSymbol[0]));
+            expression = new Expression(node.timestamp(), node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
         }
         else {
-            expression = new Expression(node.key(), node.operator(), node.value().toArray(new BaseValueSymbol[0]));
+            expression = new Expression(node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
         }
 
         return new ExpressionTree(expression);

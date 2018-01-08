@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.grammar.BaseExpression;
 import com.cinchapi.ccl.grammar.BaseKeySymbol;
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
@@ -25,7 +26,7 @@ import java.util.List;
 /**
  * A node that representation a CCL expression
  */
-public class ASTRelationalExpression extends SimpleNode {
+public class ASTExpression extends SimpleNode implements BaseExpression {
     /**
      * The key
      */
@@ -51,7 +52,7 @@ public class ASTRelationalExpression extends SimpleNode {
      *
      * @param id the id
      */
-    public ASTRelationalExpression(int id) {
+    public ASTExpression(int id) {
         super(id);
     }
 
@@ -61,7 +62,7 @@ public class ASTRelationalExpression extends SimpleNode {
      * @param grammar the grammar
      * @param id the id
      */
-    public ASTRelationalExpression(Grammar grammar, int id) {
+    public ASTExpression(Grammar grammar, int id) {
         super(grammar, id);
     }
 
@@ -124,7 +125,7 @@ public class ASTRelationalExpression extends SimpleNode {
      *
      * @return the value
      */
-    public List<BaseValueSymbol> value() {
+    public List<BaseValueSymbol> values() {
         return values;
     }
 

@@ -7,7 +7,7 @@ public interface GrammarTreeConstants
   public int JJTVOID = 1;
   public int JJTOR = 2;
   public int JJTAND = 3;
-  public int JJTRELATIONALEXPRESSION = 4;
+  public int JJTEXPRESSION = 4;
 
 
   public String[] jjtNodeName = {
@@ -15,7 +15,7 @@ public interface GrammarTreeConstants
     "void",
     "Or",
     "And",
-    "RelationalExpression",
+    "Expression",
   };
 }
-/* JavaCC - OriginalChecksum=f9a8026a213b38f8b0fb8b4d98725d8c (do not edit this line) */
+/* JavaCC - OriginalChecksum=4c8416a9d57d01cbade8ee823efa57b5 (do not edit this line) */
