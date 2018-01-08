@@ -247,7 +247,9 @@ BaseKeySymbol Key() :
 }
 {
   (
-    function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<FUNCTION_SIGNED_INTEGER> | key=<FUNCTION_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
+    LOOKAHEAD(2)
+
+    function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
     { return new FunctionKeySymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));} // Remove the comma
   |
     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
