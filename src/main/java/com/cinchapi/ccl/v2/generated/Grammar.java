@@ -280,71 +280,79 @@ if (jjtc000) {
     }
 }
 
-  final public BaseKeySymbol Key() throws ParseException {Token f;
-  Token k;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case SIGNED_INTEGER:{
-      k = jj_consume_token(SIGNED_INTEGER);
-      break;
-      }
-    case SIGNED_DECIMAL:{
-      k = jj_consume_token(SIGNED_DECIMAL);
-      break;
-      }
-    case ALPHANUMERIC:{
-      k = jj_consume_token(ALPHANUMERIC);
-      break;
-      }
-    default:
-      jj_la1[5] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case OPEN_PARENTHESES:{
+  final public BaseKeySymbol Key() throws ParseException {Token key;
+  Token function;
+    if (jj_2_1(2)) {
+      function = jj_consume_token(ALPHANUMERIC);
       jj_consume_token(OPEN_PARENTHESES);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FUNCTION_SIGNED_INTEGER:{
-        f = jj_consume_token(FUNCTION_SIGNED_INTEGER);
+      case COMMA_SEPARATED_SIGNED_INTEGER:{
+        key = jj_consume_token(COMMA_SEPARATED_SIGNED_INTEGER);
         break;
         }
-      case FUNCTION_ALPHANUMERIC:{
-        f = jj_consume_token(FUNCTION_ALPHANUMERIC);
+      case COMMA_SEPARATED_ALPHANUMERIC:{
+        key = jj_consume_token(COMMA_SEPARATED_ALPHANUMERIC);
         break;
         }
       default:
-        jj_la1[6] = jj_gen;
+        jj_la1[5] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      jj_consume_token(35);
+      jj_consume_token(38);
       jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionKeySymbol(new ImplicitFunction(k.image, f.image.substring(0, f.image.length()-1)));}
-      break;
+{if ("" != null) return new FunctionKeySymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));}
+    } else {
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case SIGNED_INTEGER:
+      case SIGNED_DECIMAL:
+      case ALPHANUMERIC:{
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case SIGNED_INTEGER:{
+          key = jj_consume_token(SIGNED_INTEGER);
+          break;
+          }
+        case SIGNED_DECIMAL:{
+          key = jj_consume_token(SIGNED_DECIMAL);
+          break;
+          }
+        case ALPHANUMERIC:{
+          key = jj_consume_token(ALPHANUMERIC);
+          break;
+          }
+        default:
+          jj_la1[6] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+{if ("" != null) return new KeySymbol(key.image);}
+        break;
+        }
+      default:
+        jj_la1[7] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
       }
-    default:
-      jj_la1[7] = jj_gen;
-{if ("" != null) return new KeySymbol(k.image);}
     }
     throw new Error("Missing return statement in function");
 }
 
-  final public BaseValueSymbol UnaryValue() throws ParseException {Token f;
-  Token k;
-  Token v;
+  final public BaseValueSymbol UnaryValue() throws ParseException {Token function;
+  Token key;
+  Token word;
   String value = "";
   List<String> records = Lists.newArrayList();
   List<Symbol> ccl;
-    if (jj_2_3(2)) {
-      f = jj_consume_token(ALPHANUMERIC);
+    if (jj_2_4(2)) {
+      function = jj_consume_token(ALPHANUMERIC);
       jj_consume_token(OPEN_PARENTHESES);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FUNCTION_SIGNED_INTEGER:{
-        k = jj_consume_token(FUNCTION_SIGNED_INTEGER);
+      case COMMA_SEPARATED_SIGNED_INTEGER:{
+        key = jj_consume_token(COMMA_SEPARATED_SIGNED_INTEGER);
         break;
         }
-      case FUNCTION_ALPHANUMERIC:{
-        k = jj_consume_token(FUNCTION_ALPHANUMERIC);
+      case COMMA_SEPARATED_ALPHANUMERIC:{
+        key = jj_consume_token(COMMA_SEPARATED_ALPHANUMERIC);
         break;
         }
       default:
@@ -353,19 +361,19 @@ if (jjtc000) {
         throw new ParseException();
       }
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 35:{
-        jj_consume_token(35);
+      case 38:{
+        jj_consume_token(38);
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1)));}
+{if ("" != null) return new FunctionValueSymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));}
         break;
         }
       default:
         jj_la1[10] = jj_gen;
-        if (jj_2_1(2)) {
+        if (jj_2_2(2)) {
           label_3:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-            case FUNCTION_SIGNED_INTEGER:{
+            case COMMA_SEPARATED_SIGNED_INTEGER:{
               ;
               break;
               }
@@ -373,13 +381,13 @@ if (jjtc000) {
               jj_la1[9] = jj_gen;
               break label_3;
             }
-            v = jj_consume_token(FUNCTION_SIGNED_INTEGER);
-records.add(v.image.substring(0, v.image.length()-1));
+            word = jj_consume_token(COMMA_SEPARATED_SIGNED_INTEGER);
+records.add(word.image.substring(0, word.image.length()-1));
           }
-          v = jj_consume_token(SIGNED_INTEGER);
-records.add(v.image);
+          word = jj_consume_token(SIGNED_INTEGER);
+records.add(word.image);
           jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records));}
+{if ("" != null) return new FunctionValueSymbol(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
         } else {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case OPEN_PARENTHESES:
@@ -388,7 +396,7 @@ records.add(v.image);
           case ALPHANUMERIC:{
             ccl = Ccl();
             jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl));}
+{if ("" != null) return new FunctionValueSymbol(new ExplicitCclFunction(function.image, key.image.substring(0, key.image.length()-1), ccl));}
             break;
             }
           default:
@@ -409,23 +417,23 @@ records.add(v.image);
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case QUOTED_STRING:{
-            v = jj_consume_token(QUOTED_STRING);
+            word = jj_consume_token(QUOTED_STRING);
             break;
             }
           case SIGNED_INTEGER:{
-            v = jj_consume_token(SIGNED_INTEGER);
+            word = jj_consume_token(SIGNED_INTEGER);
             break;
             }
           case SIGNED_DECIMAL:{
-            v = jj_consume_token(SIGNED_DECIMAL);
+            word = jj_consume_token(SIGNED_DECIMAL);
             break;
             }
           case ALPHANUMERIC:{
-            v = jj_consume_token(ALPHANUMERIC);
+            word = jj_consume_token(ALPHANUMERIC);
             break;
             }
           case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
-            v = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
+            word = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
             break;
             }
           default:
@@ -433,8 +441,8 @@ records.add(v.image);
             jj_consume_token(-1);
             throw new ParseException();
           }
-value += (value.equals("")) ? v.image : " " + v.image;
-          if (jj_2_2(2)) {
+value += (value.equals("")) ? word.image : " " + word.image;
+          if (jj_2_3(2)) {
             ;
           } else {
             break label_4;
@@ -471,22 +479,22 @@ if(value.charAt(0) == '$') {
     throw new Error("Missing return statement in function");
 }
 
-  final public BaseValueSymbol BinaryValue() throws ParseException {Token f;
-  Token k;
-  Token v;
+  final public BaseValueSymbol BinaryValue() throws ParseException {Token function;
+  Token key;
+  Token word;
   String value = "";
   List<String> records = Lists.newArrayList();
   List<Symbol> ccl;
-    if (jj_2_5(2)) {
-      f = jj_consume_token(ALPHANUMERIC);
+    if (jj_2_6(2)) {
+      function = jj_consume_token(ALPHANUMERIC);
       jj_consume_token(OPEN_PARENTHESES);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FUNCTION_SIGNED_INTEGER:{
-        k = jj_consume_token(FUNCTION_SIGNED_INTEGER);
+      case COMMA_SEPARATED_SIGNED_INTEGER:{
+        key = jj_consume_token(COMMA_SEPARATED_SIGNED_INTEGER);
         break;
         }
-      case FUNCTION_ALPHANUMERIC:{
-        k = jj_consume_token(FUNCTION_ALPHANUMERIC);
+      case COMMA_SEPARATED_ALPHANUMERIC:{
+        key = jj_consume_token(COMMA_SEPARATED_ALPHANUMERIC);
         break;
         }
       default:
@@ -495,19 +503,19 @@ if(value.charAt(0) == '$') {
         throw new ParseException();
       }
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 35:{
-        jj_consume_token(35);
+      case 38:{
+        jj_consume_token(38);
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ImplicitFunction(f.image, k.image.substring(0, k.image.length()-1)));}
+{if ("" != null) return new FunctionValueSymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));}
         break;
         }
       default:
         jj_la1[16] = jj_gen;
-        if (jj_2_4(2)) {
+        if (jj_2_5(2)) {
           label_5:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-            case FUNCTION_SIGNED_INTEGER:{
+            case COMMA_SEPARATED_SIGNED_INTEGER:{
               ;
               break;
               }
@@ -515,13 +523,13 @@ if(value.charAt(0) == '$') {
               jj_la1[15] = jj_gen;
               break label_5;
             }
-            v = jj_consume_token(FUNCTION_SIGNED_INTEGER);
-records.add(v.image.substring(0, v.image.length()-1));
+            word = jj_consume_token(COMMA_SEPARATED_SIGNED_INTEGER);
+records.add(word.image.substring(0, word.image.length()-1));
           }
-          v = jj_consume_token(SIGNED_INTEGER);
-records.add(v.image);
+          word = jj_consume_token(SIGNED_INTEGER);
+records.add(word.image);
           jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ExplicitRecordsFunction(f.image, k.image.substring(0, k.image.length()-1), records));}
+{if ("" != null) return new FunctionValueSymbol(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
         } else {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case OPEN_PARENTHESES:
@@ -530,7 +538,7 @@ records.add(v.image);
           case ALPHANUMERIC:{
             ccl = Ccl();
             jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ExplicitCclFunction(f.image, k.image.substring(0, k.image.length()-1), ccl));}
+{if ("" != null) return new FunctionValueSymbol(new ExplicitCclFunction(function.image, key.image.substring(0, key.image.length()-1), ccl));}
             break;
             }
           default:
@@ -549,23 +557,23 @@ records.add(v.image);
       case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case QUOTED_STRING:{
-          v = jj_consume_token(QUOTED_STRING);
+          word = jj_consume_token(QUOTED_STRING);
           break;
           }
         case SIGNED_INTEGER:{
-          v = jj_consume_token(SIGNED_INTEGER);
+          word = jj_consume_token(SIGNED_INTEGER);
           break;
           }
         case SIGNED_DECIMAL:{
-          v = jj_consume_token(SIGNED_DECIMAL);
+          word = jj_consume_token(SIGNED_DECIMAL);
           break;
           }
         case ALPHANUMERIC:{
-          v = jj_consume_token(ALPHANUMERIC);
+          word = jj_consume_token(ALPHANUMERIC);
           break;
           }
         case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
-          v = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
+          word = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
           break;
           }
         default:
@@ -573,7 +581,7 @@ records.add(v.image);
           jj_consume_token(-1);
           throw new ParseException();
         }
-value = v.image;
+value = word.image;
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
         try {
@@ -605,20 +613,20 @@ value = v.image;
     throw new Error("Missing return statement in function");
 }
 
-  final public OperatorSymbol UnaryOperator() throws ParseException {Token o;
-    o = jj_consume_token(UNARY_OPERATOR);
-{if ("" != null) return new OperatorSymbol(transformOperator(o.image));}
+  final public OperatorSymbol UnaryOperator() throws ParseException {Token operator;
+    operator = jj_consume_token(UNARY_OPERATOR);
+{if ("" != null) return new OperatorSymbol(transformOperator(operator.image));}
     throw new Error("Missing return statement in function");
 }
 
-  final public OperatorSymbol BinaryOperator() throws ParseException {Token o;
-    o = jj_consume_token(BINARY_OPERATOR);
-{if ("" != null) return new OperatorSymbol(transformOperator(o.image));}
+  final public OperatorSymbol BinaryOperator() throws ParseException {Token operator;
+    operator = jj_consume_token(BINARY_OPERATOR);
+{if ("" != null) return new OperatorSymbol(transformOperator(operator.image));}
     throw new Error("Missing return statement in function");
 }
 
-  final public TimestampSymbol Timestamp() throws ParseException {Token t;
-  String ts = "";
+  final public TimestampSymbol Timestamp() throws ParseException {Token word;
+  String timestamp = "";
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TIMESTAMP:{
       jj_consume_token(TIMESTAMP);
@@ -626,23 +634,23 @@ value = v.image;
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case QUOTED_STRING:{
-          t = jj_consume_token(QUOTED_STRING);
+          word = jj_consume_token(QUOTED_STRING);
           break;
           }
         case SIGNED_INTEGER:{
-          t = jj_consume_token(SIGNED_INTEGER);
+          word = jj_consume_token(SIGNED_INTEGER);
           break;
           }
         case SIGNED_DECIMAL:{
-          t = jj_consume_token(SIGNED_DECIMAL);
+          word = jj_consume_token(SIGNED_DECIMAL);
           break;
           }
         case ALPHANUMERIC:{
-          t = jj_consume_token(ALPHANUMERIC);
+          word = jj_consume_token(ALPHANUMERIC);
           break;
           }
         case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
-          t = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
+          word = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
           break;
           }
         default:
@@ -650,7 +658,7 @@ value = v.image;
           jj_consume_token(-1);
           throw new ParseException();
         }
-ts += (ts.equals("")) ? t.image : " " + t.image;
+timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case QUOTED_STRING:
         case SIGNED_INTEGER:
@@ -665,7 +673,7 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
           break label_6;
         }
       }
-{if ("" != null) return new TimestampSymbol(NaturalLanguage.parseMicros(ts));}
+{if ("" != null) return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp));}
       break;
       }
     default:
@@ -716,7 +724,28 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
     finally { jj_save(4, xla); }
   }
 
-  private boolean jj_3_3()
+  private boolean jj_2_6(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return (!jj_3_6()); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(5, xla); }
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_scan_token(ALPHANUMERIC)) return true;
+    if (jj_scan_token(OPEN_PARENTHESES)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_7()
+ {
+    if (jj_scan_token(COMMA_SEPARATED_SIGNED_INTEGER)) return true;
+    return false;
+  }
+
+  private boolean jj_3_4()
  {
     if (jj_scan_token(ALPHANUMERIC)) return true;
     if (jj_scan_token(OPEN_PARENTHESES)) return true;
@@ -725,11 +754,11 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
 
   private boolean jj_3R_8()
  {
-    if (jj_scan_token(FUNCTION_SIGNED_INTEGER)) return true;
+    if (jj_scan_token(COMMA_SEPARATED_SIGNED_INTEGER)) return true;
     return false;
   }
 
-  private boolean jj_3_1()
+  private boolean jj_3_2()
  {
     Token xsp;
     while (true) {
@@ -741,26 +770,26 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
     return false;
   }
 
-  private boolean jj_3_5()
+  private boolean jj_3_6()
  {
     if (jj_scan_token(ALPHANUMERIC)) return true;
     if (jj_scan_token(OPEN_PARENTHESES)) return true;
     return false;
   }
 
-  private boolean jj_3_2()
+  private boolean jj_3_3()
  {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_scan_token(23)) {
+    if (jj_scan_token(24)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(26)) {
+    if (jj_scan_token(29)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(27)) {
+    if (jj_scan_token(30)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(28)) {
+    if (jj_scan_token(31)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(29)) return true;
+    if (jj_scan_token(32)) return true;
     }
     }
     }
@@ -768,7 +797,7 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
     return false;
   }
 
-  private boolean jj_3_4()
+  private boolean jj_3_5()
  {
     Token xsp;
     while (true) {
@@ -777,12 +806,6 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
     }
     if (jj_scan_token(SIGNED_INTEGER)) return true;
     if (jj_scan_token(CLOSE_PARENTHESES)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_7()
- {
-    if (jj_scan_token(FUNCTION_SIGNED_INTEGER)) return true;
     return false;
   }
 
@@ -805,12 +828,12 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x100,0x80,0x1c000008,0x600,0x1c000000,0x3000000,0x8,0x3000000,0x1000000,0x0,0x1c000008,0x3c800000,0x3c800000,0x3000000,0x1000000,0x0,0x1c000008,0x3c800000,0x3c800000,0x3c800000,0x3c800000,0x20,};
+	   jj_la1_0 = new int[] {0x40,0x200,0x100,0xe0000008,0xc00,0x18000000,0xe0000000,0xe0000000,0x18000000,0x8000000,0x0,0xe0000008,0xe1000000,0xe1000000,0x18000000,0x8000000,0x0,0xe0000008,0xe1000000,0xe1000000,0xe1000000,0xe1000000,0x20,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8,0x0,0x0,0x0,0x0,0x0,0x8,0x0,0x0,0x0,0x0,0x0,0x0,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40,0x0,0x1,0x1,0x0,0x0,0x40,0x0,0x1,0x1,0x1,0x1,0x0,};
 	}
-  final private JJCalls[] jj_2_rtns = new JJCalls[5];
+  final private JJCalls[] jj_2_rtns = new JJCalls[6];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
@@ -1019,7 +1042,7 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[36];
+	 boolean[] la1tokens = new boolean[39];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -1036,7 +1059,7 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 36; i++) {
+	 for (int i = 0; i < 39; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;
@@ -1071,7 +1094,7 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
 
   private void jj_rescan_token() {
 	 jj_rescan = true;
-	 for (int i = 0; i < 5; i++) {
+	 for (int i = 0; i < 6; i++) {
 	   try {
 		 JJCalls p = jj_2_rtns[i];
 
@@ -1084,6 +1107,7 @@ ts += (ts.equals("")) ? t.image : " " + t.image;
 			   case 2: jj_3_3(); break;
 			   case 3: jj_3_4(); break;
 			   case 4: jj_3_5(); break;
+			   case 5: jj_3_6(); break;
 			 }
 		   }
 		   p = p.next;
