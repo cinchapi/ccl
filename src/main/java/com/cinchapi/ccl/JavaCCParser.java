@@ -5,6 +5,7 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
+import com.cinchapi.ccl.v2.generated.GrammarInfixVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
 import com.cinchapi.ccl.v2.generated.SimpleNode;
@@ -76,10 +77,9 @@ public class JavaCCParser extends Parser {
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream);
 
-            SimpleNode start = grammar.Start();
-            GrammarPostfixVisitor visitor = new GrammarPostfixVisitor(this,
-                    data);
-            return (Queue<PostfixNotationSymbol>) start.jjtAccept(visitor,
+            SimpleNode tree = grammar.generateAST();
+            GrammarPostfixVisitor visitor = new GrammarPostfixVisitor();
+            return (Queue<PostfixNotationSymbol>) tree.jjtAccept(visitor,
                     null);
         }
         catch (Exception exception) {
@@ -97,10 +97,10 @@ public class JavaCCParser extends Parser {
             Grammar grammar = new Grammar(stream, valueTransformFunction,
                     operatorTransformFunction, data);
 
-            SimpleNode start = grammar.Start();
+            SimpleNode tree = grammar.generateAST();
 
             GrammarTreeVisitor visitor = new GrammarTreeVisitor();
-            return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
+            return (AbstractSyntaxTree) tree.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
             Throwables.propagate(exception);
@@ -116,7 +116,10 @@ public class JavaCCParser extends Parser {
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream, valueTransformFunction,
                     operatorTransformFunction, data);
-            return grammar.Ccl();
+            SimpleNode tree = grammar.generateAST();
+
+            GrammarInfixVisitor visitor = new GrammarInfixVisitor();
+            return (List<Symbol>) tree.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, this);
