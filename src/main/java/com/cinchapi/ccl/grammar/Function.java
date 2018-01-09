@@ -16,16 +16,16 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- *
+ * An {@link Function} describes a function operation on a key.
  */
 public abstract class Function {
     /**
-     *
+     * The function
      */
     protected final String function;
 
     /**
-     *
+     * The key
      */
     protected final String key;
 
@@ -41,16 +41,18 @@ public abstract class Function {
     }
 
     /**
+     * Retrieves the function.
      *
-     * @return
+     * @return the function
      */
     public String function() {
         return function;
     }
 
     /**
+     * Retrieves the key
      *
-     * @return
+     * @return the keu
      */
     public String key() {
         return key;
