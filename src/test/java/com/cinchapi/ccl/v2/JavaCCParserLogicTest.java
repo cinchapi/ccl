@@ -1346,13 +1346,11 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
         Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
         Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
-        Assert.assertEquals(3, ((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).size());
-        Assert.assertTrue(((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(0) instanceof KeySymbol);
-        Assert.assertEquals("age", ((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(0).toString());
-        Assert.assertTrue(((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(1) instanceof OperatorSymbol);
-        Assert.assertEquals("<", ((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(1).toString());
-        Assert.assertTrue(((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(2) instanceof ValueSymbol);
-        Assert.assertEquals("30", ((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(2).toString());
+
+        Assert.assertTrue((((ExplicitFunction) expression.values().get(0).value()).value()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).key().toString());
+        Assert.assertEquals("<", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).operator().toString());
+        Assert.assertEquals("30", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).values().get(0).toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -1376,13 +1374,11 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
         Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
         Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
-        Assert.assertEquals(3, ((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).size());
-        Assert.assertTrue(((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(0) instanceof KeySymbol);
-        Assert.assertEquals("age", ((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(0).toString());
-        Assert.assertTrue(((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(1) instanceof OperatorSymbol);
-        Assert.assertEquals("<", ((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(1).toString());
-        Assert.assertTrue(((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(2) instanceof ValueSymbol);
-        Assert.assertEquals("30", ((List<Symbol>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(2).toString());
+
+        Assert.assertTrue((((ExplicitFunction) expression.values().get(0).value()).value()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).key().toString());
+        Assert.assertEquals("<", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).operator().toString());
+        Assert.assertEquals("30", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).values().get(0).toString());
     }
 
     @Test
