@@ -20,9 +20,10 @@ import com.cinchapi.common.base.AnyStrings;
 import java.util.List;
 
 /**
- * Represents a {@link ExplicitFunction} where the value is a CCL
+ * Represents a {@link ExplicitFunction} where the value is a CCL represented
+ * as a {@link List} of {@link Symbol}
  */
-public class ExplicitCclFunction extends ExplicitFunction<List<Symbol>> {
+public class ExplicitCclInfixFunction extends ExplicitFunction<List<Symbol>> {
     /**
      * Constructs a new instance
      *
@@ -30,7 +31,7 @@ public class ExplicitCclFunction extends ExplicitFunction<List<Symbol>> {
      * @param key      the key
      * @param value    the value
      */
-    public ExplicitCclFunction(String function, String key,
+    public ExplicitCclInfixFunction(String function, String key,
             List<Symbol> value) {
         super(function, key, value);
     }
