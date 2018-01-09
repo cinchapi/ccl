@@ -37,8 +37,9 @@ public abstract class ExplicitFunction<T> extends Function {
     }
 
     /**
+     * Retrieves the value of the function.
      *
-     * @return
+     * @return the value stored in the function
      */
     public T value() {
         return value;
