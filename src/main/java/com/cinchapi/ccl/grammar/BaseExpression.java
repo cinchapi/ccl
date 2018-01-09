@@ -18,7 +18,9 @@ package com.cinchapi.ccl.grammar;
 import java.util.List;
 
 /**
- *
+ * An {@link BaseExpression} describes a query operation
+ * on a key with respect to one or more values (e.g. key = value, key >=
+ * value, etc) at a certain timestamp.
  */
 public interface BaseExpression {
     public BaseKeySymbol key();
