@@ -43,7 +43,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -52,7 +52,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -61,7 +61,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -70,7 +70,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -88,7 +88,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -97,7 +97,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -106,7 +106,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -115,7 +115,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -124,7 +124,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -133,7 +133,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -142,7 +142,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -150,8 +150,8 @@ public class GrammarTest {
         String ccl = "$id$ != 40";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        grammar.generateAST();
     }
 
     @Test
@@ -160,7 +160,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -169,7 +169,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -178,7 +178,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -189,7 +189,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION, data);
-        grammar.Start();
+        grammar.generateAST();
     }
 
 
@@ -199,7 +199,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -208,7 +208,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -216,7 +216,7 @@ public class GrammarTest {
         String ccl = "a = 1 and b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -224,7 +224,7 @@ public class GrammarTest {
         String ccl = "a = 1 or b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -232,7 +232,7 @@ public class GrammarTest {
         String ccl = "a = 1 or (b = 2 and c = 3)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -241,7 +241,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -250,7 +250,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -259,7 +259,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -268,7 +268,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -277,7 +277,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     /**
