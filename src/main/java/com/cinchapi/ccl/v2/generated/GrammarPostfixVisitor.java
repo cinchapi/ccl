@@ -17,8 +17,14 @@ package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.ExplicitCclASTFunction;
+import com.cinchapi.ccl.grammar.ExplicitCclPostfixFunction;
 import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.syntax.ConjunctionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.Visitor;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -97,8 +103,38 @@ public class GrammarPostfixVisitor implements GrammarVisitor
      */
     @SuppressWarnings("unchecked")
     public Object visit(ASTExpression node, Object data) {
-
         Expression expression;
+
+        // Convert our AST to postfix queue
+        if (node.values().get(0).value() instanceof ExplicitCclASTFunction) {
+            ExplicitCclASTFunction value = (ExplicitCclASTFunction) node.values().get(0).value();
+
+            Visitor<Object> visitor = new Visitor<Object>() {
+                Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
+
+                @Override
+                public Object visit(ConjunctionTree tree, Object... data) {
+                    tree.left().accept(this, data);
+                    tree.right().accept(this, data);
+                    symbols.add((PostfixNotationSymbol) tree.root());
+                    return symbols;
+                }
+
+                @Override
+                public Object visit(ExpressionTree tree, Object... data) {
+                    symbols.add((PostfixNotationSymbol) tree.root());
+                    return symbols;
+                }
+
+            };
+            Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>)
+                        value.value().accept(visitor);
+
+            node.values().remove(0);
+            node.values().add(0, new FunctionValueSymbol(
+                    new ExplicitCclPostfixFunction(value.function(), value.key(), queue)));
+        }
+
         if (node.timestamp() != null) {
             expression = new Expression(node.timestamp(), node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
         }
