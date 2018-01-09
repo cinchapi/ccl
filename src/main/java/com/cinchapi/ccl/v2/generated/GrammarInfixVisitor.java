@@ -21,9 +21,12 @@ import com.cinchapi.ccl.grammar.ExplicitCclASTFunction;
 import com.cinchapi.ccl.grammar.ExplicitCclInfixFunction;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
 
@@ -71,10 +74,32 @@ public class GrammarInfixVisitor implements GrammarVisitor
      */
     @SuppressWarnings({ "unchecked", "unused" })
     public Object visit(ASTAnd node, Object data) {
+        boolean parenthesis = false;
+        if(node.jjtGetChild(0) instanceof ASTOr) {
+            ((List<Symbol>) data).add(ParenthesisSymbol.LEFT);
+            parenthesis = true;
+        }
+
         List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
+
+        if(parenthesis) {
+            ((List<Symbol>) data).add(ParenthesisSymbol.RIGHT);
+            parenthesis = false;
+        }
+
         symbols.add(ConjunctionSymbol.AND);
+
+        if(node.jjtGetChild(1) instanceof ASTOr) {
+            ((List<Symbol>) data).add(ParenthesisSymbol.LEFT);
+            parenthesis = true;
+        }
         // Return value isn't needed
         node.jjtGetChild(1).jjtAccept(this, data);
+
+        if(parenthesis) {
+            ((List<Symbol>) data).add(ParenthesisSymbol.RIGHT);
+        }
+
         return symbols;
     }
 
@@ -91,6 +116,7 @@ public class GrammarInfixVisitor implements GrammarVisitor
         symbols.add(ConjunctionSymbol.OR);
         // Return value isn't needed
         node.jjtGetChild(1).jjtAccept(this, data);
+
         return symbols;
     }
 
@@ -114,9 +140,32 @@ public class GrammarInfixVisitor implements GrammarVisitor
 
                 @Override
                 public Object visit(ConjunctionTree tree, Object... data) {
+
+                    boolean parenthesis = false;
+                    if (tree instanceof AndTree && tree.left() instanceof OrTree) {
+                        symbols.add(ParenthesisSymbol.RIGHT);
+                        parenthesis = true;
+                    }
+
                     tree.left().accept(this, data);
-                    tree.right().accept(this, data);
+
+                    if (parenthesis) {
+                        symbols.add(ParenthesisSymbol.LEFT);
+                        parenthesis = false;
+                    }
+
                     symbols.add(tree.root());
+
+                    if (tree instanceof AndTree && tree.right() instanceof OrTree) {
+                        symbols.add(ParenthesisSymbol.LEFT);
+                        parenthesis = true;
+                    }
+
+                    tree.right().accept(this, data);
+
+                    if (parenthesis) {
+                        symbols.add(ParenthesisSymbol.LEFT);
+                    }
                     return symbols;
                 }
 
@@ -134,14 +183,14 @@ public class GrammarInfixVisitor implements GrammarVisitor
                     new ExplicitCclInfixFunction(value.function(), value.key(), symbols)));
         }
 
+        ((List<Symbol>) data).add(node.key());
+        ((List<Symbol>) data).add(node.operator());
+        for(BaseValueSymbol valueSymbol : node.values()) {
+            ((List<Symbol>) data).add(valueSymbol);
+        }
         if (node.timestamp() != null) {
-            expression = new Expression(node.timestamp(), node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
+            ((List<Symbol>) data).add(node.timestamp());
         }
-        else {
-            expression = new Expression(node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
-        }
-
-        ((List<Symbol>) data).add(expression);
 
         return data;
     }
