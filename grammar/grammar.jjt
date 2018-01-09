@@ -28,18 +28,16 @@ package com.cinchapi.ccl.v2.generated;
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.BaseKeySymbol;
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.ExplicitCclFunction;
+import com.cinchapi.ccl.grammar.ExplicitCclASTFunction;
 import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.ImplicitFunction;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.ParenthesisSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
@@ -172,44 +170,38 @@ TOKEN :
   < #ESCAPE: "\\" >
 }
 
-ASTStart Start() #Start :
+ASTStart generateAST() #Start : {}
 {
-   List<Symbol> symbols = Lists.newArrayList();
+   (<WHERE>)? DisjunctionExpression() <EOF>
+   { return jjtThis; }
 }
+ASTStart generateSubAST() #Start : {}
 {
-   (<WHERE>)? DisjunctionExpression(symbols) <EOF>
+   DisjunctionExpression()
    { return jjtThis; }
 }
 
-List<Symbol> Ccl() :
-{
-   List<Symbol> symbols = Lists.newArrayList();
-}
-{
-   DisjunctionExpression(symbols)
-   { return symbols; }
-}
 
-void DisjunctionExpression(List<Symbol> symbols) : {}
+void DisjunctionExpression() : {}
 {
   (
-    ConjunctionExpression(symbols) (((<DISJUNCTION>) { symbols.add(ConjunctionSymbol.OR); } ConjunctionExpression(symbols)) #Or(2) )*
+    ConjunctionExpression() (((<DISJUNCTION>) ConjunctionExpression()) #Or(2) )*
   )
 }
 
-void ConjunctionExpression(List<Symbol> symbols) : {}
+void ConjunctionExpression() : {}
 {
   (
-    UnaryExpression(symbols) (((<CONJUNCTION>) { symbols.add(ConjunctionSymbol.AND); } UnaryExpression(symbols)) #And(2) )*
+    UnaryExpression() (((<CONJUNCTION>) UnaryExpression()) #And(2) )*
   )
 }
 
-void UnaryExpression(List<Symbol> symbols) : {}
+void UnaryExpression() : {}
 {
-   (<OPEN_PARENTHESES>) { symbols.add(ParenthesisSymbol.LEFT); } DisjunctionExpression(symbols) (<CLOSE_PARENTHESES>) { symbols.add(ParenthesisSymbol.RIGHT); } | RelationalExpression(symbols)
+   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpression()
 }
 
-void RelationalExpression(List<Symbol> symbols) #Expression :
+void RelationalExpression() #Expression :
 {
     BaseKeySymbol key = null;
     OperatorSymbol operator = null;
@@ -228,12 +220,6 @@ void RelationalExpression(List<Symbol> symbols) #Expression :
           jjtThis.addValue(value1);
           if(value2 != null) jjtThis.addValue(value2);
           if(timestamp != null) jjtThis.timestamp(timestamp);
-
-          symbols.add(key);
-          symbols.add(operator);
-          symbols.add(value1);
-          if(value2 != null) symbols.add(value2);
-          if(timestamp != null) symbols.add(timestamp);
         }
 }
 
@@ -249,7 +235,7 @@ BaseKeySymbol Key() :
     function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
     { return new FunctionKeySymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));} // Remove the comma
   |
-    (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
+    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
     { return new KeySymbol(key.image); }
   )
 }
@@ -261,7 +247,7 @@ BaseValueSymbol UnaryValue() :
   Token word;
   String value = "";
   List<String> records = Lists.newArrayList();
-  List<Symbol> ccl;
+  ASTStart ccl;
 }
 {
   LOOKAHEAD(2)
@@ -277,8 +263,11 @@ BaseValueSymbol UnaryValue() :
      (word=<SIGNED_INTEGER>) { records.add(word.image);} <CLOSE_PARENTHESES>
      { return new FunctionValueSymbol(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
-     ccl=Ccl() <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitCclFunction(function.image, key.image.substring(0, key.image.length()-1), ccl));}
+     ccl=generateSubAST() <CLOSE_PARENTHESES>
+     {
+        GrammarTreeVisitor visitor = new GrammarTreeVisitor();
+        AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
+        return new FunctionValueSymbol(new ExplicitCclASTFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
 |
   ( LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
@@ -308,31 +297,10 @@ BaseValueSymbol UnaryValue() :
 
 BaseValueSymbol BinaryValue() :
 {
-  Token function;
-  Token key;
   Token word;
   String value = "";
-  List<String> records = Lists.newArrayList();
-  List<Symbol> ccl;
 }
 {
-  LOOKAHEAD(2)
-
-  function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
-   (
-     " ?" <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));}
-   |
-     LOOKAHEAD(2)
-
-     (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
-     (word=<SIGNED_INTEGER>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
-   |
-     ccl=Ccl() <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitCclFunction(function.image, key.image.substring(0, key.image.length()-1), ccl));}
-   )
-|
   (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
   {
     value = word.image;
