@@ -57,16 +57,6 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
     }
 
     /**
-     * Construct a new instance
-     *
-     * @param grammar the grammar
-     * @param id the id
-     */
-    public ASTExpression(Grammar grammar, int id) {
-        super(grammar, id);
-    }
-
-    /**
      * Set the key.
      *
      * @param key the key
