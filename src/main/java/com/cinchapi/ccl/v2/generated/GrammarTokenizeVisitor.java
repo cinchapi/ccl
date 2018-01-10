@@ -21,6 +21,7 @@ import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
@@ -96,9 +97,33 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
      */
     @SuppressWarnings("unchecked")
     public Object visit(ASTAnd node, Object data) {
-        List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
+        List<Symbol> symbols = (List<Symbol>) data;
+        boolean parenthesis = false;
+        if (node.jjtGetChild(0) instanceof ASTOr) {
+            symbols.add(ParenthesisSymbol.LEFT);
+            parenthesis = true;
+        }
+
+        node.jjtGetChild(0).jjtAccept(this, data);
+
+        if (parenthesis) {
+            symbols.add(ParenthesisSymbol.RIGHT);
+            parenthesis = false;
+        }
+
         symbols.add(ConjunctionSymbol.AND);
-        symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
+
+        if (node.jjtGetChild(1) instanceof ASTOr) {
+            symbols.add(ParenthesisSymbol.LEFT);
+            parenthesis = true;
+        }
+
+        node.jjtGetChild(1).jjtAccept(this, data);
+
+        if (parenthesis) {
+            symbols.add(ParenthesisSymbol.RIGHT);
+        }
+
         return symbols;
     }
 
@@ -154,19 +179,16 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
             values.add(new ValueSymbol(parser.transformValue(value)));
         }
 
-
-        Expression expression;
+        ((List<Symbol>) data).add(key);
+        ((List<Symbol>) data).add(operator);
+        for(ValueSymbol valueSymbol : values) {
+            ((List<Symbol>) data).add(valueSymbol);
+        }
         if (node.timestamp() != null) {
             long ts = NaturalLanguage.parseMicros(node.timestamp());
             TimestampSymbol timestamp = new TimestampSymbol(ts);
-
-            expression = new Expression(timestamp, key, operator, values.toArray(new ValueSymbol[0]));
+            ((List<Symbol>) data).add(timestamp);
         }
-        else {
-            expression = new Expression(key, operator, values.toArray(new ValueSymbol[0]));
-        }
-
-        ((List<Symbol>) data).add(expression);
 
         return data;
     }
