@@ -259,24 +259,25 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testDisjunctionParenthesizedConjunctionTokenize() {
-        String ccl = "(a = 1 or b = 2) and c = 3";
+        String ccl = "a = 1 or (b = 2 and c = 3)";
 
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(ParenthesisSymbol.LEFT);
         expectedTokens.add(new KeySymbol("a"));
         expectedTokens.add(new OperatorSymbol(PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
         expectedTokens.add(new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
         expectedTokens.add(ConjunctionSymbol.OR);
+        expectedTokens.add(ParenthesisSymbol.LEFT);
         expectedTokens.add(new KeySymbol("b"));
         expectedTokens.add(new OperatorSymbol(PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
         expectedTokens.add(new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
-        expectedTokens.add(ParenthesisSymbol.RIGHT);
         expectedTokens.add(ConjunctionSymbol.AND);
         expectedTokens.add(new KeySymbol("c"));
         expectedTokens.add(new OperatorSymbol(PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
         expectedTokens.add(new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
+        expectedTokens.add(ParenthesisSymbol.RIGHT);
+
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
@@ -513,7 +514,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testDisjunctionParenthesizedConjunctionPostFix() {
-        String ccl = "(a = 1 or b = 2) and c = 3";
+        String ccl = "a = 1 or (b = 2 and c = 3)";
 
         // Build expected queue
         Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
@@ -533,8 +534,6 @@ public class JavaCCParserLogicTest {
         expression = new Expression(key, operator, value);
         expectedOrder.add(expression);
 
-        expectedOrder.add(ConjunctionSymbol.OR);
-
         key = new KeySymbol("c");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
@@ -543,6 +542,7 @@ public class JavaCCParserLogicTest {
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
+        expectedOrder.add(ConjunctionSymbol.OR);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1087,4 +1087,15 @@ public class JavaCCParserLogicTest {
      * {@link Parser}.
      */
     public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert.stringToOperator(operator);
+
+    /**
+     *
+     */
+    @SuppressWarnings("unused")
+    private void printPreOrder(AbstractSyntaxTree tree) {
+        System.out.println(tree.root());
+        for (AbstractSyntaxTree child : tree.children()) {
+            printPreOrder(child);
+        }
+    }
 }
