@@ -63,8 +63,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ValueSymbol value = new ValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -86,8 +87,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ValueSymbol value = new ValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.AND);
 
@@ -95,8 +97,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -118,8 +121,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ValueSymbol value = new ValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.OR);
 
@@ -127,8 +131,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -150,8 +155,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ValueSymbol value = new ValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.AND);
 
@@ -159,8 +165,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.AND);
 
@@ -168,8 +175,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -191,8 +199,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ValueSymbol value = new ValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.OR);
 
@@ -200,8 +209,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.OR);
 
@@ -209,8 +219,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -232,8 +243,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ValueSymbol value = new ValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.AND);
 
@@ -241,8 +253,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.OR);
 
@@ -250,8 +263,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -273,8 +287,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ValueSymbol value = new ValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.OR);
 
@@ -282,8 +297,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.AND);
 
@@ -291,8 +307,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -337,8 +354,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ValueSymbol value = new ValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.OR);
 
@@ -346,8 +364,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         expectedTokens.add(ConjunctionSymbol.AND);
 
@@ -355,8 +374,9 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new Expression(key, operator, value);
-        expectedTokens.add(expression);
+        expectedTokens.add(key);
+        expectedTokens.add(operator);
+        expectedTokens.add(value);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
