@@ -32,11 +32,11 @@ import com.google.common.collect.Lists;
  * 
  * @author Jeff Nelson
  */
-public class Expression extends BaseSymbol implements PostfixNotationSymbol, BaseExpression {
+public class Expression extends BaseSymbol implements PostfixNotationSymbol {
 
-    private final BaseKeySymbol key;
+    private final KeySymbol key;
     private final OperatorSymbol operator;
-    private final BaseValueSymbol[] values;
+    private final ValueSymbol[] values;
     private final TimestampSymbol timestamp;
 
     /**
@@ -51,8 +51,8 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol, Bas
      * @param operator
      * @param values
      */
-    public Expression(BaseKeySymbol key, OperatorSymbol operator,
-            BaseValueSymbol... values) {
+    public Expression(KeySymbol key, OperatorSymbol operator,
+            ValueSymbol... values) {
         this(TimestampSymbol.PRESENT, key, operator, values);
     }
 
@@ -64,8 +64,8 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol, Bas
      * @param operator
      * @param values
      */
-    public Expression(TimestampSymbol timestamp, BaseKeySymbol key,
-            OperatorSymbol operator, BaseValueSymbol... values) {
+    public Expression(TimestampSymbol timestamp, KeySymbol key,
+            OperatorSymbol operator, ValueSymbol... values) {
         this.key = key;
         this.operator = operator;
         this.values = values;
@@ -77,7 +77,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol, Bas
      * 
      * @return the key
      */
-    public BaseKeySymbol key() {
+    public KeySymbol key() {
         return key;
     }
 
@@ -111,7 +111,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol, Bas
     @Override
     public String toString() {
         String string = AnyStrings.format("{} {}", key, operator);
-        for (BaseValueSymbol value : values) {
+        for (ValueSymbol value : values) {
             string += " " + value;
         }
         if(timestamp.timestamp() > 0) {
@@ -125,7 +125,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol, Bas
      * 
      * @return the values
      */
-    public List<BaseValueSymbol> values() {
+    public List<ValueSymbol> values() {
         return Lists.newArrayList(values);
     }
 
@@ -143,7 +143,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol, Bas
          * @return key content
          */
         public String key() {
-            return Expression.this.key().key().toString();
+            return Expression.this.key().key();
         }
 
         /**
@@ -172,7 +172,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol, Bas
         public List<Object> values() {
             List<Object> values = Lists
                     .newArrayListWithCapacity(Expression.this.values.length);
-            for (BaseValueSymbol symbol : Expression.this.values) {
+            for (ValueSymbol symbol : Expression.this.values) {
                 values.add(symbol.value());
             }
             return values;

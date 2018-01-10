@@ -21,7 +21,7 @@ import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -30,16 +30,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 
 /**
  * A visitor pattern implementation of {@link GrammarVisitor} that
- * generates a postfix notation queue of the accepted string.
+ * generates a list of the symbols in the accepted string.
  */
-public class GrammarPostfixVisitor implements GrammarVisitor
+public class GrammarTokenizeVisitor implements GrammarVisitor
 {
     /**
      * The parser used to parse the string.
@@ -57,7 +55,7 @@ public class GrammarPostfixVisitor implements GrammarVisitor
      * @param parser the parser
      * @param data the local data
      */
-    public GrammarPostfixVisitor(JavaCCParser parser, Multimap<String, Object> data) {
+    public GrammarTokenizeVisitor(JavaCCParser parser, Multimap<String, Object> data) {
         super();
         this.parser = parser;
         this.data = data;
@@ -71,21 +69,20 @@ public class GrammarPostfixVisitor implements GrammarVisitor
      * @return the data
      */
     public Object visit(SimpleNode node, Object data) {
-        System.out.println(node +
-                ": acceptor not unimplemented in subclass?");
+        System.out.println(node + ": acceptor not unimplemented in subclass?");
         data = node.childrenAccept(this, data);
         return data;
     }
 
     /**
-     * Visitor for a {@link ASTStart}
+     * Visitor for a {@link SimpleNode}
      *
      * @param node the node
      * @param data the data
-     * @return the queue of postfix symbols
+     * @return the list of symbols
      */
     public Object visit(ASTStart node, Object data) {
-        Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
+        List<Symbol> symbols = Lists.newArrayList();
         data = node.childrenAccept(this, symbols);
         return data;
     }
@@ -94,15 +91,14 @@ public class GrammarPostfixVisitor implements GrammarVisitor
      * Visitor for a {@link ASTAnd}
      *
      * @param node the node
-     * @param data the data
-     * @return the queue of postfix symbols
+     * @param data a reference to the list of symbols
+     * @return the list of symbols
      */
-    @SuppressWarnings({ "unchecked", "unused" })
+    @SuppressWarnings("unchecked")
     public Object visit(ASTAnd node, Object data) {
-        // Return value isn't needed
-        node.jjtGetChild(0).jjtAccept(this, data);
-        Queue<PostfixNotationSymbol> symbols = (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+        List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
         symbols.add(ConjunctionSymbol.AND);
+        symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
         return symbols;
     }
 
@@ -110,15 +106,14 @@ public class GrammarPostfixVisitor implements GrammarVisitor
      * Visitor for a {@link ASTOr}
      *
      * @param node the node
-     * @param data the data
-     * @return the queue of postfix symbols
+     * @param data a reference to the list of symbols
+     * @return the list of symbols
      */
-    @SuppressWarnings({ "unchecked", "unused" })
+    @SuppressWarnings("unchecked")
     public Object visit(ASTOr node, Object data) {
-        // Return value isn't needed
-        node.jjtGetChild(0).jjtAccept(this, data);
-        Queue<PostfixNotationSymbol> symbols = (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+        List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
         symbols.add(ConjunctionSymbol.OR);
+        symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
         return symbols;
     }
 
@@ -126,8 +121,8 @@ public class GrammarPostfixVisitor implements GrammarVisitor
      * Visitor for a {@link ASTRelationalExpression}
      *
      * @param node the node
-     * @param data the data
-     * @return the queue of postfix symbols
+     * @param data a reference to the list of symbols
+     * @return the list of symbols
      */
     @SuppressWarnings("unchecked")
     public Object visit(ASTRelationalExpression node, Object data) {
@@ -159,6 +154,7 @@ public class GrammarPostfixVisitor implements GrammarVisitor
             values.add(new ValueSymbol(parser.transformValue(value)));
         }
 
+
         Expression expression;
         if (node.timestamp() != null) {
             long ts = NaturalLanguage.parseMicros(node.timestamp());
@@ -170,7 +166,7 @@ public class GrammarPostfixVisitor implements GrammarVisitor
             expression = new Expression(key, operator, values.toArray(new ValueSymbol[0]));
         }
 
-        ((Queue<PostfixNotationSymbol>) data).add(expression);
+        ((List<Symbol>) data).add(expression);
 
         return data;
     }

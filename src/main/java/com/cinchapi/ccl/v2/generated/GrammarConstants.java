@@ -59,27 +59,21 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int SINGLE_QUOTED_STRING = 26;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_INTEGER = 27;
+  int SIGNED_DECIMAL = 27;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_ALPHANUMERIC = 28;
+  int ALPHANUMERIC = 28;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 29;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 29;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 30;
+  int NON_ALPHANUMERIC = 30;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 31;
+  int LETTER = 31;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 32;
+  int DIGIT = 32;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 33;
+  int PERIOD = 33;
   /** RegularExpression Id. */
-  int LETTER = 34;
-  /** RegularExpression Id. */
-  int DIGIT = 35;
-  /** RegularExpression Id. */
-  int PERIOD = 36;
-  /** RegularExpression Id. */
-  int ESCAPE = 37;
+  int ESCAPE = 34;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -113,9 +107,6 @@ public interface GrammarConstants {
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
     "<SINGLE_QUOTED_STRING>",
-    "<COMMA_SEPARATED_SIGNED_INTEGER>",
-    "<COMMA_SEPARATED_ALPHANUMERIC>",
-    "<SIGNED_INTEGER>",
     "<SIGNED_DECIMAL>",
     "<ALPHANUMERIC>",
     "<NON_ALPHANUMERIC_AND_ALPHANUMERIC>",
@@ -124,7 +115,7 @@ public interface GrammarConstants {
     "<DIGIT>",
     "\".\"",
     "\"\\\\\"",
-    "\" ?\"",
+    "\"\\n\"",
   };
 
 }

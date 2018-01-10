@@ -15,44 +15,39 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
-import com.cinchapi.ccl.grammar.BaseExpression;
-import com.cinchapi.ccl.grammar.BaseKeySymbol;
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
-import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
  * A node that representation a CCL expression
  */
-public class ASTExpression extends SimpleNode implements BaseExpression {
+public class ASTRelationalExpression extends SimpleNode {
     /**
      * The key
      */
-    private BaseKeySymbol key;
+    private String key = "";
 
     /**
      * The operator
      */
-    private OperatorSymbol operator;
+    private String operator = "";
 
     /**
      * The values
      */
-    private List<BaseValueSymbol> values = Lists.newArrayList();
+    private List<String> values = Lists.newArrayList();
 
     /**
      * The timestamp
      */
-    private TimestampSymbol timestamp;
+    private String timestamp = null;
 
     /**
      * Construct a new instance
      *
      * @param id the id
      */
-    public ASTExpression(int id) {
+    public ASTRelationalExpression(int id) {
         super(id);
     }
 
@@ -62,25 +57,25 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      * @param grammar the grammar
      * @param id the id
      */
-    public ASTExpression(Grammar grammar, int id) {
+    public ASTRelationalExpression(Grammar grammar, int id) {
         super(grammar, id);
     }
 
     /**
-     * Set the key.
+    * Set the key.
      *
-     * @param key the key
-     */
-    public void key(BaseKeySymbol key) {
+    * @param key the key
+    */
+    public void key(String key) {
         this.key = key;
     }
 
     /**
-     * Set the operator.
+    * Set the operator.
      *
-     * @param operator operator
-     */
-    public void operator(OperatorSymbol operator) {
+    * @param operator operator
+    */
+    public void operator(String operator) {
         this.operator = operator;
     }
 
@@ -89,8 +84,22 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      *
      * @param value the value
      */
-    public void addValue(BaseValueSymbol value) {
+    public void addValue(String value) {
         this.values.add(value);
+    }
+
+    /**
+     * Append a value to the first value
+     *
+     * @param value the value to append
+     */
+    public void appendValue(String value) {
+        if (this.values.isEmpty()) {
+            this.values.add(value);
+        }
+        else {
+            this.values.add(0, this.values.get(0) + " " + value);
+        }
     }
 
     /**
@@ -98,8 +107,13 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      *
      * @param timestamp the timestamp
      */
-    public void timestamp(TimestampSymbol timestamp) {
-        this.timestamp = timestamp;
+    public void timestamp(String timestamp) {
+        if (this.timestamp == null) {
+            this.timestamp = timestamp;
+        }
+        else {
+            this.timestamp += " " + timestamp;
+        }
     }
 
     /**
@@ -107,35 +121,35 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      *
      * @return the key
      */
-    public BaseKeySymbol key() {
-        return key;
-    }
+    public String key() {
+      return key;
+  }
 
     /**
      * Get the operator
      *
      * @return the operator
      */
-    public OperatorSymbol operator() {
-        return operator;
-    }
+    public String operator() {
+      return operator;
+  }
 
     /**
      * Get the value
      *
      * @return the value
      */
-    public List<BaseValueSymbol> values() {
-        return values;
-    }
+    public List<String> value() {
+      return values;
+  }
 
     /**
      * Get the timestamp
      *
      * @return the timestamp
      */
-    public TimestampSymbol timestamp() {
-        return timestamp;
+    public String timestamp() {
+      return  timestamp;
     }
 
     /**
@@ -144,14 +158,14 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      * @return the node as a string
      */
     public String toString() {
-        String string = key.toString() + " " + operator.toString();
-        for (BaseValueSymbol value : values) {
-            string += " " + value.toString();
-        }
-        if (timestamp != null) {
-            string += " " + timestamp.toString();
-        }
-        return string;
+      String string = key + " " + operator;
+      for (String value : values) {
+            string += " " + value;
+      }
+      if (timestamp != null) {
+          string += " at " + timestamp;
+      }
+      return string;
     }
 
     /**

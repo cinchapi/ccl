@@ -15,12 +15,25 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
+import com.cinchapi.ccl.JavaCCParser;
+import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.util.NaturalLanguage;
+import com.cinchapi.common.base.AnyStrings;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * A visitor pattern implementation of {@link GrammarVisitor} that
@@ -28,6 +41,28 @@ import com.cinchapi.ccl.syntax.OrTree;
  */
 public class GrammarTreeVisitor implements GrammarVisitor
 {
+    /**
+     * The parser used to parse the string.
+     */
+    private final JavaCCParser parser;
+
+    /**
+     * The data for local resolution
+     */
+    private final Multimap<String, Object> data;
+
+    /**
+     * Constructs a new instance
+     *
+     * @param parser the parser
+     * @param data the local data
+     */
+    public GrammarTreeVisitor(JavaCCParser parser, Multimap<String, Object> data) {
+        super();
+        this.parser = parser;
+        this.data = data;
+    }
+
     /**
      * Visitor for a {@link SimpleNode}
      *
@@ -80,19 +115,50 @@ public class GrammarTreeVisitor implements GrammarVisitor
     }
 
     /**
-     * Visitor for a {@link ASTExpression}
+     * Visitor for a {@link ASTRelationalExpression}
      *
      * @param node the node
      * @param data a reference to the tree
      * @return the expression tree
      */
-    public Object visit(ASTExpression node, Object data) {
+    public Object visit(ASTRelationalExpression node, Object data) {
+        KeySymbol key = new KeySymbol(node.key());
+        OperatorSymbol operator = new OperatorSymbol(parser.transformOperator(node.operator()));
+
+        // Perform local resolution for variable
+        List<ValueSymbol> values = Lists.newArrayList();
+        for(String value : node.value()) {
+            if(value.charAt(0) == '$') {
+                String var = value.substring(1);
+                try {
+                    value = Iterables.getOnlyElement(this.data.get(var)).toString();
+                }
+                catch (IllegalArgumentException e) {
+                    String err = "Unable to resolve variable {} because multiple values exist locally: {}";
+                    throw new SyntaxException(AnyStrings.format(err, value, this.data.get(var)));
+                }
+                catch (NoSuchElementException e) {
+                    String err = "Unable to resolve variable {} because no values exist locally";
+                    throw new SyntaxException(AnyStrings.format(err, value));
+                }
+            }
+            else if(value.length() > 2 && value.charAt(0) == '\\'
+                    && value.charAt(1) == '$') {
+                value = value.substring(1);
+            }
+
+            values.add(new ValueSymbol(parser.transformValue(value)));
+        }
+
         Expression expression;
         if (node.timestamp() != null) {
-            expression = new Expression(node.timestamp(), node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
+            long ts = NaturalLanguage.parseMicros(node.timestamp());
+            TimestampSymbol timestamp = new TimestampSymbol(ts);
+
+            expression = new Expression(timestamp, key, operator, values.toArray(new ValueSymbol[0]));
         }
         else {
-            expression = new Expression(node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
+            expression = new Expression(key, operator, values.toArray(new ValueSymbol[0]));
         }
 
         return new ExpressionTree(expression);

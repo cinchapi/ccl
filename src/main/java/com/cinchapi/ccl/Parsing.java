@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Queue;
 
-import com.cinchapi.ccl.grammar.BaseKeySymbol;
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
@@ -33,10 +31,6 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.reflect.Reflection;
 import com.google.common.base.Preconditions;
@@ -63,21 +57,21 @@ public final class Parsing {
             ListIterator<Symbol> it = symbols.listIterator();
             while (it.hasNext()) {
                 Symbol symbol = it.next();
-                if(symbol instanceof BaseKeySymbol) {
+                if(symbol instanceof KeySymbol) {
                     // NOTE: We are assuming that the list of symbols is well
                     // formed, and, as such, the next elements will be an
                     // operator and one or more symbols. If this is not the
                     // case, this method will throw a ClassCastException
                     OperatorSymbol operator = (OperatorSymbol) it.next();
-                    BaseValueSymbol value = (BaseValueSymbol) it.next();
+                    ValueSymbol value = (ValueSymbol) it.next();
                     Expression expression;
                     if(operator.operator().operands() == 2) {
-                        BaseValueSymbol value2 = (BaseValueSymbol) it.next();
-                        expression = new Expression((BaseKeySymbol) symbol,
+                        ValueSymbol value2 = (ValueSymbol) it.next();
+                        expression = new Expression((KeySymbol) symbol,
                                 operator, value, value2);
                     }
                     else {
-                        expression = new Expression((BaseKeySymbol) symbol,
+                        expression = new Expression((KeySymbol) symbol,
                                 operator, value);
                     }
                     grouped.add(expression);
@@ -198,83 +192,5 @@ public final class Parsing {
         });
         return ungrouped;
     }
-
-    /**
-     * Transform a sequential list of {@link Symbol} tokens to an
-     * {@link AbstractSyntaxTree}
-     *
-     * @param symbols a sequential list of tokens
-     * @return a {@link AbstractSyntaxTree}
-     */
-    public static AbstractSyntaxTree toAbstractSyntaxTree(List<Symbol> symbols) {
-        Deque<Symbol> operatorStack = new ArrayDeque<Symbol>();
-        Deque<AbstractSyntaxTree> operandStack = new ArrayDeque<AbstractSyntaxTree>();
-        symbols = Parsing.groupExpressions(symbols);
-        main: for (Symbol symbol : symbols) {
-            if(symbol == ParenthesisSymbol.LEFT) {
-                operatorStack.push(symbol);
-            }
-            else if(symbol == ParenthesisSymbol.RIGHT) {
-                while (!operatorStack.isEmpty()) {
-                    Symbol popped = operatorStack.pop();
-                    if(popped == ParenthesisSymbol.LEFT) {
-                        continue main;
-                    }
-                    else {
-                        addAbstractSyntaxTreeNode(operandStack, popped);
-                    }
-                }
-                throw new SyntaxException(AnyStrings.format(
-                        "Syntax error in {}: Mismatched parenthesis", symbols));
-            }
-            else if(symbol instanceof ConjunctionSymbol) {
-                final ConjunctionSymbol con1 = (ConjunctionSymbol) symbol;
-                Symbol symbol2;
-                while (!operatorStack.isEmpty()
-                        && (symbol2 = operatorStack.peek()) != null
-                        && symbol2 instanceof ConjunctionSymbol) {
-                    ConjunctionSymbol con2 = (ConjunctionSymbol) symbol2;
-                    if((!con1.isRightAssociative()
-                            && con1.comparePrecedence(con2) == 0)
-                            || con1.comparePrecedence(con2) < 0) {
-                        operatorStack.pop();
-                        addAbstractSyntaxTreeNode(operandStack, con2);
-                    }
-                    else {
-                        break;
-                    }
-                }
-                operatorStack.push(symbol);
-            }
-            else if(symbol instanceof Expression) {
-                operandStack.push(new ExpressionTree((Expression) symbol));
-            }
-        }
-        while (!operatorStack.isEmpty()) {
-            addAbstractSyntaxTreeNode(operandStack, operatorStack.pop());
-        }
-        return operandStack.pop();
-    }
-
-    /**
-     * An the appropriate {@link AbstractSyntaxTree} node to the {@code stack}
-     * based on
-     * {@code operator}.
-     *
-     * @param stack
-     * @param operator
-     */
-    private static void addAbstractSyntaxTreeNode(Deque<AbstractSyntaxTree> stack,
-            Symbol operator) {
-        AbstractSyntaxTree right = stack.pop();
-        AbstractSyntaxTree left = stack.pop();
-        if(operator == ConjunctionSymbol.AND) {
-            stack.push(new AndTree(left, right));
-        }
-        else {
-            stack.push(new OrTree(left, right));
-        }
-    }
-
 
 }

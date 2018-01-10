@@ -20,19 +20,34 @@ package com.cinchapi.ccl.grammar;
  *
  * @author Jeff Nelson
  */
-public final class KeySymbol extends BaseKeySymbol<String> {
+public final class KeySymbol extends BaseSymbol {
+
+    /**
+     * The content of the {@link Symbol}.
+     */
+    private final String key;
 
     /**
      * Construct a new instance.
-     *
-     * @param key the key
+     * 
+     * @param key
      */
     public KeySymbol(String key) {
-        super(key);
+        this.key = key;
+    }
+
+    /**
+     * Return the key associated with this {@link Symbol}.
+     * 
+     * @return the key
+     */
+    public String key() {
+        return key;
     }
 
     @Override
     public String toString() {
-        return key;
+        return key();
     }
+
 }
