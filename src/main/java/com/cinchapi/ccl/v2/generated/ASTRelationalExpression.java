@@ -99,6 +99,7 @@ public class ASTRelationalExpression extends SimpleNode {
         }
         else {
             this.values.add(0, this.values.get(0) + " " + value);
+            this.values.remove(1);
         }
     }
 
