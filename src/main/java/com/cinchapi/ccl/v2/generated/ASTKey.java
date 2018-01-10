@@ -16,29 +16,42 @@
 package com.cinchapi.ccl.v2.generated;
 
 /**
- * A node that representation a CCL expression
+ *
  */
-public class ASTExpression extends SimpleNode {
+public class ASTKey extends SimpleNode {
     /**
-     * Construct a new instance
+     *
+     */
+    private String item;
+
+    /**
+     * Constructs a new instance.
      *
      * @param id the id
      */
-    public ASTExpression(int id) {
+    public ASTKey(int id) {
         super(id);
     }
 
     /**
-     * Convert the node a string representation.
      *
-     * @return the node as a string
+     * @param item
      */
-    public String toString() {
-        return "Expression";
+    public void item(String item) {
+        this.item = item;
     }
 
     /**
-     * Accept the visitor
+     * Convert the node a string representation
+     *
+     * @return the string
+     */
+    public String toString() {
+        return item;
+    }
+
+    /**
+     * Accept a visitor
      *
      * @param visitor the visitor
      * @param data the data
