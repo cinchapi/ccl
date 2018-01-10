@@ -87,6 +87,9 @@ public class GrammarTreeVisitor implements GrammarVisitor
      * @return the expression tree
      */
     public Object visit(ASTExpression node, Object data) {
+        Object key = node.jjtGetChild(0).jjtAccept(this, data);
+
+        /*
         Expression expression;
         if (node.timestamp() != null) {
             expression = new Expression(node.timestamp(), node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
@@ -94,6 +97,7 @@ public class GrammarTreeVisitor implements GrammarVisitor
         else {
             expression = new Expression(node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
         }
+        */
 
         return new ExpressionTree(expression);
     }
