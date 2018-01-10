@@ -154,19 +154,16 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
             values.add(new ValueSymbol(parser.transformValue(value)));
         }
 
-
-        Expression expression;
+        ((List<Symbol>) data).add(key);
+        ((List<Symbol>) data).add(operator);
+        for(ValueSymbol valueSymbol : values) {
+            ((List<Symbol>) data).add(valueSymbol);
+        }
         if (node.timestamp() != null) {
             long ts = NaturalLanguage.parseMicros(node.timestamp());
             TimestampSymbol timestamp = new TimestampSymbol(ts);
-
-            expression = new Expression(timestamp, key, operator, values.toArray(new ValueSymbol[0]));
+            ((List<Symbol>) data).add(timestamp);
         }
-        else {
-            expression = new Expression(key, operator, values.toArray(new ValueSymbol[0]));
-        }
-
-        ((List<Symbol>) data).add(expression);
 
         return data;
     }
