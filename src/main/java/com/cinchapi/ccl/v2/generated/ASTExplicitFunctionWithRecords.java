@@ -15,30 +15,73 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
+
 /**
- * A node that representation a CCL expression
+ *
  */
-public class ASTExpression extends SimpleNode {
+public class ASTExplicitFunctionWithRecords extends SimpleNode {
     /**
-     * Construct a new instance
+     *
+     */
+    private String function;
+
+    /**
+     *
+     */
+    private String key;
+
+    /**
+     *
+     */
+    private List<String> records;
+
+    /**
+     * Constructs a new instance.
      *
      * @param id the id
      */
-    public ASTExpression(int id) {
+    public ASTExplicitFunctionWithRecords(int id) {
         super(id);
     }
 
     /**
-     * Convert the node a string representation.
      *
-     * @return the node as a string
+     * @param item
      */
-    public String toString() {
-        return "Expression";
+    public void function(String item) {
+        this.function = item;
     }
 
     /**
-     * Accept the visitor
+     *
+     * @param item
+     */
+    public void key(String item) {
+        this.key = item;
+    }
+
+    /**
+     *
+     * @param item
+     */
+    public void records(List<String> item) {
+        this.records = item;
+    }
+
+    /**
+     * Convert the node a string representation
+     *
+     * @return the string
+     */
+    public String toString() {
+        return function + "(" + key + StringUtils.join(records, ",") + ")";
+    }
+
+    /**
+     * Accept a visitor
      *
      * @param visitor the visitor
      * @param data the data
