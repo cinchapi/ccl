@@ -18,7 +18,7 @@ package com.cinchapi.ccl.v2.generated;
 /**
  *
  */
-public class ASTExplicitFunctionWithCCL extends SimpleNode {
+public class ASTExplicitFunctionWIthCCL extends SimpleNode {
     /**
      *
      */
@@ -39,7 +39,7 @@ public class ASTExplicitFunctionWithCCL extends SimpleNode {
      *
      * @param id the id
      */
-    public ASTExplicitFunctionWithCCL(int id) {
+    public ASTExplicitFunctionWIthCCL(int id) {
         super(id);
     }
 
