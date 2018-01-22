@@ -66,6 +66,40 @@ public class GrammarTreeVisitor implements GrammarVisitor
         return new AndTree(left, right);
     }
 
+    @Override public Object visit(ASTExpression node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTImplicitFunction node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTKey node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTExplicitFunctionWithRecords node,
+            Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTExplicitFunctionWithCCL node,
+            Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTValue node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTOperator node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTTimestamp node, Object data) {
+        return null;
+    }
+
     /**
      * Visitor for a {@link ASTOr}
      *
@@ -77,28 +111,5 @@ public class GrammarTreeVisitor implements GrammarVisitor
         AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
         AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
         return new OrTree(left, right);
-    }
-
-    /**
-     * Visitor for a {@link ASTExpression}
-     *
-     * @param node the node
-     * @param data a reference to the tree
-     * @return the expression tree
-     */
-    public Object visit(ASTExpression node, Object data) {
-        Object key = node.jjtGetChild(0).jjtAccept(this, data);
-
-        /*
-        Expression expression;
-        if (node.timestamp() != null) {
-            expression = new Expression(node.timestamp(), node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
-        }
-        else {
-            expression = new Expression(node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
-        }
-        */
-
-        return new ExpressionTree(expression);
     }
 }

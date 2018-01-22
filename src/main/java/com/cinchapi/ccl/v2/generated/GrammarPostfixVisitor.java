@@ -78,6 +78,40 @@ public class GrammarPostfixVisitor implements GrammarVisitor
         return symbols;
     }
 
+    @Override public Object visit(ASTExpression node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTImplicitFunction node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTKey node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTExplicitFunctionWithRecords node,
+            Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTExplicitFunctionWithCCL node,
+            Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTValue node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTOperator node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTTimestamp node, Object data) {
+        return null;
+    }
+
     /**
      * Visitor for a {@link ASTOr}
      *
@@ -92,58 +126,5 @@ public class GrammarPostfixVisitor implements GrammarVisitor
         Queue<PostfixNotationSymbol> symbols = (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
         symbols.add(ConjunctionSymbol.OR);
         return symbols;
-    }
-
-    /**
-     * Visitor for a {@link ASTExpression}
-     *
-     * @param node the node
-     * @param data the data
-     * @return the queue of postfix symbols
-     */
-    @SuppressWarnings("unchecked")
-    public Object visit(ASTExpression node, Object data) {
-        Expression expression;
-
-        // Convert our AST to postfix queue
-        if (node.values().get(0).value() instanceof ExplicitCclASTFunction) {
-            ExplicitCclASTFunction value = (ExplicitCclASTFunction) node.values().get(0).value();
-
-            Visitor<Object> visitor = new Visitor<Object>() {
-                Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
-
-                @Override
-                public Object visit(ConjunctionTree tree, Object... data) {
-                    tree.left().accept(this, data);
-                    tree.right().accept(this, data);
-                    symbols.add((PostfixNotationSymbol) tree.root());
-                    return symbols;
-                }
-
-                @Override
-                public Object visit(ExpressionTree tree, Object... data) {
-                    symbols.add((PostfixNotationSymbol) tree.root());
-                    return symbols;
-                }
-
-            };
-            Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>)
-                        value.value().accept(visitor);
-
-            node.values().remove(0);
-            node.values().add(0, new FunctionValueSymbol(
-                    new ExplicitCclPostfixFunction(value.function(), value.key(), queue)));
-        }
-
-        if (node.timestamp() != null) {
-            expression = new Expression(node.timestamp(), node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
-        }
-        else {
-            expression = new Expression(node.key(), node.operator(), node.values().toArray(new BaseValueSymbol[0]));
-        }
-
-        ((Queue<PostfixNotationSymbol>) data).add(expression);
-
-        return data;
     }
 }

@@ -64,8 +64,7 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, valueTransformFunction,
-                    operatorTransformFunction, data);
+            Grammar grammar = new Grammar(stream);
 
             SimpleNode tree = grammar.generateAST();
             GrammarPostfixVisitor visitor = new GrammarPostfixVisitor();
@@ -84,8 +83,7 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, valueTransformFunction,
-                    operatorTransformFunction, data);
+            Grammar grammar = new Grammar(stream);
 
             SimpleNode tree = grammar.generateAST();
 
@@ -104,8 +102,7 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, valueTransformFunction,
-                    operatorTransformFunction, data);
+            Grammar grammar = new Grammar(stream);
             SimpleNode tree = grammar.generateAST();
 
             GrammarInfixVisitor visitor = new GrammarInfixVisitor();

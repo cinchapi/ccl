@@ -295,13 +295,13 @@ if (jjtc001) {
           jj_consume_token(-1);
           throw new ParseException();
         }
-ASTContainer jjtn002 = new ASTContainer(JJTCONTAINER);
+ASTKey jjtn002 = new ASTKey(JJTKEY);
       boolean jjtc002 = true;
       jjtree.openNodeScope(jjtn002);
         try {
 jjtree.closeNodeScope(jjtn002, true);
       jjtc002 = false;
-jjtn002.item(key);
+jjtn002.item(key.image);
         } finally {
 if (jjtc002) {
         jjtree.closeNodeScope(jjtn002, true);
@@ -378,7 +378,7 @@ records.add(word.image.substring(0, word.image.length()-1));
           word = jj_consume_token(SIGNED_INTEGER);
 records.add(word.image);
           jj_consume_token(CLOSE_PARENTHESES);
-ASTExplictFunctionWithRecords jjtn002 = new ASTExplictFunctionWithRecords(JJTEXPLICTFUNCTIONWITHRECORDS);
+ASTExplicitFunctionWithRecords jjtn002 = new ASTExplicitFunctionWithRecords(JJTEXPLICITFUNCTIONWITHRECORDS);
        boolean jjtc002 = true;
        jjtree.openNodeScope(jjtn002);
           try {
@@ -462,13 +462,13 @@ value += (value.equals("")) ? word.image : " " + word.image;
             break label_4;
           }
         }
-ASTContainer jjtn004 = new ASTContainer(JJTCONTAINER);
+ASTValue jjtn004 = new ASTValue(JJTVALUE);
     boolean jjtc004 = true;
     jjtree.openNodeScope(jjtn004);
         try {
 jjtree.closeNodeScope(jjtn004, true);
     jjtc004 = false;
-jjtn004.item(value.image);
+jjtn004.item(word.image);
         } finally {
 if (jjtc004) {
       jjtree.closeNodeScope(jjtn004, true);
@@ -484,8 +484,8 @@ if (jjtc004) {
     }
 }
 
-  final public void BinaryValue() throws ParseException {/*@bgen(jjtree) Container */
-  ASTContainer jjtn000 = new ASTContainer(JJTCONTAINER);
+  final public void BinaryValue() throws ParseException {/*@bgen(jjtree) Value */
+  ASTValue jjtn000 = new ASTValue(JJTVALUE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);Token value;
     try {
@@ -525,8 +525,8 @@ if (jjtc000) {
     }
 }
 
-  final public void UnaryOperator() throws ParseException {/*@bgen(jjtree) Container */
-  ASTContainer jjtn000 = new ASTContainer(JJTCONTAINER);
+  final public void UnaryOperator() throws ParseException {/*@bgen(jjtree) Operator */
+  ASTOperator jjtn000 = new ASTOperator(JJTOPERATOR);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);Token operator;
     try {
@@ -541,8 +541,8 @@ if (jjtc000) {
     }
 }
 
-  final public void BinaryOperator() throws ParseException {/*@bgen(jjtree) Container */
-  ASTContainer jjtn000 = new ASTContainer(JJTCONTAINER);
+  final public void BinaryOperator() throws ParseException {/*@bgen(jjtree) Operator */
+  ASTOperator jjtn000 = new ASTOperator(JJTOPERATOR);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);Token operator;
     try {
@@ -557,8 +557,8 @@ if (jjtc000) {
     }
 }
 
-  final public void Timestamp() throws ParseException {/*@bgen(jjtree) Container */
-  ASTContainer jjtn000 = new ASTContainer(JJTCONTAINER);
+  final public void Timestamp() throws ParseException {/*@bgen(jjtree) Timestamp */
+  ASTTimestamp jjtn000 = new ASTTimestamp(JJTTIMESTAMP);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);Token word;
   String timestamp = "";
@@ -655,13 +655,6 @@ if (jjtc000) {
     finally { jj_save(3, xla); }
   }
 
-  private boolean jj_3_1()
- {
-    if (jj_scan_token(ALPHANUMERIC)) return true;
-    if (jj_scan_token(OPEN_PARENTHESES)) return true;
-    return false;
-  }
-
   private boolean jj_3R_6()
  {
     if (jj_scan_token(COMMA_SEPARATED_SIGNED_INTEGER)) return true;
@@ -704,6 +697,13 @@ if (jjtc000) {
     }
     }
     }
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_scan_token(ALPHANUMERIC)) return true;
+    if (jj_scan_token(OPEN_PARENTHESES)) return true;
     return false;
   }
 
