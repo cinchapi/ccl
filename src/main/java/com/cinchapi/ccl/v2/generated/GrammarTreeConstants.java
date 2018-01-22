@@ -8,6 +8,10 @@ public interface GrammarTreeConstants
   public int JJTOR = 2;
   public int JJTAND = 3;
   public int JJTEXPRESSION = 4;
+  public int JJTIMPLICITFUNCTION = 5;
+  public int JJTCONTAINER = 6;
+  public int JJTEXPLICTFUNCTIONWITHRECORDS = 7;
+  public int JJTEXPLICITFUNCTIONWITHCCL = 8;
 
 
   public String[] jjtNodeName = {
@@ -16,6 +20,10 @@ public interface GrammarTreeConstants
     "Or",
     "And",
     "Expression",
+    "ImplicitFunction",
+    "Container",
+    "ExplictFunctionWithRecords",
+    "ExplicitFunctionWithCCL",
   };
 }
-/* JavaCC - OriginalChecksum=4c8416a9d57d01cbade8ee823efa57b5 (do not edit this line) */
+/* JavaCC - OriginalChecksum=70fed34f7672f5aa6d2ae8d868292474 (do not edit this line) */
