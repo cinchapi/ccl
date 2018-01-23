@@ -251,7 +251,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testDisjunctionParenthesizedConjunctionTokenize() {
-        String ccl = "a = 1 or (b = 2 and c = 3)";
+        String ccl = "a = 1 and (b = 2 or c = 3)";
 
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
@@ -259,12 +259,12 @@ public class JavaCCParserLogicTest {
         expectedTokens.add(new KeySymbol("a"));
         expectedTokens.add(new OperatorSymbol(PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
         expectedTokens.add(new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
-        expectedTokens.add(ConjunctionSymbol.OR);
+        expectedTokens.add(ConjunctionSymbol.AND);
         expectedTokens.add(ParenthesisSymbol.LEFT);
         expectedTokens.add(new KeySymbol("b"));
         expectedTokens.add(new OperatorSymbol(PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
         expectedTokens.add(new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
-        expectedTokens.add(ConjunctionSymbol.AND);
+        expectedTokens.add(ConjunctionSymbol.OR);
         expectedTokens.add(new KeySymbol("c"));
         expectedTokens.add(new OperatorSymbol(PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
         expectedTokens.add(new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
