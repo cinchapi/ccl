@@ -18,12 +18,7 @@ package com.cinchapi.ccl.v2.generated;
 /**
  *
  */
-public class ASTKey extends SimpleNode {
-    /**
-     *
-     */
-    private String item;
-
+public class ASTKey extends ASTBaseKey<String> {
     /**
      * Constructs a new instance.
      *
@@ -33,21 +28,9 @@ public class ASTKey extends SimpleNode {
         super(id);
     }
 
-    /**
-     *
-     * @param item
-     */
-    public void item(String item) {
-        this.item = item;
-    }
-
-    /**
-     * Convert the node a string representation
-     *
-     * @return the string
-     */
-    public String toString() {
-        return item;
+    @Override
+    public String key() {
+        return key;
     }
 
     /**

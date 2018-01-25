@@ -25,6 +25,8 @@ PARSER_BEGIN(Grammar)
 
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
+import com.cinchapi.ccl.grammar.ImplicitFunction;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -34,6 +36,22 @@ import java.util.List;
  */
 public class Grammar {
 
+    public static void main(String args[]) {
+        System.out.println("Reading from standard input...");
+        Grammar grammar = new Grammar(System.in);
+        while (true) {
+            try {
+                ASTStart start = grammar.StartCommandLine();
+                GrammarVisitor visitor = new GrammarDumpVisitor();
+                start.jjtAccept(visitor, null);
+                System.out.println("Thank you.");
+            } catch (Exception e) {
+                System.out.println("Oops.");
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 }
 
 PARSER_END(Grammar)
@@ -121,11 +139,18 @@ TOKEN :
   < #ESCAPE: "\\" >
 }
 
+ASTStart StartCommandLine() #Start : {}
+{
+   (<WHERE>)? DisjunctionExpression() "\n"
+   { return jjtThis; }
+}
+
 ASTStart generateAST() #Start : {}
 {
    (<WHERE>)? DisjunctionExpression() <EOF>
    { return jjtThis; }
 }
+
 ASTStart generateSubAST() #Start : {}
 {
    DisjunctionExpression()
@@ -172,10 +197,10 @@ void Key() :
     LOOKAHEAD(2)
 
     function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
-    { jjtThis.function(function.image); jjtThis.key(key.image.substring(0, key.image.length()-1));} #ImplicitFunction
+    { jjtThis.key(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));} #FunctionKey
   |
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
-    { jjtThis.item(key.image); } #Key
+    { jjtThis.key(key.image); } #Key
   )
 }
 
@@ -194,53 +219,53 @@ void UnaryValue() :
   function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
    (
      " ?" <CLOSE_PARENTHESES>
-     { jjtThis.function(function.image); jjtThis.key(key.image.substring(0, key.image.length()-1));} #ImplicitFunction
+     { jjtThis.value(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));} #FunctionValue
    |
      LOOKAHEAD(2)
 
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
      (word=<SIGNED_INTEGER>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { jjtThis.function(function.image); jjtThis.key(key.image.substring(0, key.image.length()-1)); jjtThis.records(records);} #ExplicitFunctionWithRecords
+     { jjtThis.value(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));} #FunctionValue
    |
      ccl=generateSubAST() <CLOSE_PARENTHESES>
-     { jjtThis.function(function.image); jjtThis.key(key.image.substring(0, key.image.length()-1)); jjtThis.ccl(ccl);} #ExplicitFunctionWithCCL
+     { jjtThis.value(new ASTExplicitCclASTFunction(function.image, key.image.substring(0, key.image.length()-1), ccl));} #FunctionValue
    )
 |
   ( LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
-  { jjtThis.item(word.image); } #Value
+  { jjtThis.value(word.image); } #Value
 }
 
-void BinaryValue() #Value :
+void BinaryValue() :
 {
   Token value;
 }
 {
   (value=<QUOTED_STRING> | value=<SIGNED_INTEGER> | value=<SIGNED_DECIMAL> | value=<ALPHANUMERIC> | value=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
-  { jjtThis.item(value.image); }
+  { jjtThis.value(value.image); } #Value
 }
 
-void UnaryOperator() #Operator :
+void UnaryOperator() :
 {
   Token operator;
 }
 {
-  operator=<UNARY_OPERATOR> { jjtThis.item(operator.image); }
+  operator=<UNARY_OPERATOR> { jjtThis.operator(operator.image); } #Operator
 }
 
-void BinaryOperator() #Operator :
+void BinaryOperator() :
 {
   Token operator;
 }
 {
-  operator=<BINARY_OPERATOR> { jjtThis.item(operator.image); }
+  operator=<BINARY_OPERATOR> { jjtThis.operator(operator.image); } #Operator
 }
 
-void Timestamp() #Timestamp :
+void Timestamp() :
 {
   Token word;
   String timestamp = "";
 }
 {
   (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
-  { jjtThis.item(timestamp); })?
+  { jjtThis.timestamp(timestamp); })? #Timestamp
 }

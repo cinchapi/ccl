@@ -13,40 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.v2.generated;
+
+import com.cinchapi.ccl.grammar.Function;
 
 /**
- * A {@link Symbol} that contains a value.
+ *
  */
-public abstract class BaseValueSymbol<T> extends BaseSymbol
-        implements PostfixNotationSymbol, Value<T> {
-
+public class ASTFunctionValue extends ASTBaseValue <Function> {
     /**
-     * The content of the {@link Symbol}.
-     */
-    protected final T value;
-
-    /**
-     * Construct a new instance.
+     * Constructs a new instance.
      *
-     * @param value
+     * @param id the id
      */
-    public BaseValueSymbol(T value) {
-        this.value = value;
+    public ASTFunctionValue(int id) {
+        super(id);
     }
 
-    /**
-     * Return the value associated with this {@link Symbol}.
-     *
-     * @return the value
-     */
     @Override
-    public T value() {
+    public Function value() {
         return value;
-    }
-
-    @Override
-    public String toString() {
-        return value.toString();
     }
 }

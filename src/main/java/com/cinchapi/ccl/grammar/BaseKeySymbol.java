@@ -19,7 +19,7 @@ package com.cinchapi.ccl.grammar;
  * A {@link Symbol} that contains a key.
  */
 public abstract class BaseKeySymbol<T> extends BaseSymbol
-        implements PostfixNotationSymbol {
+        implements PostfixNotationSymbol, Key<T> {
 
     /**
      * The content of the {@link Symbol}.
@@ -35,17 +35,13 @@ public abstract class BaseKeySymbol<T> extends BaseSymbol
         this.key = key;
     }
 
-    /**
-     * Return the key associated with this {@link Symbol}.
-     *
-     * @return the key
-     */
-    public T key() {
-        return key;
-    }
-
     @Override
     public String toString() {
         return key.toString();
+    }
+
+    @Override
+    public T key() {
+        return key;
     }
 }

@@ -2,44 +2,48 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.cinchapi.ccl.v2.generated;
 
-public
-class ASTTimestamp extends SimpleNode {
-  public ASTTimestamp(int id) {
-    super(id);
-  }
+import com.cinchapi.ccl.grammar.Timestamp;
+import com.cinchapi.ccl.util.NaturalLanguage;
+import com.cinchapi.common.base.AnyStrings;
 
-  public ASTTimestamp(Grammar p, int id) {
-    super(p, id);
-  }
+/**
+ *
+ */
+public class ASTTimestamp extends SimpleNode implements Timestamp {
 
-  /**
-   *
-   */
-  private String item;
+    /**
+    * The content of the symbol.
+    */
+    private long timestamp;
 
-  /**
-   *
-   * @param item
-   */
-  public void item(String item) {
-    this.item = item;
-  }
+    /**
+    *
+    * @param id
+    */
+    public ASTTimestamp(int id) {
+        super(id);
+    }
 
-  /**
-   * Convert the node a string representation
-   *
-   * @return the string
-   */
-  public String toString() {
-    return item;
-  }
+    /**
+    *
+    * @param timestamp
+    */
+    public void timestamp(String timestamp) {
+        this.timestamp = NaturalLanguage.parseMicros(timestamp);
+    }
 
+    @Override
+    public long timestamp() {
+        return timestamp;
+    }
 
-  /** Accept the visitor. **/
-  public Object jjtAccept(GrammarVisitor visitor, Object data) {
+    @Override
+    public String toString() {
+        return AnyStrings.format("at {}", timestamp);
+    }
 
-    return
-    visitor.visit(this, data);
-  }
+    /** Accept the visitor. **/
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
+        return visitor.visit(this, data);
+    }
 }
-/* JavaCC - OriginalChecksum=8cd6c45309a97b172f5fda5937d9ff2b (do not edit this line) */

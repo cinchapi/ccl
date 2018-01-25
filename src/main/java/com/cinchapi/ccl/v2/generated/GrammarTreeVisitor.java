@@ -15,11 +15,8 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
-import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 
 /**
@@ -70,7 +67,7 @@ public class GrammarTreeVisitor implements GrammarVisitor
         return null;
     }
 
-    @Override public Object visit(ASTImplicitFunction node, Object data) {
+    @Override public Object visit(ASTFunctionKey node, Object data) {
         return null;
     }
 
@@ -78,13 +75,7 @@ public class GrammarTreeVisitor implements GrammarVisitor
         return null;
     }
 
-    @Override public Object visit(ASTExplicitFunctionWithRecords node,
-            Object data) {
-        return null;
-    }
-
-    @Override public Object visit(ASTExplicitFunctionWithCCL node,
-            Object data) {
+    @Override public Object visit(ASTFunctionValue node, Object data) {
         return null;
     }
 

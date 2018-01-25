@@ -15,43 +15,32 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.grammar.Value;
+
 /**
  *
  */
-public class ASTImplicitFunction extends SimpleNode {
+public abstract class ASTBaseValue<T> extends SimpleNode implements Value<T>{
     /**
      *
      */
-    private String function;
-
-    /**
-     *
-     */
-    private String key;
+    protected T value;
 
     /**
      * Constructs a new instance.
      *
      * @param id the id
      */
-    public ASTImplicitFunction(int id) {
+    public ASTBaseValue(int id) {
         super(id);
     }
 
     /**
      *
-     * @param function
+     * @param value
      */
-    public void function(String function) {
-        this.function = function;
-    }
-
-    /**
-     *
-     * @param key
-     */
-    public void key(String key) {
-        this.key = key;
+    public void value(T value) {
+        this.value = value;
     }
 
     /**
@@ -60,7 +49,7 @@ public class ASTImplicitFunction extends SimpleNode {
      * @return the string
      */
     public String toString() {
-        return function + "(" + key + ", ?)";
+        return value.toString();
     }
 
     /**

@@ -2,44 +2,49 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.cinchapi.ccl.v2.generated;
 
-public
-class ASTOperator extends SimpleNode {
-  public ASTOperator(int id) {
-    super(id);
-  }
+import com.cinchapi.ccl.grammar.Operator;
 
-  public ASTOperator(Grammar p, int id) {
-    super(p, id);
-  }
+/**
+ *
+ */
+public class ASTOperator extends SimpleNode implements Operator {
+    /**
+     *
+     */
+    private String operator;
 
-  /**
-   *
-   */
-  private String item;
+    /**
+     *
+     * @param id
+     */
+    public ASTOperator(int id) {
+        super(id);
+    }
 
-  /**
-   *
-   * @param item
-   */
-  public void item(String item) {
-    this.item = item;
-  }
+    /**
+     *
+     * @param operator
+     */
+    public void operator(String operator) {
+        this.operator = operator;
+    }
 
-  /**
-   * Convert the node a string representation
-   *
-   * @return the string
-   */
-  public String toString() {
-    return item;
-  }
+    @Override
+    public String operator() {
+        return operator;
+    }
 
+    /**
+     * Convert the node a string representation
+     *
+     * @return the string
+     */
+    public String toString() {
+        return operator;
+    }
 
-  /** Accept the visitor. **/
-  public Object jjtAccept(GrammarVisitor visitor, Object data) {
-
-    return
-    visitor.visit(this, data);
-  }
+    /** Accept the visitor. **/
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
+        return visitor.visit(this, data);
+    }
 }
-/* JavaCC - OriginalChecksum=22c85464eb73725e6402ecdaf9ac8f2b (do not edit this line) */

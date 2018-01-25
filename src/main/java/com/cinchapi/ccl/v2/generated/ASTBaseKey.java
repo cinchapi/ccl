@@ -15,56 +15,32 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.grammar.Key;
+
 /**
  *
  */
-public class ASTExplicitFunctionWithCCL extends SimpleNode {
+public abstract class ASTBaseKey<T> extends SimpleNode implements Key<T> {
     /**
      *
      */
-    private String function;
-
-    /**
-     *
-     */
-    private String key;
-
-    /**
-     *
-     */
-    private ASTStart ccl;
+    protected T key;
 
     /**
      * Constructs a new instance.
      *
      * @param id the id
      */
-    public ASTExplicitFunctionWithCCL(int id) {
+    public ASTBaseKey(int id) {
         super(id);
     }
 
     /**
      *
-     * @param item
+     * @param key
      */
-    public void function(String item) {
-        this.function = item;
-    }
-
-    /**
-     *
-     * @param item
-     */
-    public void key(String item) {
-        this.key = item;
-    }
-
-    /**
-     *
-     * @param item
-     */
-    public void ccl(ASTStart item) {
-        this.ccl = item;
+    public void key(T key) {
+        this.key = key;
     }
 
     /**
@@ -73,7 +49,7 @@ public class ASTExplicitFunctionWithCCL extends SimpleNode {
      * @return the string
      */
     public String toString() {
-        return null;
+        return key.toString();
     }
 
     /**

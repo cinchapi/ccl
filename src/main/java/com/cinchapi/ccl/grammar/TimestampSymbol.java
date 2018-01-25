@@ -22,7 +22,7 @@ import com.cinchapi.common.base.AnyStrings;
  *
  * @author Jeff Nelson
  */
-public final class TimestampSymbol extends BaseSymbol {
+public final class TimestampSymbol extends BaseSymbol implements Timestamp {
 
     /**
      * A {@link TimestampSymbol} that can be included in a {@link Expression} to
@@ -45,12 +45,7 @@ public final class TimestampSymbol extends BaseSymbol {
         this.timestamp = timestamp;
     }
 
-    /**
-     * Return the timestamp (in microseconds) associated with this
-     * {@link Symbol}.
-     * 
-     * @return the timestamp
-     */
+    @Override
     public long timestamp() {
         return timestamp;
     }
@@ -59,5 +54,4 @@ public final class TimestampSymbol extends BaseSymbol {
     public String toString() {
         return AnyStrings.format("at {}", timestamp);
     }
-
 }

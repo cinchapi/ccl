@@ -15,16 +15,8 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.ExplicitCclASTFunction;
-import com.cinchapi.ccl.grammar.ExplicitCclInfixFunction;
-import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -82,6 +74,30 @@ public class GrammarInfixVisitor implements GrammarVisitor
         return null;
     }
 
+    @Override public Object visit(ASTFunctionKey node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTKey node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTFunctionValue node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTValue node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTOperator node, Object data) {
+        return null;
+    }
+
+    @Override public Object visit(ASTTimestamp node, Object data) {
+        return null;
+    }
+
     /**
      * Visitor for a {@link ASTOr}
      *
@@ -96,35 +112,5 @@ public class GrammarInfixVisitor implements GrammarVisitor
         // Return value isn't needed
         node.jjtGetChild(1).jjtAccept(this, data);
         return symbols;
-    }
-
-    @Override public Object visit(ASTImplicitFunction node, Object data) {
-        return null;
-    }
-
-    @Override public Object visit(ASTKey node, Object data) {
-        return null;
-    }
-
-    @Override public Object visit(ASTExplicitFunctionWithRecords node,
-            Object data) {
-        return null;
-    }
-
-    @Override public Object visit(ASTExplicitFunctionWithCCL node,
-            Object data) {
-        return null;
-    }
-
-    @Override public Object visit(ASTValue node, Object data) {
-        return null;
-    }
-
-    @Override public Object visit(ASTOperator node, Object data) {
-        return null;
-    }
-
-    @Override public Object visit(ASTTimestamp node, Object data) {
-        return null;
     }
 }

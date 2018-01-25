@@ -13,34 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.v2.generated;
+package com.cinchapi.ccl.grammar;
 
 /**
  *
+ * @param <T>
  */
-public class ASTValue extends ASTBaseValue<Object> {
-    /**
-     * Constructs a new instance.
-     *
-     * @param id the id
-     */
-    public ASTValue(int id) {
-        super(id);
-    }
-
-    @Override
-    public Object value() {
-        return value;
-    }
-
-    /**
-     * Accept a visitor
-     *
-     * @param visitor the visitor
-     * @param data the data
-     * @return the result of the visit
-     */
-    public Object jjtAccept(GrammarVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
+public interface Value<T> {
+    public T value();
 }

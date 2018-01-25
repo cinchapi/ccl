@@ -13,40 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.v2.generated;
+
+import com.cinchapi.ccl.grammar.ImplicitFunction;
 
 /**
- * A {@link Symbol} that contains a value.
+ *
  */
-public abstract class BaseValueSymbol<T> extends BaseSymbol
-        implements PostfixNotationSymbol, Value<T> {
-
+public class ASTFunctionKey extends ASTBaseKey<ImplicitFunction> {
     /**
-     * The content of the {@link Symbol}.
-     */
-    protected final T value;
-
-    /**
-     * Construct a new instance.
+     * Constructs a new instance.
      *
-     * @param value
+     * @param id the id
      */
-    public BaseValueSymbol(T value) {
-        this.value = value;
-    }
-
-    /**
-     * Return the value associated with this {@link Symbol}.
-     *
-     * @return the value
-     */
-    @Override
-    public T value() {
-        return value;
+    public ASTFunctionKey(int id) {
+        super(id);
     }
 
     @Override
-    public String toString() {
-        return value.toString();
+    public ImplicitFunction key() {
+        return key;
     }
 }

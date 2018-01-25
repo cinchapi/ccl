@@ -15,22 +15,17 @@
  */
 package com.cinchapi.ccl.v2;
 
-import com.cinchapi.ccl.Parser;
-import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.concourse.util.Convert;
+import com.cinchapi.ccl.v2.generated.Grammar;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.cinchapi.ccl.v2.generated.Grammar;
 import com.cinchapi.ccl.v2.generated.ParseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Function;
 
 /**
  * Tests for {@link Grammar}
