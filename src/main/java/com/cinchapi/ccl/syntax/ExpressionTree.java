@@ -27,7 +27,8 @@ import com.cinchapi.ccl.grammar.Symbol;
  *
  * @author Jeff Nelson
  */
-public class ExpressionTree extends BaseAbstractSyntaxTree {
+public class ExpressionTree extends BaseAbstractSyntaxTree implements
+        BaseExpressionNode {
 
     /**
      * The root.

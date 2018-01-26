@@ -21,7 +21,7 @@ public interface GrammarTreeConstants
     "void",
     "Or",
     "And",
-    "Expression",
+    "BaseExpressionNode",
     "FunctionKey",
     "Key",
     "FunctionValue",

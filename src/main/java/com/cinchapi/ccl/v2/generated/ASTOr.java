@@ -15,10 +15,19 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseConjunctionNode;
+import com.cinchapi.ccl.syntax.Visitor;
+import com.google.common.collect.Lists;
+
+import java.util.Collection;
+
 /**
  * Represents a Or node in the CCL grammar.
  */
-public class ASTOr extends SimpleNode {
+public class ASTOr extends SimpleNode implements BaseConjunctionNode {
     /**
      * Constructs a new instance.
      *
@@ -46,5 +55,31 @@ public class ASTOr extends SimpleNode {
      */
     public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
+    }
+
+    @Override
+    public AbstractSyntaxTree left() {
+        return (AbstractSyntaxTree) jjtGetChild(0);
+    }
+
+    @Override
+    public AbstractSyntaxTree right() {
+        return (AbstractSyntaxTree) jjtGetChild(1);
+    }
+
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Lists.newArrayList((AbstractSyntaxTree) jjtGetChild(0),
+        (AbstractSyntaxTree) jjtGetChild(1));
+    }
+
+    @Override
+    public Symbol root() {
+        return ConjunctionSymbol.OR;
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return null;
     }
 }

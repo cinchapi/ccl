@@ -86,7 +86,7 @@ public final class Parsing {
                                                              // timestamp to the
                                                              // previously
                                                              // generated
-                                                             // Expression
+                                                             // BaseExpressionNode
                     Reflection.set("timestamp", symbol,
                             Iterables.getLast(grouped)); // (authorized)
                 }

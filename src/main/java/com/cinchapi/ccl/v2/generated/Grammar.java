@@ -247,7 +247,7 @@ if (jjtc001) {
     }
 }
 
-  final public void RelationalExpression() throws ParseException {/*@bgen(jjtree) Expression */
+  final public void RelationalExpression() throws ParseException {/*@bgen(jjtree) BaseExpressionNode */
   ASTExpression jjtn000 = new ASTExpression(JJTEXPRESSION);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);

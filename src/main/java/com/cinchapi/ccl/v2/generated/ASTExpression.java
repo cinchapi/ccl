@@ -15,10 +15,20 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseExpressionNode;
+import com.cinchapi.ccl.syntax.Visitor;
+
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * A node that representation a CCL expression
  */
-public class ASTExpression extends SimpleNode {
+public class ASTExpression extends SimpleNode implements BaseExpressionNode {
     /**
      * Construct a new instance
      *
@@ -34,7 +44,7 @@ public class ASTExpression extends SimpleNode {
      * @return the node as a string
      */
     public String toString() {
-        return "Expression";
+        return "BaseExpressionNode";
     }
 
     /**
@@ -46,5 +56,24 @@ public class ASTExpression extends SimpleNode {
      */
     public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
+    }
+
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Symbol root() {
+        // How to build symbol?
+        // Need a reference to the key and value transforms
+        //KeySymbol key = new KeySymbol(((ASTKey) jjtGetChild(0)).key);
+        //OperatorSymbol operator = new
+        return null;
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return null;
     }
 }
