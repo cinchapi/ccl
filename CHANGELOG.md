@@ -2,7 +2,10 @@
 
 #### Version 2.4.0 (TBD)
 
-#### Version 2.3.1 (TBD)
+#### Version 2.3.2 (February 1, 2018)
+* Fixed a bug that caused the `v2` parser to fail to parse CCL statements containing the `LIKE` and `NOT_LIKE` operators.
+
+#### Version 2.3.1 (January 10, 2018)
 * Fixed a bug that caused the `v2` parser to incorrectly tokenize CCL statements that contained unquoted string values containing spaces.
 
 #### Version 2.3.0 (January 7, 2018)
