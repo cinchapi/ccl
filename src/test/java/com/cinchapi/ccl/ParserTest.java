@@ -941,6 +941,14 @@ public abstract class ParserTest {
     }
 
     @Test
+    public void testParseLikeOperator() {
+        String ccl = "email like %gmail%";
+        Parser parser = createParser(ccl);
+        Assert.assertEquals(Sets.newHashSet(Operator.LIKE),
+                parser.analyze().operators());
+    }
+
+    @Test
     public void testTokenizeUnquotedValueStringWithSpace() {
         Criteria criteria = Criteria.where().key("name")
                 .operator(Operator.EQUALS).value("Jeff Nelson").and()
