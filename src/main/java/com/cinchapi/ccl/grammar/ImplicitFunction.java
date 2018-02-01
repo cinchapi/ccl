@@ -32,6 +32,6 @@ public class ImplicitFunction extends Function {
 
     @Override
     public String toString() {
-        return function + "(" + key + ", ?)";
+        return function + "(" + key + ")";
     }
 }

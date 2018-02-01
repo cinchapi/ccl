@@ -60,7 +60,7 @@ public class GrammarTest {
     }
 
     @Test
-    public void validExplicitFunctionAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
+    public void validDynamicFunctionAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
         String ccl = "count(friends, ?) > 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
@@ -70,7 +70,7 @@ public class GrammarTest {
 
     @Test
     public void validImplicitFunctionAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
-        String ccl = "age > avg(age, ?)";
+        String ccl = "age > avg(age)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
@@ -87,7 +87,7 @@ public class GrammarTest {
     }
 
     @Test
-    public void validExplicitFunctionWithMultpleRecordsAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+    public void validExplicitFunctionWithMultipleRecordsAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
         String ccl = "age > avg(age, 1, 2)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
@@ -105,7 +105,7 @@ public class GrammarTest {
     }
 
     @Test
-    public void validExplicitFunctionAsEvalutionKeyAndExplicitFunctionWithCCLAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+    public void validDynamicFunctionAsEvaluationKeyAndExplicitFunctionWithCCLAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
         String ccl = "count(friends, ?) > avg(age, age < 30)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));

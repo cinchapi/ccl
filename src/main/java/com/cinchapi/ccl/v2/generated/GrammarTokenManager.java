@@ -3,6 +3,7 @@
 package com.cinchapi.ccl.v2.generated;
 import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
 import com.cinchapi.ccl.grammar.ImplicitFunction;
+import com.cinchapi.ccl.grammar.DynamicFunction;
 import com.google.common.collect.Lists;
 import java.util.List;
 

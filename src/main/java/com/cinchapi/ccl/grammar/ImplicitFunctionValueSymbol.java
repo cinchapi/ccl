@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.v2.generated;
-
-import com.cinchapi.ccl.grammar.DynamicFunction;
+package com.cinchapi.ccl.grammar;
 
 /**
- *
+ * A {@link Symbol} that contains a {@link ImplicitFunction}
  */
-public class ASTFunctionKey extends ASTBaseKey<DynamicFunction> {
+public class ImplicitFunctionValueSymbol extends BaseValueSymbol<ImplicitFunction> {
+
     /**
-     * Constructs a new instance.
+     * Construct a new instance.
      *
-     * @param id the id
+     * @param value
      */
-    public ASTFunctionKey(int id) {
-        super(id);
+    public ImplicitFunctionValueSymbol(ImplicitFunction value) {
+        super(value);
     }
 
     @Override
-    public DynamicFunction key() {
-        return key;
+    public String toString() {
+        return value.toString();
     }
 }

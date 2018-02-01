@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.v2.generated;
-
-import com.cinchapi.ccl.grammar.DynamicFunction;
+package com.cinchapi.ccl.grammar;
 
 /**
  *
  */
-public class ASTFunctionKey extends ASTBaseKey<DynamicFunction> {
+public class DynamicFunction extends Function {
+
     /**
-     * Constructs a new instance.
+     * Creates a new instances
      *
-     * @param id the id
+     * @param function the function
+     * @param key      the key
      */
-    public ASTFunctionKey(int id) {
-        super(id);
+    public DynamicFunction(String function, String key) {
+        super(function, key);
     }
 
     @Override
-    public DynamicFunction key() {
-        return key;
+    public String toString() {
+        return function + "(" + key + ", ?)";
     }
 }
