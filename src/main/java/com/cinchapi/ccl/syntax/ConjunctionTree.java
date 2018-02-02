@@ -29,7 +29,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Jeff Nelson
  */
-public class ConjunctionTree extends BaseAbstractSyntaxTree {
+public class ConjunctionTree implements BaseConjunctionTree {
 
     private final ConjunctionSymbol conjunction;
     private final AbstractSyntaxTree left;
@@ -59,6 +59,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
      * 
      * @return the left child
      */
+    @Override
     public AbstractSyntaxTree left() {
         return left;
     }
@@ -68,6 +69,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
      * 
      * @return the right child
      */
+    @Override
     public AbstractSyntaxTree right() {
         return right;
     }

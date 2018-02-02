@@ -18,7 +18,7 @@ package com.cinchapi.ccl.syntax;
 /**
  *
  */
-public interface BaseConjunctionNode extends AbstractSyntaxTree {
+public interface BaseConjunctionTree extends AbstractSyntaxTree {
     public AbstractSyntaxTree left();
     public AbstractSyntaxTree right();
 }
