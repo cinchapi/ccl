@@ -15,40 +15,41 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.ImplicitFunction;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseConjunctionTree;
 import com.cinchapi.ccl.syntax.Visitor;
-import com.google.common.collect.Lists;
-
-import java.util.Collection;
 
 /**
- * Represents a Or node in the CCL grammar.
+ *
  */
-public class ASTOr extends ASTConj {
+public class ASTImplicitFunctionValue extends ASTBaseValue<ImplicitFunction> {
     /**
      * Constructs a new instance.
      *
      * @param id the id
      */
-    public ASTOr(int id) {
+    public ASTImplicitFunctionValue(int id) {
         super(id);
     }
 
-    /**
-     * Convert the node a string representation
-     *
-     * @return the string
-     */
-    public String toString() {
-        return "or";
+    @Override
+    public ImplicitFunction value() {
+        return value;
+    }
+
+
+    public void build(String function, String key) {
+        this.value = new ImplicitFunction(function, key);
     }
 
     @Override
-    public Symbol root() {
-        return ConjunctionSymbol.OR;
+    public Symbol root(){
+        return null;
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return null;
     }
 
     /**

@@ -20,18 +20,33 @@ import com.cinchapi.ccl.grammar.DynamicFunction;
 /**
  *
  */
-public class ASTFunctionKey extends ASTBaseKey<DynamicFunction> {
+public class ASTDynamicFunctionKey extends ASTBaseKey<DynamicFunction> {
     /**
      * Constructs a new instance.
      *
      * @param id the id
      */
-    public ASTFunctionKey(int id) {
+    public ASTDynamicFunctionKey(int id) {
         super(id);
     }
 
     @Override
     public DynamicFunction key() {
         return key;
+    }
+
+    public void build(String function, String key) {
+        this.key = new DynamicFunction(function, key);
+    }
+
+    /**
+     * Accept a visitor
+     *
+     * @param visitor the visitor
+     * @param data the data
+     * @return the result of the visit
+     */
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
+        return visitor.visit(this, data);
     }
 }

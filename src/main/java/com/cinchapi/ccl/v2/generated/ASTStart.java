@@ -15,9 +15,7 @@ class ASTStart extends SimpleNode {
 
   /** Accept the visitor. **/
   public Object jjtAccept(GrammarVisitor visitor, Object data) {
-
-    return
-    visitor.visit(this, data);
+    return visitor.visit(this, data);
   }
 }
 /* JavaCC - OriginalChecksum=673d415c85db37eee28b05cc2cd30082 (do not edit this line) */

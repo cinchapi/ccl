@@ -15,10 +15,13 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.Visitor;
+
 /**
  *
  */
-public class ASTValue extends ASTBaseValue<Object> {
+public class ASTValue extends ASTBaseValue<String> {
     /**
      * Constructs a new instance.
      *
@@ -29,7 +32,7 @@ public class ASTValue extends ASTBaseValue<Object> {
     }
 
     @Override
-    public Object value() {
+    public String value() {
         return value;
     }
 
@@ -42,5 +45,13 @@ public class ASTValue extends ASTBaseValue<Object> {
      */
     public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
+    }
+
+    @Override public Symbol root() {
+        return null;
+    }
+
+    @Override public <T> T accept(Visitor<T> visitor, Object... data) {
+        return null;
     }
 }

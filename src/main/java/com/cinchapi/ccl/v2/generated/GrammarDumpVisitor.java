@@ -82,7 +82,7 @@ public class GrammarDumpVisitor implements GrammarVisitor
     }
 
     @Override
-    public Object visit(ASTFunctionKey node, Object data) {
+    public Object visit(ASTDynamicFunctionKey node, Object data) {
         System.out.println(indentString() + node);
         ++indent;
         data = node.childrenAccept(this, data);
@@ -98,14 +98,19 @@ public class GrammarDumpVisitor implements GrammarVisitor
         --indent;
         return data;
     }
+    
 
     @Override
-    public Object visit(ASTFunctionValue node, Object data) {
+    public Object visit(ASTImplicitFunctionValue node, Object data) {
         System.out.println(indentString() + node);
         ++indent;
         data = node.childrenAccept(this, data);
         --indent;
         return data;
+    }
+
+    @Override public Object visit(ASTExplicitFunctionValue node, Object data) {
+        return null;
     }
 
     @Override

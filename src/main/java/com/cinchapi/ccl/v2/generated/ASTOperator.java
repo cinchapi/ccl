@@ -3,11 +3,18 @@
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.grammar.Operator;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.Visitor;
+
+import java.util.Collection;
 
 /**
  *
  */
-public class ASTOperator extends SimpleNode implements Operator {
+public class ASTOperator extends SimpleNode implements Operator,
+        AbstractSyntaxTree {
     /**
      *
      */
@@ -46,5 +53,17 @@ public class ASTOperator extends SimpleNode implements Operator {
     /** Accept the visitor. **/
     public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
+    }
+
+    @Override public Collection<AbstractSyntaxTree> children() {
+        return null;
+    }
+
+    @Override public Symbol root() {
+        return null;
+    }
+
+    @Override public <T> T accept(Visitor<T> visitor, Object... data) {
+        return null;
     }
 }

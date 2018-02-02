@@ -16,6 +16,10 @@
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.grammar.Key;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  *
@@ -50,16 +54,5 @@ public abstract class ASTBaseKey<T> extends SimpleNode implements Key<T> {
      */
     public String toString() {
         return key.toString();
-    }
-
-    /**
-     * Accept a visitor
-     *
-     * @param visitor the visitor
-     * @param data the data
-     * @return the result of the visit
-     */
-    public Object jjtAccept(GrammarVisitor visitor, Object data) {
-        return visitor.visit(this, data);
     }
 }

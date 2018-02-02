@@ -8,12 +8,13 @@ public interface GrammarTreeConstants
   public int JJTOR = 2;
   public int JJTAND = 3;
   public int JJTEXPRESSION = 4;
-  public int JJTFUNCTIONKEY = 5;
+  public int JJTDYNAMICFUNCTIONKEY = 5;
   public int JJTKEY = 6;
-  public int JJTFUNCTIONVALUE = 7;
-  public int JJTVALUE = 8;
-  public int JJTOPERATOR = 9;
-  public int JJTTIMESTAMP = 10;
+  public int JJTIMPLICITFUNCTIONVALUE = 7;
+  public int JJTEXPLICITFUNCTIONVALUE = 8;
+  public int JJTVALUE = 9;
+  public int JJTOPERATOR = 10;
+  public int JJTTIMESTAMP = 11;
 
 
   public String[] jjtNodeName = {
@@ -21,13 +22,14 @@ public interface GrammarTreeConstants
     "void",
     "Or",
     "And",
-    "BaseExpressionNode",
-    "FunctionKey",
+    "Expression",
+    "DynamicFunctionKey",
     "Key",
-    "FunctionValue",
+    "ImplicitFunctionValue",
+    "ExplicitFunctionValue",
     "Value",
     "Operator",
     "Timestamp",
   };
 }
-/* JavaCC - OriginalChecksum=f50e70052ccf62df3f99f59dc20a1670 (do not edit this line) */
+/* JavaCC - OriginalChecksum=60122db61fffe31657ff19e8802393c2 (do not edit this line) */

@@ -16,11 +16,16 @@
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.grammar.Value;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  *
  */
-public abstract class ASTBaseValue<T> extends SimpleNode implements Value<T>{
+public abstract class ASTBaseValue<T> extends SimpleNode implements Value<T>,
+        AbstractSyntaxTree {
     /**
      *
      */
@@ -61,5 +66,10 @@ public abstract class ASTBaseValue<T> extends SimpleNode implements Value<T>{
      */
     public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
+    }
+
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Collections.emptyList();
     }
 }
