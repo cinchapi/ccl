@@ -25,9 +25,6 @@ PARSER_BEGIN(Grammar)
 
 package com.cinchapi.ccl.v2.generated;
 
-import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
-import com.cinchapi.ccl.grammar.ImplicitFunction;
-import com.cinchapi.ccl.grammar.DynamicFunction;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -198,7 +195,7 @@ void Key() :
     LOOKAHEAD(2)
 
     function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
-    { jjtThis.key(new DynamicFunction(function.image, key.image.substring(0, key.image.length()-1)));} #FunctionKey
+    { jjtThis.build(function.image, key.image.substring(0, key.image.length()-1));} #DynamicFunctionKey
   |
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
     { jjtThis.key(key.image); } #Key
@@ -220,17 +217,17 @@ void UnaryValue() :
   function=<ALPHANUMERIC> <OPEN_PARENTHESES>
    (
      (key=<SIGNED_INTEGER> | key=<ALPHANUMERIC>) <CLOSE_PARENTHESES>
-     { jjtThis.value(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));} #FunctionValue
+     { jjtThis.build(function.image, key.image);} #ImplicitFunctionValue
    |
      LOOKAHEAD(2)
 
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
      (word=<SIGNED_INTEGER>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { jjtThis.value(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));} #FunctionValue
+     { jjtThis.build(function.image, key.image.substring(0, key.image.length()-1), records);} #ExplicitFunctionValue
    |
     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>) ccl=generateSubAST() <CLOSE_PARENTHESES>
-     { jjtThis.value(new ASTExplicitCclASTFunction(function.image, key.image.substring(0, key.image.length()-1), ccl));} #FunctionValue
+     { jjtThis.build(function.image, key.image.substring(0, key.image.length()-1), ccl);} #ExplicitFunctionValue
    )
 |
   ( LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
@@ -269,5 +266,5 @@ void Timestamp() :
 }
 {
   (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
-  { jjtThis.timestamp(timestamp); })? #Timestamp
+  { jjtThis.timestamp(timestamp); } #Timestamp)?
 }

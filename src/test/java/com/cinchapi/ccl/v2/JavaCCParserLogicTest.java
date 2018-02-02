@@ -18,11 +18,13 @@ package com.cinchapi.ccl.v2;
 import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.Parser;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.DynamicFunction;
 import com.cinchapi.ccl.grammar.ExplicitFunction;
+import com.cinchapi.ccl.grammar.ExplicitFunctionValueSymbol;
 import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.FunctionKeySymbol;
-import com.cinchapi.ccl.grammar.FunctionValueSymbol;
+import com.cinchapi.ccl.grammar.DynamicFunctionKeySymbol;
 import com.cinchapi.ccl.grammar.ImplicitFunction;
+import com.cinchapi.ccl.grammar.ImplicitFunctionValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
@@ -910,28 +912,8 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
-    public void testExplicitFunctionAsEvaluationKey() {
-        String ccl = "count(friends, ?) > 3";
-
-        // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        AbstractSyntaxTree tree = parser.parse();
-
-        // Root node
-        Assert.assertTrue(tree instanceof ExpressionTree);
-        Expression expression = (Expression) tree.root();
-        Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
-        Assert.assertEquals("count", ((ImplicitFunction) expression.key().key()).function());
-        Assert.assertEquals("friends", ((ImplicitFunction) expression.key().key()).key());
-        Assert.assertEquals(">", expression.operator().toString());
-        Assert.assertEquals("3", expression.values().get(0).toString());
-    }
-
-    @Test
     public void testImplicitFunctionAsEvaluationValue() {
-        String ccl = "age > avg(age, ?)";
+        String ccl = "age < avg(age)";
 
         // Generate tree
         Parser parser = Parser.create(ccl,
@@ -943,10 +925,30 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(tree instanceof ExpressionTree);
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("age", expression.key().toString());
-        Assert.assertEquals(">", expression.operator().toString());
-        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertEquals("<", expression.operator().toString());
+        Assert.assertTrue(expression.values().get(0) instanceof ImplicitFunctionValueSymbol);
         Assert.assertEquals("avg", ((ImplicitFunction) expression.values().get(0).value()).function());
         Assert.assertEquals("age", ((ImplicitFunction) expression.values().get(0).value()).key());
+    }
+
+    @Test
+    public void testDynamicFunctionAsEvaluationKey() {
+        String ccl = "count(friends, ?) > 3";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertTrue(expression.key() instanceof DynamicFunctionKeySymbol);
+        Assert.assertEquals("count", ((DynamicFunction) expression.key().key()).function());
+        Assert.assertEquals("friends", ((DynamicFunction) expression.key().key()).key());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertEquals("3", expression.values().get(0).toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -965,7 +967,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
-        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertTrue(expression.values().get(0) instanceof ExplicitFunctionValueSymbol);
         Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
         Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
         Assert.assertEquals(1, ((List<String>) ((ExplicitFunction) expression.values().get(0).value()).value()).size());
@@ -988,7 +990,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
-        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertTrue(expression.values().get(0) instanceof ExplicitFunctionValueSymbol);
         Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
         Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
         Assert.assertEquals(2, ((List<String>) ((ExplicitFunction) expression.values().get(0).value()).value()).size());
@@ -1012,7 +1014,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
-        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertTrue(expression.values().get(0) instanceof ExplicitFunctionValueSymbol);
         Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
         Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
 
@@ -1024,7 +1026,7 @@ public class JavaCCParserLogicTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void validExplicitFunctionAsEvalutionKeyAndExplicitFunctionWithCCLAsEvaluationValue() {
+    public void validDynamicFunctionAsEvaluationKeyAndExplicitFunctionWithCCLAsEvaluationValue() {
         String ccl = "count(friends, ?) > avg(age, age < 30)";
 
         // Generate tree
@@ -1036,11 +1038,11 @@ public class JavaCCParserLogicTest {
         // Root node
         Assert.assertTrue(tree instanceof ExpressionTree);
         Expression expression = (Expression) tree.root();
-        Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
-        Assert.assertEquals("count", ((ImplicitFunction) expression.key().key()).function());
-        Assert.assertEquals("friends", ((ImplicitFunction) expression.key().key()).key());
+        Assert.assertTrue(expression.key() instanceof DynamicFunctionKeySymbol);
+        Assert.assertEquals("count", ((DynamicFunction) expression.key().key()).function());
+        Assert.assertEquals("friends", ((DynamicFunction) expression.key().key()).key());
         Assert.assertEquals(">", expression.operator().toString());
-        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertTrue(expression.values().get(0) instanceof ExplicitFunctionValueSymbol);
         Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
         Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
 

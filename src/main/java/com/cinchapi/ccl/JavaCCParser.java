@@ -3,7 +3,11 @@ package com.cinchapi.ccl;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.BaseExpressionTree;
+import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.ccl.v2.generated.ASTStart;
 import com.cinchapi.ccl.v2.generated.Grammar;
 import com.cinchapi.ccl.v2.generated.GrammarInfixVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
@@ -15,6 +19,7 @@ import com.google.common.collect.Multimap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Function;
@@ -66,8 +71,40 @@ public class JavaCCParser extends Parser {
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream);
 
+            //AbstractSyntaxTree tree = grammar.generateAST();
+
+            /*
+            Visitor visitor = new Visitor<Queue<PostfixNotationSymbol>>() {
+                Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
+
+                @Override
+                public Queue<PostfixNotationSymbol> visit(AbstractSyntaxTree tree,
+                        Object... data) {
+                    for(AbstractSyntaxTree child : tree.children()) {
+                        child.accept(this, data);
+                    }
+                    return symbols;
+                }
+
+                @Override
+                public Queue<PostfixNotationSymbol> visit(BaseConjunctionTree tree, Object... data) {
+                    tree.left().accept(this, data);
+                    tree.right().accept(this, data);
+                    symbols.add((PostfixNotationSymbol) tree.root());
+                    return symbols;
+                }
+
+                @Override
+                public Queue<PostfixNotationSymbol> visit(BaseExpressionTree tree, Object... data) {
+                    symbols.add((PostfixNotationSymbol) tree.root());
+                    return symbols;
+                }
+            };
+            //tree.accept(visitor);
+            */
+
             SimpleNode tree = grammar.generateAST();
-            GrammarPostfixVisitor visitor = new GrammarPostfixVisitor();
+            GrammarPostfixVisitor visitor = new GrammarPostfixVisitor(this, data);
             return (Queue<PostfixNotationSymbol>) tree.jjtAccept(visitor,
                     null);
         }
@@ -85,9 +122,9 @@ public class JavaCCParser extends Parser {
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream);
 
-            SimpleNode tree = grammar.generateAST();
+            ASTStart tree = grammar.generateAST();
 
-            GrammarTreeVisitor visitor = new GrammarTreeVisitor();
+            GrammarTreeVisitor visitor = new GrammarTreeVisitor(this, data);
             return (AbstractSyntaxTree) tree.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
@@ -105,7 +142,7 @@ public class JavaCCParser extends Parser {
             Grammar grammar = new Grammar(stream);
             SimpleNode tree = grammar.generateAST();
 
-            GrammarInfixVisitor visitor = new GrammarInfixVisitor();
+            GrammarInfixVisitor visitor = new GrammarInfixVisitor(this ,data);
             return (List<Symbol>) tree.jjtAccept(visitor, null);
         }
         catch (Exception exception) {

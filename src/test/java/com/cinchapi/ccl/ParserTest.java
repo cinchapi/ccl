@@ -19,6 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.BaseExpressionTree;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -978,9 +980,15 @@ public abstract class ParserTest {
         Parser parser = createParser(ccl);
         Visitor<Queue<Symbol>> visitor = new Visitor<Queue<Symbol>>() {
 
+            @Override
+            public Queue<Symbol> visit(AbstractSyntaxTree tree,
+                    Object... data) {
+                return (Queue<Symbol>) data[0];
+            }
+
             @SuppressWarnings("unchecked")
             @Override
-            public Queue<Symbol> visit(ConjunctionTree tree, Object... data) {
+            public Queue<Symbol> visit(BaseConjunctionTree tree, Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
                 tree.left().accept(this, data);
                 tree.right().accept(this, data);
@@ -990,7 +998,7 @@ public abstract class ParserTest {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Queue<Symbol> visit(ExpressionTree tree, Object... data) {
+            public Queue<Symbol> visit(BaseExpressionTree tree, Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
                 queue.add(tree.root());
                 return queue;

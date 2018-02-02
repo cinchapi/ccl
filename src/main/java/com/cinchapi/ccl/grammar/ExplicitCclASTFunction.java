@@ -16,6 +16,8 @@
 package com.cinchapi.ccl.grammar;
 
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.BaseExpressionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
@@ -49,8 +51,13 @@ public class ExplicitCclASTFunction extends ExplicitFunction<AbstractSyntaxTree>
         Visitor<String> visitor = new Visitor<String>() {
             String string = "";
 
+            @Override public String visit(AbstractSyntaxTree tree,
+                    Object... data) {
+                return null;
+            }
+
             @Override
-            public String visit(ConjunctionTree tree, Object... data) {
+            public String visit(BaseConjunctionTree tree, Object... data) {
                 tree.left().accept(this, data);
                 string += " " + tree.root().toString();
                 tree.right().accept(this, data);
@@ -58,7 +65,7 @@ public class ExplicitCclASTFunction extends ExplicitFunction<AbstractSyntaxTree>
             }
 
             @Override
-            public String visit(ExpressionTree tree, Object... data) {
+            public String visit(BaseExpressionTree tree, Object... data) {
                 string += " " + tree.root().toString();
                 return string;
             }
