@@ -57,13 +57,13 @@ public class VisitorTest {
             }
 
             @Override
-            public Object visit(BaseConjunctionTree tree, Object... data) {
+            public Object visit(ConjunctionTree tree, Object... data) {
                 Assert.assertTrue(tree.root() == ConjunctionSymbol.AND);
                 return data;
             }
 
             @Override
-            public Object visit(BaseExpressionTree tree, Object... data) {
+            public Object visit(ExpressionTree tree, Object... data) {
                 Assert.assertTrue(((Expression) tree.root()).key().toString()
                         .equals("key"));
                 Assert.assertTrue(((Expression) tree.root()).operator()

@@ -16,16 +16,10 @@
 package com.cinchapi.ccl.grammar;
 
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseConjunctionTree;
-import com.cinchapi.ccl.syntax.BaseExpressionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.common.base.AnyStrings;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
 /**
  * Represents a {@link ExplicitFunction} where the value is a CCL represented
@@ -57,7 +51,7 @@ public class ExplicitCclASTFunction extends ExplicitFunction<AbstractSyntaxTree>
             }
 
             @Override
-            public String visit(BaseConjunctionTree tree, Object... data) {
+            public String visit(ConjunctionTree tree, Object... data) {
                 tree.left().accept(this, data);
                 string += " " + tree.root().toString();
                 tree.right().accept(this, data);
@@ -65,7 +59,7 @@ public class ExplicitCclASTFunction extends ExplicitFunction<AbstractSyntaxTree>
             }
 
             @Override
-            public String visit(BaseExpressionTree tree, Object... data) {
+            public String visit(ExpressionTree tree, Object... data) {
                 string += " " + tree.root().toString();
                 return string;
             }

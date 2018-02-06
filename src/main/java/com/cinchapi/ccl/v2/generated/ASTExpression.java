@@ -17,7 +17,6 @@ package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 
 import java.util.Collection;
@@ -25,7 +24,7 @@ import java.util.Collection;
 /**
  * A node that representation a CCL expression
  */
-public class ASTExpression extends SimpleNode implements BaseExpressionTree {
+public class ASTExpression extends SimpleNode implements AbstractSyntaxTree {
     /**
      * Construct a new instance
      *
