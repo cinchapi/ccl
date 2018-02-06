@@ -26,6 +26,7 @@ import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.ImplicitFunctionValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
@@ -108,9 +109,33 @@ public class GrammarInfixVisitor implements GrammarVisitor
     @SuppressWarnings({ "unchecked", "unused" })
     public Object visit(ASTAnd node, Object data) {
         List<Symbol> symbols = (List<Symbol>) data;
+        boolean parenthesis = false;
+
+        if (node.jjtGetChild(0) instanceof ASTOr) {
+            symbols.add(ParenthesisSymbol.LEFT);
+            parenthesis = true;
+        }
+
         node.jjtGetChild(0).jjtAccept(this, data);
+
+        if (parenthesis) {
+            symbols.add(ParenthesisSymbol.RIGHT);
+            parenthesis = false;
+        }
+
         symbols.add(ConjunctionSymbol.AND);
+
+        if (node.jjtGetChild(1) instanceof ASTOr) {
+            symbols.add(ParenthesisSymbol.LEFT);
+            parenthesis = true;
+        }
+
         node.jjtGetChild(1).jjtAccept(this, data);
+
+        if (parenthesis) {
+            symbols.add(ParenthesisSymbol.RIGHT);
+        }
+
         return symbols;
     }
 
