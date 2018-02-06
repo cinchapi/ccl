@@ -20,6 +20,7 @@ import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.BaseKeySymbol;
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.DynamicFunctionKeySymbol;
+import com.cinchapi.ccl.grammar.ExplicitCclASTFunction;
 import com.cinchapi.ccl.grammar.ExplicitFunctionValueSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.ImplicitFunctionValueSymbol;
@@ -36,6 +37,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -173,7 +177,22 @@ public class GrammarTreeVisitor implements GrammarVisitor {
 
     @Override
     public Object visit(ASTExplicitFunctionValue node, Object data) {
-        return new ExplicitFunctionValueSymbol(node.value());
+
+        if (node.value() instanceof ExplicitCclJavaCCASTFunction) {
+            String function = node.value().function();
+            String key = node.value().key();
+            ASTStart ccl = (ASTStart) node.value().value();
+
+            GrammarTreeVisitor visitor = new GrammarTreeVisitor(parser, this.data);
+            AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl
+                    .jjtAccept(visitor, null);
+
+            return new ExplicitFunctionValueSymbol(
+                    new ExplicitCclASTFunction(function, key, tree));
+        }
+        else {
+            return new ExplicitFunctionValueSymbol(node.value());
+        }
     }
 
     @Override

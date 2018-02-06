@@ -5,7 +5,6 @@ import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.Visitor;
-import com.cinchapi.common.base.AnyStrings;
 
 import java.util.List;
 
@@ -24,14 +23,24 @@ public class ASTExplicitFunctionValue extends ASTBaseValue<ExplicitFunction> {
         super(id);
     }
 
+    /**
+     *
+     * @param function
+     * @param key
+     * @param records
+     */
     public void build(String function, String key, List<String> records) {
         this.value = new ExplicitRecordsFunction(function, key, records);
     }
 
+    /**
+     *
+     * @param function
+     * @param key
+     * @param ccl
+     */
     public void build(String function, String key, ASTStart ccl) {
-        //GrammarTreeVisitor visitor = new GrammarTreeVisitor(this);
-        //return (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
-        //this.value = new ExplicitRecordsFunction(function, key, ccl);
+        this.value = new ExplicitCclJavaCCASTFunction(function, key, ccl);
     }
 
     /**
