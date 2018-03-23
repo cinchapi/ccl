@@ -76,29 +76,29 @@ TOKEN [IGNORE_CASE]:
 |
   < BINARY_OPERATOR: <BETWEEN> >
 |
-  < #EQUALS: "=" | "==" | "eq" >
+  < #EQUALS: "=" | "==" | "eq" | "equals" >
 |
-  < #NOT_EQUALS: "!=" | "ne" >
+  < #NOT_EQUALS: "!=" | "ne" | "not_equals" >
 |
-  < #GREATER_THAN: ">" | "gt" >
+  < #GREATER_THAN: ">" | "gt" | "greater_than">
 |
-  < #GREATER_THAN_OR_EQUALS: ">=" | "gte" >
+  < #GREATER_THAN_OR_EQUALS: ">=" | "gte" | "greater_than_or_equals" >
 |
-  < #LESS_THAN: "<" | "lt" >
+  < #LESS_THAN: "<" | "lt" | "less_than">
 |
-  < #LESS_THAN_OR_EQUALS: "<=" | "lte" >
+  < #LESS_THAN_OR_EQUALS: "<=" | "lte" | "less_than_or_equals" >
 |
-  < #LINKS_TO: "->" | "lnks2" | "lnk2" >
+  < #LINKS_TO: "->" | "lnks2" | "lnk2" | "links_to" >
 |
   < #REGEX: "regex" >
 |
-  < #NOT_REGEX: "nregex" >
+  < #NOT_REGEX: "nregex" | "not_regex" >
 |
   < #LIKE: "like" >
 |
-  < #NOT_LIKE: "nlike" >
+  < #NOT_LIKE: "nlike" | "not_like" >
 |
-  < #BETWEEN: "><" | "bw" >
+  < #BETWEEN: "><" | "bw" | "between" >
 }
 
 TOKEN :
