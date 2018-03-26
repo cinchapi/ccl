@@ -2,9 +2,6 @@
 
 #### Version 2.4.0 (TBD)
 
-#### Version 2.3.3 (March 26, 2018)
-* Fixed a bug that caused the `v2` parser to fail to parse CCL statements containing operator tokens named after their respective enums (e.g. `LINKS_TO` instead of `lnks2`).
-
 #### Version 2.3.2 (February 1, 2018)
 * Fixed a bug that caused the `v2` parser to fail to parse CCL statements containing the `LIKE` and `NOT_LIKE` operators.
 
