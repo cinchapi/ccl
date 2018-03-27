@@ -16,23 +16,37 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a key.
- *
- * @author Jeff Nelson
+ * A {@link Symbol} that contains a value.
  */
-public final class KeySymbol extends BaseKeySymbol<String> {
+public abstract class BaseValueSymbol<T> extends BaseSymbol
+        implements PostfixNotationSymbol, Value<T> {
+
+    /**
+     * The content of the {@link Symbol}.
+     */
+    protected final T value;
 
     /**
      * Construct a new instance.
      *
-     * @param key the key
+     * @param value
      */
-    public KeySymbol(String key) {
-        super(key);
+    public BaseValueSymbol(T value) {
+        this.value = value;
+    }
+
+    /**
+     * Return the value associated with this {@link Symbol}.
+     *
+     * @return the value
+     */
+    @Override
+    public T value() {
+        return value;
     }
 
     @Override
     public String toString() {
-        return key;
+        return value.toString();
     }
 }
