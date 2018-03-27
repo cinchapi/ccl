@@ -1,8 +1,17 @@
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.BaseExpressionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
 import com.cinchapi.ccl.v2.generated.GrammarInfixVisitor;
@@ -22,6 +31,7 @@ import com.google.common.collect.Multimap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Function;
