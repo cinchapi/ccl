@@ -15,6 +15,8 @@
  */
 package com.cinchapi.ccl.v2;
 
+import org.junit.Test;
+
 import com.cinchapi.ccl.v2.generated.Grammar;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
