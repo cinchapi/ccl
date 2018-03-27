@@ -26,15 +26,17 @@ import com.cinchapi.ccl.grammar.BaseKeySymbol;
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.v1.ConcourseAndTree;
-import com.cinchapi.ccl.v1.ConcourseExpressionTree;
-import com.cinchapi.ccl.v1.ConcourseOrTree;
+import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.reflect.Reflection;
 import com.google.common.base.Preconditions;
@@ -84,7 +86,7 @@ public final class Parsing {
                                                              // timestamp to the
                                                              // previously
                                                              // generated
-                                                             // ExpressionTree
+                                                             // BaseExpressionTree
                     Reflection.set("timestamp", symbol,
                             Iterables.getLast(grouped)); // (authorized)
                 }
@@ -245,7 +247,7 @@ public final class Parsing {
                 operatorStack.push(symbol);
             }
             else if(symbol instanceof Expression) {
-                operandStack.push(new ConcourseExpressionTree((Expression) symbol));
+                operandStack.push(new ExpressionTree((Expression) symbol));
             }
         }
         while (!operatorStack.isEmpty()) {
@@ -267,10 +269,10 @@ public final class Parsing {
         AbstractSyntaxTree right = stack.pop();
         AbstractSyntaxTree left = stack.pop();
         if(operator == ConjunctionSymbol.AND) {
-            stack.push(new ConcourseAndTree(left, right));
+            stack.push(new AndTree(left, right));
         }
         else {
-            stack.push(new ConcourseOrTree(left, right));
+            stack.push(new OrTree(left, right));
         }
     }
 
