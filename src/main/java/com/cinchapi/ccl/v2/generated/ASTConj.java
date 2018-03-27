@@ -16,7 +16,7 @@
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
+import com.cinchapi.ccl.syntax.BaseConjunctionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
 
@@ -25,7 +25,7 @@ import java.util.Collection;
 /**
  * Represents a conjunction node in the CCL grammar.
  */
-public abstract class ASTConj extends SimpleNode implements ConjunctionTree {
+public abstract class ASTConj extends SimpleNode implements BaseConjunctionTree {
     /**
      * Constructs a new instance.
      *
