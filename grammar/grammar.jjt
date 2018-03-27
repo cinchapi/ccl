@@ -126,7 +126,6 @@ TOKEN :
   < #PERIOD: "." >
 }
 
-/** Main production. */
 ASTStart StartCommandLine() #Start : {}
 {
    (<WHERE>)? DisjunctionExpression() "\n"
@@ -145,24 +144,23 @@ ASTStart generateSubAST() #Start : {}
    { return jjtThis; }
 }
 
-
 void DisjunctionExpression() : {}
 {
   (
-    ConjunctionExpression() ((<DISJUNCTION> ConjunctionExpression()) #Or(2))*
+    ConjunctionExpression() (((<DISJUNCTION>) ConjunctionExpression()) #Or(2) )*
   )
 }
 
 void ConjunctionExpression() : {}
 {
   (
-    UnaryExpression() ((<CONJUNCTION> UnaryExpression()) #And(2))*
+    UnaryExpression() (((<CONJUNCTION>) UnaryExpression()) #And(2) )*
   )
 }
 
 void UnaryExpression() : {}
 {
-  (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpression()
+   (<OPEN_PARENTHESES>) DisjunctionExpression() <CLOSE_PARENTHESES> | RelationalExpression()
 }
 
 void RelationalExpression() #Expression :
@@ -211,8 +209,11 @@ String UnaryValue() :
   String value = "";
 }
 {
-  ( LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
-  { return value; }
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  { return value.replace("\\@", "@"); }
+    |
+  (value=<QUOTED_STRING>)
+  { return value.replace("\\\"", "\""); }
 }
 
 String BinaryValue() :
@@ -220,8 +221,11 @@ String BinaryValue() :
   Token value;
 }
 {
-  (value=<QUOTED_STRING> | value=<SIGNED_INTEGER> | value=<SIGNED_DECIMAL> | value=<ALPHANUMERIC> | value=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+  (value=<SIGNED_INTEGER> | value=<SIGNED_DECIMAL> | value=<ALPHANUMERIC> | value=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
   { return value.image; }
+    |
+  (value=<QUOTED_STRING>)
+  { return value.image.replace("\\\"", "\""); }
 }
 
 String UnaryOperator() :
@@ -246,6 +250,10 @@ String Timestamp() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+)?
+  LOOKAHEAD(2)
+  (<TIMESTAMP> ((word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+)?
   { return timestamp; }
+    |
+  (<TIMESTAMP> (word=<QUOTED_STRING>))?
+  { return word.image.replace("\\\"", "\""); }
 }
