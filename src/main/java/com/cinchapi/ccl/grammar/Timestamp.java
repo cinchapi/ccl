@@ -16,23 +16,14 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a key.
- *
- * @author Jeff Nelson
+ * An abstraction for a timestamp in a key-relation-value triplet.
  */
-public final class KeySymbol extends BaseKeySymbol<String> {
-
+public interface Timestamp {
     /**
-     * Construct a new instance.
+     * Return the timestamp (in microseconds) associated with this
+     * {@link Symbol}.
      *
-     * @param key the key
+     * @return the timestamp
      */
-    public KeySymbol(String key) {
-        super(key);
-    }
-
-    @Override
-    public String toString() {
-        return key;
-    }
+    long timestamp();
 }

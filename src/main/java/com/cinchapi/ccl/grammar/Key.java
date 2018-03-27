@@ -16,23 +16,10 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a key.
+ * An abstraction for a key in a CCL key-relation-value triplet.
  *
- * @author Jeff Nelson
+ * @param <T> the type of key
  */
-public final class KeySymbol extends BaseKeySymbol<String> {
-
-    /**
-     * Construct a new instance.
-     *
-     * @param key the key
-     */
-    public KeySymbol(String key) {
-        super(key);
-    }
-
-    @Override
-    public String toString() {
-        return key;
-    }
+public interface Key<T> {
+    T key();
 }
