@@ -35,7 +35,7 @@ public class GrammarDumpVisitor implements GrammarVisitor
      */
     public Object visit(SimpleNode node, Object data) {
         System.out.println(indentString() + node +
-                       ": acceptor not unimplemented in subclass?");
+                ": acceptor not unimplemented in subclass?");
         ++indent;
         data = node.childrenAccept(this, data);
         --indent;
@@ -72,14 +72,8 @@ public class GrammarDumpVisitor implements GrammarVisitor
         return data;
     }
 
-    /**
-     * Visitor for a {@link ASTOr}
-     *
-     * @param node the node
-     * @param data the data
-     * @return the data
-     */
-    public Object visit(ASTOr node, Object data) {
+    @Override
+    public Object visit(ASTExpression node, Object data) {
         System.out.println(indentString() + node);
         ++indent;
         data = node.childrenAccept(this, data);
@@ -88,13 +82,13 @@ public class GrammarDumpVisitor implements GrammarVisitor
     }
 
     /**
-     * Visitor for a {@link ASTRelationalExpression}
+     * Visitor for a {@link ASTOr}
      *
      * @param node the node
      * @param data the data
      * @return the data
      */
-    public Object visit(ASTRelationalExpression node, Object data) {
+    public Object visit(ASTOr node, Object data) {
         System.out.println(indentString() + node);
         ++indent;
         data = node.childrenAccept(this, data);
