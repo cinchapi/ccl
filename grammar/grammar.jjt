@@ -174,11 +174,18 @@ TOKEN :
   < #PERIOD: "." >
 }
 
+ASTStart StartCommandLine() #Start : {}
+{
+   (<WHERE>)? DisjunctionExpression() "\n"
+   { return jjtThis; }
+}
+
 ASTStart generateAST() #Start : {}
 {
    (<WHERE>)? DisjunctionExpression() <EOF>
    { return jjtThis; }
 }
+
 ASTStart generateSubAST() #Start : {}
 {
    DisjunctionExpression()

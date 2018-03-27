@@ -15,8 +15,6 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseConjunctionTree;
 import com.cinchapi.ccl.syntax.Visitor;
@@ -25,40 +23,36 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 
 /**
- * Represents an Or node in the CCL grammar.
+ * Represents a conjunction node in the CCL grammar.
  */
-public class ASTOr extends ASTConj {
+public abstract class ASTConj extends SimpleNode implements BaseConjunctionTree {
     /**
      * Constructs a new instance.
      *
      * @param id the id
      */
-    public ASTOr(int id) {
+    ASTConj(int id) {
         super(id);
     }
 
-    /**
-     * Convert the node a string representation
-     *
-     * @return the string
-     */
-    public String toString() {
-        return "or";
+    @Override
+    public AbstractSyntaxTree left() {
+        return (AbstractSyntaxTree) jjtGetChild(0);
     }
 
     @Override
-    public Symbol root() {
-        return ConjunctionSymbol.OR;
+    public AbstractSyntaxTree right() {
+        return (AbstractSyntaxTree) jjtGetChild(1);
     }
 
-    /**
-     * Accept a visitor
-     *
-     * @param visitor the visitor
-     * @param data the data
-     * @return the result of the visit
-     */
-    public Object jjtAccept(GrammarVisitor visitor, Object data) {
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Lists.newArrayList((AbstractSyntaxTree) jjtGetChild(0),
+                (AbstractSyntaxTree) jjtGetChild(1));
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
     }
 }

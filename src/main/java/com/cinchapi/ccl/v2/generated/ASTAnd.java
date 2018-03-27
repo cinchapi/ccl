@@ -15,10 +15,13 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+
 /**
- * Represents a And node in the CCL grammar.
+ * Represents an And conjunction node in the CCL grammar.
  */
-public class ASTAnd extends SimpleNode {
+public class ASTAnd extends ASTConj {
     /**
      * Constructs a new instance.
      *
@@ -35,6 +38,11 @@ public class ASTAnd extends SimpleNode {
      */
     public String toString() {
         return "and";
+    }
+
+    @Override
+    public Symbol root() {
+        return ConjunctionSymbol.AND;
     }
 
     /**
