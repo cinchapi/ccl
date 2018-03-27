@@ -16,6 +16,7 @@
 package com.cinchapi.ccl.syntax;
 
 import java.util.Collection;
+import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 
 import com.cinchapi.ccl.grammar.Symbol;
@@ -62,7 +63,7 @@ public interface AbstractSyntaxTree {
 
     /**
      * Return the {@link Symbol} contained in the "root" node of the tree.
-     * 
+     *
      * @return the root node {@link Symbol}
      */
     public Symbol root();
@@ -87,5 +88,17 @@ public interface AbstractSyntaxTree {
      * @return the data
      */
     public <T> T accept(Visitor<T> visitor, Object... data);
-    
+
+    /**
+     *
+     * @return
+     */
+    public int hashCode();
+
+    /**
+     *
+     * @param obj
+     * @return
+     */
+    public boolean equals(Object obj);
 }

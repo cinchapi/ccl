@@ -17,9 +17,12 @@ package com.cinchapi.ccl.syntax;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Function;
 
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.type.Operator;
+import com.google.common.collect.Multimap;
 
 /**
  * An {@link ExpressionTree} is an {@link AbstractSyntaxTree} whose root node is
@@ -27,7 +30,7 @@ import com.cinchapi.ccl.grammar.Symbol;
  *
  * @author Jeff Nelson
  */
-public class ExpressionTree extends BaseAbstractSyntaxTree {
+public class ExpressionTree implements BaseExpressionTree {
 
     /**
      * The root.
@@ -58,4 +61,11 @@ public class ExpressionTree extends BaseAbstractSyntaxTree {
         return visitor.visit(this, data);
     }
 
+    @Override
+    public Symbol root(
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction,
+            Multimap<String, Object> data) {
+        return expression;
+    }
 }
