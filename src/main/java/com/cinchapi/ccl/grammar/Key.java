@@ -16,32 +16,10 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a key.
+ * An abstraction for a key in a CCL key-relation-value triplet.
+ *
+ * @param <T> the type of key
  */
-public abstract class BaseKeySymbol<T> extends BaseSymbol
-        implements PostfixNotationSymbol, Key<T> {
-
-    /**
-     * The content of the {@link Symbol}.
-     */
-    protected final T key;
-
-    /**
-     * Construct a new instance.
-     *
-     * @param key
-     */
-    public BaseKeySymbol(T key) {
-        this.key = key;
-    }
-
-    @Override
-    public String toString() {
-        return key.toString();
-    }
-
-    @Override
-    public T key() {
-        return key;
-    }
+public interface Key<T> {
+    T key();
 }

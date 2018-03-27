@@ -16,37 +16,14 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a value.
+ * An abstraction for a timestamp in a key-relation-value triplet.
  */
-public abstract class BaseValueSymbol<T> extends BaseSymbol
-        implements PostfixNotationSymbol, Value<T> {
-
+public interface Timestamp {
     /**
-     * The content of the {@link Symbol}.
-     */
-    protected final T value;
-
-    /**
-     * Construct a new instance.
+     * Return the timestamp (in microseconds) associated with this
+     * {@link Symbol}.
      *
-     * @param value
+     * @return the timestamp
      */
-    public BaseValueSymbol(T value) {
-        this.value = value;
-    }
-
-    /**
-     * Return the value associated with this {@link Symbol}.
-     *
-     * @return the value
-     */
-    @Override
-    public T value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return value.toString();
-    }
+    long timestamp();
 }
