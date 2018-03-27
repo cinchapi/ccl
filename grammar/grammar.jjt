@@ -175,6 +175,11 @@ void RelationalExpression() #Expression :
     String value1;
     String value2;
     String timestamp;
+    String key;
+    String operator;
+    String value1;
+    String value2;
+    String timestamp;
 }
 {
     key=Key()
