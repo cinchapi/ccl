@@ -2,22 +2,47 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.cinchapi.ccl.v2.generated;
 
-public
-class ASTStart extends SimpleNode {
-  public ASTStart(int id) {
-    super(id);
-  }
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.Visitor;
+import com.google.common.collect.Lists;
 
-  public ASTStart(Grammar p, int id) {
-    super(p, id);
-  }
+import java.util.Collection;
 
+/**
+ * The start node in an Abstract Syntax Tree as defined in JavaCC
+ */
+public class ASTStart extends SimpleNode implements AbstractSyntaxTree {
+    /**
+     * Constructs a new instance
+     * @param id
+     */
+    public ASTStart(int id) {
+        super(id);
+    }
 
-  /** Accept the visitor. **/
-  public Object jjtAccept(GrammarVisitor visitor, Object data) {
+    /**
+     * Accepts a visitor
+     *
+     * @param visitor the visitor
+     * @param data the data
+     * @return
+     */
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
+        return visitor.visit(this, data);
+    }
 
-    return
-    visitor.visit(this, data);
-  }
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Lists.newArrayList((AbstractSyntaxTree) jjtGetChild(0));
+    }
+    @Override
+    public Symbol root() {
+        return null;
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return visitor.visit(this, data);
+    }
 }
-/* JavaCC - OriginalChecksum=b99b6c7596f57fe94e406be30f930c32 (do not edit this line) */
