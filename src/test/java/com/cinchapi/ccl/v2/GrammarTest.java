@@ -15,9 +15,11 @@
  */
 package com.cinchapi.ccl.v2;
 
+import com.cinchapi.ccl.v2.generated.Grammar;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import org.junit.Test;
 
-import com.cinchapi.ccl.v2.generated.Grammar;
 import com.cinchapi.ccl.v2.generated.ParseException;
 
 import java.io.ByteArrayInputStream;
@@ -36,7 +38,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -45,7 +47,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -54,7 +56,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -63,7 +65,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -72,7 +74,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -81,7 +83,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -90,7 +92,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -99,7 +101,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -108,7 +110,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -117,16 +119,18 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
     public void validLocalResolution() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = $name";
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron James");
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
 
@@ -136,7 +140,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -145,7 +149,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -153,7 +157,7 @@ public class GrammarTest {
         String ccl = "a = 1 and b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test
@@ -161,7 +165,15 @@ public class GrammarTest {
         String ccl = "a = 1 or b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validParenthesizedExpression() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 1 or (b = 2 and c = 3)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
     }
 
     @Test
@@ -178,7 +190,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -187,7 +199,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -196,7 +208,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -205,7 +217,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)
@@ -214,6 +226,6 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 }

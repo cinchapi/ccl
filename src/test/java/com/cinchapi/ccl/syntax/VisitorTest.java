@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.syntax;
 
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
@@ -50,13 +51,19 @@ public class VisitorTest {
         // Test visitor
         Visitor<Object> visitor = new Visitor<Object>() {
             @Override
-            public Object visit(ConjunctionTree tree, Object... data) {
-                Assert.assertTrue(tree instanceof AndTree);
+            public Object visit(AbstractSyntaxTree tree,
+                    Object... data) {
                 return data;
             }
 
             @Override
-            public Object visit(ExpressionTree tree, Object... data) {
+            public Object visit(BaseConjunctionTree tree, Object... data) {
+                Assert.assertTrue(tree.root() == ConjunctionSymbol.AND);
+                return data;
+            }
+
+            @Override
+            public Object visit(BaseExpressionTree tree, Object... data) {
                 Assert.assertTrue(((Expression) tree.root()).key().toString()
                         .equals("key"));
                 Assert.assertTrue(((Expression) tree.root()).operator()
