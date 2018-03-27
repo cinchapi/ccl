@@ -181,7 +181,7 @@ public class GrammarTest {
         String ccl = "a LINKS_TO b";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        grammar.generateAST();
     }
 
     @Test (expected = ParseException.class)

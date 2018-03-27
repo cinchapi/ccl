@@ -484,14 +484,13 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
           break label_5;
         }
       }
-{if ("" != null) return timestamp;}
       break;
       }
     default:
       jj_la1[12] = jj_gen;
       ;
     }
-{if ("" != null) return null;}
+{if ("" != null) return timestamp;}
     throw new Error("Missing return statement in function");
 }
 
