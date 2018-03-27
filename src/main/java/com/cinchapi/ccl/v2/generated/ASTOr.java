@@ -17,12 +17,17 @@ package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.Visitor;
+import com.google.common.collect.Lists;
+
+import java.util.Collection;
 
 /**
  * Represents an Or node in the CCL grammar.
  */
-public class ASTOr extends ASTConj implements OrTree {
+public class ASTOr extends ASTConj {
     /**
      * Constructs a new instance.
      *
