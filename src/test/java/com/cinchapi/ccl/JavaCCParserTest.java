@@ -18,13 +18,13 @@ package com.cinchapi.ccl;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Array;
 import com.cinchapi.concourse.thrift.TObject;

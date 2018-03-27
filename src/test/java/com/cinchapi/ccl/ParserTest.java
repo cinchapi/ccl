@@ -19,17 +19,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.BaseExpressionTree;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
@@ -1029,6 +1031,28 @@ public abstract class ParserTest {
         Parser parser = createParser(ccl);
         Visitor<Queue<Symbol>> visitor = new Visitor<Queue<Symbol>>() {
 
+            @Override public Queue<Symbol> visit(AbstractSyntaxTree tree,
+                    Object... data) {
+                return null;
+            }
+
+            @Override public Queue<Symbol> visit(BaseConjunctionTree tree,
+                    Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                tree.left().accept(this, data);
+                tree.right().accept(this, data);
+                queue.add(tree.root());
+                return queue;
+            }
+
+            @Override public Queue<Symbol> visit(BaseExpressionTree tree,
+                    Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                queue.add(tree.root());
+                return queue;
+            }
+
+            /*
             @SuppressWarnings("unchecked")
             @Override
             public Queue<Symbol> visit(ConjunctionTree tree, Object... data) {
@@ -1046,7 +1070,7 @@ public abstract class ParserTest {
                 queue.add(tree.root());
                 return queue;
             }
-
+*/
         };
         Queue<Symbol> queue = parser.parse().accept(visitor,
                 new LinkedList<Symbol>());
