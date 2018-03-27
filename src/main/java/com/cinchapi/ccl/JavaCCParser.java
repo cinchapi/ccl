@@ -109,11 +109,6 @@ public class JavaCCParser extends Parser {
                 }
             };
             return (Queue<PostfixNotationSymbol>) tree.accept(visitor);
-
-            //SimpleNode tree = grammar.generateAST();
-            //GrammarPostfixVisitor visitor = new GrammarPostfixVisitor(this, data);
-            //return (Queue<PostfixNotationSymbol>) tree.jjtAccept(visitor,
-             //       null);
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, this);
@@ -247,9 +242,6 @@ public class JavaCCParser extends Parser {
                 }
             };
             return (List<Symbol>) tree.accept(visitor);
-
-            //GrammarInfixVisitor visitor = new GrammarInfixVisitor(this ,data);
-            //return (List<Symbol>) tree.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, this);

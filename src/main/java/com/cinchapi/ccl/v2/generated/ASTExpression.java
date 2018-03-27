@@ -163,7 +163,7 @@ public class ASTExpression extends SimpleNode implements BaseExpressionTree {
             values.add(new ValueSymbol(valueTransformFunction.apply(value)));
         }
 
-        if (this.timestamp != null) {
+        if (this.timestamp != null && !this.timestamp.trim().isEmpty()) {
             TimestampSymbol timestamp = new TimestampSymbol(NaturalLanguage.parseMicros(this.timestamp));
             return new Expression(timestamp, key, operator, values.toArray(new BaseValueSymbol[values.size()]));
         }
