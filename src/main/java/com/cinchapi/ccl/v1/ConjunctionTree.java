@@ -13,31 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
-
-import java.util.Collection;
+package com.cinchapi.ccl.v1;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
+
+import java.util.Collection;
 
 /**
  * A {@link ConjunctionTree} contains a {@link ConjunctionSymbol} and is flanked
  * on the left and right, by exactly two other {@link AbstractSyntaxTree} nodes.
- * The {@link ConjunctionTree} is used to represent an expression that connects
- * two other expressions in a logical manner (e.g AND/OR)
- * 
- * @author Jeff Nelson
  */
-public class ConjunctionTree implements BaseConjunctionTree {
-
+ public class ConjunctionTree extends BaseAbstractSyntaxTree implements BaseConjunctionTree {
     private final ConjunctionSymbol conjunction;
     private final AbstractSyntaxTree left;
     private final AbstractSyntaxTree right;
 
     /**
      * Construct a new instance.
-     * 
+     *
      * @param conjunction
      * @param left
      * @param right
@@ -56,7 +55,7 @@ public class ConjunctionTree implements BaseConjunctionTree {
 
     /**
      * Return the left child of this {@link ConjunctionTree}.
-     * 
+     *
      * @return the left child
      */
     @Override
@@ -66,7 +65,7 @@ public class ConjunctionTree implements BaseConjunctionTree {
 
     /**
      * Return the right child of this {@link ConjunctionTree}.
-     * 
+     *
      * @return the right child
      */
     @Override
@@ -83,5 +82,4 @@ public class ConjunctionTree implements BaseConjunctionTree {
     public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
     }
-
 }

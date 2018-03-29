@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.v1;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseOrTree;
 
 /**
  * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
+ *
  * @author Jeff Nelson
  */
-public final class OrTree extends ConjunctionTree {
-
+public class OrTree extends ConjunctionTree implements BaseOrTree {
     /**
      * Construct a new instance.
-     * 
+     *
      * @param left
      * @param right
      */
     public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
         super(ConjunctionSymbol.OR, left, right);
     }
-
 }
