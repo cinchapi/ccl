@@ -15,30 +15,10 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import java.util.Objects;
-
 /**
- * Provides default implementations for some base methods of an
- * {@link AbstractSyntaxTree}.
- *
+ * An {@link AbstractSyntaxTree} that represents a logical AND.
+ * 
  * @author Jeff Nelson
  */
-public abstract class BaseAbstractSyntaxTree implements AbstractSyntaxTree {
-    @Override
-    public int hashCode() {
-        return Objects.hash(root(), children());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof AbstractSyntaxTree) {
-            AbstractSyntaxTree other = (AbstractSyntaxTree) obj;
-            return Objects.equals(root(), other.root())
-                    && Objects.equals(children(), other.children());
-        }
-        else {
-            return false;
-        }
-    }
-
+public interface BaseAndTree extends BaseConjunctionTree {
 }
