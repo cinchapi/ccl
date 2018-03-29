@@ -25,8 +25,8 @@ public interface Visitor<T> {
 
     public T visit(AbstractSyntaxTree tree, Object... data);
 
-    public T visit(BaseConjunctionTree tree, Object... data);
+    public T visit(ConjunctionTree tree, Object... data);
     
-    public T visit(BaseExpressionTree tree, Object... data);
+    public T visit(ExpressionTree tree, Object... data);
     
 }

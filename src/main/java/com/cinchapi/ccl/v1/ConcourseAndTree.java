@@ -17,21 +17,22 @@ package com.cinchapi.ccl.v1;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseAndTree;
+import com.cinchapi.ccl.syntax.AndTree;
 
 /**
  * An {@link AbstractSyntaxTree} that represents a logical AND.
  *
  * @author Jeff Nelson
  */
-public class AndTree extends ConjunctionTree implements BaseAndTree {
+public class ConcourseAndTree extends ConcourseConjunctionTree implements
+        AndTree {
     /**
      * Construct a new instance.
      *
      * @param left
      * @param right
      */
-    public AndTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
+    public ConcourseAndTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
         super(ConjunctionSymbol.AND, left, right);
     }
 }

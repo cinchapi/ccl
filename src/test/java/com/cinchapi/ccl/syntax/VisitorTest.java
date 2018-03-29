@@ -20,8 +20,8 @@ import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
-import com.cinchapi.ccl.v1.AndTree;
-import com.cinchapi.ccl.v1.ExpressionTree;
+import com.cinchapi.ccl.v1.ConcourseAndTree;
+import com.cinchapi.ccl.v1.ConcourseExpressionTree;
 import com.cinchapi.concourse.thrift.Operator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,16 +39,16 @@ public class VisitorTest {
         ValueSymbol value = new ValueSymbol("value");
 
         Expression expression = new Expression(key, operator, value);
-        ExpressionTree leftTree = new ExpressionTree(expression);
+        ConcourseExpressionTree leftTree = new ConcourseExpressionTree(expression);
 
         key = new KeySymbol("key");
         operator = new OperatorSymbol(Operator.EQUALS);
         value = new ValueSymbol("value");
 
         expression = new Expression(key, operator, value);
-        ExpressionTree rightTree = new ExpressionTree(expression);
+        ConcourseExpressionTree rightTree = new ConcourseExpressionTree(expression);
 
-        BaseAndTree tree = new AndTree(leftTree, rightTree);
+        AndTree tree = new ConcourseAndTree(leftTree, rightTree);
 
         // Test visitor
         Visitor<Object> visitor = new Visitor<Object>() {
@@ -59,13 +59,13 @@ public class VisitorTest {
             }
 
             @Override
-            public Object visit(BaseConjunctionTree tree, Object... data) {
+            public Object visit(ConjunctionTree tree, Object... data) {
                 Assert.assertTrue(tree.root() == ConjunctionSymbol.AND);
                 return data;
             }
 
             @Override
-            public Object visit(BaseExpressionTree tree, Object... data) {
+            public Object visit(ExpressionTree tree, Object... data) {
                 Assert.assertTrue(((Expression) tree.root()).key().toString()
                         .equals("key"));
                 Assert.assertTrue(((Expression) tree.root()).operator()

@@ -25,7 +25,7 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseExpressionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -43,7 +43,7 @@ import java.util.function.Function;
 /**
  * A node that represents a CCL expression
  */
-public class ASTExpression extends SimpleNode implements BaseExpressionTree {
+public class ASTExpression extends SimpleNode implements ExpressionTree {
     private String key = null;
     private String operator = null;
     private List<String> values = Lists.newArrayList();
