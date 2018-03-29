@@ -21,10 +21,8 @@ import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseAndTree;
-import com.cinchapi.ccl.syntax.BaseConjunctionTree;
-import com.cinchapi.ccl.syntax.BaseExpressionTree;
-import com.cinchapi.ccl.syntax.BaseOrTree;
+import com.cinchapi.ccl.syntax.ConjunctionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
@@ -108,7 +106,7 @@ public class JavaCCParser extends Parser {
                 }
 
                 @Override
-                public Queue<PostfixNotationSymbol> visit(BaseConjunctionTree tree, Object... data) {
+                public Queue<PostfixNotationSymbol> visit(ConjunctionTree tree, Object... data) {
                     tree.left().accept(this, data);
                     tree.right().accept(this, data);
                     symbols.add((PostfixNotationSymbol) tree.root());
@@ -116,7 +114,7 @@ public class JavaCCParser extends Parser {
                 }
 
                 @Override
-                public Queue<PostfixNotationSymbol> visit(BaseExpressionTree tree, Object... data) {
+                public Queue<PostfixNotationSymbol> visit(ExpressionTree tree, Object... data) {
                     tree.build(valueTransformFunction, operatorTransformFunction,
                             JavaCCParser.this.data);
                     symbols.add((PostfixNotationSymbol) tree.root());
@@ -151,7 +149,7 @@ public class JavaCCParser extends Parser {
                 }
 
                 @Override
-                public AbstractSyntaxTree visit(BaseConjunctionTree tree,
+                public AbstractSyntaxTree visit(ConjunctionTree tree,
                         Object... data) {
                     AbstractSyntaxTree left = tree.left().accept(this, data);
                     AbstractSyntaxTree right = tree.right().accept(this, data);
@@ -159,7 +157,7 @@ public class JavaCCParser extends Parser {
                 }
 
                 @Override
-                public AbstractSyntaxTree visit(BaseExpressionTree tree,
+                public AbstractSyntaxTree visit(ExpressionTree tree,
                         Object... data) {
                    tree.build(valueTransformFunction, operatorTransformFunction,
                            JavaCCParser.this.data);
@@ -195,7 +193,7 @@ public class JavaCCParser extends Parser {
                 }
 
                 @Override
-                public List<Symbol> visit(BaseConjunctionTree tree, Object... data) {
+                public List<Symbol> visit(ConjunctionTree tree, Object... data) {
 
                     if (tree.root().equals(ConjunctionSymbol.OR)) {
                         tree.left().accept(this, data);
@@ -236,7 +234,7 @@ public class JavaCCParser extends Parser {
                 }
 
                 @Override
-                public List<Symbol> visit(BaseExpressionTree tree, Object... data) {
+                public List<Symbol> visit(ExpressionTree tree, Object... data) {
                     tree.build(valueTransformFunction, operatorTransformFunction,
                             JavaCCParser.this.data);;
                     Expression expression = (Expression) tree.root();
