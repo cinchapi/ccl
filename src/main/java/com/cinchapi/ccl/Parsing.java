@@ -32,11 +32,9 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseAndTree;
-import com.cinchapi.ccl.v1.AndTree;
-import com.cinchapi.ccl.v1.ExpressionTree;
-import com.cinchapi.ccl.syntax.BaseOrTree;
-import com.cinchapi.ccl.v1.OrTree;
+import com.cinchapi.ccl.v1.ConcourseAndTree;
+import com.cinchapi.ccl.v1.ConcourseExpressionTree;
+import com.cinchapi.ccl.v1.ConcourseOrTree;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.reflect.Reflection;
 import com.google.common.base.Preconditions;
@@ -86,7 +84,7 @@ public final class Parsing {
                                                              // timestamp to the
                                                              // previously
                                                              // generated
-                                                             // BaseExpressionTree
+                                                             // ExpressionTree
                     Reflection.set("timestamp", symbol,
                             Iterables.getLast(grouped)); // (authorized)
                 }
@@ -247,7 +245,7 @@ public final class Parsing {
                 operatorStack.push(symbol);
             }
             else if(symbol instanceof Expression) {
-                operandStack.push(new ExpressionTree((Expression) symbol));
+                operandStack.push(new ConcourseExpressionTree((Expression) symbol));
             }
         }
         while (!operatorStack.isEmpty()) {
@@ -269,10 +267,10 @@ public final class Parsing {
         AbstractSyntaxTree right = stack.pop();
         AbstractSyntaxTree left = stack.pop();
         if(operator == ConjunctionSymbol.AND) {
-            stack.push(new AndTree(left, right));
+            stack.push(new ConcourseAndTree(left, right));
         }
         else {
-            stack.push(new OrTree(left, right));
+            stack.push(new ConcourseOrTree(left, right));
         }
     }
 
