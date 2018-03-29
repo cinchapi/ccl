@@ -15,19 +15,10 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.type.Operator;
-import com.google.common.collect.Multimap;
-
-import java.util.function.Function;
-
 /**
- * An abstraction for an expression node in a {@link AbstractSyntaxTree}
+ * An {@link AbstractSyntaxTree} that represents a logical AND.
+ * 
+ * @author Jeff Nelson
  */
-public interface BaseExpressionTree extends AbstractSyntaxTree {
-    public Symbol root();
-    public void build(
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction,
-            Multimap<String, Object> data);
+public interface BaseAndTree extends BaseConjunctionTree {
 }
