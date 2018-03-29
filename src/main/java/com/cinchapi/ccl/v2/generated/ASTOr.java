@@ -19,6 +19,7 @@ import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.BaseOrTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
 
@@ -27,7 +28,7 @@ import java.util.Collection;
 /**
  * Represents an Or node in the CCL grammar.
  */
-public class ASTOr extends ASTConj {
+public class ASTOr extends ASTConj implements BaseOrTree {
     /**
      * Constructs a new instance.
      *

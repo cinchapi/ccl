@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.v1;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +21,10 @@ import java.util.function.Function;
 
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseExpressionTree;
+import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.google.common.collect.Multimap;
 
@@ -30,7 +34,7 @@ import com.google.common.collect.Multimap;
  *
  * @author Jeff Nelson
  */
-public class ExpressionTree implements BaseExpressionTree {
+public class ExpressionTree extends BaseAbstractSyntaxTree implements BaseExpressionTree {
 
     /**
      * The root.
@@ -57,15 +61,13 @@ public class ExpressionTree implements BaseExpressionTree {
     }
 
     @Override
-    public <T> T accept(Visitor<T> visitor, Object... data) {
-        return visitor.visit(this, data);
+    public void build(Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction,
+            Multimap<String, Object> data) {
     }
 
     @Override
-    public Symbol root(
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction,
-            Multimap<String, Object> data) {
-        return expression;
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return visitor.visit(this, data);
     }
 }

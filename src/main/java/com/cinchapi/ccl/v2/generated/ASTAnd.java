@@ -17,11 +17,12 @@ package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.BaseAndTree;
 
 /**
  * Represents an And conjunction node in the CCL grammar.
  */
-public class ASTAnd extends ASTConj {
+public class ASTAnd extends ASTConj implements BaseAndTree {
     /**
      * Constructs a new instance.
      *
