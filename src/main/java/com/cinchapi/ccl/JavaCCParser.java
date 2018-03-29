@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2013-2017 Cinchapi Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.cinchapi.ccl;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
@@ -6,11 +21,10 @@ import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.BaseAndTree;
 import com.cinchapi.ccl.syntax.BaseConjunctionTree;
 import com.cinchapi.ccl.syntax.BaseExpressionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.BaseOrTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
@@ -103,8 +117,9 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Queue<PostfixNotationSymbol> visit(BaseExpressionTree tree, Object... data) {
-                    symbols.add((PostfixNotationSymbol) tree.root(valueTransformFunction,
-                            operatorTransformFunction, JavaCCParser.this.data));
+                    tree.build(valueTransformFunction, operatorTransformFunction,
+                            JavaCCParser.this.data);
+                    symbols.add((PostfixNotationSymbol) tree.root());
                     return symbols;
                 }
             };
@@ -140,24 +155,15 @@ public class JavaCCParser extends Parser {
                         Object... data) {
                     AbstractSyntaxTree left = tree.left().accept(this, data);
                     AbstractSyntaxTree right = tree.right().accept(this, data);
-
-                    if (tree.root().equals(ConjunctionSymbol.AND)) {
-                        return new AndTree(left, right);
-                    }
-                    else if (tree.root().equals(ConjunctionSymbol.OR)) {
-                        return new OrTree(left, right);
-                    }
-                    else {
-                        return null;
-                    }
+                    return tree;
                 }
 
                 @Override
                 public AbstractSyntaxTree visit(BaseExpressionTree tree,
                         Object... data) {
-                   return new ExpressionTree((Expression) tree.root(
-                            valueTransformFunction, operatorTransformFunction,
-                           JavaCCParser.this.data));
+                   tree.build(valueTransformFunction, operatorTransformFunction,
+                           JavaCCParser.this.data);
+                   return tree;
                 }
             };
             return (AbstractSyntaxTree) tree.accept(visitor);
@@ -231,8 +237,9 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public List<Symbol> visit(BaseExpressionTree tree, Object... data) {
-                    Expression expression = (Expression) tree.root(valueTransformFunction,
-                            operatorTransformFunction, JavaCCParser.this.data);
+                    tree.build(valueTransformFunction, operatorTransformFunction,
+                            JavaCCParser.this.data);;
+                    Expression expression = (Expression) tree.root();
 
                     symbols.add(expression.key());
                     symbols.add(expression.operator());

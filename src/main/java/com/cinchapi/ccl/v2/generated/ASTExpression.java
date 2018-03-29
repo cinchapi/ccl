@@ -49,6 +49,8 @@ public class ASTExpression extends SimpleNode implements BaseExpressionTree {
     private List<String> values = Lists.newArrayList();
     private String timestamp = null;
 
+    private Expression expression = null;
+
     /**
      * Construct a new instance
      *
@@ -127,11 +129,11 @@ public class ASTExpression extends SimpleNode implements BaseExpressionTree {
 
     @Override
     public Symbol root() {
-        return null;
+        return expression;
     }
 
     @Override
-    public Symbol root(
+    public void build(
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction,
             Multimap<String, Object> data) {
@@ -165,10 +167,10 @@ public class ASTExpression extends SimpleNode implements BaseExpressionTree {
 
         if (this.timestamp != null && !this.timestamp.trim().isEmpty()) {
             TimestampSymbol timestamp = new TimestampSymbol(NaturalLanguage.parseMicros(this.timestamp));
-            return new Expression(timestamp, key, operator, values.toArray(new BaseValueSymbol[values.size()]));
+            expression = new Expression(timestamp, key, operator, values.toArray(new BaseValueSymbol[values.size()]));
         }
         else {
-            return new Expression(key, operator, values.toArray(new BaseValueSymbol[values.size()]));
+            expression = new Expression(key, operator, values.toArray(new BaseValueSymbol[values.size()]));
         }
     }
 

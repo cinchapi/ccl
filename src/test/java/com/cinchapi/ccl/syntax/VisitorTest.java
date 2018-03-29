@@ -20,6 +20,8 @@ import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.v1.AndTree;
+import com.cinchapi.ccl.v1.ExpressionTree;
 import com.cinchapi.concourse.thrift.Operator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,7 +48,7 @@ public class VisitorTest {
         expression = new Expression(key, operator, value);
         ExpressionTree rightTree = new ExpressionTree(expression);
 
-        AndTree tree = new AndTree(leftTree, rightTree);
+        BaseAndTree tree = new AndTree(leftTree, rightTree);
 
         // Test visitor
         Visitor<Object> visitor = new Visitor<Object>() {
