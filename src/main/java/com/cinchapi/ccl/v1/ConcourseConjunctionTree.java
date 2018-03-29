@@ -19,17 +19,18 @@ import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseConjunctionTree;
+import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
 
 /**
- * A {@link ConjunctionTree} contains a {@link ConjunctionSymbol} and is flanked
+ * A {@link ConcourseConjunctionTree} contains a {@link ConjunctionSymbol} and is flanked
  * on the left and right, by exactly two other {@link AbstractSyntaxTree} nodes.
  */
- public class ConjunctionTree extends BaseAbstractSyntaxTree implements BaseConjunctionTree {
+ public class ConcourseConjunctionTree extends BaseAbstractSyntaxTree implements
+        ConjunctionTree {
     private final ConjunctionSymbol conjunction;
     private final AbstractSyntaxTree left;
     private final AbstractSyntaxTree right;
@@ -41,7 +42,7 @@ import java.util.Collection;
      * @param left
      * @param right
      */
-    public ConjunctionTree(ConjunctionSymbol conjunction,
+    public ConcourseConjunctionTree(ConjunctionSymbol conjunction,
             AbstractSyntaxTree left, AbstractSyntaxTree right) {
         this.conjunction = conjunction;
         this.left = left;
@@ -54,7 +55,7 @@ import java.util.Collection;
     }
 
     /**
-     * Return the left child of this {@link ConjunctionTree}.
+     * Return the left child of this {@link ConcourseConjunctionTree}.
      *
      * @return the left child
      */
@@ -64,7 +65,7 @@ import java.util.Collection;
     }
 
     /**
-     * Return the right child of this {@link ConjunctionTree}.
+     * Return the right child of this {@link ConcourseConjunctionTree}.
      *
      * @return the right child
      */
