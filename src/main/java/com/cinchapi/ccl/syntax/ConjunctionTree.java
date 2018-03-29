@@ -16,9 +16,9 @@
 package com.cinchapi.ccl.syntax;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical AND.
- * 
- * @author Jeff Nelson
+ * An abstraction for a conjunction node in an {@link AbstractSyntaxTree}
  */
-public interface BaseAndTree extends BaseConjunctionTree {
+public interface ConjunctionTree extends AbstractSyntaxTree {
+    public AbstractSyntaxTree left();
+    public AbstractSyntaxTree right();
 }

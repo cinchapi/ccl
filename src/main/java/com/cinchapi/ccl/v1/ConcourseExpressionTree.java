@@ -23,18 +23,19 @@ import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseExpressionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.google.common.collect.Multimap;
 
 /**
- * An {@link ExpressionTree} is an {@link AbstractSyntaxTree} whose root node is
+ * An {@link ConcourseExpressionTree} is an {@link AbstractSyntaxTree} whose root node is
  * an {@link Expression} and does not have any children.
  *
  * @author Jeff Nelson
  */
-public class ExpressionTree extends BaseAbstractSyntaxTree implements BaseExpressionTree {
+public class ConcourseExpressionTree extends BaseAbstractSyntaxTree implements
+        ExpressionTree {
 
     /**
      * The root.
@@ -46,7 +47,7 @@ public class ExpressionTree extends BaseAbstractSyntaxTree implements BaseExpres
      * 
      * @param expression
      */
-    public ExpressionTree(Expression expression) {
+    public ConcourseExpressionTree(Expression expression) {
         this.expression = expression;
     }
 

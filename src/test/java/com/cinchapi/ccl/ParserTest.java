@@ -21,10 +21,8 @@ import java.util.Queue;
 
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
-import com.cinchapi.ccl.syntax.BaseAndTree;
-import com.cinchapi.ccl.syntax.BaseConjunctionTree;
-import com.cinchapi.ccl.syntax.BaseExpressionTree;
-import com.cinchapi.ccl.syntax.BaseOrTree;
+import com.cinchapi.ccl.syntax.ConjunctionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -1058,7 +1056,7 @@ public abstract class ParserTest {
             }
 
             @Override
-            public Queue<Symbol> visit(BaseConjunctionTree tree,
+            public Queue<Symbol> visit(ConjunctionTree tree,
                     Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
                 tree.left().accept(this, data);
@@ -1068,7 +1066,7 @@ public abstract class ParserTest {
             }
 
             @Override
-            public Queue<Symbol> visit(BaseExpressionTree tree,
+            public Queue<Symbol> visit(ExpressionTree tree,
                     Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
                 queue.add(tree.root());

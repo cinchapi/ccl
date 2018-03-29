@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.v1;
+package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseOrTree;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.type.Operator;
+import com.google.common.collect.Multimap;
+
+import java.util.function.Function;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- *
- * @author Jeff Nelson
+ * An abstraction for an expression node in a {@link AbstractSyntaxTree}
  */
-public class OrTree extends ConjunctionTree implements BaseOrTree {
-    /**
-     * Construct a new instance.
-     *
-     * @param left
-     * @param right
-     */
-    public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
-        super(ConjunctionSymbol.OR, left, right);
-    }
+public interface ExpressionTree extends AbstractSyntaxTree {
+    public Symbol root();
+    public void build(
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction,
+            Multimap<String, Object> data);
 }
