@@ -72,8 +72,6 @@ public interface GrammarConstants {
   int DIGIT = 32;
   /** RegularExpression Id. */
   int PERIOD = 33;
-  /** RegularExpression Id. */
-  int ESCAPE = 34;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -114,7 +112,6 @@ public interface GrammarConstants {
     "<LETTER>",
     "<DIGIT>",
     "\".\"",
-    "\"\\\\\"",
     "\"\\n\"",
   };
 
