@@ -373,7 +373,8 @@ jjtn000.key(k.image);
 jjtn000.operator(o.image);
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case SIGNED_DECIMAL:
-          case ALPHANUMERIC:{
+          case ALPHANUMERIC:
+          case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
             switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
             case SIGNED_DECIMAL:{
               v = jj_consume_token(SIGNED_DECIMAL);
@@ -381,6 +382,10 @@ jjtn000.operator(o.image);
               }
             case ALPHANUMERIC:{
               v = jj_consume_token(ALPHANUMERIC);
+              break;
+              }
+            case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
+              v = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
               break;
               }
             default:
@@ -403,7 +408,8 @@ jjtn000.addValue(StringEscapeUtils.unescapeJava(v.image));
           }
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case SIGNED_DECIMAL:
-          case ALPHANUMERIC:{
+          case ALPHANUMERIC:
+          case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
             switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
             case SIGNED_DECIMAL:{
               v = jj_consume_token(SIGNED_DECIMAL);
@@ -411,6 +417,10 @@ jjtn000.addValue(StringEscapeUtils.unescapeJava(v.image));
               }
             case ALPHANUMERIC:{
               v = jj_consume_token(ALPHANUMERIC);
+              break;
+              }
+            case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
+              v = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
               break;
               }
             default:
@@ -530,7 +540,7 @@ if (jjtc000) {
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x18000088,0x18000080,0x38000000,0x38000000,0x1000000,0x39000000,0x19000000,0x19000000,0x20,0x18000080,0x18000000,0x19000000,0x18000000,0x19000000,0x19000000,0x19000000,0x20,0x18000080,};
+	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x18000088,0x18000080,0x38000000,0x38000000,0x1000000,0x39000000,0x19000000,0x19000000,0x20,0x18000080,0x38000000,0x39000000,0x38000000,0x39000000,0x19000000,0x19000000,0x20,0x18000080,};
 	}
 	private static void jj_la1_init_1() {
 	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};

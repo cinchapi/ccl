@@ -181,12 +181,12 @@ void RelationalExpression() #RelationalExpression :
   (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<BINARY_OPERATOR> { jjtThis.operator(o.image);}
   (
-      (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC>) { jjtThis.addValue(v.image); }
+      (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
     |
       (v=<QUOTED_STRING>) { jjtThis.addValue(StringEscapeUtils.unescapeJava(v.image)); }
   )
   (
-      (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC>) { jjtThis.addValue(v.image); }
+      (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
     |
       (v=<QUOTED_STRING>) { jjtThis.addValue(StringEscapeUtils.unescapeJava(v.image)); }
   )
