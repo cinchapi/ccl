@@ -993,7 +993,7 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
-    public void testQuotedValueWithQuote() {
+    public void testQuotedValueWithinQuotedString() {
         String ccl = "name = \"Javier \\\"Lores\"";
 
         // Generate tree
@@ -1008,6 +1008,25 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("Javier \"Lores",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testNonQuoteEscapedValueWithinQuoteString() {
+        String ccl = "name = \"Javier \\\"\\@Lores\"";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("Javier \"\\@Lores",
                 expression.values().get(0).toString());
     }
 
