@@ -1045,7 +1045,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("\\@name",
+        Assert.assertEquals("@name",
                 expression.values().get(0).toString());
     }
 

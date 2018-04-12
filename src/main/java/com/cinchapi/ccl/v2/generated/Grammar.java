@@ -266,7 +266,7 @@ jjtn000.operator(o.image);
               jj_consume_token(-1);
               throw new ParseException();
             }
-jjtn000.appendValue(v.image);
+jjtn000.appendValue(v.image.replace("\\@", "@"));
             switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
             case SIGNED_DECIMAL:
             case ALPHANUMERIC:
@@ -393,7 +393,7 @@ jjtn000.operator(o.image);
               jj_consume_token(-1);
               throw new ParseException();
             }
-jjtn000.addValue(v.image);
+jjtn000.addValue(v.image.replace("\\@", "@"));
             break;
             }
           case QUOTED_STRING:{
@@ -428,7 +428,7 @@ jjtn000.addValue(StringEscapeUtils.unescapeJava(v.image));
               jj_consume_token(-1);
               throw new ParseException();
             }
-jjtn000.addValue(v.image);
+jjtn000.addValue(v.image.replace("\\@", "@"));
             break;
             }
           case QUOTED_STRING:{
