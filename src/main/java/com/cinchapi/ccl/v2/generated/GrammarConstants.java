@@ -74,8 +74,6 @@ public interface GrammarConstants {
   int DIGIT = 33;
   /** RegularExpression Id. */
   int PERIOD = 34;
-  /** RegularExpression Id. */
-  int ESCAPE = 35;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -102,9 +100,9 @@ public interface GrammarConstants {
     "<LESS_THAN_OR_EQUALS>",
     "<LINKS_TO>",
     "\"regex\"",
-    "\"nregex\"",
+    "<NOT_REGEX>",
     "\"like\"",
-    "\"nlike\"",
+    "<NOT_LIKE>",
     "<BETWEEN>",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
@@ -117,7 +115,6 @@ public interface GrammarConstants {
     "<LETTER>",
     "<DIGIT>",
     "\".\"",
-    "\"\\\\\"",
     "\"\\n\"",
   };
 
