@@ -175,11 +175,6 @@ void RelationalExpression() #Expression :
     String value1;
     String value2;
     String timestamp;
-    String key;
-    String operator;
-    String value1;
-    String value2;
-    String timestamp;
 }
 {
     key=Key()
@@ -222,8 +217,8 @@ String UnaryValue() :
   ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   { return value.replace("\\@", "@"); }
     |
-  (value=<QUOTED_STRING>)
-  { return value.replace("\\\"", "\""); }
+  (word=<QUOTED_STRING>)
+  { return word.image.replace("\\\"", "\""); }
 }
 
 String BinaryValue() :
@@ -260,10 +255,6 @@ String Timestamp() :
   String timestamp = "";
 }
 {
-  LOOKAHEAD(2)
-  (<TIMESTAMP> ((word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+)?
+  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+)?
   { return timestamp; }
-    |
-  (<TIMESTAMP> (word=<QUOTED_STRING>))?
-  { return word.image.replace("\\\"", "\""); }
 }
