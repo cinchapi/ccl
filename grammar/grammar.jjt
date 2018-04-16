@@ -105,9 +105,9 @@ TOKEN :
 {
   < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
 |
-  < DOUBLE_QUOTED_STRING : "\"" (~["\""])+ "\"">
+  < DOUBLE_QUOTED_STRING : "\"" ("\\" ~[] | ~["\"", "\\"])+ "\"" >
 |
-  < SINGLE_QUOTED_STRING : "'" (~["'"])+ "'">
+  < SINGLE_QUOTED_STRING : "'" ("\\" ~[] | ~["'", "\\"])+ "'" >
 |
   < SIGNED_DECIMAL : (("-")? ( (<DIGIT>)+|(<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
 |
@@ -122,10 +122,7 @@ TOKEN :
   < #DIGIT: ["0"-"9"] >
 |
   < #PERIOD: "." >
-|
-  < #ESCAPE: "\\" >
 }
-
 
 /** Main production. */
 ASTStart Start() #Start : {}
@@ -172,12 +169,33 @@ void RelationalExpression() #RelationalExpression :
 
   (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<UNARY_OPERATOR> { jjtThis.operator(o.image);}
-  ((v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.appendValue(v.image); })+
-  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
+  (
+    ((v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+        {
+          jjtThis.appendValue(v.image.replace("\\@", "@"));
+        })+
+      |
+    ((v=<QUOTED_STRING>) { jjtThis.appendValue(v.image.replace("\\\"", "\"")); })+
+  )
+  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 |
   (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<BINARY_OPERATOR> { jjtThis.operator(o.image);}
-  (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
-  (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
-  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
+  (
+      (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+        {
+          jjtThis.addValue(v.image.replace("\\@", "@"));
+        }
+    |
+      (v=<QUOTED_STRING>) { jjtThis.addValue(v.image.replace("\\\"", "\"")); }
+  )
+  (
+      (v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+        {
+          jjtThis.addValue(v.image.replace("\\@", "@"));
+        }
+    |
+      (v=<QUOTED_STRING>) { jjtThis.addValue(v.image.replace("\\\"", "\"")); }
+  )
+  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 }
