@@ -148,7 +148,7 @@ public class GrammarTest {
     }
 
     @Test
-    public void validLink() throws UnsupportedEncodingException, ParseException {
+    public void validImplicitLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = @name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
@@ -157,10 +157,19 @@ public class GrammarTest {
     }
 
     @Test
-    public void validEscapedLink() throws UnsupportedEncodingException, ParseException {
+    public void validImplicitEscapedLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = \\@name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+
+    @Test
+    public void validLink() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a -> 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
         grammar.Start();
     }
@@ -182,8 +191,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void validOperatorEnum() throws UnsupportedEncodingException, ParseException {
-        String ccl = "a LINKS_TO b";
+    public void OperatorEnum() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a LINKS_TO 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
         grammar.Start();
@@ -230,6 +239,14 @@ public class GrammarTest {
         String ccl = "and a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test (expected = ParseException.class)
+    public void invalidLink() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a LINKS_TO b";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
         grammar.Start();
     }

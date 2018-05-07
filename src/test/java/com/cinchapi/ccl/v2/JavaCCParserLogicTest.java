@@ -1050,7 +1050,7 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
-    public void validEscapedLink() {
+    public void validEscapedImplicitLink() {
         String ccl = "name = \\@name";
 
         // Generate tree
@@ -1065,6 +1065,44 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("@name",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void validLink() {
+        String ccl = "name -> 30";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("LINKS_TO", expression.operator().toString());
+        Assert.assertEquals("30",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void validOperatorEnum() {
+        String ccl = "name LINKS_TO 30";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("LINKS_TO", expression.operator().toString());
+        Assert.assertEquals("30",
                 expression.values().get(0).toString());
     }
 
