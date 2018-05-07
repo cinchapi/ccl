@@ -148,7 +148,7 @@ repositories {
   }
 }
 
-ext.concourseVersion = '0.7.2'
+ext.concourseVersion = '0.8.2'
 
 dependencies {
   compile 'com.google.code.findbugs:jsr305:2.0.1'
@@ -160,7 +160,7 @@ dependencies {
   compile 'joda-time:joda-time:2.2'
 
   testCompile 'junit:junit:4.11'
-  testCompile (group: 'com.cinchapi', name: 'concourse-driver-java', version: '0.8.2') {
+  testCompile (group: 'com.cinchapi', name: 'concourse-driver-java', version: concourseVersion) {
   	exclude group: 'com.cinchapi', module: 'ccl'
   }
 }
