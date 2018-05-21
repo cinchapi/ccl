@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 2.4.0 (TBD)
+#### Version 2.4.0 (May 21, 2018)
 * Added support for escaping special characters in value tokens.
 * Added enforcement within the `v2` parser that ensures that the `LINKS_TO` operator is followed by a numeric token.
 
