@@ -2,6 +2,7 @@
 
 #### Version 2.4.0 (TBD)
 * Added support for escaping special characters in value tokens.
+* Added enforcement within the `v2` parser that ensures that the `LINKS_TO` operator is followed by a numeric token.
 
 #### Version 2.3.3 (March 26, 2018)
 * Fixed a bug that caused the `v2` parser to fail to parse CCL statements containing operator tokens named after their respective enums (e.g. `LINKS_TO` instead of `lnks2`).
