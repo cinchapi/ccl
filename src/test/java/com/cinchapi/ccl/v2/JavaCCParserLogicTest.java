@@ -35,7 +35,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -974,7 +973,6 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
-    @Ignore
     public void testQuotedValue() {
         String ccl = "name = \"Javier Lores\"";
 
@@ -989,7 +987,121 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("\"Javier Lores\"",
+        Assert.assertEquals("Javier Lores",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testQuotedValueWithinQuotedString() {
+        String ccl = "name = \"Javier \\\"Lores\"";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("Javier \"Lores",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testNonQuoteEscapedValueWithinQuoteString() {
+        String ccl = "name = \"Javier \\\"\\@Lores\"";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("Javier \"\\@Lores",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void validEscapedLocalResolution() {
+        String ccl = "name = \\$name";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("$name",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void validEscapedImplicitLink() {
+        String ccl = "name = \\@name";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("@name",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void validLink() {
+        String ccl = "name -> 30";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("LINKS_TO", expression.operator().toString());
+        Assert.assertEquals("30",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void validOperatorEnum() {
+        String ccl = "name LINKS_TO 30";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("LINKS_TO", expression.operator().toString());
+        Assert.assertEquals("30",
                 expression.values().get(0).toString());
     }
 

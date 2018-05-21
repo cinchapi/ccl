@@ -67,7 +67,7 @@ public class GrammarTest {
     }
 
     @Test (expected = ParseException.class)
-    public void TooManyOperandsBinaryOperator() throws UnsupportedEncodingException, ParseException {
+    public void tooManyOperandsBinaryOperator() throws UnsupportedEncodingException, ParseException {
         String ccl = "a >< 1 2 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
@@ -121,6 +121,15 @@ public class GrammarTest {
     }
 
     @Test
+    public void validQuotedValueWithQuote() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name = \"wood\\\"ford\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test
     public void validLocalResolution() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = $name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
@@ -128,7 +137,6 @@ public class GrammarTest {
         Grammar grammar = new Grammar(stream);
         grammar.Start();
     }
-
 
     @Test
     public void validEscapedLocalResolution() throws UnsupportedEncodingException, ParseException {
@@ -140,10 +148,28 @@ public class GrammarTest {
     }
 
     @Test
-    public void validLink() throws UnsupportedEncodingException, ParseException {
+    public void validImplicitLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = @name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test
+    public void validImplicitEscapedLink() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name = \\@name";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+
+    @Test
+    public void validLink() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a -> 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
         grammar.Start();
     }
@@ -165,8 +191,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void validOperatorEnum() throws UnsupportedEncodingException, ParseException {
-        String ccl = "a LINKS_TO b";
+    public void operatorEnum() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a LINKS_TO 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
         grammar.Start();
@@ -213,6 +239,14 @@ public class GrammarTest {
         String ccl = "and a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test (expected = ParseException.class)
+    public void invalidLink() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a LINKS_TO b";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
         grammar.Start();
     }

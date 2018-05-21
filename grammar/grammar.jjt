@@ -72,7 +72,7 @@ TOKEN [IGNORE_CASE]:
 
 TOKEN [IGNORE_CASE]:
 {
-  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> | <REGEX> | <NOT_REGEX> | <LINKS_TO> | <LIKE> | <NOT_LIKE> >
+  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> | <REGEX> | <NOT_REGEX> | <LIKE> | <NOT_LIKE> >
 |
   < BINARY_OPERATOR: <BETWEEN> >
 |
@@ -88,7 +88,7 @@ TOKEN [IGNORE_CASE]:
 |
   < #LESS_THAN_OR_EQUALS: "<=" | "lte" | "less_than_or_equals" >
 |
-  < #LINKS_TO: "->" | "lnks2" | "lnk2" | "links_to" >
+  < LINKS_TO: "->" | "lnks2" | "lnk2" | "links_to" >
 |
   < #REGEX: "regex" >
 |
@@ -105,11 +105,13 @@ TOKEN :
 {
   < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
 |
-  < DOUBLE_QUOTED_STRING : "\"" (~["\""])+ "\"">
+  < DOUBLE_QUOTED_STRING : "\"" ("\\" ~[] | ~["\"", "\\"])+ "\"" >
 |
-  < SINGLE_QUOTED_STRING : "'" (~["'"])+ "'">
+  < SINGLE_QUOTED_STRING : "'" ("\\" ~[] | ~["'", "\\"])+ "'" >
 |
-  < SIGNED_DECIMAL : (("-")? ( (<DIGIT>)+|(<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
+  < SIGNED_DECIMAL : (("-")? ((<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
+|
+  < NUMERIC: (<DIGIT>)+ >
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
@@ -122,10 +124,7 @@ TOKEN :
   < #DIGIT: ["0"-"9"] >
 |
   < #PERIOD: "." >
-|
-  < #ESCAPE: "\\" >
 }
-
 
 /** Main production. */
 ASTStart Start() #Start : {}
@@ -170,14 +169,43 @@ void RelationalExpression() #RelationalExpression :
 {
   LOOKAHEAD(2)
 
-  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
-  o=<UNARY_OPERATOR> { jjtThis.operator(o.image);}
-  ((v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.appendValue(v.image); })+
-  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
+  (
+    (
+      o=<LINKS_TO> { jjtThis.operator(o.image); } v=<NUMERIC> { jjtThis.appendValue(v.image); }
+    )
+  |
+    (
+      o=<UNARY_OPERATOR> { jjtThis.operator(o.image);}
+      (
+        ((v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+            {
+              jjtThis.appendValue(v.image.replace("\\@", "@"));
+            })+
+          |
+        ((v=<QUOTED_STRING>) { jjtThis.appendValue(v.image.replace("\\\"", "\"")); })+
+      )
+    )
+  )
+  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<NUMERIC> | t=<ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 |
-  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
   o=<BINARY_OPERATOR> { jjtThis.operator(o.image);}
-  (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
-  (v=<QUOTED_STRING> | v=<SIGNED_DECIMAL> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.addValue(v.image); }
-  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<ALPHANUMERIC> | t=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
+  (
+      (v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+        {
+          jjtThis.addValue(v.image.replace("\\@", "@"));
+        }
+    |
+      (v=<QUOTED_STRING>) { jjtThis.addValue(v.image.replace("\\\"", "\"")); }
+  )
+  (
+      (v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+        {
+          jjtThis.addValue(v.image.replace("\\@", "@"));
+        }
+    |
+      (v=<QUOTED_STRING>) { jjtThis.addValue(v.image.replace("\\\"", "\"")); }
+  )
+  (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<NUMERIC> | t=<ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 }
