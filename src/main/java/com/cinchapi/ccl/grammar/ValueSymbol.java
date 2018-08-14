@@ -15,6 +15,9 @@
  */
 package com.cinchapi.ccl.grammar;
 
+import com.cinchapi.concourse.Tag;
+import com.cinchapi.concourse.util.Strings;
+
 /**
  * A {@link Symbol} that contains a value.;
  *
@@ -35,6 +38,12 @@ public final class ValueSymbol extends BaseSymbol {
             // as indicators of an encoded Tag. This case would happen if the
             // user manually placed text wrapped in backticks in the Criteria
             // instead of using the #Tag.create() method.
+            return "\"" + value + "\"";
+        }
+        else if((value instanceof String || value instanceof Tag)
+                && Strings.tryParseNumberStrict(value.toString()) != null) {
+            // CON-628: Must wrap numeric strings/tags within quotes so they are
+            // re-interpreted as the original type
             return "\"" + value + "\"";
         }
         else {
