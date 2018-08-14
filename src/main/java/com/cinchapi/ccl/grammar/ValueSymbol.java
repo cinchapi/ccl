@@ -15,8 +15,8 @@
  */
 package com.cinchapi.ccl.grammar;
 
+import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.concourse.Tag;
-import com.cinchapi.concourse.util.Strings;
 
 /**
  * A {@link Symbol} that contains a value.;
@@ -41,7 +41,7 @@ public final class ValueSymbol extends BaseSymbol {
             return "\"" + value + "\"";
         }
         else if((value instanceof String || value instanceof Tag)
-                && Strings.tryParseNumberStrict(value.toString()) != null) {
+                && AnyStrings.tryParseNumberStrict(value.toString()) != null) {
             // CON-628: Must wrap numeric strings/tags within quotes so they are
             // re-interpreted as the original type
             return "\"" + value + "\"";
