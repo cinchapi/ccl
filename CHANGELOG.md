@@ -1,5 +1,8 @@
 # Changelog
 
+#### Version 2.4.1 (August 14, 2018)
+* Fixed a bug that caused both the `v1` and `v2` parsers to mishandle numeric `String` and `Tag` values. These values were treated as numbers instead of their actual type. This made it possible for queries containing those values to return inaccurate results.
+
 #### Version 2.4.0 (May 21, 2018)
 * Added support for escaping special characters in value tokens.
 * Added enforcement within the `v2` parser that ensures that the `LINKS_TO` operator is followed by a numeric token.
