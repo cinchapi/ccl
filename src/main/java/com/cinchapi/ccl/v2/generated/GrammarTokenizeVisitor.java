@@ -18,7 +18,6 @@ package com.cinchapi.ccl.v2.generated;
 import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
