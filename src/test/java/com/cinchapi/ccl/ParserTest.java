@@ -35,6 +35,7 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.common.reflect.Reflection;
+import com.cinchapi.concourse.Tag;
 import com.cinchapi.concourse.lang.Criteria;
 import com.cinchapi.concourse.thrift.Operator;
 import com.cinchapi.concourse.time.Time;
@@ -232,7 +233,7 @@ public abstract class ParserTest {
                 .value(2).or().key("c")
                 .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
                 .value(3).build();
-        String ccl = "a = 1 and b = 2 or c = 3";
+        String ccl = "a = '1' and b = 2 or c = 3";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
                 Parsing.toPostfixNotation(
@@ -263,7 +264,7 @@ public abstract class ParserTest {
     public void testParseCclBetweenWithBothReferences() {
         Criteria criteria = Criteria.where().key("age")
                 .operator(com.cinchapi.concourse.thrift.Operator.BETWEEN)
-                .value("30").value("35").build();
+                .value(30).value(35).build();
         String ccl = "where age bw $age $retireAge";
         Multimap<String, Object> data = LinkedHashMultimap.create();
         data.put("name", "Lebron James");
@@ -281,7 +282,7 @@ public abstract class ParserTest {
     public void testParseCclBetweenWithFirstReference() {
         Criteria criteria = Criteria.where().key("age")
                 .operator(com.cinchapi.concourse.thrift.Operator.BETWEEN)
-                .value("30").value("100").build();
+                .value(30).value(100).build();
         String ccl = "where age bw $age 100";
         Multimap<String, Object> data = LinkedHashMultimap.create();
         data.put("name", "Lebron James");
@@ -298,7 +299,7 @@ public abstract class ParserTest {
     public void testParseCclBetweenWithSecondReference() {
         Criteria criteria = Criteria.where().key("age")
                 .operator(com.cinchapi.concourse.thrift.Operator.BETWEEN)
-                .value("5").value("30").build();
+                .value(5).value(30).build();
         String ccl = "where age bw 5 $age";
         Multimap<String, Object> data = LinkedHashMultimap.create();
         data.put("name", "Lebron James");
@@ -699,7 +700,7 @@ public abstract class ParserTest {
     public void testToPostfixNotationAndOr() {
         Criteria criteria = Criteria.where().key("a")
                 .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
-                .value("1").and().key("b")
+                .value(1).and().key("b")
                 .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
                 .value(2).or().key("c")
                 .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
@@ -975,6 +976,48 @@ public abstract class ParserTest {
         Parser parser = createParser(ccl);
         Assert.assertEquals("Atlanta (HQ)",
                 ((Expression) parser.order().poll()).raw().values().get(0));
+    }
+
+    @Test
+    public void testParseNumericString() {
+        Criteria criteria = Criteria.where().key("foo")
+                .operator(Operator.EQUALS).value("17").build();
+        Parser parser = createParser(criteria.getCclString());
+        List<Symbol> tokens = parser.tokenize();
+        for (Symbol token : tokens) {
+            if(token instanceof ValueSymbol) {
+                Assert.assertEquals(String.class,
+                        ((ValueSymbol) token).value().getClass());
+            }
+        }
+    }
+
+    @Test
+    public void testParseNumericTag() {
+        Criteria criteria = Criteria.where().key("foo")
+                .operator(Operator.EQUALS).value(Tag.create("17")).build();
+        Parser parser = createParser(criteria.getCclString());
+        List<Symbol> tokens = parser.tokenize();
+        for (Symbol token : tokens) {
+            if(token instanceof ValueSymbol) {
+                Assert.assertEquals(String.class,
+                        ((ValueSymbol) token).value().getClass());
+            }
+        }
+    }
+
+    @Test
+    public void testParseNumericNumber() {
+        Criteria criteria = Criteria.where().key("foo")
+                .operator(Operator.EQUALS).value(17).build();
+        Parser parser = createParser(criteria.getCclString());
+        List<Symbol> tokens = parser.tokenize();
+        for (Symbol token : tokens) {
+            if(token instanceof ValueSymbol) {
+                Assert.assertEquals(Integer.class,
+                        ((ValueSymbol) token).value().getClass());
+            }
+        }
     }
 
     protected abstract Parser createParser(String ccl);
