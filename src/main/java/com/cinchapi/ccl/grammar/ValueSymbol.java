@@ -44,7 +44,9 @@ public final class ValueSymbol extends BaseSymbol {
                 && AnyStrings.tryParseNumberStrict(value.toString()) != null) {
             // CON-628: Must wrap numeric strings/tags within quotes so they are
             // re-interpreted as the original type
-            return "\"" + value + "\"";
+            char wrap = value instanceof String ? '"' : '`';
+            return new StringBuilder().append(wrap).append(value).append(wrap)
+                    .toString();
         }
         else {
             return value;

@@ -1000,7 +1000,7 @@ public abstract class ParserTest {
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
-                Assert.assertEquals(String.class,
+                Assert.assertEquals(Tag.class,
                         ((ValueSymbol) token).value().getClass());
             }
         }
