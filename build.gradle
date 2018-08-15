@@ -78,6 +78,7 @@ bintray {
     name = project.name
     publish = true
     userOrg = 'cinchapi'
+    override = true
     version {
       name = mavenVersion
       released = new Date()
