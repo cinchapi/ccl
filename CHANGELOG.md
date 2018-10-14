@@ -1,5 +1,8 @@
 # Changelog
 
+#### Version 2.5.0 (TBD)
+* Added the `Parser#evaluate` method that performs local evaluation of the parsed query on an input dataset.
+
 #### Version 2.4.1 (August 14, 2018)
 * Fixed a bug that caused both the `v1` and `v2` parsers to mishandle numeric `String` and `Tag` values. These values were treated as numbers instead of their actual type. This made it possible for queries containing those values to return inaccurate results.
 

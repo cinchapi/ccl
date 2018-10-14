@@ -38,8 +38,6 @@ import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Array;
 import com.cinchapi.common.base.Verify;
-import com.cinchapi.concourse.thrift.TObject;
-import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
