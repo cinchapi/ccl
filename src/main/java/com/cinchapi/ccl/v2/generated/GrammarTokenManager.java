@@ -3,12 +3,14 @@
 package com.cinchapi.ccl.v2.generated;
 
 /** Token Manager. */
+@SuppressWarnings("unused")
 public class GrammarTokenManager implements GrammarConstants {
 
   /** Debug output. */
   public  java.io.PrintStream debugStream = System.out;
   /** Set debug output. */
   public  void setDebugStream(java.io.PrintStream ds) { debugStream = ds; }
+@SuppressWarnings("unused")
 private int jjStopAtPos(int pos, int kind)
 {
    jjmatchedKind = kind;
@@ -1351,6 +1353,7 @@ static final long[] jjtoMore = {
     private final int[] jjstateSet = new int[2 * 182];
     private final StringBuilder jjimage = new StringBuilder();
     private StringBuilder image = jjimage;
+    
     private int jjimageLen;
     private int lengthOfMatch;
     protected int curChar;
