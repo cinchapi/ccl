@@ -141,7 +141,7 @@ public abstract class Parser {
      * as input and returns a boolean that indicates whether
      */
     @Nullable
-    private final TriFunction<Object, Operator, List<Object>, Boolean> evaluator;
+    private final LocalEvaluator evaluator;
 
     /**
      * A boolean that indicates whether this {@link Parser} supports local
@@ -156,11 +156,13 @@ public abstract class Parser {
      * @param data
      */
     public Parser(String ccl, Multimap<String, Object> data,
-            @Nullable TriFunction<Object, Operator, List<Object>, Boolean> evaluator) {
+            @Nullable TriFunction<Object, Operator, List<Object>, Boolean> localEvaluationFunction) {
         this.ccl = ccl;
         this.data = data;
-        this.evaluator = evaluator;
-        this.supportsLocalEvaluation = evaluator != null;
+        this.evaluator = localEvaluationFunction != null
+                ? new LocalEvaluator(localEvaluationFunction)
+                : null;
+        this.supportsLocalEvaluation = localEvaluationFunction != null;
     }
 
     /**
@@ -234,8 +236,9 @@ public abstract class Parser {
      *         been parsed
      */
     public boolean evaluate(Multimap<String, Object> data) {
-        Verify.that(supportsLocalEvaluation);
-        return parse().accept(new Evaluator(), data);
+        Verify.that(supportsLocalEvaluation,
+                "This Parser does not support local evaluation");
+        return parse().accept(evaluator, data);
     }
 
     /**
@@ -334,7 +337,22 @@ public abstract class Parser {
      *
      * @author Jeff Nelson
      */
-    private class Evaluator implements Visitor<Boolean> {
+    private class LocalEvaluator implements Visitor<Boolean> {
+
+        /**
+         * The evaluation function.
+         */
+        private final TriFunction<Object, Operator, List<Object>, Boolean> function;
+
+        /**
+         * Construct a new instance.
+         * 
+         * @param function
+         */
+        public LocalEvaluator(
+                TriFunction<Object, Operator, List<Object>, Boolean> function) {
+            this.function = function;
+        }
 
         @Override
         public Boolean visit(ConjunctionTree tree, Object... data) {
@@ -369,7 +387,7 @@ public abstract class Parser {
             List<Object> values = expression.raw().values();
             boolean matches = false;
             for (Object stored : dataset.get(key)) {
-                if(evaluator.apply(stored, operator, values)) {
+                if(function.apply(stored, operator, values)) {
                     matches = true;
                     break;
                 }
