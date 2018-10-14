@@ -63,8 +63,28 @@ public abstract class Parser {
     public static Parser create(String ccl,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
+        return create(ccl, valueTransformFunction, operatorTransformFunction,
+                null);
+    }
+
+    /**
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
+     *
+     * @param ccl the ccl query to parse
+     * @param valueTransformFunction value function
+     * @param operatorTransformFunction operator function
+     * @param localEvaluationFunction a {@link TriFunction} that takes a value
+     *            and determine whether it satisfies an {@link Operator} in
+     *            relation to a list of other values
+     * @return the {@link Parser}
+     */
+    public static Parser create(String ccl,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction,
+            TriFunction<Object, Operator, List<Object>, Boolean> localEvaluationFunction) {
         return new JavaCCParser(ccl, valueTransformFunction,
-                operatorTransformFunction, null);
+                operatorTransformFunction, localEvaluationFunction);
     }
 
     /**
@@ -81,8 +101,30 @@ public abstract class Parser {
     public static Parser create(String ccl, Multimap<String, Object> data,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
-        return new JavaCCParser(ccl, data, valueTransformFunction,
+        return create(ccl, data, valueTransformFunction,
                 operatorTransformFunction, null);
+    }
+
+    /**
+     * Return a new {@link Parser} for the {@code ccl} statement that uses the
+     * {@code data} for location resolution and the
+     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
+     * 
+     * @param ccl
+     * @param data
+     * @param valueTransformFunction
+     * @param operatorTransformFunction
+     * @param localEvaluationFunction a {@link TriFunction} that takes a value
+     *            and determine whether it satisfies an {@link Operator} in
+     *            relation to a list of other values
+     * @return the {@link Parser}
+     */
+    public static Parser create(String ccl, Multimap<String, Object> data,
+            Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction,
+            TriFunction<Object, Operator, List<Object>, Boolean> localEvaluationFunction) {
+        return new JavaCCParser(ccl, data, valueTransformFunction,
+                operatorTransformFunction, localEvaluationFunction);
     }
 
     /**
