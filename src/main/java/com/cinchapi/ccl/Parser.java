@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -36,8 +35,8 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.common.base.Array;
 import com.cinchapi.common.base.Verify;
+import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -138,14 +137,30 @@ public abstract class Parser {
     protected final Multimap<String, Object> data;
 
     /**
+     * An (optional) {@link TriFunction} that takes a value and {@link Operator}
+     * as input and returns a boolean that indicates whether
+     */
+    @Nullable
+    private final TriFunction<Object, Operator, List<Object>, Boolean> evaluator;
+
+    /**
+     * A boolean that indicates whether this {@link Parser} supports local
+     * evaluation.
+     */
+    private final boolean supportsLocalEvaluation;
+
+    /**
      * Construct a new instance.
      * 
      * @param ccl
      * @param data
      */
-    public Parser(String ccl, Multimap<String, Object> data) {
+    public Parser(String ccl, Multimap<String, Object> data,
+            @Nullable TriFunction<Object, Operator, List<Object>, Boolean> evaluator) {
         this.ccl = ccl;
         this.data = data;
+        this.evaluator = evaluator;
+        this.supportsLocalEvaluation = evaluator != null;
     }
 
     /**
@@ -219,7 +234,8 @@ public abstract class Parser {
      *         been parsed
      */
     public boolean evaluate(Multimap<String, Object> data) {
-        return parse().accept(Evaluator.instance(), data);
+        Verify.that(supportsLocalEvaluation);
+        return parse().accept(new Evaluator(), data);
     }
 
     /**
@@ -318,21 +334,7 @@ public abstract class Parser {
      *
      * @author Jeff Nelson
      */
-    private static class Evaluator implements Visitor<Boolean> {
-
-        /**
-         * Singleton.
-         */
-        public static Evaluator INSTANCE = new Evaluator();
-
-        /**
-         * Return the {@link Evaluator} instance.
-         * 
-         * @return the evaluator
-         */
-        public static Evaluator instance() {
-            return INSTANCE;
-        }
+    private class Evaluator implements Visitor<Boolean> {
 
         @Override
         public Boolean visit(ConjunctionTree tree, Object... data) {
@@ -364,14 +366,10 @@ public abstract class Parser {
             Expression expression = ((Expression) tree.root());
             String key = expression.raw().key();
             Operator operator = expression.raw().operator();
-            TObject[] values = expression.raw().values().stream()
-                    .map(Convert::javaToThrift).collect(Collectors.toList())
-                    .toArray(Array.containing());
+            List<Object> values = expression.raw().values();
             boolean matches = false;
             for (Object stored : dataset.get(key)) {
-                TObject value = Convert.javaToThrift(stored);
-                if(value.is(Convert.stringToOperator(operator.symbol()),
-                        values)) {
+                if(evaluator.apply(stored, operator, values)) {
                     matches = true;
                     break;
                 }
