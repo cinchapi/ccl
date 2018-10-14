@@ -23,6 +23,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +47,7 @@ import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.QuoteAwareStringSplitter;
 import com.cinchapi.common.base.SplitOption;
 import com.cinchapi.common.base.StringSplitter;
+import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -81,8 +83,9 @@ final class ConcourseParser extends Parser {
      */
     protected ConcourseParser(String ccl, Multimap<String, Object> data,
             Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction) {
-        super(ccl, data);
+            Function<String, Operator> operatorTransformFunction,
+            @Nullable TriFunction<Object, Operator, List<Object>, Boolean> localEvaluationFunction) {
+        super(ccl, data, localEvaluationFunction);
         this.valueTransformFunction = valueTransformFunction;
         this.operatorTransformFunction = operatorTransformFunction;
     }

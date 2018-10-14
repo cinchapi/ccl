@@ -64,7 +64,7 @@ public abstract class Parser {
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
         return new JavaCCParser(ccl, valueTransformFunction,
-                operatorTransformFunction);
+                operatorTransformFunction, null);
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class Parser {
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
         return new JavaCCParser(ccl, data, valueTransformFunction,
-                operatorTransformFunction);
+                operatorTransformFunction, null);
     }
 
     /**
@@ -123,7 +123,7 @@ public abstract class Parser {
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
         return new ConcourseParser(ccl, data, valueTransformFunction,
-                operatorTransformFunction);
+                operatorTransformFunction, null);
     }
 
     /**
