@@ -16,6 +16,7 @@
 package com.cinchapi.ccl;
 
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,6 +26,10 @@ import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.common.base.Array;
+import com.cinchapi.concourse.thrift.TObject;
+import com.cinchapi.concourse.util.Convert;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 /**
@@ -59,6 +64,59 @@ public class JavaCCParserTest extends AbstractParserTest {
                 new OperatorSymbol(
                         com.cinchapi.concourse.thrift.Operator.EQUALS),
                 new ValueSymbol("jeff")), parser.order().peek());
+    }
+
+    @Test
+    public void testLocalEvaluationAnd() {
+        String ccl = "a > 1 AND b bw 10 15";
+        Parser parser = Parser.create(ccl, Convert::stringToJava,
+                Convert::stringToOperator, (value, operator, values) -> {
+                    TObject tvalue = Convert.javaToThrift(value);
+                    TObject[] tvalues = values.stream()
+                            .map(Convert::javaToThrift)
+                            .collect(Collectors.toList())
+                            .toArray(Array.containing());
+                    com.cinchapi.concourse.thrift.Operator toperator = Convert
+                            .stringToOperator(operator.symbol());
+                    return tvalue.is(toperator, tvalues);
+                });
+        Multimap<String, Object> passes = ImmutableMultimap.of("a", 5, "b", 12,
+                "c", 4, "a", -1);
+        Assert.assertTrue(parser.evaluate(passes));
+        Multimap<String, Object> fails = ImmutableMultimap.of("a", 1, "b", 12,
+                "c", 4, "a", -1);
+        Assert.assertFalse(parser.evaluate(fails));
+        Multimap<String, Object> missing = ImmutableMultimap.of("a", 1, "c", 4,
+                "a", -1);
+        Assert.assertFalse(parser.evaluate(missing));
+    }
+    
+    @Test
+    public void testLocalEvaluationOr() {
+        String ccl = "a > 1 OR b bw 10 15";
+        Parser parser = Parser.create(ccl, Convert::stringToJava,
+                Convert::stringToOperator, (value, operator, values) -> {
+                    TObject tvalue = Convert.javaToThrift(value);
+                    TObject[] tvalues = values.stream()
+                            .map(Convert::javaToThrift)
+                            .collect(Collectors.toList())
+                            .toArray(Array.containing());
+                    com.cinchapi.concourse.thrift.Operator toperator = Convert
+                            .stringToOperator(operator.symbol());
+                    return tvalue.is(toperator, tvalues);
+                });
+        Multimap<String, Object> a = ImmutableMultimap.of("a", 5, "b", 12,
+                "c", 4, "a", -1);
+        Assert.assertTrue(parser.evaluate(a));
+        Multimap<String, Object> b = ImmutableMultimap.of("a", 1, "b", 12,
+                "c", 4, "a", -1);
+        Assert.assertTrue(parser.evaluate(b));
+        Multimap<String, Object> c = ImmutableMultimap.of("a", 2, "c", 4,
+                "a", -1);
+        Assert.assertTrue(parser.evaluate(c));
+        Multimap<String, Object> d = ImmutableMultimap.of("a", 1, "c", 4,
+                "a", -1);
+        Assert.assertFalse(parser.evaluate(d));
     }
 
 }
