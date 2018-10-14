@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 2.5.0 (TBD)
+#### Version 2.5.0 (October 14, 2018)
 * Added the `Parser#evaluate` method that performs local evaluation of the parsed query on an input dataset.
 
 #### Version 2.4.1 (August 14, 2018)
