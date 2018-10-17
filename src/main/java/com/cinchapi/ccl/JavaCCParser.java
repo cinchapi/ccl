@@ -10,7 +10,6 @@ import com.cinchapi.ccl.v2.generated.GrammarTokenizeVisitor;
 import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
 import com.cinchapi.ccl.v2.generated.SimpleNode;
 import com.cinchapi.common.function.TriFunction;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
@@ -79,9 +78,8 @@ public class JavaCCParser extends Parser {
                     null);
         }
         catch (Exception exception) {
-            Throwables.propagate(exception);
+            throw new PropagatedSyntaxException(exception, this);
         }
-        return null;
     }
 
     @Override
@@ -95,10 +93,9 @@ public class JavaCCParser extends Parser {
             GrammarTreeVisitor visitor = new GrammarTreeVisitor(this, data);
             return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
         }
-        catch (Exception exception) {
-            Throwables.propagate(exception);
+        catch (Exception exception) {            
+            throw new PropagatedSyntaxException(exception, this);
         }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -115,9 +112,8 @@ public class JavaCCParser extends Parser {
             return (List<Symbol>) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            Throwables.propagate(exception);
+            throw new PropagatedSyntaxException(exception, this);
         }
-        return null;
     }
 
     @Override
