@@ -270,6 +270,15 @@ public abstract class Parser {
     }
 
     /**
+     * Return the CCL statement that was parsed.
+     * 
+     * @return the CCL
+     */
+    public String ccl() {
+        return ccl;
+    }
+
+    /**
      * Return {@code true} if the {@code data} is described by the criteria
      * which has been parsed by this {@link Parser}.
      * 
