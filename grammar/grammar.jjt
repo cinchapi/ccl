@@ -29,12 +29,15 @@ import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.BaseKeySymbol;
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.MetaAttributeKeySymbol;
+import com.cinchapi.ccl.grammar.MetaAttributeValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
@@ -162,9 +165,11 @@ TOKEN :
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
+  < POUND: "#" >
+|
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~["_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
+  < #NON_ALPHANUMERIC: ~["_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "=", "#"] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
@@ -235,12 +240,20 @@ void RelationalExpression() #Expression :
 
 BaseKeySymbol Key() :
 {
-  Token word;
-  String key = "";
+  Token key;
+  Token attribute;
+  Token function;
 }
 {
-    ((word=<RESERVED_IDENTIFIER> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC>) { key += (key.equals("")) ? word.image : " " + word.image; })+
-    { return new KeySymbol(key); }
+  (
+    LOOKAHEAD(2)
+
+      (key=<SIGNED_INTEGER><POUND> attribute=<ALPHANUMERIC> | key=<SIGNED_DECIMAL><POUND> attribute=<ALPHANUMERIC>  | key=<ALPHANUMERIC><POUND> attribute=<ALPHANUMERIC> )
+      { return new MetaAttributeKeySymbol(key.image, attribute.image); }
+    |
+      (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
+      { return new KeySymbol(key.image); }
+  )
 }
 
 BaseValueSymbol UnaryValue() :
@@ -253,6 +266,9 @@ BaseValueSymbol UnaryValue() :
   (
     LOOKAHEAD(2)
 
+    (word=<SIGNED_INTEGER><POUND> attribute=<ALPHANUMERIC> | word=<SIGNED_DECIMAL><POUND> attribute=<ALPHANUMERIC>  | word=<ALPHANUMERIC><POUND> attribute=<ALPHANUMERIC> )
+    { return new MetaAttributeValueSymbol(word.image, attribute.image); }
+  |
     ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
     {
       value = value.replace("\\@", "@");
@@ -289,10 +305,11 @@ BaseValueSymbol BinaryValue() :
   String value = "";
 }
 {
+  LOOKAHEAD(2)
   (
     (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
     {
-      value = word.image;
+      value = word.image.replace("\\@", "@");
       if(value.charAt(0) == '$') {
           String var = value.substring(1);
           try {
