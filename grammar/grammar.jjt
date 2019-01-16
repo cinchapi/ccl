@@ -56,9 +56,9 @@ public class Grammar {
                 Function<String, Object> valueTransformFunction,
                 Function<String, Operator> operatorTransformFunction) {
         this(stream, null);
-        this.data = null;
         this.valueTransformFunction = valueTransformFunction;
         this.operatorTransformFunction = operatorTransformFunction;
+        this.data = null;
     }
 
     public Grammar(java.io.InputStream stream,
@@ -66,9 +66,9 @@ public class Grammar {
                 Function<String, Operator> operatorTransformFunction,
                 Multimap<String, Object> data) {
         this(stream, null);
-        this.data = data;
         this.valueTransformFunction = valueTransformFunction;
         this.operatorTransformFunction = operatorTransformFunction;
+        this.data = data;
     }
 
     public Operator transformOperator(String token) {
