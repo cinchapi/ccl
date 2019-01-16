@@ -16,10 +16,6 @@
 package com.cinchapi.ccl.syntax;
 
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.type.Operator;
-import com.google.common.collect.Multimap;
-
-import java.util.function.Function;
 
 /**
  * An abstraction for an expression node in a {@link AbstractSyntaxTree}
