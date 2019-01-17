@@ -89,8 +89,8 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, this.valueTransformFunction,
-                    this.operatorTransformFunction, this.data);
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data);
 
             AbstractSyntaxTree tree = grammar.generateAST();
 
@@ -132,8 +132,8 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, this.valueTransformFunction,
-                    this.operatorTransformFunction, this.data);
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data);
 
             AbstractSyntaxTree tree = grammar.generateAST();
 
@@ -175,8 +175,8 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, this.valueTransformFunction,
-                    this.operatorTransformFunction, this.data);
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data);
             AbstractSyntaxTree tree = grammar.generateAST();
 
             Visitor visitor = new Visitor<List<Symbol>>() {
