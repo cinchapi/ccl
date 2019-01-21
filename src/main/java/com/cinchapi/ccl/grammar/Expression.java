@@ -32,7 +32,8 @@ import com.google.common.collect.Lists;
  * 
  * @author Jeff Nelson
  */
-public class Expression extends BaseSymbol implements PostfixNotationSymbol {
+public class Expression extends BaseSymbol implements PostfixNotationSymbol,
+        BaseExpression {
 
     private final BaseKeySymbol key;
     private final OperatorSymbol operator;
@@ -77,6 +78,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
      * 
      * @return the key
      */
+    @Override
     public BaseKeySymbol key() {
         return key;
     }
@@ -86,17 +88,20 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
      * 
      * @return the operator
      */
+    @Override
     public OperatorSymbol operator() {
         return operator;
     }
 
+
     /**
-     * Return the raw symbol {@link Content}.
-     * 
-     * @return the raw symbol content
+     * Return the values associated with this {@link Expression}.
+     *
+     * @return the values
      */
-    public Content raw() {
-        return content;
+    @Override
+    public List<BaseValueSymbol> values() {
+        return Lists.newArrayList(values);
     }
 
     /**
@@ -104,6 +109,7 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
      * 
      * @return the timestamp
      */
+    @Override
     public TimestampSymbol timestamp() {
         return timestamp;
     }
@@ -121,12 +127,12 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
     }
 
     /**
-     * Return the values associated with this {@link Expression}.
-     * 
-     * @return the values
+     * Return the raw symbol {@link Content}.
+     *
+     * @return the raw symbol content
      */
-    public List<BaseValueSymbol> values() {
-        return Lists.newArrayList(values);
+    public Content raw() {
+        return content;
     }
 
     /**
@@ -179,5 +185,4 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
         }
 
     }
-
 }

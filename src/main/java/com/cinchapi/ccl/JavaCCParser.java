@@ -89,7 +89,8 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
+            Grammar grammar = new Grammar(stream, this.valueTransformFunction,
+                    this.operatorTransformFunction, this.data);
 
             AbstractSyntaxTree tree = grammar.generateAST();
 
@@ -115,8 +116,6 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Queue<PostfixNotationSymbol> visit(ExpressionTree tree, Object... data) {
-                    tree.build(valueTransformFunction, operatorTransformFunction,
-                            JavaCCParser.this.data);
                     symbols.add((PostfixNotationSymbol) tree.root());
                     return symbols;
                 }
@@ -133,7 +132,8 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
+            Grammar grammar = new Grammar(stream, this.valueTransformFunction,
+                    this.operatorTransformFunction, this.data);
 
             AbstractSyntaxTree tree = grammar.generateAST();
 
@@ -159,8 +159,6 @@ public class JavaCCParser extends Parser {
                 @Override
                 public AbstractSyntaxTree visit(ExpressionTree tree,
                         Object... data) {
-                   tree.build(valueTransformFunction, operatorTransformFunction,
-                           JavaCCParser.this.data);
                    return tree;
                 }
             };
@@ -177,7 +175,8 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
+            Grammar grammar = new Grammar(stream, this.valueTransformFunction,
+                    this.operatorTransformFunction, this.data);
             AbstractSyntaxTree tree = grammar.generateAST();
 
             Visitor visitor = new Visitor<List<Symbol>>() {
@@ -233,8 +232,6 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public List<Symbol> visit(ExpressionTree tree, Object... data) {
-                    tree.build(valueTransformFunction, operatorTransformFunction,
-                            JavaCCParser.this.data);;
                     Expression expression = (Expression) tree.root();
 
                     symbols.add(expression.key());

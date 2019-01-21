@@ -62,12 +62,6 @@ public class ConcourseExpressionTree extends BaseAbstractSyntaxTree implements
     }
 
     @Override
-    public void build(Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction,
-            Multimap<String, Object> data) {
-    }
-
-    @Override
     public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
     }

@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.type.Operator;
-import com.google.common.collect.Multimap;
-
-import java.util.function.Function;
+import java.util.List;
 
 /**
- * An abstraction for an expression node in a {@link AbstractSyntaxTree}
+ * An {@link BaseExpression} describes a query operation
+ * on a key with respect to one or more values (e.g. key = value, key >=
+ * value, etc) at a certain timestamp.
  */
-public interface ExpressionTree extends AbstractSyntaxTree {
-    public Symbol root();
+public interface BaseExpression {
+    public BaseKeySymbol key();
+    public OperatorSymbol operator();
+    public List<BaseValueSymbol> values();
+    public TimestampSymbol timestamp();
 }
