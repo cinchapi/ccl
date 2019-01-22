@@ -129,6 +129,9 @@ public class ASTExpression extends SimpleNode implements ExpressionTree {
 
     @Override
     public Symbol root() {
+        if (expression == null) {
+            throw new IllegalStateException("Expression not built. First call ASTExpression.build method");
+        }
         return expression;
     }
 
