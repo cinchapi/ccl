@@ -305,7 +305,6 @@ BaseValueSymbol BinaryValue() :
   String value = "";
 }
 {
-  LOOKAHEAD(2)
   (
     (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
     {
