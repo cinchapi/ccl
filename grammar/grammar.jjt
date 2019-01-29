@@ -240,7 +240,7 @@ String BinaryValue() :
 }
 {
   (
-    (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<META_ATTRIBUTE> | word=<ESCAPED_META_ATTRIBUTE> | word=<VALID_MISSING_META_ATTRIBUTE>)
+    (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<META_ATTRIBUTE> | word=<ESCAPED_META_ATTRIBUTE> | word=<VALID_MISSING_META_ATTRIBUTE>)
     {
       return word.image.replace("\\@", "@");
     }

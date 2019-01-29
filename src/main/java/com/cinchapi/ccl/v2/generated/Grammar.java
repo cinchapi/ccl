@@ -38,28 +38,28 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
         ;
       }
       DisjunctionExpression();
-      jj_consume_token(36);
+      jj_consume_token(40);
 jjtree.closeNodeScope(jjtn000, true);
-    jjtc000 = false;
+     jjtc000 = false;
 {if ("" != null) return jjtn000;}
     } catch (Throwable jjte000) {
 if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      {if (true) throw (RuntimeException)jjte000;}
-    }
-    if (jjte000 instanceof ParseException) {
-      {if (true) throw (ParseException)jjte000;}
-    }
-    {if (true) throw (Error)jjte000;}
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       {if (true) throw (RuntimeException)jjte000;}
+     }
+     if (jjte000 instanceof ParseException) {
+       {if (true) throw (ParseException)jjte000;}
+     }
+     {if (true) throw (Error)jjte000;}
     } finally {
 if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
+       jjtree.closeNodeScope(jjtn000, true);
+     }
     }
     throw new Error("Missing return statement in function");
 }
@@ -227,6 +227,7 @@ if (jjtc001) {
       break;
       }
     case RESERVED_IDENTIFIER:
+    case META_ATTRIBUTE:
     case SIGNED_INTEGER:
     case SIGNED_DECIMAL:
     case ALPHANUMERIC:{
@@ -243,11 +244,11 @@ if (jjtc001) {
   final public void RelationalExpression() throws ParseException {/*@bgen(jjtree) Expression */
     ASTExpression jjtn000 = new ASTExpression(JJTEXPRESSION);
     boolean jjtc000 = true;
-    jjtree.openNodeScope(jjtn000);String key;
-    String operator;
-    String value1;
-    String value2;
-    String timestamp;
+    jjtree.openNodeScope(jjtn000);String key = null;
+    String operator = null;
+    String value1 = null;
+    String value2 = null;
+    String timestamp = null;
     try {
       key = Key();
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -255,24 +256,12 @@ if (jjtc001) {
         operator = LinksToOperator();
         value1 = LinksToValue();
         timestamp = Timestamp();
-jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-jjtn000.key(key);
-            jjtn000.operator(operator);
-            jjtn000.addValue(value1);
-            jjtn000.timestamp(timestamp);
         break;
         }
       case UNARY_OPERATOR:{
         operator = UnaryOperator();
         value1 = UnaryValue();
         timestamp = Timestamp();
-jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-jjtn000.key(key);
-            jjtn000.operator(operator);
-            jjtn000.addValue(value1);
-            jjtn000.timestamp(timestamp);
         break;
         }
       case BINARY_OPERATOR:{
@@ -280,13 +269,6 @@ jjtn000.key(key);
         value1 = BinaryValue();
         value2 = BinaryValue();
         timestamp = Timestamp();
-jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-jjtn000.key(key);
-            jjtn000.operator(operator);
-            jjtn000.addValue(value1);
-            jjtn000.addValue(value2);
-            jjtn000.timestamp(timestamp);
         break;
         }
       default:
@@ -294,6 +276,13 @@ jjtn000.key(key);
         jj_consume_token(-1);
         throw new ParseException();
       }
+jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+jjtn000.key(key);
+          jjtn000.operator(operator);
+          jjtn000.addValue(value1);
+          if(value2 != null) jjtn000.addValue(value2);
+          if(timestamp != null) jjtn000.timestamp(timestamp);
     } catch (Throwable jjte000) {
 if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -315,47 +304,34 @@ if (jjtc000) {
     }
 }
 
-  final public String Key() throws ParseException {Token word;
-  String key = "";
-    label_3:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case RESERVED_IDENTIFIER:{
-        word = jj_consume_token(RESERVED_IDENTIFIER);
-        break;
-        }
-      case SIGNED_INTEGER:{
-        word = jj_consume_token(SIGNED_INTEGER);
-        break;
-        }
-      case SIGNED_DECIMAL:{
-        word = jj_consume_token(SIGNED_DECIMAL);
-        break;
-        }
-      case ALPHANUMERIC:{
-        word = jj_consume_token(ALPHANUMERIC);
-        break;
-        }
-      default:
-        jj_la1[6] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
+  final public String Key() throws ParseException {Token key;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case META_ATTRIBUTE:{
+      key = jj_consume_token(META_ATTRIBUTE);
+      break;
       }
-key += (key.equals("")) ? word.image : " " + word.image;
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case RESERVED_IDENTIFIER:
-      case SIGNED_INTEGER:
-      case SIGNED_DECIMAL:
-      case ALPHANUMERIC:{
-        ;
-        break;
-        }
-      default:
-        jj_la1[7] = jj_gen;
-        break label_3;
+    case RESERVED_IDENTIFIER:{
+      key = jj_consume_token(RESERVED_IDENTIFIER);
+      break;
       }
+    case SIGNED_INTEGER:{
+      key = jj_consume_token(SIGNED_INTEGER);
+      break;
+      }
+    case SIGNED_DECIMAL:{
+      key = jj_consume_token(SIGNED_DECIMAL);
+      break;
+      }
+    case ALPHANUMERIC:{
+      key = jj_consume_token(ALPHANUMERIC);
+      break;
+      }
+    default:
+      jj_la1[6] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
     }
-{if ("" != null) return key;}
+{if ("" != null) return key.image;}
     throw new Error("Missing return statement in function");
 }
 
@@ -368,12 +344,15 @@ key += (key.equals("")) ? word.image : " " + word.image;
   final public String UnaryValue() throws ParseException {Token word;
   String value = "";
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case ESCAPED_META_ATTRIBUTE:
+    case META_ATTRIBUTE:
+    case VALID_MISSING_META_ATTRIBUTE:
     case NUMERIC:
     case SIGNED_INTEGER:
     case SIGNED_DECIMAL:
     case ALPHANUMERIC:
     case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
-      label_4:
+      label_3:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case SIGNED_INTEGER:{
@@ -396,16 +375,39 @@ key += (key.equals("")) ? word.image : " " + word.image;
           word = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
           break;
           }
+        case META_ATTRIBUTE:{
+          word = jj_consume_token(META_ATTRIBUTE);
+          break;
+          }
+        case ESCAPED_META_ATTRIBUTE:{
+          word = jj_consume_token(ESCAPED_META_ATTRIBUTE);
+          break;
+          }
+        case VALID_MISSING_META_ATTRIBUTE:{
+          word = jj_consume_token(VALID_MISSING_META_ATTRIBUTE);
+          break;
+          }
         default:
-          jj_la1[8] = jj_gen;
+          jj_la1[7] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
 value += (value.equals("")) ? word.image : " " + word.image;
-        if (jj_2_1(2)) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case ESCAPED_META_ATTRIBUTE:
+        case META_ATTRIBUTE:
+        case VALID_MISSING_META_ATTRIBUTE:
+        case NUMERIC:
+        case SIGNED_INTEGER:
+        case SIGNED_DECIMAL:
+        case ALPHANUMERIC:
+        case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
           ;
-        } else {
-          break label_4;
+          break;
+          }
+        default:
+          jj_la1[8] = jj_gen;
+          break label_3;
         }
       }
 {if ("" != null) return value.replace("\\@", "@");}
@@ -424,8 +426,11 @@ value += (value.equals("")) ? word.image : " " + word.image;
     throw new Error("Missing return statement in function");
 }
 
-  final public String BinaryValue() throws ParseException {Token value;
+  final public String BinaryValue() throws ParseException {Token word;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case ESCAPED_META_ATTRIBUTE:
+    case META_ATTRIBUTE:
+    case VALID_MISSING_META_ATTRIBUTE:
     case NUMERIC:
     case SIGNED_INTEGER:
     case SIGNED_DECIMAL:
@@ -433,23 +438,35 @@ value += (value.equals("")) ? word.image : " " + word.image;
     case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case SIGNED_INTEGER:{
-        value = jj_consume_token(SIGNED_INTEGER);
+        word = jj_consume_token(SIGNED_INTEGER);
         break;
         }
       case SIGNED_DECIMAL:{
-        value = jj_consume_token(SIGNED_DECIMAL);
+        word = jj_consume_token(SIGNED_DECIMAL);
         break;
         }
       case NUMERIC:{
-        value = jj_consume_token(NUMERIC);
+        word = jj_consume_token(NUMERIC);
         break;
         }
       case ALPHANUMERIC:{
-        value = jj_consume_token(ALPHANUMERIC);
+        word = jj_consume_token(ALPHANUMERIC);
         break;
         }
       case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
-        value = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
+        word = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
+        break;
+        }
+      case META_ATTRIBUTE:{
+        word = jj_consume_token(META_ATTRIBUTE);
+        break;
+        }
+      case ESCAPED_META_ATTRIBUTE:{
+        word = jj_consume_token(ESCAPED_META_ATTRIBUTE);
+        break;
+        }
+      case VALID_MISSING_META_ATTRIBUTE:{
+        word = jj_consume_token(VALID_MISSING_META_ATTRIBUTE);
         break;
         }
       default:
@@ -457,12 +474,12 @@ value += (value.equals("")) ? word.image : " " + word.image;
         jj_consume_token(-1);
         throw new ParseException();
       }
-{if ("" != null) return value.image;}
+{if ("" != null) return word.image.replace("\\@", "@");}
       break;
       }
     case QUOTED_STRING:{
-      value = jj_consume_token(QUOTED_STRING);
-{if ("" != null) return value.image.replace("\\\"", "\"");}
+      word = jj_consume_token(QUOTED_STRING);
+{if ("" != null) return word.image.replace("\\\"", "\"");}
       break;
       }
     default:
@@ -496,7 +513,7 @@ value += (value.equals("")) ? word.image : " " + word.image;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TIMESTAMP:{
       jj_consume_token(TIMESTAMP);
-      label_5:
+      label_4:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case QUOTED_STRING:{
@@ -541,7 +558,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
           }
         default:
           jj_la1[13] = jj_gen;
-          break label_5;
+          break label_4;
         }
       }
       break;
@@ -554,34 +571,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     throw new Error("Missing return statement in function");
 }
 
-  private boolean jj_2_1(int xla)
- {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return (!jj_3_1()); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(0, xla); }
-  }
-
-  private boolean jj_3_1()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(28)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(29)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(27)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(30)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(31)) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
   /** Generated Token Manager. */
   public GrammarTokenManager token_source;
   SimpleCharStream jj_input_stream;
@@ -590,8 +579,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
   /** Next token. */
   public Token jj_nt;
   private int jj_ntk;
-  private Token jj_scanpos, jj_lastpos;
-  private int jj_la;
   private int jj_gen;
   final private int[] jj_la1 = new int[15];
   static private int[] jj_la1_0;
@@ -601,14 +588,11 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x70000088,0x40c00,0x70000080,0x70000080,0xf8000000,0xf9000000,0xf8000000,0xf9000000,0xf9000000,0xf9000000,0x20,};
+	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x90000088,0x40c00,0x90000080,0xf8000000,0xf8000000,0xf9000000,0xf8000000,0xf9000000,0xc1000000,0xc1000000,0x20,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x3,0x0,0x3,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x0,};
 	}
-  final private JJCalls[] jj_2_rtns = new JJCalls[1];
-  private boolean jj_rescan = false;
-  private int jj_gc = 0;
 
   /** Constructor with InputStream. */
   public Grammar(java.io.InputStream stream) {
@@ -622,7 +606,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	 jj_ntk = -1;
 	 jj_gen = 0;
 	 for (int i = 0; i < 15; i++) jj_la1[i] = -1;
-	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Reinitialise. */
@@ -638,7 +621,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	 jjtree.reset();
 	 jj_gen = 0;
 	 for (int i = 0; i < 15; i++) jj_la1[i] = -1;
-	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Constructor. */
@@ -649,7 +631,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	 jj_ntk = -1;
 	 jj_gen = 0;
 	 for (int i = 0; i < 15; i++) jj_la1[i] = -1;
-	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Reinitialise. */
@@ -669,7 +650,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	 jjtree.reset();
 	 jj_gen = 0;
 	 for (int i = 0; i < 15; i++) jj_la1[i] = -1;
-	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Constructor with generated Token Manager. */
@@ -679,7 +659,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	 jj_ntk = -1;
 	 jj_gen = 0;
 	 for (int i = 0; i < 15; i++) jj_la1[i] = -1;
-	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Reinitialise. */
@@ -690,7 +669,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	 jjtree.reset();
 	 jj_gen = 0;
 	 for (int i = 0; i < 15; i++) jj_la1[i] = -1;
-	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -700,45 +678,11 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	 jj_ntk = -1;
 	 if (token.kind == kind) {
 	   jj_gen++;
-	   if (++jj_gc > 100) {
-		 jj_gc = 0;
-		 for (int i = 0; i < jj_2_rtns.length; i++) {
-		   JJCalls c = jj_2_rtns[i];
-		   while (c != null) {
-			 if (c.gen < jj_gen) c.first = null;
-			 c = c.next;
-		   }
-		 }
-	   }
 	   return token;
 	 }
 	 token = oldToken;
 	 jj_kind = kind;
 	 throw generateParseException();
-  }
-
-  @SuppressWarnings("serial")
-  static private final class LookaheadSuccess extends java.lang.Error { }
-  final private LookaheadSuccess jj_ls = new LookaheadSuccess();
-  private boolean jj_scan_token(int kind) {
-	 if (jj_scanpos == jj_lastpos) {
-	   jj_la--;
-	   if (jj_scanpos.next == null) {
-		 jj_lastpos = jj_scanpos = jj_scanpos.next = token_source.getNextToken();
-	   } else {
-		 jj_lastpos = jj_scanpos = jj_scanpos.next;
-	   }
-	 } else {
-	   jj_scanpos = jj_scanpos.next;
-	 }
-	 if (jj_rescan) {
-	   int i = 0; Token tok = token;
-	   while (tok != null && tok != jj_scanpos) { i++; tok = tok.next; }
-	   if (tok != null) jj_add_error_token(kind, i);
-	 }
-	 if (jj_scanpos.kind != kind) return true;
-	 if (jj_la == 0 && jj_scanpos == jj_lastpos) throw jj_ls;
-	 return false;
   }
 
 
@@ -771,51 +715,11 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
   private java.util.List<int[]> jj_expentries = new java.util.ArrayList<int[]>();
   private int[] jj_expentry;
   private int jj_kind = -1;
-  private int[] jj_lasttokens = new int[100];
-  private int jj_endpos;
-
-  private void jj_add_error_token(int kind, int pos) {
-	 if (pos >= 100) {
-		return;
-	 }
-
-	 if (pos == jj_endpos + 1) {
-	   jj_lasttokens[jj_endpos++] = kind;
-	 } else if (jj_endpos != 0) {
-	   jj_expentry = new int[jj_endpos];
-
-	   for (int i = 0; i < jj_endpos; i++) {
-		 jj_expentry[i] = jj_lasttokens[i];
-	   }
-
-	   for (int[] oldentry : jj_expentries) {
-		 if (oldentry.length == jj_expentry.length) {
-		   boolean isMatched = true;
-
-		   for (int i = 0; i < jj_expentry.length; i++) {
-			 if (oldentry[i] != jj_expentry[i]) {
-			   isMatched = false;
-			   break;
-			 }
-
-		   }
-		   if (isMatched) {
-			 jj_expentries.add(jj_expentry);
-			 break;
-		   }
-		 }
-	   }
-
-	   if (pos != 0) {
-		 jj_lasttokens[(jj_endpos = pos) - 1] = kind;
-	   }
-	 }
-  }
 
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[37];
+	 boolean[] la1tokens = new boolean[41];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -832,16 +736,13 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 37; i++) {
+	 for (int i = 0; i < 41; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;
 		 jj_expentries.add(jj_expentry);
 	   }
 	 }
-	 jj_endpos = 0;
-	 jj_rescan_token();
-	 jj_add_error_token(0, 0);
 	 int[][] exptokseq = new int[jj_expentries.size()][];
 	 for (int i = 0; i < jj_expentries.size(); i++) {
 	   exptokseq[i] = jj_expentries.get(i);
@@ -863,46 +764,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 
   /** Disable tracing. */
   final public void disable_tracing() {
-  }
-
-  private void jj_rescan_token() {
-	 jj_rescan = true;
-	 for (int i = 0; i < 1; i++) {
-	   try {
-		 JJCalls p = jj_2_rtns[i];
-
-		 do {
-		   if (p.gen > jj_gen) {
-			 jj_la = p.arg; jj_lastpos = jj_scanpos = p.first;
-			 switch (i) {
-			   case 0: jj_3_1(); break;
-			 }
-		   }
-		   p = p.next;
-		 } while (p != null);
-
-		 } catch(LookaheadSuccess ls) { }
-	 }
-	 jj_rescan = false;
-  }
-
-  private void jj_save(int index, int xla) {
-	 JJCalls p = jj_2_rtns[index];
-	 while (p.gen > jj_gen) {
-	   if (p.next == null) { p = p.next = new JJCalls(); break; }
-	   p = p.next;
-	 }
-
-	 p.gen = jj_gen + xla - jj_la; 
-	 p.first = token;
-	 p.arg = xla;
-  }
-
-  static final class JJCalls {
-	 int gen;
-	 Token first;
-	 int arg;
-	 JJCalls next;
   }
 
 }
