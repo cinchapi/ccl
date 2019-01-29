@@ -109,6 +109,8 @@ TOKEN :
 |
   < SINGLE_QUOTED_STRING : "'" ("\\" ~[] | ~["'", "\\"])+ "'" >
 |
+  < NUMERIC: (<DIGIT>)+ >
+|
   < SIGNED_INTEGER : (("-" | "+")? (<DIGIT>)+) >
 |
   < SIGNED_DECIMAL : (("-" | "+")?  (<DIGIT>)+<PERIOD>(<DIGIT>)+ ) >
@@ -174,6 +176,14 @@ void RelationalExpression() #Expression :
 {
     key=Key()
       (
+        operator=LinksToOperator() value1=LinksToValue() timestamp=Timestamp()
+        {
+            jjtThis.key(key);
+            jjtThis.operator(operator);
+            jjtThis.addValue(value1);
+            jjtThis.timestamp(timestamp);
+         }
+      |
         operator=UnaryOperator() value1=UnaryValue() timestamp=Timestamp()
         {
             jjtThis.key(key);
@@ -203,13 +213,22 @@ String Key() :
     { return key; }
 }
 
+String LinksToValue() :
+{
+  Token word;
+}
+{
+  (word=<NUMERIC>)
+  { return word.image; }
+}
+
 String UnaryValue() :
 {
   Token word;
   String value = "";
 }
 {
-  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   { return value.replace("\\@", "@"); }
     |
   (word=<QUOTED_STRING>)
@@ -221,11 +240,19 @@ String BinaryValue() :
   Token value;
 }
 {
-  (value=<SIGNED_INTEGER> | value=<SIGNED_DECIMAL> | value=<ALPHANUMERIC> | value=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+  (value=<SIGNED_INTEGER> | value=<SIGNED_DECIMAL> | value=<NUMERIC> | value=<ALPHANUMERIC> | value=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
   { return value.image; }
     |
   (value=<QUOTED_STRING>)
   { return value.image.replace("\\\"", "\""); }
+}
+
+String LinksToOperator() :
+{
+  Token operator;
+}
+{
+  operator=<LINKS_TO> { return operator.image; }
 }
 
 String UnaryOperator() :
@@ -250,6 +277,6 @@ String Timestamp() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+)?
+  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+)?
   { return timestamp; }
 }

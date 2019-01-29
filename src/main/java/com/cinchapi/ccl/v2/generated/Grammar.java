@@ -38,7 +38,7 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
         ;
       }
       DisjunctionExpression();
-      jj_consume_token(35);
+      jj_consume_token(36);
 jjtree.closeNodeScope(jjtn000, true);
      jjtc000 = false;
 {if ("" != null) return jjtn000;}
@@ -251,6 +251,18 @@ if (jjtc001) {
     try {
       key = Key();
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case LINKS_TO:{
+        operator = LinksToOperator();
+        value1 = LinksToValue();
+        timestamp = Timestamp();
+jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+jjtn000.key(key);
+            jjtn000.operator(operator);
+            jjtn000.addValue(value1);
+            jjtn000.timestamp(timestamp);
+        break;
+        }
       case UNARY_OPERATOR:{
         operator = UnaryOperator();
         value1 = UnaryValue();
@@ -347,9 +359,16 @@ key += (key.equals("")) ? word.image : " " + word.image;
     throw new Error("Missing return statement in function");
 }
 
+  final public String LinksToValue() throws ParseException {Token word;
+    word = jj_consume_token(NUMERIC);
+{if ("" != null) return word.image;}
+    throw new Error("Missing return statement in function");
+}
+
   final public String UnaryValue() throws ParseException {Token word;
   String value = "";
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case NUMERIC:
     case SIGNED_INTEGER:
     case SIGNED_DECIMAL:
     case ALPHANUMERIC:
@@ -363,6 +382,10 @@ key += (key.equals("")) ? word.image : " " + word.image;
           }
         case SIGNED_DECIMAL:{
           word = jj_consume_token(SIGNED_DECIMAL);
+          break;
+          }
+        case NUMERIC:{
+          word = jj_consume_token(NUMERIC);
           break;
           }
         case ALPHANUMERIC:{
@@ -403,6 +426,7 @@ value += (value.equals("")) ? word.image : " " + word.image;
 
   final public String BinaryValue() throws ParseException {Token value;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case NUMERIC:
     case SIGNED_INTEGER:
     case SIGNED_DECIMAL:
     case ALPHANUMERIC:
@@ -414,6 +438,10 @@ value += (value.equals("")) ? word.image : " " + word.image;
         }
       case SIGNED_DECIMAL:{
         value = jj_consume_token(SIGNED_DECIMAL);
+        break;
+        }
+      case NUMERIC:{
+        value = jj_consume_token(NUMERIC);
         break;
         }
       case ALPHANUMERIC:{
@@ -442,6 +470,12 @@ value += (value.equals("")) ? word.image : " " + word.image;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
+}
+
+  final public String LinksToOperator() throws ParseException {Token operator;
+    operator = jj_consume_token(LINKS_TO);
+{if ("" != null) return operator.image;}
     throw new Error("Missing return statement in function");
 }
 
@@ -477,6 +511,10 @@ value += (value.equals("")) ? word.image : " " + word.image;
           word = jj_consume_token(SIGNED_DECIMAL);
           break;
           }
+        case NUMERIC:{
+          word = jj_consume_token(NUMERIC);
+          break;
+          }
         case ALPHANUMERIC:{
           word = jj_consume_token(ALPHANUMERIC);
           break;
@@ -493,6 +531,7 @@ value += (value.equals("")) ? word.image : " " + word.image;
 timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case QUOTED_STRING:
+        case NUMERIC:
         case SIGNED_INTEGER:
         case SIGNED_DECIMAL:
         case ALPHANUMERIC:
@@ -527,13 +566,16 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
  {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_scan_token(27)) {
-    jj_scanpos = xsp;
     if (jj_scan_token(28)) {
     jj_scanpos = xsp;
     if (jj_scan_token(29)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(30)) return true;
+    if (jj_scan_token(27)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(30)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(31)) return true;
+    }
     }
     }
     }
@@ -559,7 +601,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x38000088,0xc00,0x38000080,0x38000080,0x78000000,0x79000000,0x78000000,0x79000000,0x79000000,0x79000000,0x20,};
+	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x70000088,0x40c00,0x70000080,0x70000080,0xf8000000,0xf9000000,0xf8000000,0xf9000000,0xf9000000,0xf9000000,0x20,};
 	}
 	private static void jj_la1_init_1() {
 	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
@@ -773,7 +815,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[36];
+	 boolean[] la1tokens = new boolean[37];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -790,7 +832,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 36; i++) {
+	 for (int i = 0; i < 37; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;
