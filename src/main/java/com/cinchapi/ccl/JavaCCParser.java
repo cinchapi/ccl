@@ -21,21 +21,15 @@ import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.BaseConjunctionTree;
-import com.cinchapi.ccl.syntax.BaseExpressionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.Visitor;
+
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
-import com.cinchapi.ccl.v2.generated.SimpleNode;
 import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Multimap;
 
 import java.io.ByteArrayInputStream;
@@ -157,8 +151,8 @@ public class JavaCCParser extends Parser {
                 @Override
                 public AbstractSyntaxTree visit(ConjunctionTree tree,
                         Object... data) {
-                    AbstractSyntaxTree left = tree.left().accept(this, data);
-                    AbstractSyntaxTree right = tree.right().accept(this, data);
+                    tree.left().accept(this, data);
+                    tree.right().accept(this, data);
                     return tree;
                 }
 
@@ -208,8 +202,7 @@ public class JavaCCParser extends Parser {
                     }
                     else if (tree.root().equals(ConjunctionSymbol.AND)) {
                         boolean parenthesis = false;
-                        if (tree.left().root() != null &&
-                                tree.left().root().equals(ConjunctionSymbol.OR)) {
+                        if (tree.left() instanceof OrTree) {
                             symbols.add(ParenthesisSymbol.LEFT);
                             parenthesis = true;
                         }
@@ -223,8 +216,7 @@ public class JavaCCParser extends Parser {
 
                         symbols.add(ConjunctionSymbol.AND);
 
-                        if (tree.right().root() != null &&
-                                tree.right().root().equals(ConjunctionSymbol.OR)) {
+                        if (tree.right() instanceof OrTree) {
                             symbols.add(ParenthesisSymbol.LEFT);
                             parenthesis = true;
                         }
