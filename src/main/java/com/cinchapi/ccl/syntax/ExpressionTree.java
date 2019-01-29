@@ -15,11 +15,16 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.type.Operator;
+import com.google.common.collect.Multimap;
+
+import java.util.function.Function;
 
 /**
  * An abstraction for an expression node in a {@link AbstractSyntaxTree}
  */
 public interface ExpressionTree extends AbstractSyntaxTree {
-    public Symbol root();
+    void build(Function<String, Object> valueTransformFunction,
+            Function<String, Operator> operatorTransformFunction,
+            Multimap<String, Object> data);
 }

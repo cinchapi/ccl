@@ -20,6 +20,8 @@ import com.cinchapi.ccl.grammar.BaseKeySymbol;
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.MetaAttributeKeySymbol;
+import com.cinchapi.ccl.grammar.MetaAttributeValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
@@ -141,31 +143,52 @@ public class ASTExpression extends SimpleNode implements ExpressionTree {
             Function<String, Operator> operatorTransformFunction,
             Multimap<String, Object> data) {
 
-        BaseKeySymbol key = new KeySymbol(this.key);
+        BaseKeySymbol key;
+        if (this.key.contains("#")) {
+            key = new MetaAttributeKeySymbol(
+                    this.key.substring(0, this.key.indexOf("#")),
+                    this.key.substring(this.key.indexOf("#")+1));
+        }
+        else {
+            key = new KeySymbol(this.key);
+        }
+
         OperatorSymbol operator = new OperatorSymbol(operatorTransformFunction.apply(this.operator));
         List<BaseValueSymbol> values = Lists.newArrayList();
 
         for(String value : this.values) {
-            if(value.charAt(0) == '$') {
-                String var = value.substring(1);
-                try {
-                    value = Iterables.getOnlyElement(data.get(var)).toString();
-                }
-                catch (IllegalArgumentException e) {
-                    String err = "Unable to resolve variable {} because multiple values exist locally: {}";
-                    throw new SyntaxException(AnyStrings.format(err, value, data.get(var)));
-                }
-                catch (NoSuchElementException e) {
-                    String err = "Unable to resolve variable {} because no values exist locally";
-                    throw new SyntaxException(AnyStrings.format(err, value));
-                }
-            }
-            else if(value.length() > 2 && value.charAt(0) == '\\'
-                    && value.charAt(1) == '$') {
-                value = value.substring(1);
-            }
+            if (value.contains("#") && !value.contains("\\#")) {
+                values.add (new MetaAttributeValueSymbol(
+                        valueTransformFunction.apply(value.substring(0, value.indexOf("#"))),
+                        value.substring(value.indexOf("#")+1)));
 
-            values.add(new ValueSymbol(valueTransformFunction.apply(value)));
+            }
+            else {
+                // Unescape meta attributes
+                value = value.replace("\\#", "#");
+
+                if(value.charAt(0) == '$') {
+                    String var = value.substring(1);
+                    try {
+                        value = Iterables.getOnlyElement(data.get(var)).toString();
+                    }
+                    catch (IllegalArgumentException e) {
+                        String err = "Unable to resolve variable {} because multiple values exist locally: {}";
+                        throw new SyntaxException(
+                                AnyStrings.format(err, value, data.get(var)));
+                    }
+                    catch (NoSuchElementException e) {
+                        String err = "Unable to resolve variable {} because no values exist locally";
+                        throw new SyntaxException(AnyStrings.format(err, value));
+                    }
+                }
+                else if(value.length() > 2 && value.charAt(0) == '\\'
+                        && value.charAt(1) == '$') {
+                    value = value.substring(1);
+                }
+
+                values.add(new ValueSymbol(valueTransformFunction.apply(value)));
+            }
         }
 
         if (this.timestamp != null && !this.timestamp.trim().isEmpty()) {

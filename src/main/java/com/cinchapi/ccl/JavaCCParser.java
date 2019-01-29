@@ -21,8 +21,10 @@ import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
@@ -82,9 +84,7 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, valueTransformFunction,
-                    operatorTransformFunction, data);
-
+            Grammar grammar = new Grammar(stream);
             AbstractSyntaxTree tree = grammar.generateAST();
 
             Visitor visitor = new Visitor<Queue<PostfixNotationSymbol>>() {
@@ -109,6 +109,8 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Queue<PostfixNotationSymbol> visit(ExpressionTree tree, Object... data) {
+                    tree.build(valueTransformFunction, operatorTransformFunction,
+                            JavaCCParser.this.data);
                     symbols.add((PostfixNotationSymbol) tree.root());
                     return symbols;
                 }
@@ -127,8 +129,7 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, valueTransformFunction,
-                    operatorTransformFunction, data);
+            Grammar grammar = new Grammar(stream);
 
             AbstractSyntaxTree tree = grammar.generateAST();
 
@@ -146,14 +147,16 @@ public class JavaCCParser extends Parser {
                 @Override
                 public AbstractSyntaxTree visit(ConjunctionTree tree,
                         Object... data) {
-                    AbstractSyntaxTree left = tree.left().accept(this, data);
-                    AbstractSyntaxTree right = tree.right().accept(this, data);
+                    tree.left().accept(this, data);
+                    tree.right().accept(this, data);
                     return tree;
                 }
 
                 @Override
                 public AbstractSyntaxTree visit(ExpressionTree tree,
                         Object... data) {
+                    tree.build(valueTransformFunction, operatorTransformFunction,
+                            JavaCCParser.this.data);
                    return tree;
                 }
             };
@@ -171,8 +174,7 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, valueTransformFunction,
-                    operatorTransformFunction, data);
+            Grammar grammar = new Grammar(stream);
             AbstractSyntaxTree tree = grammar.generateAST();
 
             Visitor visitor = new Visitor<List<Symbol>>() {
@@ -190,15 +192,14 @@ public class JavaCCParser extends Parser {
                 @Override
                 public List<Symbol> visit(ConjunctionTree tree, Object... data) {
 
-                    if (tree.root().equals(ConjunctionSymbol.OR)) {
+                    if (tree instanceof OrTree) {
                         tree.left().accept(this, data);
                         symbols.add(tree.root());
                         tree.right().accept(this, data);
                     }
-                    else if (tree.root().equals(ConjunctionSymbol.AND)) {
+                    else if (tree instanceof AndTree) {
                         boolean parenthesis = false;
-                        if (tree.left().root() != null &&
-                                tree.left().root().equals(ConjunctionSymbol.OR)) {
+                        if (tree instanceof OrTree) {
                             symbols.add(ParenthesisSymbol.LEFT);
                             parenthesis = true;
                         }
@@ -212,8 +213,7 @@ public class JavaCCParser extends Parser {
 
                         symbols.add(ConjunctionSymbol.AND);
 
-                        if (tree.right().root() != null &&
-                                tree.right().root().equals(ConjunctionSymbol.OR)) {
+                        if (tree.right() instanceof OrTree) {
                             symbols.add(ParenthesisSymbol.LEFT);
                             parenthesis = true;
                         }
@@ -230,6 +230,8 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public List<Symbol> visit(ExpressionTree tree, Object... data) {
+                    tree.build(valueTransformFunction, operatorTransformFunction,
+                            JavaCCParser.this.data);
                     Expression expression = (Expression) tree.root();
 
                     symbols.add(expression.key());
