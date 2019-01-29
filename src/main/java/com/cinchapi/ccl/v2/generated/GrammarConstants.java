@@ -65,23 +65,25 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int VALID_MISSING_META_ATTRIBUTE = 29;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 30;
+  int NUMERIC = 30;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 31;
+  int SIGNED_INTEGER = 31;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 32;
+  int SIGNED_DECIMAL = 32;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 33;
+  int ALPHANUMERIC = 33;
   /** RegularExpression Id. */
-  int POUND = 34;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 34;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 35;
+  int POUND = 35;
   /** RegularExpression Id. */
-  int LETTER = 36;
+  int NON_ALPHANUMERIC = 36;
   /** RegularExpression Id. */
-  int DIGIT = 37;
+  int LETTER = 37;
   /** RegularExpression Id. */
-  int PERIOD = 38;
+  int DIGIT = 38;
+  /** RegularExpression Id. */
+  int PERIOD = 39;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -118,6 +120,7 @@ public interface GrammarConstants {
     "<ESCAPED_META_ATTRIBUTE>",
     "<META_ATTRIBUTE>",
     "<VALID_MISSING_META_ATTRIBUTE>",
+    "<NUMERIC>",
     "<SIGNED_INTEGER>",
     "<SIGNED_DECIMAL>",
     "<ALPHANUMERIC>",
