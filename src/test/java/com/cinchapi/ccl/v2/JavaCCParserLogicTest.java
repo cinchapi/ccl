@@ -793,15 +793,9 @@ public class JavaCCParserLogicTest {
     @Test
     public void testDisjunctionParenthesizedConjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 and (b = 2 or c = 3)";
-
-        long start = System.nanoTime();
-
+        
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
-
-        long end = System.nanoTime();
-        System.out.println(end-start / 1000000);
-
 
         AbstractSyntaxTree tree = parser.parse();
 
