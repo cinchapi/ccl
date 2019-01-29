@@ -793,7 +793,7 @@ public class JavaCCParserLogicTest {
     @Test
     public void testDisjunctionParenthesizedConjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 and (b = 2 or c = 3)";
-        
+
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
 
@@ -1009,6 +1009,115 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("LINKS_TO", expression.operator().toString());
         Assert.assertEquals("30",
                 expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testMetaAttributeKey() {
+        String ccl = "a#b = 1";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("a#b", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("1", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testMetaAttributeUnaryValue() {
+        String ccl = "a = 2#b";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("a", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("2#b", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testMetaAttributeKeyAndUnaryValue() {
+        String ccl = "a#b = 1#b";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("a#b", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("1#b", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testMetaAttributeKeyAndBinaryValue() {
+        String ccl = "a#b bw 1#b 3#b";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("a#b", expression.key().toString());
+        Assert.assertEquals("><", expression.operator().toString());
+        Assert.assertEquals("1#b", expression.values().get(0).toString());
+        Assert.assertEquals("3#b", expression.values().get(1).toString());
+    }
+
+    @Test
+    public void validUnaryValueWithTerminatingPoundSymbol() {
+        String ccl = "a = 1#";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("a", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("1#", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testValidBackslashEscapedMetaAttributeUnaryValue() {
+        String ccl = "a = 2\\#b";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("a", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("2#b", expression.values().get(0).toString());
     }
 
     @Test

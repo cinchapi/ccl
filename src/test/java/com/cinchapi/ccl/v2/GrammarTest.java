@@ -209,6 +209,70 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void validMetaAttributeKey() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a#b = 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validMetaAttributeUnaryValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 2#b";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validMetaAttributeKeyAndUnaryValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a#b = 1#b";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validMetaAttributeKeyAndBinaryValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a#b bw 1#b 3#b";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validUnaryValueWithTerminatingPoundSymbol() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 2#";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validBackslashEscapedMetaAttributeUnaryValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 2\\#b";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validQuoteEscapedMetaAttributeUnaryValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = \"2#b\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test (expected = ParseException.class)
+    public void missingMetaAttributeKey() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a# = 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
     @Test (expected = ParseException.class)
     public void missingKeyExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "= 1";

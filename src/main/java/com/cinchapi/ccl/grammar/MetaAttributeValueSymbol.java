@@ -20,7 +20,7 @@ package com.cinchapi.ccl.grammar;
  *
  * @author Jeff Nelson
  */
-public final class MetaAttributeValueSymbol extends BaseValueSymbol<String> {
+public final class MetaAttributeValueSymbol extends BaseValueSymbol<Object> {
 
     /**
      * The meta attribute of the value symbol
@@ -32,7 +32,7 @@ public final class MetaAttributeValueSymbol extends BaseValueSymbol<String> {
      *
      * @param value the value
      */
-    public MetaAttributeValueSymbol(String value, String metaAttribute) {
+    public MetaAttributeValueSymbol(Object value, String metaAttribute) {
         super(value);
         this.metaAttribute = metaAttribute;
     }

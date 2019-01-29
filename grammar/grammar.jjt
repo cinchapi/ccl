@@ -109,6 +109,12 @@ TOKEN :
 |
   < SINGLE_QUOTED_STRING : "'" ("\\" ~[] | ~["'", "\\"])+ "'" >
 |
+  < ESCAPED_META_ATTRIBUTE: <SIGNED_INTEGER>"\\"<POUND><ALPHANUMERIC> | <SIGNED_DECIMAL>"\\"<POUND><ALPHANUMERIC>  | <ALPHANUMERIC>"\\"<POUND><ALPHANUMERIC> >
+|
+  < META_ATTRIBUTE: <SIGNED_INTEGER><POUND><ALPHANUMERIC> | <SIGNED_DECIMAL><POUND><ALPHANUMERIC>  | <ALPHANUMERIC><POUND><ALPHANUMERIC> >
+|
+  < VALID_MISSING_META_ATTRIBUTE: <SIGNED_INTEGER><POUND> | <SIGNED_DECIMAL><POUND> | <ALPHANUMERIC><POUND> | <NON_ALPHANUMERIC_AND_ALPHANUMERIC><POUND> >
+|
   < NUMERIC: (<DIGIT>)+ >
 |
   < SIGNED_INTEGER : (("-" | "+")? (<DIGIT>)+) >
@@ -118,6 +124,8 @@ TOKEN :
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
+|
+  < #POUND: "#" >
 |
   < #NON_ALPHANUMERIC: ~["_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
 |
@@ -130,8 +138,8 @@ TOKEN :
 
 ASTStart StartCommandLine() #Start : {}
 {
-  (<WHERE>)? DisjunctionExpression() "\n"
-  { return jjtThis; }
+   (<WHERE>)? DisjunctionExpression() "\n"
+   { return jjtThis; }
 }
 
 ASTStart generateAST() #Start : {}
@@ -167,50 +175,37 @@ void UnaryExpression() : {}
 
 void RelationalExpression() #Expression :
 {
-    String key;
-    String operator;
-    String value1;
-    String value2;
-    String timestamp;
+    String key = null;
+    String operator = null;
+    String value1 = null;
+    String value2 = null;
+    String timestamp = null;
 }
 {
     key=Key()
       (
         operator=LinksToOperator() value1=LinksToValue() timestamp=Timestamp()
-        {
-            jjtThis.key(key);
-            jjtThis.operator(operator);
-            jjtThis.addValue(value1);
-            jjtThis.timestamp(timestamp);
-         }
       |
         operator=UnaryOperator() value1=UnaryValue() timestamp=Timestamp()
-        {
-            jjtThis.key(key);
-            jjtThis.operator(operator);
-            jjtThis.addValue(value1);
-            jjtThis.timestamp(timestamp);
-        }
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() timestamp=Timestamp()
-        {
-            jjtThis.key(key);
-            jjtThis.operator(operator);
-            jjtThis.addValue(value1);
-            jjtThis.addValue(value2);
-            jjtThis.timestamp(timestamp);
+      ) { jjtThis.key(key);
+          jjtThis.operator(operator);
+          jjtThis.addValue(value1);
+          if(value2 != null) jjtThis.addValue(value2);
+          if(timestamp != null) jjtThis.timestamp(timestamp);
         }
-      )
 }
 
 String Key() :
 {
-  Token word;
-  String key = "";
+  Token key;
 }
 {
-    ((word=<RESERVED_IDENTIFIER> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC>) { key += (key.equals("")) ? word.image : " " + word.image; })+
-    { return key; }
+  (
+    (key=<META_ATTRIBUTE> | key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
+    { return key.image; }
+  )
 }
 
 String LinksToValue() :
@@ -228,23 +223,31 @@ String UnaryValue() :
   String value = "";
 }
 {
-  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
-  { return value.replace("\\@", "@"); }
-    |
-  (word=<QUOTED_STRING>)
-  { return word.image.replace("\\\"", "\""); }
+  (
+    ((word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<META_ATTRIBUTE> | word=<ESCAPED_META_ATTRIBUTE> | word=<VALID_MISSING_META_ATTRIBUTE>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+    {
+      return value.replace("\\@", "@");
+    }
+  |
+    (word=<QUOTED_STRING>)
+    { return word.image.replace("\\\"", "\""); }
+  )
 }
 
 String BinaryValue() :
 {
-  Token value;
+  Token word;
 }
 {
-  (value=<SIGNED_INTEGER> | value=<SIGNED_DECIMAL> | value=<NUMERIC> | value=<ALPHANUMERIC> | value=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
-  { return value.image; }
-    |
-  (value=<QUOTED_STRING>)
-  { return value.image.replace("\\\"", "\""); }
+  (
+    (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<META_ATTRIBUTE> | word=<ESCAPED_META_ATTRIBUTE> | word=<VALID_MISSING_META_ATTRIBUTE>)
+    {
+      return word.image.replace("\\@", "@");
+    }
+  |
+    (word=<QUOTED_STRING>)
+    { return word.image.replace("\\\"", "\""); }
+  )
 }
 
 String LinksToOperator() :
