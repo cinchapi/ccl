@@ -17,8 +17,8 @@ package com.cinchapi.ccl.v1;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
