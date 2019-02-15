@@ -24,8 +24,7 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
     }
 
 /** Main production. */
-  @SuppressWarnings("unused")
-final public ASTStart Start() throws ParseException {/*@bgen(jjtree) Start */
+  final public ASTStart Start() throws ParseException {/*@bgen(jjtree) Start */
   ASTStart jjtn000 = new ASTStart(JJTSTART);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
@@ -67,8 +66,7 @@ if (jjtc000) {
 }
 
 /** Main production. */
-  @SuppressWarnings("unused")
-final public ASTStart StartCommandLine() throws ParseException {/*@bgen(jjtree) Start */
+  final public ASTStart StartCommandLine() throws ParseException {/*@bgen(jjtree) Start */
   ASTStart jjtn000 = new ASTStart(JJTSTART);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
@@ -859,8 +857,7 @@ if (jjtc000) {
 	 return new ParseException(token, exptokseq, tokenImage);
   }
 
-  @SuppressWarnings("unused")
-private int trace_indent = 0;
+  private int trace_indent = 0;
   private boolean trace_enabled;
 
 /** Trace enabled. */
