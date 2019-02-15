@@ -28,7 +28,6 @@ import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
-import com.cinchapi.concourse.util.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
