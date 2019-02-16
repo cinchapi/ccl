@@ -9,6 +9,7 @@ public class GrammarTokenManager implements GrammarConstants {
   public  java.io.PrintStream debugStream = System.out;
   /** Set debug output. */
   public  void setDebugStream(java.io.PrintStream ds) { debugStream = ds; }
+@SuppressWarnings("unused")
 private int jjStopAtPos(int pos, int kind)
 {
    jjmatchedKind = kind;
@@ -1585,8 +1586,11 @@ static final long[] jjtoMore = {
     private final int[] jjrounds = new int[200];
     private final int[] jjstateSet = new int[2 * 200];
     private final StringBuilder jjimage = new StringBuilder();
+    @SuppressWarnings("unused")
     private StringBuilder image = jjimage;
+    @SuppressWarnings("unused")
     private int jjimageLen;
+    @SuppressWarnings("unused")
     private int lengthOfMatch;
     protected int curChar;
 }
