@@ -1,5 +1,8 @@
 # Changelog
 
+#### Version 2.5.2 (February 16, 2019)
+* Fixed a bug that cause the CCL parser to fail on certain Unicode quote characters.
+
 #### Version 2.5.1 (October 31, 2018)
 * Added context about the CCL statement being processed to the exceptions thrown from operations in the `v2` parser.
 
