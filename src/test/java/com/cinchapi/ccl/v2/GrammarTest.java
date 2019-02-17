@@ -121,6 +121,22 @@ public class GrammarTest {
     }
 
     @Test
+    public void doubleLeftAndRightQuotation() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name = “name”";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test
+    public void singleLeftAndRightQuotation() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name = ‘name’";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
+    @Test
     public void validQuotedValueWithQuote() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = \"wood\\\"ford\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
