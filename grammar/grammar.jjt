@@ -105,9 +105,9 @@ TOKEN :
 {
   < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
 |
-  < DOUBLE_QUOTED_STRING : "\"" ("\\" ~[] | ~["\"", "\\"])+ "\"" >
+  < DOUBLE_QUOTED_STRING : ("\"" ("\\" ~[] | ~["\"", "\\"])+ "\"") | ("“" ("\\" ~[] | ~["”", "\\"])+ "”") >
 |
-  < SINGLE_QUOTED_STRING : "'" ("\\" ~[] | ~["'", "\\"])+ "'" >
+  < SINGLE_QUOTED_STRING : ("'" ("\\" ~[] | ~["'", "\\"])+ "'") | ("‘" ("\\" ~[] | ~["’", "\\"])+ "’") >
 |
   < SIGNED_DECIMAL : (("-")? ((<DIGIT>)+<PERIOD>(<DIGIT>)+ ))>
 |
