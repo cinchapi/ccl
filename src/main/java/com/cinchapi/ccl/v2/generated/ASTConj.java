@@ -21,6 +21,7 @@ import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a conjunction node in the CCL grammar.
@@ -54,5 +55,22 @@ public abstract class ASTConj extends SimpleNode implements ConjunctionTree {
     @Override
     public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(root(), children());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof AbstractSyntaxTree) {
+            AbstractSyntaxTree other = (AbstractSyntaxTree) obj;
+            return Objects.equals(root(), other.root())
+                    && Objects.equals(children(), other.children());
+        }
+        else {
+            return false;
+        }
     }
 }

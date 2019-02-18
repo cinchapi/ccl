@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -180,5 +181,22 @@ public class ASTExpression extends SimpleNode implements ExpressionTree {
     @Override
     public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(root(), children());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof AbstractSyntaxTree) {
+            AbstractSyntaxTree other = (AbstractSyntaxTree) obj;
+            return Objects.equals(root(), other.root())
+                    && Objects.equals(children(), other.children());
+        }
+        else {
+            return false;
+        }
     }
 }
