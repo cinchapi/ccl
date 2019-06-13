@@ -20,6 +20,7 @@ import com.cinchapi.ccl.grammar.BaseKeySymbol;
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
@@ -142,7 +143,14 @@ public class ASTExpression extends SimpleNode implements ExpressionTree {
             Function<String, Operator> operatorTransformFunction,
             Multimap<String, Object> data) {
 
-        BaseKeySymbol key = new KeySymbol(this.key);
+        BaseKeySymbol key;
+        if (this.key.contains(".")) {
+            key = new NavigationKeySymbol(this.key.split("\\."));
+        }
+        else {
+            key = new KeySymbol(this.key);
+        }
+
         OperatorSymbol operator = new OperatorSymbol(operatorTransformFunction.apply(this.operator));
         List<BaseValueSymbol> values = Lists.newArrayList();
 

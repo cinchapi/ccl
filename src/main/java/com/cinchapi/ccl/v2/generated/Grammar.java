@@ -38,7 +38,7 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
         ;
       }
       DisjunctionExpression();
-      jj_consume_token(36);
+      jj_consume_token(37);
 jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
 {if ("" != null) return jjtn000;}
@@ -229,7 +229,8 @@ if (jjtc001) {
     case RESERVED_IDENTIFIER:
     case SIGNED_INTEGER:
     case SIGNED_DECIMAL:
-    case ALPHANUMERIC:{
+    case ALPHANUMERIC:
+    case NAVIGATION:{
       RelationalExpression();
       break;
       }
@@ -336,6 +337,10 @@ if (jjtc000) {
         word = jj_consume_token(ALPHANUMERIC);
         break;
         }
+      case NAVIGATION:{
+        word = jj_consume_token(NAVIGATION);
+        break;
+        }
       default:
         jj_la1[6] = jj_gen;
         jj_consume_token(-1);
@@ -346,7 +351,8 @@ key += (key.equals("")) ? word.image : " " + word.image;
       case RESERVED_IDENTIFIER:
       case SIGNED_INTEGER:
       case SIGNED_DECIMAL:
-      case ALPHANUMERIC:{
+      case ALPHANUMERIC:
+      case NAVIGATION:{
         ;
         break;
         }
@@ -574,7 +580,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     jj_scanpos = xsp;
     if (jj_scan_token(30)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(31)) return true;
+    if (jj_scan_token(32)) return true;
     }
     }
     }
@@ -601,10 +607,10 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x70000088,0x40c00,0x70000080,0x70000080,0xf8000000,0xf9000000,0xf8000000,0xf9000000,0xf9000000,0xf9000000,0x20,};
+	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0xf0000088,0x40c00,0xf0000080,0xf0000080,0x78000000,0x79000000,0x78000000,0x79000000,0x79000000,0x79000000,0x20,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0x1,0x1,0x1,0x1,0x0,};
 	}
   final private JJCalls[] jj_2_rtns = new JJCalls[1];
   private boolean jj_rescan = false;
@@ -815,7 +821,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[37];
+	 boolean[] la1tokens = new boolean[38];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -832,7 +838,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 37; i++) {
+	 for (int i = 0; i < 38; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;

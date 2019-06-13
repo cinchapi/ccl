@@ -117,15 +117,17 @@ TOKEN :
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
+  < NAVIGATION: (<SIGNED_INTEGER> | <SIGNED_DECIMAL> | <ALPHANUMERIC>) ("." (<SIGNED_INTEGER> | <SIGNED_DECIMAL> | <ALPHANUMERIC>))* >
+|
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
+|
+  < #PERIOD: "." >
 |
   < #NON_ALPHANUMERIC: ~["_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
   < #DIGIT: ["0"-"9"] >
-|
-  < #PERIOD: "." >
 }
 
 ASTStart StartCommandLine() #Start : {}
@@ -209,7 +211,8 @@ String Key() :
   String key = "";
 }
 {
-    ((word=<RESERVED_IDENTIFIER> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC>) { key += (key.equals("")) ? word.image : " " + word.image; })+
+    ((word=<RESERVED_IDENTIFIER> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NAVIGATION>)
+    { key += (key.equals("")) ? word.image : " " + word.image; })+
     { return key; }
 }
 
