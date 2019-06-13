@@ -87,6 +87,15 @@ public class GrammarTest {
     }
 
     @Test
+    public void validSingleWordTimestamp2() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a b = 1 and c d = 3";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
     public void validJsonReservedIdentifier() throws UnsupportedEncodingException, ParseException {
         String ccl = "$id$ != 40";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
@@ -202,6 +211,22 @@ public class GrammarTest {
     }
 
     @Test
+    public void validNavigationKeyAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a.b = 3";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validLongNavigationKeyAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a.b.c.d = 3";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test
     public void operatorEnum() throws UnsupportedEncodingException, ParseException {
         String ccl = "a LINKS_TO 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
@@ -257,6 +282,22 @@ public class GrammarTest {
     @Test (expected = ParseException.class)
     public void invalidLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "a LINKS_TO b";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test (expected = ParseException.class)
+    public void missingSecondNavigationKey() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a. = c";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.generateAST();
+    }
+
+    @Test (expected = ParseException.class)
+    public void missingFirstNavigationKey() throws UnsupportedEncodingException, ParseException {
+        String ccl = ".b = c";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
         grammar.generateAST();

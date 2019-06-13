@@ -936,6 +936,46 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
+    public void testNavigationKey() {
+        String ccl = "mother.children = 3";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        System.out.println(expression.toString());
+        Assert.assertEquals("mother.children", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("3",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testLongNavigationKey() {
+        String ccl = "mother.mother.siblings = 3";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        System.out.println(expression.toString());
+        Assert.assertEquals("mother.mother.siblings", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("3",
+                expression.values().get(0).toString());
+    }
+
+    @Test
     public void validEscapedLocalResolution() {
         String ccl = "name = \\$name";
 
