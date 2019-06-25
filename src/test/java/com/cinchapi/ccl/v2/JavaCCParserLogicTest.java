@@ -948,7 +948,6 @@ public class JavaCCParserLogicTest {
         // Root node
         Assert.assertTrue(tree instanceof ExpressionTree);
         Expression expression = (Expression) tree.root();
-        System.out.println(expression.toString());
         Assert.assertEquals("mother.children", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("3",
@@ -968,7 +967,6 @@ public class JavaCCParserLogicTest {
         // Root node
         Assert.assertTrue(tree instanceof ExpressionTree);
         Expression expression = (Expression) tree.root();
-        System.out.println(expression.toString());
         Assert.assertEquals("mother.mother.siblings", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("3",
