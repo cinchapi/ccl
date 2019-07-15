@@ -24,7 +24,6 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
     }
 
 /** Main production. */
-  @SuppressWarnings("unused")
   final public ASTStart Start() throws ParseException {/*@bgen(jjtree) Start */
   ASTStart jjtn000 = new ASTStart(JJTSTART);
   boolean jjtc000 = true;
@@ -67,7 +66,6 @@ if (jjtc000) {
 }
 
 /** Main production. */
-  @SuppressWarnings("unused")
   final public ASTStart StartCommandLine() throws ParseException {/*@bgen(jjtree) Start */
   ASTStart jjtn000 = new ASTStart(JJTSTART);
   boolean jjtc000 = true;
@@ -83,7 +81,7 @@ if (jjtc000) {
         ;
       }
       DisjunctionExpression();
-      jj_consume_token(35);
+      jj_consume_token(36);
 jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
 {if ("" != null) return jjtn000;}
@@ -202,7 +200,8 @@ if (jjtc001) {
     case RESERVED_IDENTIFIER:
     case SIGNED_DECIMAL:
     case NUMERIC:
-    case ALPHANUMERIC:{
+    case ALPHANUMERIC:
+    case NAVIGATION:{
       RelationalExpression();
       break;
       }
@@ -237,6 +236,10 @@ if (jjtc001) {
           }
         case ALPHANUMERIC:{
           k = jj_consume_token(ALPHANUMERIC);
+          break;
+          }
+        case NAVIGATION:{
+          k = jj_consume_token(NAVIGATION);
           break;
           }
         default:
@@ -382,7 +385,8 @@ jjtn000.timestamp(t.image);
         case RESERVED_IDENTIFIER:
         case SIGNED_DECIMAL:
         case NUMERIC:
-        case ALPHANUMERIC:{
+        case ALPHANUMERIC:
+        case NAVIGATION:{
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case RESERVED_IDENTIFIER:{
             k = jj_consume_token(RESERVED_IDENTIFIER);
@@ -398,6 +402,10 @@ jjtn000.timestamp(t.image);
             }
           case ALPHANUMERIC:{
             k = jj_consume_token(ALPHANUMERIC);
+            break;
+            }
+          case NAVIGATION:{
+            k = jj_consume_token(NAVIGATION);
             break;
             }
           default:
@@ -568,7 +576,10 @@ if (jjtc000) {
     jj_scanpos = xsp;
     if (jj_scan_token(28)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(29)) return true;
+    if (jj_scan_token(29)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(30)) return true;
+    }
     }
     }
     }
@@ -611,7 +622,7 @@ if (jjtc000) {
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x38000088,0x38000080,0x78000000,0x78000000,0x1000000,0x79000000,0x40400,0x39000000,0x39000000,0x20,0x38000080,0x78000000,0x79000000,0x78000000,0x79000000,0x39000000,0x39000000,0x20,0x38000080,};
+	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x78000088,0x78000080,0xb8000000,0xb8000000,0x1000000,0xb9000000,0x40400,0x39000000,0x39000000,0x20,0x78000080,0xb8000000,0xb9000000,0xb8000000,0xb9000000,0x39000000,0x39000000,0x20,0x78000080,};
 	}
 	private static void jj_la1_init_1() {
 	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
@@ -825,7 +836,7 @@ if (jjtc000) {
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[36];
+	 boolean[] la1tokens = new boolean[37];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -842,7 +853,7 @@ if (jjtc000) {
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 36; i++) {
+	 for (int i = 0; i < 37; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;
@@ -859,7 +870,6 @@ if (jjtc000) {
 	 return new ParseException(token, exptokseq, tokenImage);
   }
 
-  @SuppressWarnings("unused")
   private int trace_indent = 0;
   private boolean trace_enabled;
 

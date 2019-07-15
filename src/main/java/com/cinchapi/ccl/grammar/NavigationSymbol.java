@@ -15,27 +15,39 @@
  */
 package com.cinchapi.ccl.grammar;
 
-/**
- * An abstract implementation of the {@link Symbol} interface that provides
- * {@link #hashCode()} and {@link #equals(Object)}.
- * 
- * @author Jeff Nelson
- */
-public class BaseSymbol implements Symbol {
+import org.apache.commons.lang.StringUtils;
 
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
+/**
+ * A {@link Symbol} that contains a navigation key.
+ */
+public class NavigationSymbol extends BaseSymbol {
+
+    /**
+     * The content of the {@link Symbol}.
+     */
+    private final String[] keys;
+
+    /**
+     * Construct a new instance.
+     *
+     * @param keys
+     */
+    public NavigationSymbol(String[] keys) {
+        this.keys = keys;
+    }
+
+    /**
+     * Return the keys associated with this {@link Symbol}.
+     *
+     * @return the key
+     */
+    public String[] keys() {
+        return keys;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(obj.getClass() == getClass()) {
-            return toString().equals(obj.toString());
-        }
-        else {
-            return false;
-        }
+    public String toString() {
+        return StringUtils.join(keys, ".");
     }
 
 }

@@ -17,8 +17,10 @@ package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.SyntaxException;
+import com.cinchapi.ccl.grammar.BaseSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.NavigationSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
@@ -150,7 +152,14 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
      */
     @SuppressWarnings("unchecked")
     public Object visit(ASTRelationalExpression node, Object data) {
-        KeySymbol key = new KeySymbol(node.key());
+        BaseSymbol key;
+        if (node.key().contains(".")) {
+            key = new NavigationSymbol(node.key().split("\\."));
+        }
+        else {
+            key = new KeySymbol(node.key());
+        }
+
         OperatorSymbol operator = new OperatorSymbol(parser.transformOperator(node.operator()));
 
         // Perform local resolution for variable
