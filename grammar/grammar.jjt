@@ -115,6 +115,8 @@ TOKEN :
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
+  < NAVIGATION: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>))* >
+|
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
   < #NON_ALPHANUMERIC: ~["_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
@@ -169,7 +171,7 @@ void RelationalExpression() #RelationalExpression :
 {
   LOOKAHEAD(2)
 
-  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC> | k=<NAVIGATION>) { jjtThis.key(k.image);}
   (
     (
       o=<LINKS_TO> { jjtThis.operator(o.image); } v=<NUMERIC> { jjtThis.appendValue(v.image); }
@@ -189,7 +191,7 @@ void RelationalExpression() #RelationalExpression :
   )
   (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<NUMERIC> | t=<ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 |
-  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC> | k=<NAVIGATION>) { jjtThis.key(k.image);}
   o=<BINARY_OPERATOR> { jjtThis.operator(o.image);}
   (
       (v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
