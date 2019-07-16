@@ -27,15 +27,14 @@ public class NavigationKeySymbol extends KeySymbol {
      */
     public NavigationKeySymbol(String key) {
         super(key);
-
     }
 
     /**
-     * Return each of the navigation key's stops.
+     * Return each of the navigation key's components.
      *
-     * @return the key
+     * @return the key components
      */
-    public String[] stops() {
+    public String[] components() {
         return key().split("\\.");
     }
 
