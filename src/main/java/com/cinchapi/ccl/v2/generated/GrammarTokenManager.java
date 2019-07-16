@@ -3,6 +3,7 @@
 package com.cinchapi.ccl.v2.generated;
 
 /** Token Manager. */
+@SuppressWarnings("unused")
 public class GrammarTokenManager implements GrammarConstants {
 
   /** Debug output. */

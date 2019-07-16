@@ -21,7 +21,7 @@ package com.cinchapi.ccl.grammar;
  * 
  * @author Jeff Nelson
  */
-public class BaseSymbol implements Symbol {
+class BaseSymbol implements Symbol {
 
     @Override
     public int hashCode() {

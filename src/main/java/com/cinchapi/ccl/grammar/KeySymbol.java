@@ -20,7 +20,7 @@ package com.cinchapi.ccl.grammar;
  *
  * @author Jeff Nelson
  */
-public final class KeySymbol extends BaseSymbol {
+public class KeySymbol extends BaseSymbol {
 
     /**
      * The content of the {@link Symbol}.

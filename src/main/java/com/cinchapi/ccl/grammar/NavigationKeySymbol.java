@@ -15,39 +15,28 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * A {@link Symbol} that contains a navigation key.
  */
-public class NavigationSymbol extends BaseSymbol {
-
-    /**
-     * The content of the {@link Symbol}.
-     */
-    private final String[] keys;
+public class NavigationKeySymbol extends KeySymbol {
 
     /**
      * Construct a new instance.
      *
      * @param keys
      */
-    public NavigationSymbol(String[] keys) {
-        this.keys = keys;
+    public NavigationKeySymbol(String key) {
+        super(key);
+
     }
 
     /**
-     * Return the keys associated with this {@link Symbol}.
+     * Return each of the navigation key's stops.
      *
      * @return the key
      */
-    public String[] keys() {
-        return keys;
-    }
-
-    @Override
-    public String toString() {
-        return StringUtils.join(keys, ".");
+    public String[] stops() {
+        return key().split("\\.");
     }
 
 }
