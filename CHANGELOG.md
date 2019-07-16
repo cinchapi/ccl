@@ -1,5 +1,8 @@
 # Changelog
 
+#### Version 2.6.0
+* Added support for **navigation keys**. A **navigation key** is used to traverse the document graph in Concourse. It is made up of multiple keys that are joined by the `.` character (i.e. `friends.friends.name`).
+
 #### Version 2.5.2 (February 16, 2019)
 * Fixed a bug that caused the CCL parser to fail on certain Unicode quote characters.
 

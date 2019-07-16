@@ -65,15 +65,17 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int ALPHANUMERIC = 29;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 30;
+  int NAVIGATION = 30;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 31;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 31;
   /** RegularExpression Id. */
-  int LETTER = 32;
+  int NON_ALPHANUMERIC = 32;
   /** RegularExpression Id. */
-  int DIGIT = 33;
+  int LETTER = 33;
   /** RegularExpression Id. */
-  int PERIOD = 34;
+  int DIGIT = 34;
+  /** RegularExpression Id. */
+  int PERIOD = 35;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -110,6 +112,7 @@ public interface GrammarConstants {
     "<SIGNED_DECIMAL>",
     "<NUMERIC>",
     "<ALPHANUMERIC>",
+    "<NAVIGATION>",
     "<NON_ALPHANUMERIC_AND_ALPHANUMERIC>",
     "<NON_ALPHANUMERIC>",
     "<LETTER>",

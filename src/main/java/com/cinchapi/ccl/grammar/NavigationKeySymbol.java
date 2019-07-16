@@ -16,38 +16,26 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a key.
- *
- * @author Jeff Nelson
+ * A {@link Symbol} that contains a navigation key.
  */
-public class KeySymbol extends BaseSymbol {
-
-    /**
-     * The content of the {@link Symbol}.
-     */
-    private final String key;
+public class NavigationKeySymbol extends KeySymbol {
 
     /**
      * Construct a new instance.
-     * 
-     * @param key
+     *
+     * @param keys
      */
-    public KeySymbol(String key) {
-        this.key = key;
+    public NavigationKeySymbol(String key) {
+        super(key);
     }
 
     /**
-     * Return the key associated with this {@link Symbol}.
-     * 
-     * @return the key
+     * Return each of the navigation key's components.
+     *
+     * @return the key components
      */
-    public String key() {
-        return key;
-    }
-
-    @Override
-    public String toString() {
-        return key();
+    public String[] components() {
+        return key().split("\\.");
     }
 
 }
