@@ -36,6 +36,7 @@ import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.common.reflect.Reflection;
 import com.cinchapi.concourse.Tag;
+import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.Criteria;
 import com.cinchapi.concourse.thrift.Operator;
 import com.cinchapi.concourse.time.Time;
@@ -1018,6 +1019,25 @@ public abstract class ParserTest {
                         ((ValueSymbol) token).value().getClass());
             }
         }
+    }
+
+    @Test
+    public void testCriteriaWithTimestampValueParse() {
+        Timestamp start = Timestamp.now();
+        Timestamp end = Timestamp.now();
+        Criteria criteria = Criteria.where().key("foo")
+                .operator(Operator.BETWEEN).value(start).value(end).build();
+        Parser parser = createParser(criteria.getCclString());
+        int count = 0;
+        for (Symbol symbol : parser.tokenize()) {
+            if(symbol instanceof ValueSymbol) {
+                ValueSymbol $symbol = (ValueSymbol) symbol;
+                Assert.assertEquals(Timestamp.class, $symbol.value().getClass());
+                Assert.assertTrue($symbol.value().equals(start) || $symbol.value().equals(end));
+                ++count;
+            }
+        }
+        Assert.assertEquals(2, count);
     }
 
     protected abstract Parser createParser(String ccl);
