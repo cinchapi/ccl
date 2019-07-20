@@ -16,6 +16,7 @@
 package com.cinchapi.ccl.grammar;
 
 import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.common.reflect.Reflection;
 
 /**
  * A {@link Symbol} that contains a value.;
@@ -47,6 +48,15 @@ public final class ValueSymbol extends BaseSymbol {
             char wrap = value instanceof String ? '"' : '`';
             return new StringBuilder().append(wrap).append(value).append(wrap)
                     .toString();
+        }
+        else if(value.getClass().getName()
+                .equals("com.cinchapi.concourse.Timestamp")) {
+            // NOTE: See com.cinchapi.concourse.util.Convert to see the
+            // conventions for the way that a Timestamp is parsed from a long
+            // (microseconds) or string (natural language or date time format)
+            // wrapped in vertical bars.
+            long micros = Reflection.call(value, "getMicros"); // (Authorized)
+            return AnyStrings.format("|{}|", micros);
         }
         else {
             return value;
