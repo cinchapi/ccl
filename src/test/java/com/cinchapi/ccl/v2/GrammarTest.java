@@ -15,6 +15,14 @@
  */
 package com.cinchapi.ccl.v2;
 
+import com.cinchapi.ccl.Parser;
+import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.concourse.util.Convert;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import com.cinchapi.ccl.v2.generated.Grammar;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
@@ -27,6 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 /**
  * Tests for {@link Grammar}
@@ -120,7 +129,7 @@ public class GrammarTest {
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream);
-        grammar.generateAST();
+        grammar.Start();
     }
 
     @Test (expected = ParseException.class)
@@ -324,4 +333,17 @@ public class GrammarTest {
         Grammar grammar = new Grammar(stream);
         grammar.generateAST();
     }
+
+    /**
+     * The canonical function to transform strings to java values in a
+     * {@link Parser}.
+     */
+    public final Function<String, Object> PARSER_TRANSFORM_VALUE_FUNCTION = value -> Convert
+            .stringToJava(value);
+
+    /**
+     * The canonical function to transform strings to operators in a
+     * {@link Parser}.
+     */
+    public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert.stringToOperator(operator);
 }

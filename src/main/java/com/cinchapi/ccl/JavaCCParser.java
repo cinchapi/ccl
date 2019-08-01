@@ -28,6 +28,11 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.Grammar;
+import com.cinchapi.ccl.v2.generated.GrammarInfixVisitor;
+import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
+import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
+import com.cinchapi.ccl.v2.generated.SimpleNode;
+import com.google.common.base.Throwables;
 import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -89,7 +94,8 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data);
 
             AbstractSyntaxTree tree = grammar.generateAST();
 
@@ -128,12 +134,14 @@ public class JavaCCParser extends Parser {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public AbstractSyntaxTree parse() {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data);
 
             AbstractSyntaxTree tree = grammar.generateAST();
 
@@ -179,6 +187,9 @@ public class JavaCCParser extends Parser {
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
             Grammar grammar = new Grammar(stream);
             AbstractSyntaxTree tree = grammar.generateAST();
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data);
+            SimpleNode tree = grammar.generateAST();
 
             Visitor visitor = new Visitor<List<Symbol>>() {
                 List<Symbol> symbols = new LinkedList<>();

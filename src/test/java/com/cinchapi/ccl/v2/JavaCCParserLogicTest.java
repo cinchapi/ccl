@@ -21,6 +21,7 @@ import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExplicitFunction;
 import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
+import com.cinchapi.ccl.grammar.ExplicitFunction;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
@@ -812,7 +813,7 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof OrTree);
+        Assert.assertTrue(tree instanceof AndTree);
         ConjunctionTree rootNode = (ConjunctionTree) tree;
 
         // Left node
@@ -823,7 +824,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("1", leftExpression.values().get(0).toString());
 
         // Right node
-        Assert.assertTrue(rootNode.right() instanceof AndTree);
+        Assert.assertTrue(rootNode.right() instanceof OrTree);
         ConjunctionTree rightNode = (ConjunctionTree) rootNode.right();
 
         // Right left node
@@ -1021,6 +1022,147 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("LINKS_TO", expression.operator().toString());
         Assert.assertEquals("30",
                 expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testExplicitFunctionAsEvaluationKey() {
+        String ccl = "count(friends, ?) > 3";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
+        Assert.assertEquals("count", ((ImplicitFunction) expression.key().key()).function());
+        Assert.assertEquals("friends", ((ImplicitFunction) expression.key().key()).key());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertEquals("3", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testImplicitFunctionAsEvaluationValue() {
+        String ccl = "age > avg(age, ?)";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertEquals("avg", ((ImplicitFunction) expression.values().get(0).value()).function());
+        Assert.assertEquals("age", ((ImplicitFunction) expression.values().get(0).value()).key());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testExplicitFunctionWithSingleRecordAsEvaluationValue() {
+        String ccl = "age > avg(age, 1)";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
+        Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
+        Assert.assertEquals(1, ((List<String>) ((ExplicitFunction) expression.values().get(0).value()).value()).size());
+        Assert.assertEquals("1", ((List<String>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(0));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testExplicitFunctionWithMultpleRecordsAsEvaluationValue() {
+        String ccl = "age > avg(age, 1, 2)";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
+        Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
+        Assert.assertEquals(2, ((List<String>) ((ExplicitFunction) expression.values().get(0).value()).value()).size());
+        Assert.assertEquals("1", ((List<String>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(0));
+        Assert.assertEquals("2", ((List<String>) ((ExplicitFunction) expression.values().get(0).value()).value()).get(1));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testExplicitFunctionWithCCLAsEvaluationValue() {
+        String ccl = "age > avg(age, age < 30)";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
+        Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
+
+        Assert.assertTrue((((ExplicitFunction) expression.values().get(0).value()).value()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).key().toString());
+        Assert.assertEquals("<", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).operator().toString());
+        Assert.assertEquals("30", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).values().get(0).toString());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void validExplicitFunctionAsEvalutionKeyAndExplicitFunctionWithCCLAsEvaluationValue() {
+        String ccl = "count(friends, ?) > avg(age, age < 30)";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
+        Assert.assertEquals("count", ((ImplicitFunction) expression.key().key()).function());
+        Assert.assertEquals("friends", ((ImplicitFunction) expression.key().key()).key());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertEquals("avg", ((ExplicitFunction) expression.values().get(0).value()).function());
+        Assert.assertEquals("age", ((ExplicitFunction) expression.values().get(0).value()).key());
+
+        Assert.assertTrue((((ExplicitFunction) expression.values().get(0).value()).value()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).key().toString());
+        Assert.assertEquals("<", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).operator().toString());
+        Assert.assertEquals("30", ((Expression) ((AbstractSyntaxTree) ((ExplicitFunction) expression.values().get(0).value()).value()).root()).values().get(0).toString());
     }
 
     @Test
