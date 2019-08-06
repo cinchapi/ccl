@@ -65,7 +65,7 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int ALPHANUMERIC = 29;
   /** RegularExpression Id. */
-  int NAVIGATION = 30;
+  int PERIOD_SEPARATED_STRING = 30;
   /** RegularExpression Id. */
   int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 31;
   /** RegularExpression Id. */
@@ -112,7 +112,7 @@ public interface GrammarConstants {
     "<SIGNED_DECIMAL>",
     "<NUMERIC>",
     "<ALPHANUMERIC>",
-    "<NAVIGATION>",
+    "<PERIOD_SEPARATED_STRING>",
     "<NON_ALPHANUMERIC_AND_ALPHANUMERIC>",
     "<NON_ALPHANUMERIC>",
     "<LETTER>",
