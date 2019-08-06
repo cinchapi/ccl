@@ -115,7 +115,7 @@ TOKEN :
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
-  < NAVIGATION: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>))* >
+  < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>))* >
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
@@ -171,7 +171,7 @@ void RelationalExpression() #RelationalExpression :
 {
   LOOKAHEAD(2)
 
-  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC> | k=<NAVIGATION>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC> | k=<PERIOD_SEPARATED_STRING>) { jjtThis.key(k.image);}
   (
     (
       o=<LINKS_TO> { jjtThis.operator(o.image); } v=<NUMERIC> { jjtThis.appendValue(v.image); }
@@ -180,7 +180,7 @@ void RelationalExpression() #RelationalExpression :
     (
       o=<UNARY_OPERATOR> { jjtThis.operator(o.image);}
       (
-        ((v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+        ((v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | v=<PERIOD_SEPARATED_STRING>)
             {
               jjtThis.appendValue(v.image.replace("\\@", "@"));
             })+
@@ -191,10 +191,10 @@ void RelationalExpression() #RelationalExpression :
   )
   (<TIMESTAMP> ((t=<QUOTED_STRING> | t=<SIGNED_DECIMAL> | t=<NUMERIC> | t=<ALPHANUMERIC>) { jjtThis.timestamp(t.image);})+ )?
 |
-  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC> | k=<NAVIGATION>) { jjtThis.key(k.image);}
+  (k=<RESERVED_IDENTIFIER> | k=<SIGNED_DECIMAL> | k=<NUMERIC> | k=<ALPHANUMERIC> | k=<PERIOD_SEPARATED_STRING>) { jjtThis.key(k.image);}
   o=<BINARY_OPERATOR> { jjtThis.operator(o.image);}
   (
-      (v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+      (v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | v=<PERIOD_SEPARATED_STRING>)
         {
           jjtThis.addValue(v.image.replace("\\@", "@"));
         }
@@ -202,7 +202,7 @@ void RelationalExpression() #RelationalExpression :
       (v=<QUOTED_STRING>) { jjtThis.addValue(v.image.replace("\\\"", "\"")); }
   )
   (
-      (v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+      (v=<SIGNED_DECIMAL> | v=<NUMERIC> | v=<ALPHANUMERIC> | v=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | v=<PERIOD_SEPARATED_STRING>)
         {
           jjtThis.addValue(v.image.replace("\\@", "@"));
         }

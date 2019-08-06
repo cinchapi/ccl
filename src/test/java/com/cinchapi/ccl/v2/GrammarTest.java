@@ -230,6 +230,14 @@ public class GrammarTest {
         grammar.Start();
     }
 
+    @Test
+    public void validPeriodSeparatedValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = a.b.c";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream);
+        grammar.Start();
+    }
+
     @Test (expected = ParseException.class)
     public void missingKeyExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "= 1";
