@@ -1,16 +1,16 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a {@link Function}
+ * A {@link Symbol} that contains a {@link ValueFunction}
  */
-public class FunctionValueSymbol extends BaseValueSymbol<Function> {
+public class FunctionValueSymbol extends BaseValueSymbol<ValueFunction> {
 
     /**
      * Construct a new instance.
      *
      * @param value
      */
-    public FunctionValueSymbol(Function value) {
+    public FunctionValueSymbol(ValueFunction value) {
         super(value);
     }
 

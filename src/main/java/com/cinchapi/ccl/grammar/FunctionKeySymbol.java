@@ -16,16 +16,16 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a {@link ImplicitFunction}
+ * A {@link Symbol} that contains a {@link ImplicitRecordKeyFunction}
  */
-public class FunctionKeySymbol extends BaseKeySymbol<ImplicitFunction> {
+public class FunctionKeySymbol extends BaseKeySymbol<ImplicitRecordKeyFunction> {
 
     /**
      * Construct a new instance.
      *
      * @param key the key
      */
-    public FunctionKeySymbol(ImplicitFunction key) {
+    public FunctionKeySymbol(ImplicitRecordKeyFunction key) {
         super(key);
     }
 

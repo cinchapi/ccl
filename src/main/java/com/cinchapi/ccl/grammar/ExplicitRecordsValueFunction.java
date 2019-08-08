@@ -20,9 +20,9 @@ import com.cinchapi.common.base.AnyStrings;
 import java.util.List;
 
 /**
- * Represents a {@link ExplicitFunction} where the value is a list of records
+ * Represents a {@link ExplicitValueFunction} where the value is a list of records
  */
-public class ExplicitRecordsFunction extends ExplicitFunction<List<String>> {
+public class ExplicitRecordsValueFunction extends ExplicitValueFunction<List<String>> {
     /**
      * Constructs a new instance
      *
@@ -30,7 +30,7 @@ public class ExplicitRecordsFunction extends ExplicitFunction<List<String>> {
      * @param key      the key
      * @param records  the records
      */
-    public ExplicitRecordsFunction(String function, String key,
+    public ExplicitRecordsValueFunction(String function, String key,
             List<String> records) {
         super(function, key, records);
     }

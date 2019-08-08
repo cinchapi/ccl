@@ -18,15 +18,25 @@ package com.cinchapi.ccl.v2.generated;
 import com.cinchapi.ccl.grammar.BaseExpression;
 import com.cinchapi.ccl.grammar.BaseKeySymbol;
 import com.cinchapi.ccl.grammar.BaseValueSymbol;
+import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A node that representation a CCL expression
  */
-public class ASTExpression extends SimpleNode implements BaseExpression {
+public class ASTExpression extends SimpleNode implements BaseExpression,
+        ExpressionTree {
     /**
      * The key
      */
@@ -153,5 +163,42 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      */
     public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
+    }
+
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Symbol root() {
+        if (this.timestamp != null) {
+            return new Expression(timestamp, key, operator, values.toArray(new BaseValueSymbol[values.size()]));
+        }
+        else {
+            return new Expression(key, operator, values.toArray(new BaseValueSymbol[values.size()]));
+        }
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return visitor.visit(this, data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(root(), children());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof AbstractSyntaxTree) {
+            AbstractSyntaxTree other = (AbstractSyntaxTree) obj;
+            return Objects.equals(root(), other.root())
+                    && Objects.equals(children(), other.children());
+        }
+        else {
+            return false;
+        }
     }
 }

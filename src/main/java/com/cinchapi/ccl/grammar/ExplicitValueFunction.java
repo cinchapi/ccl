@@ -18,7 +18,7 @@ package com.cinchapi.ccl.grammar;
 /**
  * Represents an explicit function of type {@code T}
  */
-public abstract class ExplicitFunction<T> extends Function {
+public abstract class ExplicitValueFunction<T> extends ValueFunction {
     /**
      * The value of the function
      */
@@ -31,7 +31,7 @@ public abstract class ExplicitFunction<T> extends Function {
      * @param key the key
      * @param value the value
      */
-    protected ExplicitFunction(String function, String key, T value) {
+    protected ExplicitValueFunction(String function, String key, T value) {
         super(function, key);
         this.value = value;
     }

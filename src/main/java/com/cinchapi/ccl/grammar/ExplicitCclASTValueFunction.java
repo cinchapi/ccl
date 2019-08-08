@@ -21,15 +21,11 @@ import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.common.base.AnyStrings;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
 /**
- * Represents a {@link ExplicitFunction} where the value is a CCL represented
+ * Represents a {@link ExplicitValueFunction} where the value is a CCL represented
  * as a {@link AbstractSyntaxTree}
  */
-public class ExplicitCclASTFunction extends ExplicitFunction<AbstractSyntaxTree> {
+public class ExplicitCclASTValueFunction extends ExplicitValueFunction<AbstractSyntaxTree> {
     /**
      * Constructs a new instance
      *
@@ -37,7 +33,7 @@ public class ExplicitCclASTFunction extends ExplicitFunction<AbstractSyntaxTree>
      * @param key      the key
      * @param value    the value
      */
-    public ExplicitCclASTFunction(String function, String key,
+    public ExplicitCclASTValueFunction(String function, String key,
             AbstractSyntaxTree value) {
         super(function, key, value);
     }
@@ -48,6 +44,12 @@ public class ExplicitCclASTFunction extends ExplicitFunction<AbstractSyntaxTree>
 
         Visitor<String> visitor = new Visitor<String>() {
             String string = "";
+
+            @Override
+            public String visit(AbstractSyntaxTree tree,
+                    Object... data) {
+                return null;
+            }
 
             @Override
             public String visit(ConjunctionTree tree, Object... data) {

@@ -16,9 +16,10 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * An {@link Function} describes a function operation on a key.
+ * An {@link KeyFunction} describes a function that can only be used as an
+ * evaluation value that operates on a key
  */
-public abstract class Function {
+public abstract class ValueFunction {
     /**
      * The function
      */
@@ -35,7 +36,7 @@ public abstract class Function {
      * @param function the function
      * @param key the key
      */
-    protected Function(String function, String key) {
+    protected ValueFunction(String function, String key) {
         this.function = function;
         this.key = key;
     }
