@@ -16,9 +16,10 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * Represents an implicit function, i.e. a function with specified value
+ * Represents an implicit function, i.e. a function implicitly applied to the
+ * entire index
  */
-public class ImplicitFunction extends Function {
+public class ImplicitIndexValueFunction extends ValueFunction {
 
     /**
      * Creates a new instances
@@ -26,12 +27,12 @@ public class ImplicitFunction extends Function {
      * @param function the function
      * @param key      the key
      */
-    public ImplicitFunction(String function, String key) {
+    public ImplicitIndexValueFunction(String function, String key) {
         super(function, key);
     }
 
     @Override
     public String toString() {
-        return function + "(" + key + ", ?)";
+        return function + "(" + key + ")";
     }
 }

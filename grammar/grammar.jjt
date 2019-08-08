@@ -32,7 +32,8 @@ import com.cinchapi.ccl.grammar.ExplicitCclASTFunction;
 import com.cinchapi.ccl.grammar.ExplicitRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
-import com.cinchapi.ccl.grammar.ImplicitFunction;
+import com.cinchapi.ccl.grammar.ImplicitRecordFunction;
+import com.cinchapi.ccl.grammar.ImplicitIndexFunction;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
@@ -40,6 +41,7 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
@@ -58,24 +60,29 @@ public class Grammar {
     private Multimap<String, Object> data;
     private Function<String, Object> valueTransformFunction;
     private Function<String, Operator> operatorTransformFunction;
+    private Visitor visitor;
 
     public Grammar(java.io.InputStream stream,
                 Function<String, Object> valueTransformFunction,
-                Function<String, Operator> operatorTransformFunction) {
+                Function<String, Operator> operatorTransformFunction,
+                Visitor visitor) {
         this(stream, null);
         this.data = null;
         this.valueTransformFunction = valueTransformFunction;
         this.operatorTransformFunction = operatorTransformFunction;
+        this.visitor = visitor;
     }
 
     public Grammar(java.io.InputStream stream,
                 Function<String, Object> valueTransformFunction,
                 Function<String, Operator> operatorTransformFunction,
-                Multimap<String, Object> data) {
+                Multimap<String, Object> data,
+                Visitor visitor) {
         this(stream, null);
         this.data = data;
         this.valueTransformFunction = valueTransformFunction;
         this.operatorTransformFunction = operatorTransformFunction;
+        this.visitor = visitor;
     }
 
     public Operator transformOperator(String token) {
@@ -107,7 +114,7 @@ TOKEN [IGNORE_CASE]:
 {
   < CONJUNCTION: "and" | "&&" | "&" >
 |
-  < DISJUNCTION: "or" | "||" | "|" >
+  < DISJUNCTION: "or" | "||" >
 }
 
 TOKEN [IGNORE_CASE]:
@@ -151,9 +158,13 @@ TOKEN :
 |
   < COMMA_SEPARATED_SIGNED_INTEGER : <SIGNED_INTEGER> ",">
 |
+  < COMMA_SEPARATED_SIGNED_DECIMAL : <SIGNED_DECIMAL> ",">
+|
   < COMMA_SEPARATED_ALPHANUMERIC : <ALPHANUMERIC> ",">
 |
   < NUMERIC: (<DIGIT>)+ >
+|
+  < PIPE: "|">
 |
   < SIGNED_INTEGER : (("-" | "+")? (<DIGIT>)+) >
 |
@@ -192,7 +203,6 @@ ASTStart generateSubAST() #Start : {}
    { return jjtThis; }
 }
 
-
 void DisjunctionExpression() : {}
 {
   (
@@ -223,6 +233,8 @@ void RelationalExpression() #Expression :
 {
     key=Key()
       (
+        operator=LinksToOperator() value1=LinksToValue() timestamp=Timestamp()
+      |
         operator=UnaryOperator() value1=UnaryValue() timestamp=Timestamp()
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() timestamp=Timestamp()
@@ -246,7 +258,7 @@ BaseKeySymbol Key() :
     function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>) " ?" <CLOSE_PARENTHESES>
     { return new FunctionKeySymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));} // Remove the comma
   |
-    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>)
+    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
     { return new KeySymbol(key.image); }
   )
 }
@@ -263,25 +275,28 @@ BaseValueSymbol UnaryValue() :
 {
   LOOKAHEAD(2)
 
-  function=<ALPHANUMERIC> <OPEN_PARENTHESES> (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
+  function=<ALPHANUMERIC> <OPEN_PARENTHESES>
    (
-     " ?" <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ImplicitFunction(function.image, key.image.substring(0, key.image.length()-1)));}
+     LOOKAHEAD(3)
+
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>) <CLOSE_PARENTHESES>
+     { return new FunctionValueSymbol(new ImplicitIndexFunction(function.image, key.image.substring(0, key.image.length())));}
    |
      LOOKAHEAD(2)
 
+     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
-     (word=<SIGNED_INTEGER>) { records.add(word.image);} <CLOSE_PARENTHESES>
+     (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
      { return new FunctionValueSymbol(new ExplicitRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
-     ccl=generateSubAST() <CLOSE_PARENTHESES>
+     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
-        GrammarTreeVisitor visitor = new GrammarTreeVisitor();
-        AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
+        AbstractSyntaxTree tree = (AbstractSyntaxTree)((AbstractSyntaxTree) ccl).accept(visitor);
+
         return new FunctionValueSymbol(new ExplicitCclASTFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
 |
-  ( LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   {
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
@@ -301,9 +316,24 @@ BaseValueSymbol UnaryValue() :
             && value.charAt(1) == '$') {
         value = value.substring(1);
     }
+    else {
+        value = value.replace("\\@", "@");
+    }
 
     return new ValueSymbol(transformValue(value));
   }
+|
+  (word=<QUOTED_STRING>)
+  { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+}
+
+BaseValueSymbol LinksToValue() :
+{
+  Token word;
+}
+{
+  (word=<NUMERIC>)
+  { return new ValueSymbol(transformValue(word.image)); }
 }
 
 BaseValueSymbol BinaryValue() :
@@ -312,7 +342,7 @@ BaseValueSymbol BinaryValue() :
   String value = "";
 }
 {
-  (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+  (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
   {
     value = word.image;
     if(value.charAt(0) == '$') {
@@ -333,9 +363,20 @@ BaseValueSymbol BinaryValue() :
             && value.charAt(1) == '$') {
         value = value.substring(1);
     }
-
     return new ValueSymbol(transformValue(value));
   }
+|
+  (word=<QUOTED_STRING>)
+  { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+
+}
+
+OperatorSymbol LinksToOperator() :
+{
+  Token operator;
+}
+{
+  operator=<LINKS_TO> { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 OperatorSymbol UnaryOperator() :
@@ -360,7 +401,7 @@ TimestampSymbol Timestamp() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); })?
   { return null; }
 }

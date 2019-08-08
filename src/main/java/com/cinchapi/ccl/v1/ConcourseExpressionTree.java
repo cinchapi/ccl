@@ -17,7 +17,6 @@ package com.cinchapi.ccl.v1;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.function.Function;
 
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.Symbol;
@@ -25,8 +24,6 @@ import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
-import com.cinchapi.ccl.type.Operator;
-import com.google.common.collect.Multimap;
 
 /**
  * An {@link ConcourseExpressionTree} is an {@link AbstractSyntaxTree} whose root node is
@@ -59,12 +56,6 @@ public class ConcourseExpressionTree extends BaseAbstractSyntaxTree implements
     @Override
     public Symbol root() {
         return expression;
-    }
-
-    @Override
-    public void build(Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction,
-            Multimap<String, Object> data) {
     }
 
     @Override

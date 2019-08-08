@@ -15,34 +15,24 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.common.base.AnyStrings;
-
-import java.util.List;
-
 /**
- * Represents a {@link ExplicitFunction} where the value is a CCL represented
- * as a {@link List} of {@link Symbol}
+ * Represents an implicit function, i.e. a function implicitly applied to the
+ * current record
  */
-public class ExplicitCclInfixFunction extends ExplicitFunction<List<Symbol>> {
+public class ImplicitRecordKeyFunction extends KeyFunction {
+
     /**
-     * Constructs a new instance
+     * Creates a new instances
      *
      * @param function the function
      * @param key      the key
-     * @param value    the value
      */
-    public ExplicitCclInfixFunction(String function, String key,
-            List<Symbol> value) {
-        super(function, key, value);
+    public ImplicitRecordKeyFunction(String function, String key) {
+        super(function, key);
     }
 
     @Override
     public String toString() {
-        String string = AnyStrings.format("{} ({},", function, key);
-        for (Symbol symbol  : value) {
-            string += " " + symbol;
-        }
-        string += ")";
-        return string;
+        return key + " | " + function;
     }
 }

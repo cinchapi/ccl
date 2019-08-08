@@ -16,11 +16,15 @@
 package com.cinchapi.ccl.v2;
 
 import com.cinchapi.ccl.Parser;
+import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.ConjunctionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.cinchapi.ccl.v2.generated.Grammar;
@@ -45,7 +49,8 @@ public class GrammarTest {
         String ccl = "a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -54,7 +59,8 @@ public class GrammarTest {
         String ccl = "a = 1 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -63,25 +69,28 @@ public class GrammarTest {
         String ccl = "a >< 1 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
     @Test
-    public void validExplicitFunctionAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
-        String ccl = "count(friends, ?) > 3";
+    public void validImplicitContextFunctionAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
+        String ccl = "friends | avg > 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
     @Test
-    public void validImplicitFunctionAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
-        String ccl = "age > avg(age, ?)";
+    public void validImplicitIndexFunctionAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age > avg(age)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -90,16 +99,18 @@ public class GrammarTest {
         String ccl = "age > avg(age, 1)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
     @Test
-    public void validExplicitFunctionWithMultpleRecordsAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+    public void validExplicitFunctionWithMultipleRecordsAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
         String ccl = "age > avg(age, 1, 2)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -108,71 +119,19 @@ public class GrammarTest {
         String ccl = "age > avg(age, age < 30)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
     @Test
-    public void validExplicitFunctionAsEvalutionKeyAndExplicitFunctionWithCCLAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
-        String ccl = "count(friends, ?) > avg(age, age < 30)";
+    public void validImplicitRecordFunctionAsEvaluationKeyAndExplicitFunctionWithCCLAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age | avg > avg(age, age < 30)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
-    }
-
-    @Test
-    public void validExplicitFunctionAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
-        String ccl = "count(friends, ?) > 3";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
-    }
-
-    @Test
-    public void validImplicitFunctionAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
-        String ccl = "age > avg(age, ?)";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
-    }
-
-    @Test
-    public void validExplicitFunctionWithSingleRecordAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
-        String ccl = "age > avg(age, 1)";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
-    }
-
-    @Test
-    public void validExplicitFunctionWithMultpleRecordsAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
-        String ccl = "age > avg(age, 1, 2)";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
-    }
-
-    @Test
-    public void validExplicitFunctionWithCCLAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
-        String ccl = "age > avg(age, age < 30)";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
-    }
-
-    @Test
-    public void validExplicitFunctionAsEvalutionKeyAndExplicitFunctionWithCCLAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
-        String ccl = "count(friends, ?) > avg(age, age < 30)";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
-                StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.Start();
     }
 
     @Test (expected = ParseException.class)
@@ -180,7 +139,8 @@ public class GrammarTest {
         String ccl = "a >< 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -189,7 +149,8 @@ public class GrammarTest {
         String ccl = "a >< 1 2 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -198,7 +159,8 @@ public class GrammarTest {
         String ccl = "a = 1 at today";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -207,7 +169,8 @@ public class GrammarTest {
         String ccl = "$id$ != 40";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -216,7 +179,8 @@ public class GrammarTest {
         String ccl = "a = 1 on last christmas";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -225,7 +189,8 @@ public class GrammarTest {
         String ccl = "a = 1 at";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -234,15 +199,8 @@ public class GrammarTest {
         String ccl = "name = \"name\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        grammar.generateAST();
-    }
-
-    @Test
-    public void doubleLeftAndRightQuotation() throws UnsupportedEncodingException, ParseException {
-        String ccl = "name = “name”";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8));
-        Grammar grammar = new Grammar(stream);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -259,7 +217,8 @@ public class GrammarTest {
         String ccl = "name = \"wood\\\"ford\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -270,15 +229,18 @@ public class GrammarTest {
         data.put("name", "Lebron James");
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION, data);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, data, visitor);
         grammar.generateAST();
     }
+
     @Test
     public void validEscapedLocalResolution() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = \\$name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -287,7 +249,8 @@ public class GrammarTest {
         String ccl = "name = @name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -296,7 +259,8 @@ public class GrammarTest {
         String ccl = "name = \\@name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -304,7 +268,8 @@ public class GrammarTest {
     public void validLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "a -> 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -312,7 +277,8 @@ public class GrammarTest {
     public void validConjunctionExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 and b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -320,7 +286,8 @@ public class GrammarTest {
     public void validDisjunctionExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 or b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -328,7 +295,8 @@ public class GrammarTest {
     public void validParenthesizedExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 or (b = 2 and c = 3)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -336,7 +304,8 @@ public class GrammarTest {
     public void operatorEnum() throws UnsupportedEncodingException, ParseException {
         String ccl = "a LINKS_TO 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -369,7 +338,8 @@ public class GrammarTest {
         String ccl = "= 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -378,7 +348,8 @@ public class GrammarTest {
         String ccl = "a =";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -387,7 +358,8 @@ public class GrammarTest {
         String ccl = "a 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -396,7 +368,8 @@ public class GrammarTest {
         String ccl = "a = 1 and";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -405,16 +378,17 @@ public class GrammarTest {
         String ccl = "and a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION, PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
-
 
     @Test (expected = ParseException.class)
     public void invalidLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "a LINKS_TO b";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
@@ -430,4 +404,30 @@ public class GrammarTest {
      * {@link Parser}.
      */
     public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert.stringToOperator(operator);
+
+    public final Visitor visitor = new Visitor<AbstractSyntaxTree>() {
+
+        @Override
+        public AbstractSyntaxTree visit(AbstractSyntaxTree tree,
+                Object... data) {
+            for(AbstractSyntaxTree child : tree.children()) {
+                return child.accept(this, data);
+            }
+            return null;
+        }
+
+        @Override
+        public AbstractSyntaxTree visit(ConjunctionTree tree,
+                Object... data) {
+            tree.left().accept(this, data);
+            tree.right().accept(this, data);
+            return tree;
+        }
+
+        @Override
+        public AbstractSyntaxTree visit(ExpressionTree tree,
+                Object... data) {
+            return tree;
+        }
+    };
 }
