@@ -103,6 +103,26 @@ public class GrammarTest {
     }
 
     @Test
+    public void validExplicitFunctionWithBetween() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age bw avg(age) 1000";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validExplicitFunctionWithBetweenCCL() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age bw avg(age, age > 10) 1000";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
     public void validExplicitFunctionWithMultipleRecordsAsEvaluationValue() throws UnsupportedEncodingException, ParseException {
         String ccl = "age > avg(age, 1, 2)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
