@@ -338,10 +338,37 @@ BaseValueSymbol LinksToValue() :
 
 BaseValueSymbol BinaryValue() :
 {
+  Token function;
+  Token key;
   Token word;
   String value = "";
+  List<String> records = Lists.newArrayList();
+  ASTStart ccl;
 }
 {
+  LOOKAHEAD(2)
+
+  function=<ALPHANUMERIC> <OPEN_PARENTHESES>
+   (
+     LOOKAHEAD(3)
+
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>) <CLOSE_PARENTHESES>
+     { return new FunctionValueSymbol(new ImplicitIndexValueFunction(function.image, key.image.substring(0, key.image.length())));}
+   |
+     LOOKAHEAD(2)
+
+     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
+     (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
+     (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
+     { return new FunctionValueSymbol(new ExplicitRecordsValueFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+   |
+     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>) ccl=generateSubAST() <CLOSE_PARENTHESES>
+     {
+        AbstractSyntaxTree tree = (AbstractSyntaxTree)((AbstractSyntaxTree) ccl).accept(visitor);
+
+        return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+   )
+|
   (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
   {
     value = word.image;

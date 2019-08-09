@@ -1157,7 +1157,55 @@ public class JavaCCParserLogicTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testExplicitFunctionWithMultpleRecordsAsEvaluationValue() {
+    public void testExplicitFunctionWithBetween() {
+        String ccl = "age bw avg(age) 1000";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals("><", expression.operator().toString());
+        Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertEquals("avg", ((ImplicitIndexValueFunction) expression.values().get(0).value()).function());
+        Assert.assertEquals("age", ((ImplicitIndexValueFunction) expression.values().get(0).value()).key());
+
+        Assert.assertEquals("1000", expression.values().get(1).toString());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testExplicitFunctionWithBetweenCCL() {
+        String ccl = "age bw avg(age, age > 10) 1000";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals("><", expression.operator().toString());
+
+        Assert.assertTrue((((ExplicitValueFunction) expression.values().get(0).value()).value()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((Expression) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).key().toString());
+        Assert.assertEquals(">", ((Expression) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).operator().toString());
+        Assert.assertEquals("10", ((Expression) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).values().get(0).toString());
+
+        Assert.assertEquals("1000", expression.values().get(1).toString());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testExplicitFunctionWithMultipleRecordsAsEvaluationValue() {
         String ccl = "age > avg(age, 1, 2)";
 
         // Generate tree
