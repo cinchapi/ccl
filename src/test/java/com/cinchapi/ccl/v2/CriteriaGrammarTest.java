@@ -15,9 +15,9 @@
  */
 package com.cinchapi.ccl.v2;
 
+import com.cinchapi.ccl.v2.generated.CriteriaGrammar;
 import org.junit.Test;
 
-import com.cinchapi.ccl.v2.generated.Grammar;
 import com.cinchapi.ccl.v2.generated.ParseException;
 
 import java.io.ByteArrayInputStream;
@@ -26,16 +26,16 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Tests for {@link Grammar}
+ * Tests for {@link CriteriaGrammar}
  */
-public class GrammarTest {
+public class CriteriaGrammarTest {
 
     @Test
     public void validUnaryOperatorSingleWordValueExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -44,7 +44,7 @@ public class GrammarTest {
         String ccl = "a = 1 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -53,7 +53,7 @@ public class GrammarTest {
         String ccl = "a >< 1 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -62,7 +62,7 @@ public class GrammarTest {
         String ccl = "a >< 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -71,7 +71,7 @@ public class GrammarTest {
         String ccl = "a >< 1 2 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -80,7 +80,7 @@ public class GrammarTest {
         String ccl = "a = 1 at today";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -89,7 +89,7 @@ public class GrammarTest {
         String ccl = "$id$ != 40";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -98,7 +98,7 @@ public class GrammarTest {
         String ccl = "a = 1 on last christmas";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -107,7 +107,7 @@ public class GrammarTest {
         String ccl = "a = 1 at";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -116,7 +116,7 @@ public class GrammarTest {
         String ccl = "name = \"name\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -124,7 +124,7 @@ public class GrammarTest {
     public void doubleLeftAndRightQuotation() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = “name”";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -132,7 +132,7 @@ public class GrammarTest {
     public void singleLeftAndRightQuotation() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = ‘name’";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -141,7 +141,7 @@ public class GrammarTest {
         String ccl = "name = \"wood\\\"ford\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -150,7 +150,7 @@ public class GrammarTest {
         String ccl = "name = $name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -159,7 +159,7 @@ public class GrammarTest {
         String ccl = "name = \\$name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -168,7 +168,7 @@ public class GrammarTest {
         String ccl = "name = @name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -177,7 +177,7 @@ public class GrammarTest {
         String ccl = "name = \\@name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -186,7 +186,7 @@ public class GrammarTest {
     public void validLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "a -> 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -194,7 +194,7 @@ public class GrammarTest {
     public void validConjunctionExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 and b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -202,7 +202,7 @@ public class GrammarTest {
     public void validDisjunctionExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 or b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -210,7 +210,7 @@ public class GrammarTest {
     public void operatorEnum() throws UnsupportedEncodingException, ParseException {
         String ccl = "a LINKS_TO 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -218,7 +218,7 @@ public class GrammarTest {
     public void validNavigationKeyAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
         String ccl = "a.b = 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -226,7 +226,7 @@ public class GrammarTest {
     public void validLongNavigationKeyAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
         String ccl = "a.b.c.d = 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -235,7 +235,7 @@ public class GrammarTest {
         String ccl = "= 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -244,7 +244,7 @@ public class GrammarTest {
         String ccl = "a =";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -253,7 +253,7 @@ public class GrammarTest {
         String ccl = "a 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -262,7 +262,7 @@ public class GrammarTest {
         String ccl = "a = 1 and";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -271,7 +271,7 @@ public class GrammarTest {
         String ccl = "and a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 
@@ -279,7 +279,7 @@ public class GrammarTest {
     public void invalidLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "a LINKS_TO b";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        CriteriaGrammar grammar = new CriteriaGrammar(stream);
         grammar.Start();
     }
 }

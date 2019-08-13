@@ -57,7 +57,7 @@ public class ASTRelationalExpression extends SimpleNode {
      * @param grammar the grammar
      * @param id the id
      */
-    public ASTRelationalExpression(Grammar grammar, int id) {
+    public ASTRelationalExpression(CriteriaGrammar grammar, int id) {
         super(grammar, id);
     }
 
@@ -176,7 +176,7 @@ public class ASTRelationalExpression extends SimpleNode {
      * @param data the data
      * @return the result of the visit
      */
-    public Object jjtAccept(GrammarVisitor visitor, Object data) {
+    public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
 }

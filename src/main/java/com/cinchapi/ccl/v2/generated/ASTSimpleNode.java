@@ -8,13 +8,13 @@ class ASTSimpleNode extends SimpleNode {
     super(id);
   }
 
-  public ASTSimpleNode(Grammar p, int id) {
+  public ASTSimpleNode(CriteriaGrammar p, int id) {
     super(p, id);
   }
 
 
   /** Accept the visitor. **/
-  public Object jjtAccept(GrammarVisitor visitor, Object data) {
+  public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data) {
 
     return
     visitor.visit(this, data);

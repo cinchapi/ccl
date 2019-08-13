@@ -16,10 +16,10 @@
 package com.cinchapi.ccl.v2.generated;
 
 /**
- * A visitor pattern implementation of {@link GrammarVisitor} that
+ * A visitor pattern implementation of {@link CriteriaGrammarVisitor} that
  * prints the node information to std out
  */
-public class GrammarDumpVisitor implements GrammarVisitor
+public class CriteriaGrammarDumpVisitor implements CriteriaGrammarVisitor
 {
     /**
      * The indent level

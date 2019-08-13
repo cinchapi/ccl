@@ -17,29 +17,29 @@ package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.SyntaxException;
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Queue;
 
 /**
- * A visitor pattern implementation of {@link GrammarVisitor} that
- * generates an abstract syntax tree of the accepted string.
+ * A visitor pattern implementation of {@link CriteriaGrammarVisitor} that
+ * generates a postfix notation queue of the accepted string.
  */
-public class GrammarTreeVisitor implements GrammarVisitor
+public class CriteriaGrammarPostfixVisitor implements CriteriaGrammarVisitor
 {
     /**
      * The parser used to parse the string.
@@ -57,7 +57,7 @@ public class GrammarTreeVisitor implements GrammarVisitor
      * @param parser the parser
      * @param data the local data
      */
-    public GrammarTreeVisitor(JavaCCParser parser, Multimap<String, Object> data) {
+    public CriteriaGrammarPostfixVisitor(JavaCCParser parser, Multimap<String, Object> data) {
         super();
         this.parser = parser;
         this.data = data;
@@ -71,7 +71,8 @@ public class GrammarTreeVisitor implements GrammarVisitor
      * @return the data
      */
     public Object visit(SimpleNode node, Object data) {
-        System.out.println(node + ": acceptor not unimplemented in subclass?");
+        System.out.println(node +
+                ": acceptor not unimplemented in subclass?");
         data = node.childrenAccept(this, data);
         return data;
     }
@@ -81,10 +82,11 @@ public class GrammarTreeVisitor implements GrammarVisitor
      *
      * @param node the node
      * @param data the data
-     * @return the data
+     * @return the queue of postfix symbols
      */
     public Object visit(ASTStart node, Object data) {
-        data = node.jjtGetChild(0).jjtAccept(this, data);
+        Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
+        data = node.childrenAccept(this, symbols);
         return data;
     }
 
@@ -92,35 +94,42 @@ public class GrammarTreeVisitor implements GrammarVisitor
      * Visitor for a {@link ASTAnd}
      *
      * @param node the node
-     * @param data a reference to the tree
-     * @return the tree
+     * @param data the data
+     * @return the queue of postfix symbols
      */
+    @SuppressWarnings({ "unchecked", "unused" })
     public Object visit(ASTAnd node, Object data) {
-        AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-        AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
-        return new AndTree(left, right);
+        // Return value isn't needed
+        node.jjtGetChild(0).jjtAccept(this, data);
+        Queue<PostfixNotationSymbol> symbols = (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+        symbols.add(ConjunctionSymbol.AND);
+        return symbols;
     }
 
     /**
      * Visitor for a {@link ASTOr}
      *
      * @param node the node
-     * @param data a reference to the tree
-     * @return the tree
+     * @param data the data
+     * @return the queue of postfix symbols
      */
+    @SuppressWarnings({ "unchecked", "unused" })
     public Object visit(ASTOr node, Object data) {
-        AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-        AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
-        return new OrTree(left, right);
+        // Return value isn't needed
+        node.jjtGetChild(0).jjtAccept(this, data);
+        Queue<PostfixNotationSymbol> symbols = (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+        symbols.add(ConjunctionSymbol.OR);
+        return symbols;
     }
 
     /**
      * Visitor for a {@link ASTRelationalExpression}
      *
      * @param node the node
-     * @param data a reference to the tree
-     * @return the expression tree
+     * @param data the data
+     * @return the queue of postfix symbols
      */
+    @SuppressWarnings("unchecked")
     public Object visit(ASTRelationalExpression node, Object data) {
         KeySymbol key = new KeySymbol(node.key());
         OperatorSymbol operator = new OperatorSymbol(parser.transformOperator(node.operator()));
@@ -161,6 +170,8 @@ public class GrammarTreeVisitor implements GrammarVisitor
             expression = new Expression(key, operator, values.toArray(new ValueSymbol[0]));
         }
 
-        return new ExpressionTree(expression);
+        ((Queue<PostfixNotationSymbol>) data).add(expression);
+
+        return data;
     }
 }

@@ -17,14 +17,15 @@ package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.SyntaxException;
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.ParenthesisSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
 import com.google.common.collect.Iterables;
@@ -35,10 +36,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * A visitor pattern implementation of {@link GrammarVisitor} that
- * generates a list of the symbols in the accepted string.
+ * A visitor pattern implementation of {@link CriteriaGrammarVisitor} that
+ * generates an abstract syntax tree of the accepted string.
  */
-public class GrammarTokenizeVisitor implements GrammarVisitor
+public class CriteriaGrammarTreeVisitor implements CriteriaGrammarVisitor
 {
     /**
      * The parser used to parse the string.
@@ -56,7 +57,7 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
      * @param parser the parser
      * @param data the local data
      */
-    public GrammarTokenizeVisitor(JavaCCParser parser, Multimap<String, Object> data) {
+    public CriteriaGrammarTreeVisitor(JavaCCParser parser, Multimap<String, Object> data) {
         super();
         this.parser = parser;
         this.data = data;
@@ -76,15 +77,14 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
     }
 
     /**
-     * Visitor for a {@link SimpleNode}
+     * Visitor for a {@link ASTStart}
      *
      * @param node the node
      * @param data the data
-     * @return the list of symbols
+     * @return the data
      */
     public Object visit(ASTStart node, Object data) {
-        List<Symbol> symbols = Lists.newArrayList();
-        data = node.childrenAccept(this, symbols);
+        data = node.jjtGetChild(0).jjtAccept(this, data);
         return data;
     }
 
@@ -92,73 +92,37 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
      * Visitor for a {@link ASTAnd}
      *
      * @param node the node
-     * @param data a reference to the list of symbols
-     * @return the list of symbols
+     * @param data a reference to the tree
+     * @return the tree
      */
-    @SuppressWarnings("unchecked")
     public Object visit(ASTAnd node, Object data) {
-        List<Symbol> symbols = (List<Symbol>) data;
-        boolean parenthesis = false;
-        if (node.jjtGetChild(0) instanceof ASTOr) {
-            symbols.add(ParenthesisSymbol.LEFT);
-            parenthesis = true;
-        }
-
-        node.jjtGetChild(0).jjtAccept(this, data);
-
-        if (parenthesis) {
-            symbols.add(ParenthesisSymbol.RIGHT);
-            parenthesis = false;
-        }
-
-        symbols.add(ConjunctionSymbol.AND);
-
-        if (node.jjtGetChild(1) instanceof ASTOr) {
-            symbols.add(ParenthesisSymbol.LEFT);
-            parenthesis = true;
-        }
-
-        node.jjtGetChild(1).jjtAccept(this, data);
-
-        if (parenthesis) {
-            symbols.add(ParenthesisSymbol.RIGHT);
-        }
-
-        return symbols;
+        AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+        AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+        return new AndTree(left, right);
     }
 
     /**
      * Visitor for a {@link ASTOr}
      *
      * @param node the node
-     * @param data a reference to the list of symbols
-     * @return the list of symbols
+     * @param data a reference to the tree
+     * @return the tree
      */
-    @SuppressWarnings("unchecked")
     public Object visit(ASTOr node, Object data) {
-        List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
-        symbols.add(ConjunctionSymbol.OR);
-        symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
-        return symbols;
+        AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+        AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+        return new OrTree(left, right);
     }
 
     /**
      * Visitor for a {@link ASTRelationalExpression}
      *
      * @param node the node
-     * @param data a reference to the list of symbols
-     * @return the list of symbols
+     * @param data a reference to the tree
+     * @return the expression tree
      */
-    @SuppressWarnings("unchecked")
     public Object visit(ASTRelationalExpression node, Object data) {
-        KeySymbol key;
-        if (node.key().indexOf('.') > 0) {
-            key = new NavigationKeySymbol(node.key());
-        }
-        else {
-            key = new KeySymbol(node.key());
-        }
-
+        KeySymbol key = new KeySymbol(node.key());
         OperatorSymbol operator = new OperatorSymbol(parser.transformOperator(node.operator()));
 
         // Perform local resolution for variable
@@ -186,17 +150,17 @@ public class GrammarTokenizeVisitor implements GrammarVisitor
             values.add(new ValueSymbol(parser.transformValue(value)));
         }
 
-        ((List<Symbol>) data).add(key);
-        ((List<Symbol>) data).add(operator);
-        for(ValueSymbol valueSymbol : values) {
-            ((List<Symbol>) data).add(valueSymbol);
-        }
+        Expression expression;
         if (node.timestamp() != null) {
             long ts = NaturalLanguage.parseMicros(node.timestamp());
             TimestampSymbol timestamp = new TimestampSymbol(ts);
-            ((List<Symbol>) data).add(timestamp);
+
+            expression = new Expression(timestamp, key, operator, values.toArray(new ValueSymbol[0]));
+        }
+        else {
+            expression = new Expression(key, operator, values.toArray(new ValueSymbol[0]));
         }
 
-        return data;
+        return new ExpressionTree(expression);
     }
 }
