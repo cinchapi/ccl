@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control;
+package com.cinchapi.ccl.control.generated;
 
-import com.cinchapi.ccl.v2.generated.ASTStart;
-import com.cinchapi.ccl.v2.generated.SimpleNode;
 import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.sort.Order;
 
@@ -53,48 +51,57 @@ public class OrderGrammarTreeVisitor implements OrderGrammarVisitor
 
 
     /**
-     * Visitor for a {@link ASTExpression}
+     * Visitor for a {@link ASTOrder}
      *
      * @param node the node
      * @param data a reference to the tree
      * @return the expression tree
      */
-    public Object visit(ASTExpression node, Object data) {
-        if (node.orderComponent().equalsIgnoreCase(">")) {
-            if (node.timestampNumeric() != null) {
-                long number = Long.valueOf(node.timestampNumeric());
-                return Order.by(node.key()).at(Timestamp.fromMicros(number)).descending().build();
-            }
-            else if (node.timestampString() != null) {
-                if (node.timestampFormat() != null) {
-                    return Order.by(node.key()).at(Timestamp.parse(node.timestampString(), node.timestampFormat())).descending().build();
-                }
-                else {
-                    return Order.by(node.key()).at(Timestamp.fromString(node.timestampString())).descending().build();
-                }
-            }
-            else {
-                return Order.by(node.key()).descending().build();
-            }
-        }
-        else {
-            if(node.timestampNumeric() != null) {
-                long number = Long.valueOf(node.timestampNumeric());
+    public Object visit(ASTOrder node, Object data) {
+        if (node.orderComponent() == null || node.orderComponent().equalsIgnoreCase("<")) {
+            if(node.timestampNumber() != null) {
+                long number = Long.valueOf(node.timestampNumber());
                 return Order.by(node.key()).at(Timestamp.fromMicros(number)).ascending().build();
             }
             else if(node.timestampString() != null) {
                 if(node.timestampFormat() != null) {
                     return Order.by(node.key()).at(Timestamp
-                            .parse(node.timestampString(), node.timestampFormat())).ascending()
+                            .parse(node.timestampString().replace("\"", ""),
+                                    node.timestampFormat().replace("\"", "")))
+                                    .ascending()
                             .build();
                 }
                 else {
-                    return Order.by(node.key()).at(Timestamp.fromString(node.timestampString()))
+                    return Order.by(node.key()).at(Timestamp.
+                            fromString(node.timestampString().replace("\"", "")))
                             .ascending().build();
                 }
             }
             else {
                 return Order.by(node.key()).ascending().build();
+            }
+        }
+        else {
+            if (node.timestampNumber() != null) {
+                long number = Long.valueOf(node.timestampNumber());
+                return Order.by(node.key()).at(Timestamp.fromMicros(number)).descending().build();
+            }
+            else if (node.timestampString() != null) {
+                if (node.timestampFormat() != null) {
+                    return Order.by(node.key()).at(Timestamp
+                            .parse(node.timestampString().replace("\"", ""),
+                                    node.timestampFormat().replace("\"", "")))
+                                    .descending()
+                            .build();
+                }
+                else {
+                    return Order.by(node.key()).at(Timestamp
+                            .fromString(node.timestampString().replace("\"", "")))
+                            .descending().build();
+                }
+            }
+            else {
+                return Order.by(node.key()).descending().build();
             }
         }
     }

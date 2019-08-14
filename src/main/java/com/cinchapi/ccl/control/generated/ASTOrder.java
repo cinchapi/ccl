@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control;
-
-import com.cinchapi.ccl.v2.generated.SimpleNode;
-
-import java.util.List;
+package com.cinchapi.ccl.control.generated;
 
 /**
  * A node that representation a CCL expression
  */
-public class ASTExpression extends SimpleNode {
+public class ASTOrder extends SimpleNode {
     /**
      * The operator
      */
@@ -31,7 +27,7 @@ public class ASTExpression extends SimpleNode {
     /**
      * The key
      */
-    private String key = "";
+    private String key = null;
 
     /**
      * The timestamp
@@ -46,14 +42,14 @@ public class ASTExpression extends SimpleNode {
     /**
      * The timestamp
      */
-    private String timestampNumeric = null;
+    private String timestampNumber = null;
 
     /**
      * Construct a new instance
      *
      * @param id the id
      */
-    public ASTExpression(int id) {
+    public ASTOrder(int id) {
         super(id);
     }
 
@@ -63,7 +59,7 @@ public class ASTExpression extends SimpleNode {
      * @param grammar the grammar
      * @param id the id
      */
-    public ASTExpression(OrderGrammar grammar, int id) {
+    public ASTOrder(OrderGrammar grammar, int id) {
         super(grammar, id);
     }
 
@@ -106,10 +102,10 @@ public class ASTExpression extends SimpleNode {
     /**
      * Set the timestamp.
      *
-     * @param timestampNumeric the timestamp
+     * @param timestampNumber the timestamp
      */
-    public void timestampNumeric(String timestampNumeric) {
-        this.timestampNumeric = timestampNumeric;
+    public void timestampNumber(String timestampNumber) {
+        this.timestampNumber = timestampNumber;
     }
 
     /**
@@ -151,8 +147,8 @@ public class ASTExpression extends SimpleNode {
      *
      * @return the timestamp
      */
-    public String timestampNumeric() {
-        return  timestampNumeric;
+    public String timestampNumber() {
+        return  timestampNumber;
     }
 
     /**
@@ -166,9 +162,9 @@ public class ASTExpression extends SimpleNode {
             builder.append(orderComponent);
         }
         builder.append(key);
-        if (timestampNumeric != null) {
+        if (timestampNumber != null) {
             builder.append("@");
-            builder.append(timestampNumeric);
+            builder.append(timestampNumber);
         }
         else if (timestampString != null) {
             builder.append("@");
