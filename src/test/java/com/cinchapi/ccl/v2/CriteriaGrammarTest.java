@@ -16,9 +16,8 @@
 package com.cinchapi.ccl.v2;
 
 import com.cinchapi.ccl.v2.generated.CriteriaGrammar;
-import org.junit.Test;
-
 import com.cinchapi.ccl.v2.generated.ParseException;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -31,7 +30,8 @@ import java.nio.charset.StandardCharsets;
 public class CriteriaGrammarTest {
 
     @Test
-    public void validUnaryOperatorSingleWordValueExpression() throws UnsupportedEncodingException, ParseException {
+    public void validUnaryOperatorSingleWordValueExpression() throws UnsupportedEncodingException,
+            ParseException {
         String ccl = "a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
