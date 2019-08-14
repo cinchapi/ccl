@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.v2.generated;
+package com.cinchapi.ccl.control.generated;
 
 /**
- * A visitor pattern implementation of {@link CriteriaGrammarVisitor} that
+ * A visitor pattern implementation of {@link OrderGrammarVisitor} that
  * prints the node information to std out
  */
-public class CriteriaGrammarDumpVisitor implements CriteriaGrammarVisitor
+public class OrderGrammarDumpVisitor implements OrderGrammarVisitor
 {
     /**
      * The indent level
@@ -58,43 +58,13 @@ public class CriteriaGrammarDumpVisitor implements CriteriaGrammarVisitor
     }
 
     /**
-     * Visitor for a {@link ASTAnd}
+     * Visitor for a {@link ASTOrder}
      *
      * @param node the node
      * @param data the data
      * @return the data
      */
-    public Object visit(ASTAnd node, Object data) {
-        System.out.println(indentString() + node);
-        ++indent;
-        data = node.childrenAccept(this, data);
-        --indent;
-        return data;
-    }
-
-    /**
-     * Visitor for a {@link ASTOr}
-     *
-     * @param node the node
-     * @param data the data
-     * @return the data
-     */
-    public Object visit(ASTOr node, Object data) {
-        System.out.println(indentString() + node);
-        ++indent;
-        data = node.childrenAccept(this, data);
-        --indent;
-        return data;
-    }
-
-    /**
-     * Visitor for a {@link ASTRelationalExpression}
-     *
-     * @param node the node
-     * @param data the data
-     * @return the data
-     */
-    public Object visit(ASTRelationalExpression node, Object data) {
+    public Object visit(ASTOrder node, Object data) {
         System.out.println(indentString() + node);
         ++indent;
         data = node.childrenAccept(this, data);
