@@ -149,7 +149,7 @@ repositories {
   }
 }
 
-ext.concourseVersion = '0.9.6'
+ext.concourseVersion = '0.10.1'
 
 dependencies {
   compile 'com.google.code.findbugs:jsr305:2.0.1'
@@ -168,6 +168,10 @@ dependencies {
 
 task generateJavaCCParser(type: Exec) {
   commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/CriteriaGrammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/v2/generated'
+}
+
+task generateControlJavaCCParser(type: Exec) {
+  commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/OrderGrammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/control/generated'
 }
 
 compileJava.dependsOn generateJavaCCParser
