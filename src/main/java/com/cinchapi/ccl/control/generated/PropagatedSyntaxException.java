@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl;
+package com.cinchapi.ccl.control.generated;
 
+import com.cinchapi.ccl.control.Parser;
+import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.common.base.AnyStrings;
 
 /**
@@ -33,7 +35,7 @@ public class PropagatedSyntaxException extends SyntaxException {
      * @param parser
      */
     public PropagatedSyntaxException(Exception e, Parser parser) {
-        super(AnyStrings.format("While processing '{}', {}", parser.ccl(),
+        super(AnyStrings.format("While processing '{}', {}", parser.input(),
                 e.getMessage()));
         setStackTrace(e.getStackTrace());
     }
