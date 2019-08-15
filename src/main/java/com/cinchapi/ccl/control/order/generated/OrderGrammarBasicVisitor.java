@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control.generated;
+package com.cinchapi.ccl.control.order.generated;
 
 import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.sort.Order;
 
 /**
  * A visitor pattern implementation of {@link OrderGrammarVisitor} that
- * generates an abstract syntax tree of the accepted string.
+ * generates an {@link Order} of the accepted string.
  */
-public class OrderGrammarTreeVisitor implements OrderGrammarVisitor
+public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
 {
     /**
      * Visitor for a {@link SimpleNode}
