@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control.generated;
+package com.cinchapi.ccl.control.order.generated;
 
 /**
- * A node that representation a CCL expression
+ * A node that representation a CCL Order
  */
 public class ASTOrder extends SimpleNode {
     /**
@@ -30,17 +30,17 @@ public class ASTOrder extends SimpleNode {
     private String key = null;
 
     /**
-     * The timestamp
+     * The timestamp as a string
      */
     private String timestampString = null;
 
     /**
-     * The timestamp
+     * The timestamp format
      */
     private String timestampFormat = null;
 
     /**
-     * The timestamp
+     * The timestamp as a number
      */
     private String timestampNumber = null;
 

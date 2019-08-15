@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control.generated;
+package com.cinchapi.ccl.control.order.generated;
 
 /**
  * A visitor pattern implementation of {@link OrderGrammarVisitor} that
