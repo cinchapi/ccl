@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control.generated;
+package com.cinchapi.ccl.control.order.generated;
 
-import com.cinchapi.ccl.control.Parser;
+import com.cinchapi.ccl.control.order.Parser;
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.common.base.AnyStrings;
 

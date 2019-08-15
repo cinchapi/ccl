@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control;
+package com.cinchapi.ccl.control.order;
 
+import com.cinchapi.ccl.control.order.Parser;
 import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.sort.Order;
 import org.junit.Assert;
@@ -106,7 +107,12 @@ public class ParserTest {
         Parser parser = new Parser(input);
         Order actual = parser.order();
 
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expected.spec().size(), actual.spec().size());
+        for(int i = 0; i < expected.spec().size(); i++) {
+            Assert.assertEquals(expected.spec().get(i).key(), actual.spec().get(i).key());
+            Assert.assertEquals(expected.spec().get(i).direction(), actual.spec().get(i).direction());
+            Assert.assertEquals(expected.spec().get(i).timestamp().toString(), actual.spec().get(i).timestamp().toString());
+        }
     }
 
     @Test
@@ -166,7 +172,12 @@ public class ParserTest {
         Parser parser = new Parser(input);
         Order actual = parser.order();
 
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expected.spec().size(), actual.spec().size());
+        for(int i = 0; i < expected.spec().size(); i++) {
+            Assert.assertEquals(expected.spec().get(i).key(), actual.spec().get(i).key());
+            Assert.assertEquals(expected.spec().get(i).direction(), actual.spec().get(i).direction());
+            Assert.assertEquals(expected.spec().get(i).timestamp().toString(), actual.spec().get(i).timestamp().toString());
+        }
     }
 
     @Test
@@ -229,7 +240,12 @@ public class ParserTest {
         Parser parser = new Parser(input);
         Order actual = parser.order();
 
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expected.spec().size(), actual.spec().size());
+        for(int i = 0; i < expected.spec().size(); i++) {
+            Assert.assertEquals(expected.spec().get(i).key(), actual.spec().get(i).key());
+            Assert.assertEquals(expected.spec().get(i).direction(), actual.spec().get(i).direction());
+            Assert.assertEquals(expected.spec().get(i).timestamp().toString(), actual.spec().get(i).timestamp().toString());
+        }
     }
 
     @Test
