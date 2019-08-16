@@ -2,8 +2,6 @@
 /* JavaCCOptions:KEEP_LINE_COLUMN=true */
 package com.cinchapi.ccl.paginate.generated;
 
-import com.cinchapi.ccl.v2.generated.Token;
-
 /**
  * This exception is thrown when parse errors are encountered.
  * You can explicitly create objects of this exception type by
@@ -13,7 +11,7 @@ import com.cinchapi.ccl.v2.generated.Token;
  * You can modify this class to customize your error reporting
  * mechanisms so long as you retain the public fields.
  */
-public class PageParseException extends Exception {
+public class ParseException extends Exception {
 
   /**
    * The version identifier for this Serializable class.
@@ -33,7 +31,7 @@ public class PageParseException extends Exception {
    * a new object of this type with the fields "currentToken",
    * "expectedTokenSequences", and "tokenImage" set.
    */
-  public PageParseException(Token currentTokenVal,
+  public ParseException(Token currentTokenVal,
                         int[][] expectedTokenSequencesVal,
                         String[] tokenImageVal
                        )
@@ -54,12 +52,12 @@ public class PageParseException extends Exception {
    * these constructors.
    */
 
-  public PageParseException() {
+  public ParseException() {
     super();
   }
 
   /** Constructor with message. */
-  public PageParseException(String message) {
+  public ParseException(String message) {
     super(message);
   }
 

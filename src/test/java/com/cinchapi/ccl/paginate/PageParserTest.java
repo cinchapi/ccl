@@ -15,19 +15,93 @@
  */
 package com.cinchapi.ccl.paginate;
 
+import com.cinchapi.concourse.lang.paginate.Page;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Tests for the {@link PageParser}
  */
-public class OrderParserTest {
+public class PageParserTest {
 
-    @Test public void test() {
-        String key = "age";
+    // String constants
+    static final String NUMBER = "number";
+    static final String SIZE = "size";
+
+    @Test
+    public void testWithNumber() {
+        int number = 3;
         StringBuilder builder = new StringBuilder();
-        builder.append(key);
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
         String input = builder.toString();
+
+        Page expected = Page.number(number);
+
+        PageParser parser = new PageParser(input);
+        Page actual = parser.page();
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testWithNumberAndSize() {
+        int number = 3;
+        int size = 1;
+        StringBuilder builder = new StringBuilder();
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        builder.append(" ");
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        String input = builder.toString();
+
+        Page expected = Page.sized(size).go(number);
+
+        PageParser parser = new PageParser(input);
+        Page actual = parser.page();
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testWithSize() {
+        int size = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        String input = builder.toString();
+
+        Page expected = Page.sized(size);
+
+        PageParser parser = new PageParser(input);
+        Page actual = parser.page();
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testWithSizeAndNumber() {
+        int size = 1;
+        int number = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        builder.append(" ");
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        String input = builder.toString();
+
+        Page expected = Page.sized(size).go(number);
+
+        PageParser parser = new PageParser(input);
+        Page actual = parser.page();
 
         Assert.assertEquals(expected, actual);
     }
