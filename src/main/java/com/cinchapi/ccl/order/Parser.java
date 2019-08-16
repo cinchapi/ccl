@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control.order;
+package com.cinchapi.ccl.order;
 
-import com.cinchapi.ccl.control.order.generated.OrderGrammar;
-import com.cinchapi.ccl.control.order.generated.OrderGrammarBasicVisitor;
-import com.cinchapi.ccl.control.order.generated.PropagatedSyntaxException;
-import com.cinchapi.ccl.control.order.generated.SimpleNode;
+import com.cinchapi.ccl.order.generated.OrderGrammar;
+import com.cinchapi.ccl.order.generated.OrderGrammarBasicVisitor;
+import com.cinchapi.ccl.order.generated.PropagatedSyntaxException;
+import com.cinchapi.ccl.order.generated.SimpleNode;
 import com.cinchapi.concourse.lang.sort.Order;
 
 import javax.annotation.concurrent.Immutable;
