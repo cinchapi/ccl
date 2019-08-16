@@ -17,17 +17,16 @@ package com.cinchapi.ccl.order;
 
 import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.sort.Order;
-import com.cinchapi.concourse.lang.sort.OrderComponent;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests for the {@link OrderParser}
+ *
  */
 public class OrderParserTest {
 
     @Test
-    public void testKey() {
+    public void test() {
         String key = "age";
         StringBuilder builder = new StringBuilder();
         builder.append(key);
@@ -42,7 +41,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyAscending() {
+    public void test2() {
         String key = "age";
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -58,7 +57,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyDescending() {
+    public void test3() {
         String key = "age";
         StringBuilder builder = new StringBuilder();
         builder.append(">");
@@ -74,7 +73,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithNumberTimestamp() {
+    public void test4() {
         String key = "age";
         long number = 122L;
         StringBuilder builder = new StringBuilder();
@@ -92,7 +91,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithStringTimestamp() {
+    public void test5() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         StringBuilder builder = new StringBuilder();
@@ -116,7 +115,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithStringAndFormatTimestamp() {
+    public void test6() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         String format = "\"yyyy-mm-dd\"";
@@ -137,7 +136,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithNumberTimestampAscending() {
+    public void test7() {
         String key = "age";
         Long number = 122L;
         StringBuilder builder = new StringBuilder();
@@ -156,7 +155,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithStringTimestampAscending() {
+    public void test8() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         StringBuilder builder = new StringBuilder();
@@ -181,7 +180,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithStringAndFormatTimestampAscending() {
+    public void test9() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         String format = "\"yyyy-mm-dd\"";
@@ -205,7 +204,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithNumberTimestampDescending() {
+    public void test10() {
         String key = "age";
         Long number = 122L;
         StringBuilder builder = new StringBuilder();
@@ -224,7 +223,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithStringTimestampDescending() {
+    public void test11() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         StringBuilder builder = new StringBuilder();
@@ -249,7 +248,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void testKeyWithStringAndFormatTimestampDescending() {
+    public void test12() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         String format = "\"yyyy-mm-dd\"";
@@ -265,44 +264,6 @@ public class OrderParserTest {
         Order expected = Order.by("age").at(Timestamp
                 .parse(timestamp.replace("\"", ""),
                         format.replace("\"", ""))).descending().build();
-
-        OrderParser orderParser = new OrderParser(input);
-        Order actual = orderParser.order();
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testMultipleKeys() {
-        String key1 = "age";
-        String key2 = "salary";
-        StringBuilder builder = new StringBuilder();
-        builder.append(key1);
-        builder.append(" ");
-        builder.append(key2);
-        String input = builder.toString();
-
-        Order expected = Order.by("age").then("salary").build();
-
-        OrderParser orderParser = new OrderParser(input);
-        Order actual = orderParser.order();
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testMultipleKeysWithDirectional() {
-        String key1 = "age";
-        String key2 = "salary";
-        StringBuilder builder = new StringBuilder();
-        builder.append("<");
-        builder.append(key1);
-        builder.append(" ");
-        builder.append(">");
-        builder.append(key2);
-        String input = builder.toString();
-
-        Order expected = Order.by("age").ascending().then("salary").descending().build();
 
         OrderParser orderParser = new OrderParser(input);
         Order actual = orderParser.order();
