@@ -105,4 +105,3 @@ public class PageParserTest {
 
         Assert.assertEquals(expected, actual);
     }
-}
