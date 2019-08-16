@@ -15,14 +15,17 @@
  */
 package com.cinchapi.ccl.paginate.generated;
 
-import com.cinchapi.concourse.lang.paginate.Page;
-
 /**
  * A visitor pattern implementation of {@link PageGrammarVisitor} that
- * generates an {@link Page} of the accepted string.
+ * prints the node information to std out
  */
-public class PageGrammarBasicVisitor implements PageGrammarVisitor
+public class PageGrammarDumpVisitor implements PageGrammarVisitor
 {
+    /**
+     * The indent level
+     */
+    private int indent = 0;
+
     /**
      * Visitor for a {@link SimpleNode}
      *
@@ -31,8 +34,11 @@ public class PageGrammarBasicVisitor implements PageGrammarVisitor
      * @return the data
      */
     public Object visit(SimpleNode node, Object data) {
-        System.out.println(node + ": acceptor not unimplemented in subclass?");
+        System.out.println(indentString() + node +
+                       ": acceptor not unimplemented in subclass?");
+        ++indent;
         data = node.childrenAccept(this, data);
+        --indent;
         return data;
     }
 
@@ -44,30 +50,38 @@ public class PageGrammarBasicVisitor implements PageGrammarVisitor
      * @return the data
      */
     public Object visit(ASTStart node, Object data) {
-        data = node.jjtGetChild(0).jjtAccept(this, data);
+        System.out.println(indentString() + node);
+        ++indent;
+        data = node.childrenAccept(this, data);
+        --indent;
         return data;
     }
-
 
     /**
      * Visitor for a {@link ASTPage}
      *
      * @param node the node
-     * @param data a reference to the tree
-     * @return the expression tree
+     * @param data the data
+     * @return the data
      */
     public Object visit(ASTPage node, Object data) {
-        if (node.number() == null && node.size() != null) {
-            return Page.sized(Integer.parseInt(node.size()));
+        System.out.println(indentString() + node);
+        ++indent;
+        data = node.childrenAccept(this, data);
+        --indent;
+        return data;
+    }
+
+    /**
+     * Creates an empty string with the current indent level.
+     *
+     * @return the indented string
+     */
+    private String indentString() {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < indent; ++i) {
+            sb.append(' ');
         }
-        else if (node.size() == null && node.number() != null) {
-            return Page.number(Integer.parseInt(node.number()));
-        }
-        else if (node.size() != null & node.number() != null) {
-            return Page.sized(Integer.parseInt(node.size())).go(Integer.parseInt(node.number()));
-        }
-        else {
-            return Page.first();
-        }
+        return sb.toString();
     }
 }

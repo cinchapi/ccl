@@ -20,15 +20,14 @@ package com.cinchapi.ccl.paginate.generated;
  */
 public class ASTPage extends SimpleNode {
     /**
-     * The operator
+     * The page number
      */
-    private String orderComponent = null;
+    private String number = null;
 
     /**
-     * The key
+     * The page size
      */
-    private String key = null;
-
+    private String size = null;
 
     /**
      * Construct a new instance
@@ -50,37 +49,35 @@ public class ASTPage extends SimpleNode {
     }
 
     /**
-     * Set the directional ordinal
+     * Set the page number
      *
-     * @param orderComponent the order component
+     * @param number the page number
      */
-    public void orderComponent(String orderComponent) {
-        this.orderComponent = orderComponent;
+    public void number(String number) {
+        this.number = number;
     }
 
     /**
-     * Set the key.
+     * Set the page size.
      *
-     * @param key the key
+     * @param size the page size
      */
-    public void key(String key) {
-        this.key = key;
+    public void size(String size) {
+        this.size = size;
     }
 
     /**
-     * Get the order component
+     * Get the page number
      */
-    public String orderComponent() {
-        return orderComponent;
+    public String number() {
+        return number;
     }
 
     /**
-     * Get the key
-     *
-     * @return the key
+     * Get the page size
      */
-    public String key() {
-        return key;
+    public String size() {
+        return size;
     }
 
     /**
@@ -90,10 +87,15 @@ public class ASTPage extends SimpleNode {
      */
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        if (orderComponent != null) {
-            builder.append(orderComponent);
+        if (number != null) {
+            builder.append(number);
         }
-        builder.append(key);
+        if (size != null) {
+            if (builder.length() == 0) {
+                builder.append(" ");
+            }
+            builder.append(number);
+        }
         return builder.toString();
     }
 
