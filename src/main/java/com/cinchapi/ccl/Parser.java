@@ -288,7 +288,7 @@ public abstract class Parser {
      */
     public boolean evaluate(Multimap<String, Object> data) {
         Verify.that(supportsLocalEvaluation,
-                "This Parser does not support local evaluation");
+                "This OrderParser does not support local evaluation");
         return parse().accept(evaluator, data);
     }
 

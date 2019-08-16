@@ -28,12 +28,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * A {@link Parser} is a stateful object that transforms raw input strings into
+ * A {@link OrderParser} is a stateful object that transforms raw input strings into
  * organized structures that can be logically evaluated.
  */
 @ThreadSafe
 @Immutable
-public class Parser {
+public class OrderParser {
 
     /**
      * The string statement being parsed.
@@ -45,7 +45,7 @@ public class Parser {
      *
      * @param input
      */
-    public Parser(String input) {
+    public OrderParser(String input) {
         this.input = input;
     }
 
