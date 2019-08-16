@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control.order;
+package com.cinchapi.ccl.order;
 
-import com.cinchapi.ccl.control.order.Parser;
 import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.sort.Order;
 import org.junit.Assert;
