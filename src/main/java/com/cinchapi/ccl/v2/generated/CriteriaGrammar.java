@@ -833,7 +833,7 @@ if (jjtc000) {
 	 }
   }
 
-  /** Generate ParseException. */
+  /** Generate OrderParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
 	 boolean[] la1tokens = new boolean[37];

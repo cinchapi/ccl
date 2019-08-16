@@ -23,7 +23,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ParserTest {
+public class OrderParserTest {
 
     @Test
     public void test() {
@@ -34,8 +34,8 @@ public class ParserTest {
 
         Order expected = Order.by("age").build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }
@@ -50,8 +50,8 @@ public class ParserTest {
 
         Order expected = Order.by("age").ascending().build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }
@@ -66,8 +66,8 @@ public class ParserTest {
 
         Order expected = Order.by("age").descending().build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }
@@ -84,8 +84,8 @@ public class ParserTest {
 
         Order expected = Order.by("age").at(Timestamp.fromMicros(number)).build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }
@@ -103,8 +103,8 @@ public class ParserTest {
         Order expected = Order.by("age").at(Timestamp
                 .fromString(timestamp.replace("\"", ""))).build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected.spec().size(), actual.spec().size());
         for(int i = 0; i < expected.spec().size(); i++) {
@@ -129,8 +129,8 @@ public class ParserTest {
 
         Order expected = Order.by("age").at(Timestamp.parse(timestamp.replace("\"", ""), format.replace("\"", ""))).build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }
@@ -148,8 +148,8 @@ public class ParserTest {
 
         Order expected = Order.by("age").at(Timestamp.fromMicros(number)).ascending().build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }
@@ -168,8 +168,8 @@ public class ParserTest {
         Order expected = Order.by("age").at(Timestamp
                 .fromString(timestamp.replace("\"", ""))).ascending().build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected.spec().size(), actual.spec().size());
         for(int i = 0; i < expected.spec().size(); i++) {
@@ -197,8 +197,8 @@ public class ParserTest {
                 .parse(timestamp.replace("\"", ""),
                         format.replace("\"", ""))).ascending().build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }
@@ -216,8 +216,8 @@ public class ParserTest {
 
         Order expected = Order.by("age").at(Timestamp.fromMicros(number)).descending().build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }
@@ -236,8 +236,8 @@ public class ParserTest {
         Order expected = Order.by("age").at(Timestamp
                 .fromString(timestamp.replace("\"", ""))).descending().build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected.spec().size(), actual.spec().size());
         for(int i = 0; i < expected.spec().size(); i++) {
@@ -265,8 +265,8 @@ public class ParserTest {
                 .parse(timestamp.replace("\"", ""),
                         format.replace("\"", ""))).descending().build();
 
-        Parser parser = new Parser(input);
-        Order actual = parser.order();
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
 
         Assert.assertEquals(expected, actual);
     }

@@ -11,7 +11,7 @@ package com.cinchapi.ccl.order.generated;
  * You can modify this class to customize your error reporting
  * mechanisms so long as you retain the public fields.
  */
-public class ParseException extends Exception {
+public class OrderParseException extends Exception {
 
   /**
    * The version identifier for this Serializable class.
@@ -31,7 +31,7 @@ public class ParseException extends Exception {
    * a new object of this type with the fields "currentToken",
    * "expectedTokenSequences", and "tokenImage" set.
    */
-  public ParseException(Token currentTokenVal,
+  public OrderParseException(Token currentTokenVal,
                         int[][] expectedTokenSequencesVal,
                         String[] tokenImageVal
                        )
@@ -52,12 +52,12 @@ public class ParseException extends Exception {
    * these constructors.
    */
 
-  public ParseException() {
+  public OrderParseException() {
     super();
   }
 
   /** Constructor with message. */
-  public ParseException(String message) {
+  public OrderParseException(String message) {
     super(message);
   }
 
