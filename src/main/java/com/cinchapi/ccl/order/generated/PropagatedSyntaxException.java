@@ -15,7 +15,7 @@
  */
 package com.cinchapi.ccl.order.generated;
 
-import com.cinchapi.ccl.order.OrderParser;
+import com.cinchapi.ccl.order.Parser;
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.common.base.AnyStrings;
 
@@ -32,10 +32,10 @@ public class PropagatedSyntaxException extends SyntaxException {
      * Construct a new instance.
      * 
      * @param e
-     * @param orderParser
+     * @param parser
      */
-    public PropagatedSyntaxException(Exception e, OrderParser orderParser) {
-        super(AnyStrings.format("While processing '{}', {}", orderParser.input(),
+    public PropagatedSyntaxException(Exception e, Parser parser) {
+        super(AnyStrings.format("While processing '{}', {}", parser.input(),
                 e.getMessage()));
         setStackTrace(e.getStackTrace());
     }
