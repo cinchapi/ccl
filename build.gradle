@@ -176,3 +176,5 @@ task generateJavaCCOrderParser(type: Exec) {
 
 compileJava.dependsOn generateJavaCCParser
 eclipseClasspath.dependsOn generateJavaCCParser
+compileJava.dependsOn generateJavaCCOrderParser
+eclipseClasspath.dependsOn generateJavaCCOrderParser
