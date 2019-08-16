@@ -23,8 +23,7 @@ import org.junit.Test;
  */
 public class OrderParserTest {
 
-    @Test
-    public void test() {
+    @Test public void test() {
         String key = "age";
         StringBuilder builder = new StringBuilder();
         builder.append(key);
@@ -32,3 +31,4 @@ public class OrderParserTest {
 
         Assert.assertEquals(expected, actual);
     }
+}
