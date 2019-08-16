@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.control.order.generated;
+package com.cinchapi.ccl.order.generated;
 
 /**
  * A node that representation a CCL Order
