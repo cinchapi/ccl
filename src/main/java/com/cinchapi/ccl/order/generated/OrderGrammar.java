@@ -24,7 +24,7 @@ public class OrderGrammar/*@bgen(jjtree)*/implements OrderGrammarTreeConstants, 
     }
 
 /** Main production. */
-  final public ASTStart Start() throws OrderParseException {/*@bgen(jjtree) Start */
+  final public ASTStart Start() throws ParseException {/*@bgen(jjtree) Start */
   ASTStart jjtn000 = new ASTStart(JJTSTART);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
@@ -44,8 +44,8 @@ if (jjtc000) {
     if (jjte000 instanceof RuntimeException) {
       {if (true) throw (RuntimeException)jjte000;}
     }
-    if (jjte000 instanceof OrderParseException) {
-      {if (true) throw (OrderParseException)jjte000;}
+    if (jjte000 instanceof ParseException) {
+      {if (true) throw (ParseException)jjte000;}
     }
     {if (true) throw (Error)jjte000;}
     } finally {
@@ -57,7 +57,7 @@ if (jjtc000) {
 }
 
 /** Main production. */
-  final public ASTStart StartCommandLine() throws OrderParseException {/*@bgen(jjtree) Start */
+  final public ASTStart StartCommandLine() throws ParseException {/*@bgen(jjtree) Start */
   ASTStart jjtn000 = new ASTStart(JJTSTART);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
@@ -77,8 +77,8 @@ if (jjtc000) {
     if (jjte000 instanceof RuntimeException) {
       {if (true) throw (RuntimeException)jjte000;}
     }
-    if (jjte000 instanceof OrderParseException) {
-      {if (true) throw (OrderParseException)jjte000;}
+    if (jjte000 instanceof ParseException) {
+      {if (true) throw (ParseException)jjte000;}
     }
     {if (true) throw (Error)jjte000;}
     } finally {
@@ -89,7 +89,7 @@ if (jjtc000) {
     throw new Error("Missing return statement in function");
 }
 
-  final public void Order() throws OrderParseException {/*@bgen(jjtree) Order */
+  final public void Order() throws ParseException {/*@bgen(jjtree) Order */
   ASTOrder jjtn000 = new ASTOrder(JJTORDER);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);String orderComponent = null;
@@ -134,7 +134,7 @@ if (jjtc000) {
         default:
           jj_la1[2] = jj_gen;
           jj_consume_token(-1);
-          throw new OrderParseException();
+          throw new ParseException();
         }
         break;
         }
@@ -159,8 +159,8 @@ if (jjtc000) {
     if (jjte000 instanceof RuntimeException) {
       {if (true) throw (RuntimeException)jjte000;}
     }
-    if (jjte000 instanceof OrderParseException) {
-      {if (true) throw (OrderParseException)jjte000;}
+    if (jjte000 instanceof ParseException) {
+      {if (true) throw (ParseException)jjte000;}
     }
     {if (true) throw (Error)jjte000;}
     } finally {
@@ -170,7 +170,7 @@ if (jjtc000) {
     }
 }
 
-  final public String OrderComponent() throws OrderParseException {Token orderComponent;
+  final public String OrderComponent() throws ParseException {Token orderComponent;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ASCENDING:{
       orderComponent = jj_consume_token(ASCENDING);
@@ -183,13 +183,13 @@ if (jjtc000) {
     default:
       jj_la1[4] = jj_gen;
       jj_consume_token(-1);
-      throw new OrderParseException();
+      throw new ParseException();
     }
 {if ("" != null) return orderComponent.image;}
     throw new Error("Missing return statement in function");
 }
 
-  final public String Key() throws OrderParseException {Token key;
+  final public String Key() throws ParseException {Token key;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case SIGNED_DECIMAL:{
       key = jj_consume_token(SIGNED_DECIMAL);
@@ -210,25 +210,25 @@ if (jjtc000) {
     default:
       jj_la1[5] = jj_gen;
       jj_consume_token(-1);
-      throw new OrderParseException();
+      throw new ParseException();
     }
 {if ("" != null) return key.image;}
     throw new Error("Missing return statement in function");
 }
 
-  final public String TimestampString() throws OrderParseException {Token timestamp;
+  final public String TimestampString() throws ParseException {Token timestamp;
     timestamp = jj_consume_token(QUOTED_STRING);
 {if ("" != null) return timestamp.image;}
     throw new Error("Missing return statement in function");
 }
 
-  final public String TimestampFormat() throws OrderParseException {Token format;
+  final public String TimestampFormat() throws ParseException {Token format;
     format = jj_consume_token(QUOTED_STRING);
 {if ("" != null) return format.image;}
     throw new Error("Missing return statement in function");
 }
 
-  final public String TimestampNumber() throws OrderParseException {Token timestamp;
+  final public String TimestampNumber() throws ParseException {Token timestamp;
     timestamp = jj_consume_token(NUMERIC);
 {if ("" != null) return timestamp.image;}
     throw new Error("Missing return statement in function");
@@ -329,7 +329,7 @@ if (jjtc000) {
 	 for (int i = 0; i < 6; i++) jj_la1[i] = -1;
   }
 
-  private Token jj_consume_token(int kind) throws OrderParseException {
+  private Token jj_consume_token(int kind) throws ParseException {
 	 Token oldToken;
 	 if ((oldToken = token).next != null) token = token.next;
 	 else token = token.next = token_source.getNextToken();
@@ -374,8 +374,8 @@ if (jjtc000) {
   private int[] jj_expentry;
   private int jj_kind = -1;
 
-  /** Generate OrderParseException. */
-  public OrderParseException generateParseException() {
+  /** Generate ParseException. */
+  public ParseException generateParseException() {
 	 jj_expentries.clear();
 	 boolean[] la1tokens = new boolean[19];
 	 if (jj_kind >= 0) {
@@ -402,7 +402,7 @@ if (jjtc000) {
 	 for (int i = 0; i < jj_expentries.size(); i++) {
 	   exptokseq[i] = jj_expentries.get(i);
 	 }
-	 return new OrderParseException(token, exptokseq, tokenImage);
+	 return new ParseException(token, exptokseq, tokenImage);
   }
 
   private int trace_indent = 0;
