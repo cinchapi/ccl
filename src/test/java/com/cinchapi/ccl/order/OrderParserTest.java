@@ -26,7 +26,7 @@ import org.junit.Test;
 public class OrderParserTest {
 
     @Test
-    public void test() {
+    public void testKey() {
         String key = "age";
         StringBuilder builder = new StringBuilder();
         builder.append(key);
@@ -41,7 +41,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test2() {
+    public void testKeyAscending() {
         String key = "age";
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -57,7 +57,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test3() {
+    public void testKeyDescending() {
         String key = "age";
         StringBuilder builder = new StringBuilder();
         builder.append(">");
@@ -73,7 +73,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test4() {
+    public void testKeyWithNumberTimestamp() {
         String key = "age";
         long number = 122L;
         StringBuilder builder = new StringBuilder();
@@ -91,7 +91,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test5() {
+    public void testKeyWithStringTimestamp() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         StringBuilder builder = new StringBuilder();
@@ -115,7 +115,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test6() {
+    public void testKeyWithStringAndFormatTimestamp() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         String format = "\"yyyy-mm-dd\"";
@@ -136,7 +136,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test7() {
+    public void testKeyWithNumberTimestampAscending() {
         String key = "age";
         Long number = 122L;
         StringBuilder builder = new StringBuilder();
@@ -155,7 +155,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test8() {
+    public void testKeyWithStringTimestampAscending() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         StringBuilder builder = new StringBuilder();
@@ -180,7 +180,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test9() {
+    public void testKeyWithStringAndFormatTimestampAscending() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         String format = "\"yyyy-mm-dd\"";
@@ -204,7 +204,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test10() {
+    public void testKeyWithNumberTimestampDescending() {
         String key = "age";
         Long number = 122L;
         StringBuilder builder = new StringBuilder();
@@ -223,7 +223,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test11() {
+    public void testKeyWithStringTimestampDescending() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         StringBuilder builder = new StringBuilder();
@@ -248,7 +248,7 @@ public class OrderParserTest {
     }
 
     @Test
-    public void test12() {
+    public void testKeyWithStringAndFormatTimestampDescending() {
         String key = "age";
         String timestamp = "\"1992-10-02\"";
         String format = "\"yyyy-mm-dd\"";
