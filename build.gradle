@@ -170,5 +170,9 @@ task generateJavaCCParser(type: Exec) {
   commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/CriteriaGrammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/generated'
 }
 
+task generateJavaCCPageParser(type: Exec) {
+  commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/PageGrammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/paginate/generated'
+}
+
 compileJava.dependsOn generateJavaCCParser
 eclipseClasspath.dependsOn generateJavaCCParser
