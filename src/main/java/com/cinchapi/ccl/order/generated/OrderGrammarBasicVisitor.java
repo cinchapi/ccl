@@ -16,7 +16,12 @@
 package com.cinchapi.ccl.order.generated;
 
 import com.cinchapi.concourse.Timestamp;
+import com.cinchapi.concourse.lang.sort.Direction;
 import com.cinchapi.concourse.lang.sort.Order;
+import com.cinchapi.concourse.lang.sort.OrderComponent;
+import com.google.common.collect.Lists;
+
+import java.util.List;
 
 /**
  * A visitor pattern implementation of {@link OrderGrammarVisitor} that
@@ -24,6 +29,8 @@ import com.cinchapi.concourse.lang.sort.Order;
  */
 public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
 {
+    private List<OrderComponent> components = Lists.newArrayList();
+
     /**
      * Visitor for a {@link SimpleNode}
      *
@@ -33,8 +40,8 @@ public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
      */
     public Object visit(SimpleNode node, Object data) {
         System.out.println(node + ": acceptor not unimplemented in subclass?");
-        data = node.childrenAccept(this, data);
-        return data;
+        node.childrenAccept(this, data);
+        return components;
     }
 
     /**
@@ -45,10 +52,9 @@ public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
      * @return the data
      */
     public Object visit(ASTStart node, Object data) {
-        data = node.jjtGetChild(0).jjtAccept(this, data);
-        return data;
+        node.childrenAccept(this, data);
+        return components;
     }
-
 
     /**
      * Visitor for a {@link ASTOrder}
@@ -61,48 +67,55 @@ public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
         if (node.orderComponent() == null || node.orderComponent().equalsIgnoreCase("<")) {
             if(node.timestampNumber() != null) {
                 long number = Long.valueOf(node.timestampNumber());
-                return Order.by(node.key()).at(Timestamp.fromMicros(number)).ascending().build();
+                this.components.add(new OrderComponent(node.key(),
+                        Timestamp.fromMicros(number), Direction.ASCENDING));
             }
             else if(node.timestampString() != null) {
                 if(node.timestampFormat() != null) {
-                    return Order.by(node.key()).at(Timestamp
-                            .parse(node.timestampString().replace("\"", ""),
-                                    node.timestampFormat().replace("\"", "")))
-                                    .ascending()
-                            .build();
+                    this.components.add(new OrderComponent(node.key(),
+                            Timestamp.parse(
+                                    node.timestampString().replace("\"", ""),
+                                    node.timestampFormat().replace("\"", "")),
+                            Direction.ASCENDING));
                 }
                 else {
-                    return Order.by(node.key()).at(Timestamp.
-                            fromString(node.timestampString().replace("\"", "")))
-                            .ascending().build();
+                    this.components.add(new OrderComponent(node.key(),
+                            Timestamp.fromString(
+                                    node.timestampString().replace("\"", "")),
+                            Direction.ASCENDING));
                 }
             }
             else {
-                return Order.by(node.key()).ascending().build();
+                this.components.add(new OrderComponent(node.key(),
+                        Direction.ASCENDING));
             }
         }
         else {
             if (node.timestampNumber() != null) {
                 long number = Long.valueOf(node.timestampNumber());
-                return Order.by(node.key()).at(Timestamp.fromMicros(number)).descending().build();
+                this.components.add(new OrderComponent(node.key(),
+                        Timestamp.fromMicros(number), Direction.DESCENDING));
             }
             else if (node.timestampString() != null) {
                 if (node.timestampFormat() != null) {
-                    return Order.by(node.key()).at(Timestamp
-                            .parse(node.timestampString().replace("\"", ""),
-                                    node.timestampFormat().replace("\"", "")))
-                                    .descending()
-                            .build();
+                    this.components.add(new OrderComponent(node.key(),
+                            Timestamp.parse(
+                                    node.timestampString().replace("\"", ""),
+                                    node.timestampFormat().replace("\"", "")),
+                            Direction.DESCENDING));
                 }
                 else {
-                    return Order.by(node.key()).at(Timestamp
-                            .fromString(node.timestampString().replace("\"", "")))
-                            .descending().build();
+                    this.components.add(new OrderComponent(node.key(),
+                            Timestamp.fromString(
+                                    node.timestampString().replace("\"", "")),
+                            Direction.DESCENDING));
                 }
             }
             else {
-                return Order.by(node.key()).descending().build();
+                this.components.add(new OrderComponent(node.key(),
+                        Direction.DESCENDING));
             }
         }
+        return components;
     }
 }
