@@ -93,14 +93,14 @@ TOKEN :
 /** Main production. */
 ASTStart Start() #Start : { }
 {
-  Order() <EOF>
+  (Order())+ <EOF>
   { return jjtThis; }
 }
 
 /** Main production. */
 ASTStart StartCommandLine() #Start : {}
 {
-  Order() "\n"
+  (Order())+ "\n"
   { return jjtThis; }
 }
 

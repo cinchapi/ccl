@@ -17,6 +17,7 @@ package com.cinchapi.ccl.order;
 
 import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.sort.Order;
+import com.cinchapi.concourse.lang.sort.OrderComponent;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -264,6 +265,44 @@ public class OrderParserTest {
         Order expected = Order.by("age").at(Timestamp
                 .parse(timestamp.replace("\"", ""),
                         format.replace("\"", ""))).descending().build();
+
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testMultipleKeys() {
+        String key1 = "age";
+        String key2 = "salary";
+        StringBuilder builder = new StringBuilder();
+        builder.append(key1);
+        builder.append(" ");
+        builder.append(key2);
+        String input = builder.toString();
+
+        Order expected = Order.by("age").then("salary").build();
+
+        OrderParser orderParser = new OrderParser(input);
+        Order actual = orderParser.order();
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testMultipleKeysWithDirectional() {
+        String key1 = "age";
+        String key2 = "salary";
+        StringBuilder builder = new StringBuilder();
+        builder.append("<");
+        builder.append(key1);
+        builder.append(" ");
+        builder.append(">");
+        builder.append(key2);
+        String input = builder.toString();
+
+        Order expected = Order.by("age").ascending().then("salary").descending().build();
 
         OrderParser orderParser = new OrderParser(input);
         Order actual = orderParser.order();
