@@ -30,10 +30,10 @@ public class PropagatedSyntaxException extends SyntaxException {
      * Construct a new instance.
      * 
      * @param e
-     * @param parser
+     * @param info supplementary information about the syntax exception
      */
-    public PropagatedSyntaxException(Exception e, Parser parser) {
-        super(AnyStrings.format("While processing '{}', {}", parser.ccl(),
+    public PropagatedSyntaxException(Exception e, String info) {
+        super(AnyStrings.format("While processing '{}', {}", info,
                 e.getMessage()));
         setStackTrace(e.getStackTrace());
     }
