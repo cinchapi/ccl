@@ -145,7 +145,7 @@ public class JavaCCParser extends Parser {
                     null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 
@@ -195,8 +195,8 @@ public class JavaCCParser extends Parser {
 
             return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
         }
-        catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+        catch (Exception exception) {            
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 
@@ -283,7 +283,7 @@ public class JavaCCParser extends Parser {
             return (List<Symbol>) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 
