@@ -15,9 +15,9 @@
  */
 package com.cinchapi.ccl.order;
 
+import com.cinchapi.ccl.PropagatedSyntaxException;
 import com.cinchapi.ccl.order.generated.OrderGrammar;
 import com.cinchapi.ccl.order.generated.OrderGrammarBasicVisitor;
-import com.cinchapi.ccl.order.generated.PropagatedSyntaxException;
 import com.cinchapi.ccl.order.generated.SimpleNode;
 import com.cinchapi.concourse.lang.sort.BuildableOrderState;
 import com.cinchapi.concourse.lang.sort.Direction;
@@ -25,7 +25,6 @@ import com.cinchapi.concourse.lang.sort.Order;
 import com.cinchapi.concourse.lang.sort.OrderAtState;
 import com.cinchapi.concourse.lang.sort.OrderByState;
 import com.cinchapi.concourse.lang.sort.OrderComponent;
-import com.cinchapi.concourse.lang.sort.OrderDirectionState;
 
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -101,7 +100,7 @@ public class OrderParser {
             return $order.build();
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, input);
         }
     }
 
