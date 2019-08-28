@@ -15,9 +15,9 @@
  */
 package com.cinchapi.ccl.paginate;
 
+import com.cinchapi.ccl.PropagatedSyntaxException;
 import com.cinchapi.ccl.paginate.generated.PageGrammar;
 import com.cinchapi.ccl.paginate.generated.PageGrammarBasicVisitor;
-import com.cinchapi.ccl.paginate.generated.PropagatedSyntaxException;
 import com.cinchapi.ccl.paginate.generated.SimpleNode;
 import com.cinchapi.concourse.lang.paginate.Page;
 
@@ -75,7 +75,7 @@ public class PageParser {
             return (Page) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, input);
         }
     }
 
