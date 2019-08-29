@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.order;
+package com.cinchapi.ccl.lang.order;
 
+import com.cinchapi.ccl.lang.order.OrderParser;
 import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.sort.Order;
-import com.cinchapi.concourse.lang.sort.OrderComponent;
 import org.junit.Assert;
 import org.junit.Test;
 

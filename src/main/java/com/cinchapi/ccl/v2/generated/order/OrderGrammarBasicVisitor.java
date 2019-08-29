@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.order.generated;
+package com.cinchapi.ccl.v2.generated.order;
 
 import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.sort.Direction;
