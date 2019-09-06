@@ -63,9 +63,13 @@ TOKEN :
 |
   < AMPERSAND : "@" >
 |
-  < ASCENDING : "<" >
+  < OPEN_ANGLE_BRACKET : "<" >
 |
-  < DESCENDING : ">" >
+  < CLOSE_ANGLE_BRACKET : ">" >
+|
+  < ASC : "ASC" >
+|
+  < DESC : "DESC" >
 |
   < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
 |
@@ -106,31 +110,45 @@ ASTStart StartCommandLine() #Start : {}
 
 void Order() #Order :
 {
-  String orderComponent = null;
+  String orderDirection = null;
   String key = null;
   String timestampString = null;
   String timestampFormat = null;
   String timestampNumber = null;
 }
 {
-  (orderComponent=OrderComponent())?
-  key=Key()
+  (
+    ((direction=SymbolicDirection())? key=Key())
+  |
+    (key=Key() (direction=WordDirection()))
+  )
   (<AMPERSAND> (timestampNumber=TimestampNumber() | (timestampString=TimestampString() (<PIPE> timestampFormat=TimestampFormat())?)))?
-  { jjtThis.orderComponent(orderComponent);
+  { jjtThis.direction(direction);
     jjtThis.key(key);
     jjtThis.timestampString(timestampString);
     jjtThis.timestampFormat(timestampFormat);
     jjtThis.timestampNumber(timestampNumber); }
 }
 
-String OrderComponent() :
+String SymbolicDirection() :
 {
-   Token orderComponent;
+   Token direction;
 }
 {
   (
-     (orderComponent=<ASCENDING> | orderComponent=<DESCENDING>)
-     { return orderComponent.image; }
+     (direction=<OPEN_ANGLE_BRACKET> | direction=<CLOSE_ANGLE_BRACKET>)
+     { return direction.image; }
+  )
+}
+
+String WordDirection() :
+{
+   Token direction;
+}
+{
+  (
+     (direction=<ASC> | direction=<DESC>)
+     { return direction.image; }
   )
 }
 
