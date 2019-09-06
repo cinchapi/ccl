@@ -1,4 +1,4 @@
-package com.cinchapi.ccl.order;
+package com.cinchapi.ccl.lang.order;
 
 /**
  * Sort directions.

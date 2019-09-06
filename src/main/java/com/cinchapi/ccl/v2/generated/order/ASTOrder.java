@@ -22,7 +22,7 @@ public class ASTOrder extends SimpleNode {
     /**
      * The operator
      */
-    private String orderComponent = null;
+    private String direction = null;
 
     /**
      * The key
@@ -66,10 +66,10 @@ public class ASTOrder extends SimpleNode {
     /**
      * Set the directional ordinal
      *
-     * @param orderComponent the order component
+     * @param direction the order component
      */
-    public void orderComponent(String orderComponent) {
-        this.orderComponent = orderComponent;
+    public void direction(String direction) {
+        this.direction = direction;
     }
 
     /**
@@ -111,8 +111,8 @@ public class ASTOrder extends SimpleNode {
     /**
      * Get the order component
      */
-    public String orderComponent() {
-        return orderComponent;
+    public String direction() {
+        return direction;
     }
 
     /**
@@ -158,8 +158,8 @@ public class ASTOrder extends SimpleNode {
      */
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        if (orderComponent != null) {
-            builder.append(orderComponent);
+        if (direction != null) {
+            builder.append(direction);
         }
         builder.append(key);
         if (timestampNumber != null) {
