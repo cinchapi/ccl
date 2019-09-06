@@ -15,31 +15,35 @@ public interface OrderGrammarConstants {
   /** RegularExpression Id. */
   int AMPERSAND = 4;
   /** RegularExpression Id. */
-  int ASCENDING = 5;
+  int OPEN_ANGLE_BRACKET = 5;
   /** RegularExpression Id. */
-  int DESCENDING = 6;
+  int CLOSE_ANGLE_BRACKET = 6;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 7;
+  int ASC = 7;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 8;
+  int DESC = 8;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 9;
+  int QUOTED_STRING = 9;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 10;
+  int DOUBLE_QUOTED_STRING = 10;
   /** RegularExpression Id. */
-  int NUMERIC = 11;
+  int SINGLE_QUOTED_STRING = 11;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 12;
+  int SIGNED_DECIMAL = 12;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 13;
+  int NUMERIC = 13;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 14;
+  int ALPHANUMERIC = 14;
   /** RegularExpression Id. */
-  int LETTER = 15;
+  int PERIOD_SEPARATED_STRING = 15;
   /** RegularExpression Id. */
-  int DIGIT = 16;
+  int NON_ALPHANUMERIC = 16;
   /** RegularExpression Id. */
-  int PERIOD = 17;
+  int LETTER = 17;
+  /** RegularExpression Id. */
+  int DIGIT = 18;
+  /** RegularExpression Id. */
+  int PERIOD = 19;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -53,6 +57,8 @@ public interface OrderGrammarConstants {
     "\"@\"",
     "\"<\"",
     "\">\"",
+    "\"ASC\"",
+    "\"DESC\"",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
     "<SINGLE_QUOTED_STRING>",
