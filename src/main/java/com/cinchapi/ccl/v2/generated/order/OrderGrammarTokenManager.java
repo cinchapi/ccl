@@ -3,7 +3,6 @@
 package com.cinchapi.ccl.v2.generated.order;
 
 /** Token Manager. */
-@SuppressWarnings("unused")
 public class OrderGrammarTokenManager implements OrderGrammarConstants {
 
   /** Debug output. */

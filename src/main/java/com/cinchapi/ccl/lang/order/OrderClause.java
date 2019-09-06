@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.order;
+package com.cinchapi.ccl.lang.order;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;

@@ -15,9 +15,9 @@
  */
 package com.cinchapi.ccl.v2.generated.order;
 
-import com.cinchapi.ccl.order.Direction;
-import com.cinchapi.ccl.order.OrderClause;
-import com.cinchapi.ccl.order.OrderSpecification;
+import com.cinchapi.ccl.lang.order.Direction;
+import com.cinchapi.ccl.lang.order.OrderClause;
+import com.cinchapi.ccl.lang.order.OrderSpecification;
 import com.cinchapi.ccl.v3.Timestamp;
 
 /**

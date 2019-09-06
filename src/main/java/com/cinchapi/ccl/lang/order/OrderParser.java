@@ -16,9 +16,9 @@
 package com.cinchapi.ccl.lang.order;
 
 import com.cinchapi.ccl.PropagatedSyntaxException;
-import com.cinchapi.ccl.v2.order.generated.OrderGrammar;
-import com.cinchapi.ccl.v2.order.generated.OrderGrammarBasicVisitor;
-import com.cinchapi.ccl.v2.order.generated.SimpleNode;
+import com.cinchapi.ccl.v2.generated.order.OrderGrammar;
+import com.cinchapi.ccl.v2.generated.order.OrderGrammarBasicVisitor;
+import com.cinchapi.ccl.v2.generated.order.SimpleNode;
 
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
