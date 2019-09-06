@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.order;
+package com.cinchapi.ccl.lang.order;
 
 import com.cinchapi.ccl.PropagatedSyntaxException;
-import com.cinchapi.ccl.order.generated.OrderGrammar;
-import com.cinchapi.ccl.order.generated.OrderGrammarBasicVisitor;
-import com.cinchapi.ccl.order.generated.SimpleNode;
+import com.cinchapi.ccl.v2.order.generated.OrderGrammar;
+import com.cinchapi.ccl.v2.order.generated.OrderGrammarBasicVisitor;
+import com.cinchapi.ccl.v2.order.generated.SimpleNode;
 
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -62,6 +62,7 @@ public class OrderParser {
      *
      * @return a {@link Order}
      */
+    @SuppressWarnings("unchecked")
     public OrderClause order() {
         try {
             InputStream stream = new ByteArrayInputStream(

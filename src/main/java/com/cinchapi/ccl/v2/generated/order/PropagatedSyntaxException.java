@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.order.generated;
+package com.cinchapi.ccl.v2.generated.order;
 
-import com.cinchapi.ccl.order.OrderParser;
 import com.cinchapi.ccl.SyntaxException;
+import com.cinchapi.ccl.lang.order.OrderParser;
 import com.cinchapi.common.base.AnyStrings;
 
 /**
