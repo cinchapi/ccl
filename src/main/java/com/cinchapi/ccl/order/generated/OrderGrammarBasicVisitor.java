@@ -15,13 +15,10 @@
  */
 package com.cinchapi.ccl.order.generated;
 
-import com.cinchapi.concourse.Timestamp;
-import com.cinchapi.concourse.lang.sort.Direction;
-import com.cinchapi.concourse.lang.sort.Order;
-import com.cinchapi.concourse.lang.sort.OrderComponent;
-import com.google.common.collect.Lists;
-
-import java.util.List;
+import com.cinchapi.ccl.order.Direction;
+import com.cinchapi.ccl.order.OrderClause;
+import com.cinchapi.ccl.order.OrderSpecification;
+import com.cinchapi.ccl.v3.Timestamp;
 
 /**
  * A visitor pattern implementation of {@link OrderGrammarVisitor} that
@@ -29,7 +26,8 @@ import java.util.List;
  */
 public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
 {
-    private List<OrderComponent> components = Lists.newArrayList();
+    private OrderClause clause = new OrderClause();
+    //private List<OrderSpecification> components = Lists.newArrayList();
 
     /**
      * Visitor for a {@link SimpleNode}
@@ -41,7 +39,7 @@ public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
     public Object visit(SimpleNode node, Object data) {
         System.out.println(node + ": acceptor not unimplemented in subclass?");
         node.childrenAccept(this, data);
-        return components;
+        return clause;
     }
 
     /**
@@ -53,7 +51,7 @@ public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
      */
     public Object visit(ASTStart node, Object data) {
         node.childrenAccept(this, data);
-        return components;
+        return clause;
     }
 
     /**
@@ -67,55 +65,55 @@ public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
         if (node.orderComponent() == null || node.orderComponent().equalsIgnoreCase("<")) {
             if(node.timestampNumber() != null) {
                 long number = Long.valueOf(node.timestampNumber());
-                this.components.add(new OrderComponent(node.key(),
+                this.clause.add(new OrderSpecification(node.key(),
                         Timestamp.fromMicros(number), Direction.ASCENDING));
             }
             else if(node.timestampString() != null) {
                 if(node.timestampFormat() != null) {
-                    this.components.add(new OrderComponent(node.key(),
+                    this.clause.add(new OrderSpecification(node.key(),
                             Timestamp.parse(
                                     node.timestampString().replace("\"", ""),
                                     node.timestampFormat().replace("\"", "")),
                             Direction.ASCENDING));
                 }
                 else {
-                    this.components.add(new OrderComponent(node.key(),
+                    this.clause.add(new OrderSpecification(node.key(),
                             Timestamp.fromString(
                                     node.timestampString().replace("\"", "")),
                             Direction.ASCENDING));
                 }
             }
             else {
-                this.components.add(new OrderComponent(node.key(),
+                this.clause.add(new OrderSpecification(node.key(),
                         Direction.ASCENDING));
             }
         }
         else {
             if (node.timestampNumber() != null) {
                 long number = Long.valueOf(node.timestampNumber());
-                this.components.add(new OrderComponent(node.key(),
+                this.clause.add(new OrderSpecification(node.key(),
                         Timestamp.fromMicros(number), Direction.DESCENDING));
             }
             else if (node.timestampString() != null) {
                 if (node.timestampFormat() != null) {
-                    this.components.add(new OrderComponent(node.key(),
+                    this.clause.add(new OrderSpecification(node.key(),
                             Timestamp.parse(
                                     node.timestampString().replace("\"", ""),
                                     node.timestampFormat().replace("\"", "")),
                             Direction.DESCENDING));
                 }
                 else {
-                    this.components.add(new OrderComponent(node.key(),
+                    this.clause.add(new OrderSpecification(node.key(),
                             Timestamp.fromString(
                                     node.timestampString().replace("\"", "")),
                             Direction.DESCENDING));
                 }
             }
             else {
-                this.components.add(new OrderComponent(node.key(),
+                this.clause.add(new OrderSpecification(node.key(),
                         Direction.DESCENDING));
             }
         }
-        return components;
+        return clause;
     }
 }

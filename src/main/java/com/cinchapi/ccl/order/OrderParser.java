@@ -19,19 +19,12 @@ import com.cinchapi.ccl.PropagatedSyntaxException;
 import com.cinchapi.ccl.order.generated.OrderGrammar;
 import com.cinchapi.ccl.order.generated.OrderGrammarBasicVisitor;
 import com.cinchapi.ccl.order.generated.SimpleNode;
-import com.cinchapi.concourse.lang.sort.BuildableOrderState;
-import com.cinchapi.concourse.lang.sort.Direction;
-import com.cinchapi.concourse.lang.sort.Order;
-import com.cinchapi.concourse.lang.sort.OrderAtState;
-import com.cinchapi.concourse.lang.sort.OrderByState;
-import com.cinchapi.concourse.lang.sort.OrderComponent;
 
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * A {@link OrderParser} is a stateful object that transforms raw input strings into
@@ -69,7 +62,7 @@ public class OrderParser {
      *
      * @return a {@link Order}
      */
-    public Order order() {
+    public OrderClause order() {
         try {
             InputStream stream = new ByteArrayInputStream(
                     input.getBytes(StandardCharsets.UTF_8.name()));
@@ -78,26 +71,7 @@ public class OrderParser {
             SimpleNode start = grammar.Start();
 
             OrderGrammarBasicVisitor visitor = new OrderGrammarBasicVisitor();
-            List<OrderComponent> orderComponents =
-                    (List<OrderComponent>) start.jjtAccept(visitor, null);
-
-            BuildableOrderState $order = null;
-            for (OrderComponent component : orderComponents) {
-                if ($order == null) {
-                    $order = Order.by(component.key());
-                    $order = ((OrderByState) $order).at(component.timestamp());
-                }
-                else {
-                    $order = ((OrderAtState) $order).then()
-                            .by(component.key());
-                    $order = ((OrderByState) $order).at(component.timestamp());
-                }
-
-                if(component.direction() == Direction.DESCENDING) {
-                    $order = ((OrderAtState) $order).descending();
-                }
-            }
-            return $order.build();
+            return (OrderClause) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, input);
