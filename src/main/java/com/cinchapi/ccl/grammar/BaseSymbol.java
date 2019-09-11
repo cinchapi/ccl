@@ -30,6 +30,9 @@ class BaseSymbol implements Symbol {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            System.out.println("null");
+        }
         if(obj.getClass() == getClass()) {
             return toString().equals(obj.toString());
         }

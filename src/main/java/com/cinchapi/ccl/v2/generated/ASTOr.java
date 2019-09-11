@@ -22,7 +22,7 @@ import com.cinchapi.ccl.syntax.OrTree;
 /**
  * Represents an Or node in the CCL grammar.
  */
-public class ASTOr extends ASTConj implements OrTree {
+public class ASTOr extends SimpleNode {
     /**
      * Constructs a new instance.
      *
@@ -41,7 +41,6 @@ public class ASTOr extends ASTConj implements OrTree {
         return "or";
     }
 
-    @Override
     public Symbol root() {
         return ConjunctionSymbol.OR;
     }

@@ -22,7 +22,7 @@ import com.cinchapi.ccl.syntax.AndTree;
 /**
  * Represents an And conjunction node in the CCL grammar.
  */
-public class ASTAnd extends ASTConj implements AndTree {
+public class ASTAnd extends SimpleNode {
     /**
      * Constructs a new instance.
      *
@@ -41,7 +41,6 @@ public class ASTAnd extends ASTConj implements AndTree {
         return "and";
     }
 
-    @Override
     public Symbol root() {
         return ConjunctionSymbol.AND;
     }

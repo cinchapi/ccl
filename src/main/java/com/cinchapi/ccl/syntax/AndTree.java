@@ -15,10 +15,23 @@
  */
 package com.cinchapi.ccl.syntax;
 
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+
 /**
  * An {@link AbstractSyntaxTree} that represents a logical AND.
  * 
  * @author Jeff Nelson
  */
-public interface AndTree extends ConjunctionTree {
+public final class AndTree extends ConjunctionTree {
+
+    /**
+     * Construct a new instance.
+     *
+     * @param left
+     * @param right
+     */
+    public AndTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
+        super(ConjunctionSymbol.AND, left, right);
+    }
+
 }

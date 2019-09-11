@@ -41,7 +41,6 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
@@ -60,12 +59,12 @@ public class Grammar {
     private Multimap<String, Object> data;
     private Function<String, Object> valueTransformFunction;
     private Function<String, Operator> operatorTransformFunction;
-    private Visitor visitor;
+    private GrammarVisitor visitor;
 
     public Grammar(java.io.InputStream stream,
                 Function<String, Object> valueTransformFunction,
                 Function<String, Operator> operatorTransformFunction,
-                Visitor visitor) {
+                GrammarVisitor visitor) {
         this(stream, null);
         this.data = null;
         this.valueTransformFunction = valueTransformFunction;
@@ -77,7 +76,7 @@ public class Grammar {
                 Function<String, Object> valueTransformFunction,
                 Function<String, Operator> operatorTransformFunction,
                 Multimap<String, Object> data,
-                Visitor visitor) {
+                GrammarVisitor visitor) {
         this(stream, null);
         this.data = data;
         this.valueTransformFunction = valueTransformFunction;
@@ -291,7 +290,7 @@ BaseValueSymbol UnaryValue() :
    |
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
-        AbstractSyntaxTree tree = (AbstractSyntaxTree)((AbstractSyntaxTree) ccl).accept(visitor);
+        AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
         return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
@@ -364,7 +363,7 @@ BaseValueSymbol BinaryValue() :
    |
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
-        AbstractSyntaxTree tree = (AbstractSyntaxTree)((AbstractSyntaxTree) ccl).accept(visitor);
+        AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
         return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )

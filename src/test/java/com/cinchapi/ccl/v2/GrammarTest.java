@@ -16,12 +16,21 @@
 package com.cinchapi.ccl.v2;
 
 import com.cinchapi.ccl.Parser;
+import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.ccl.v2.generated.ASTAnd;
+import com.cinchapi.ccl.v2.generated.ASTExpression;
+import com.cinchapi.ccl.v2.generated.ASTOr;
+import com.cinchapi.ccl.v2.generated.ASTStart;
+import com.cinchapi.ccl.v2.generated.GrammarVisitor;
+import com.cinchapi.ccl.v2.generated.SimpleNode;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
@@ -425,29 +434,48 @@ public class GrammarTest {
      */
     public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert.stringToOperator(operator);
 
-    public final Visitor visitor = new Visitor<AbstractSyntaxTree>() {
+    public final GrammarVisitor visitor = new GrammarVisitor() {
+        @Override
+        public Object visit(SimpleNode node, Object data) {
+            System.out.println(node + ": acceptor not unimplemented in subclass?");
+            data = node.childrenAccept(this, data);
+            return data;
+        }
 
         @Override
-        public AbstractSyntaxTree visit(AbstractSyntaxTree tree,
-                Object... data) {
-            for(AbstractSyntaxTree child : tree.children()) {
-                return child.accept(this, data);
+        public Object visit(ASTStart node, Object data) {
+            data = node.jjtGetChild(0).jjtAccept(this, data);
+            return data;
+        }
+
+        @Override
+        public Object visit(ASTOr node, Object data) {
+            AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+            AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+            return new OrTree(left, right);
+        }
+
+        @Override
+        public Object visit(ASTAnd node, Object data) {
+            AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+            AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+            return new AndTree(left, right);
+        }
+
+        @Override
+        public Object visit(ASTExpression node, Object data) {
+            Expression expression;
+            if (node.timestamp()!= null) {
+                expression = new Expression(node.timestamp(), node.key(),
+                        node.operator(), node.values()
+                        .toArray(new BaseValueSymbol[node.values().size()]));
             }
-            return null;
-        }
-
-        @Override
-        public AbstractSyntaxTree visit(ConjunctionTree tree,
-                Object... data) {
-            tree.left().accept(this, data);
-            tree.right().accept(this, data);
-            return tree;
-        }
-
-        @Override
-        public AbstractSyntaxTree visit(ExpressionTree tree,
-                Object... data) {
-            return tree;
+            else {
+                expression = new Expression(node.key(), node.operator(),
+                        node.values().toArray(new BaseValueSymbol[node.values().size()]));
+            }
+            return new ExpressionTree(expression);
         }
     };
+
 }

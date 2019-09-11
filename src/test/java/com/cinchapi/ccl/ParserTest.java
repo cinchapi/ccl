@@ -1050,12 +1050,6 @@ public abstract class ParserTest {
         Visitor<Queue<Symbol>> visitor = new Visitor<Queue<Symbol>>() {
 
             @Override
-            public Queue<Symbol> visit(AbstractSyntaxTree tree,
-                    Object... data) {
-                return null;
-            }
-
-            @Override
             public Queue<Symbol> visit(ConjunctionTree tree,
                     Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];

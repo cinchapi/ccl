@@ -1,31 +1,45 @@
+/*
+ * Copyright (c) 2013-2017 Cinchapi Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.grammar.BaseValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.BaseConjunctionTree;
-import com.cinchapi.ccl.syntax.BaseExpressionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.syntax.ConjunctionTree;
+
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.ccl.v2.generated.ASTAnd;
+import com.cinchapi.ccl.v2.generated.ASTExpression;
+import com.cinchapi.ccl.v2.generated.ASTOr;
+import com.cinchapi.ccl.v2.generated.ASTStart;
 import com.cinchapi.ccl.v2.generated.Grammar;
-import com.cinchapi.ccl.v2.generated.GrammarInfixVisitor;
-import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
-import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
-import com.cinchapi.ccl.v2.generated.SimpleNode;
-import com.cinchapi.ccl.v2.generated.GrammarPostfixVisitor;
-import com.cinchapi.ccl.v2.generated.GrammarTokenizeVisitor;
-import com.cinchapi.ccl.v2.generated.GrammarTreeVisitor;
+import com.cinchapi.ccl.v2.generated.GrammarVisitor;
 import com.cinchapi.ccl.v2.generated.SimpleNode;
 import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.ImmutableMultimap;
-import com.cinchapi.common.base.AnyStrings;
-import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import java.io.ByteArrayInputStream;
@@ -85,17 +99,70 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream);
 
-            SimpleNode tree = grammar.generateAST();
-            GrammarPostfixVisitor visitor = new GrammarPostfixVisitor();
-            return (Queue<PostfixNotationSymbol>) tree.jjtAccept(visitor,
+            GrammarVisitor visitor = new GrammarVisitor() {
+                @Override
+                public Object visit(SimpleNode node, Object data) {
+                    System.out.println(node +
+                            ": acceptor not unimplemented in subclass?");
+                    data = node.childrenAccept(this, data);
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTStart node, Object data) {
+                    Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
+                    data = node.childrenAccept(this, symbols);
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTOr node, Object data) {
+                    node.jjtGetChild(0).jjtAccept(this, data);
+                    Queue<PostfixNotationSymbol> symbols =
+                            (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+                    symbols.add(ConjunctionSymbol.OR);
+                    return symbols;
+                }
+
+                @Override
+                public Object visit(ASTAnd node, Object data) {
+                    node.jjtGetChild(0).jjtAccept(this, data);
+                    Queue<PostfixNotationSymbol> symbols =
+                            (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+                    symbols.add(ConjunctionSymbol.AND);
+                    return symbols;
+                }
+
+                @Override
+                public Object visit(ASTExpression node, Object data) {
+                    Expression expression;
+                    if (node.timestamp()!= null) {
+                        expression = new Expression(node.timestamp(), node.key(),
+                                node.operator(), node.values()
+                                .toArray(new BaseValueSymbol[node.values().size()]));
+                    }
+                    else {
+                        expression = new Expression(node.key(), node.operator(),
+                                node.values().toArray(new BaseValueSymbol[node.values().size()]));
+                    }
+                    ((Queue<PostfixNotationSymbol>) data).add(expression);
+                    return data;
+                }
+            };
+
+
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data, visitor);
+
+            ASTStart start = grammar.generateAST();
+
+            return (Queue<PostfixNotationSymbol>) start.jjtAccept(visitor,
                     null);
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, this);
         }
-        return Parsing.toPostfixNotation(tokenize());
     }
 
     @SuppressWarnings("unchecked")
@@ -104,18 +171,61 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
+
+            GrammarVisitor visitor = new GrammarVisitor() {
+                @Override
+                public Object visit(SimpleNode node, Object data) {
+                    System.out.println(node + ": acceptor not unimplemented in subclass?");
+                    data = node.childrenAccept(this, data);
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTStart node, Object data) {
+                    data = node.jjtGetChild(0).jjtAccept(this, data);
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTOr node, Object data) {
+                    AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+                    AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+                    return new OrTree(left, right);
+                }
+
+                @Override
+                public Object visit(ASTAnd node, Object data) {
+                    AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+                    AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+                    return new AndTree(left, right);
+                }
+
+                @Override
+                public Object visit(ASTExpression node, Object data) {
+                    Expression expression;
+                    if (node.timestamp()!= null) {
+                        expression = new Expression(node.timestamp(), node.key(),
+                                node.operator(), node.values()
+                                .toArray(new BaseValueSymbol[node.values().size()]));
+                    }
+                    else {
+                        expression = new Expression(node.key(), node.operator(),
+                                node.values().toArray(new BaseValueSymbol[node.values().size()]));
+                    }
+                    return new ExpressionTree(expression);
+                }
+            };
+
             Grammar grammar = new Grammar(stream, valueTransformFunction,
-                    operatorTransformFunction, data);
+                    operatorTransformFunction, data, visitor);
 
-            SimpleNode tree = grammar.generateAST();
+            ASTStart start = grammar.generateAST();
 
-            GrammarTreeVisitor visitor = new GrammarTreeVisitor();
-            return (AbstractSyntaxTree) tree.jjtAccept(visitor, null);
+            return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            Throwables.propagate(exception);
+            throw new PropagatedSyntaxException(exception, this);
         }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -124,12 +234,81 @@ public class JavaCCParser extends Parser {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
-            Grammar grammar = new Grammar(stream, valueTransformFunction,
-                    operatorTransformFunction, data);
-            SimpleNode tree = grammar.generateAST();
 
-            GrammarInfixVisitor visitor = new GrammarInfixVisitor();
-            return (List<Symbol>) tree.jjtAccept(visitor, null);
+            GrammarVisitor visitor = new GrammarVisitor() {
+                @Override
+                public Object visit(SimpleNode node, Object data) {
+                    System.out.println(node + ": acceptor not unimplemented in subclass?");
+                    data = node.childrenAccept(this, data);
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTStart node, Object data) {
+                    List<Symbol> symbols = Lists.newArrayList();
+                    data = node.childrenAccept(this, symbols);
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTOr node, Object data) {
+                    List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
+                    symbols.add(ConjunctionSymbol.OR);
+                    symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
+                    return symbols;
+                }
+
+                @Override
+                public Object visit(ASTAnd node, Object data) {
+                    List<Symbol> symbols = (List<Symbol>) data;
+                    boolean parenthesis = false;
+                    if (node.jjtGetChild(0) instanceof ASTOr) {
+                        symbols.add(ParenthesisSymbol.LEFT);
+                        parenthesis = true;
+                    }
+
+                    node.jjtGetChild(0).jjtAccept(this, data);
+
+                    if (parenthesis) {
+                        symbols.add(ParenthesisSymbol.RIGHT);
+                        parenthesis = false;
+                    }
+
+                    symbols.add(ConjunctionSymbol.AND);
+
+                    if (node.jjtGetChild(1) instanceof ASTOr) {
+                        symbols.add(ParenthesisSymbol.LEFT);
+                        parenthesis = true;
+                    }
+
+                    node.jjtGetChild(1).jjtAccept(this, data);
+
+                    if (parenthesis) {
+                        symbols.add(ParenthesisSymbol.RIGHT);
+                    }
+
+                    return symbols;
+                }
+
+                @Override
+                public Object visit(ASTExpression node, Object data) {
+                    ((List<Symbol>) data).add(node.key());
+                    ((List<Symbol>) data).add(node.operator());
+                    for(BaseValueSymbol valueSymbol : node.values()) {
+                        ((List<Symbol>) data).add(valueSymbol);
+                    }
+                    if (node.timestamp() != null) {
+                        ((List<Symbol>) data).add(node.timestamp());
+                    }
+                    return data;
+                }
+            };
+
+            Grammar grammar = new Grammar(stream, valueTransformFunction,
+                    operatorTransformFunction, data, visitor);
+            ASTStart start = grammar.generateAST();
+
+            return (List<Symbol>) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, this);

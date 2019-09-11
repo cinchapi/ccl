@@ -2,22 +2,26 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.cinchapi.ccl.v2.generated;
 
-public
-class ASTStart extends SimpleNode {
-  public ASTStart(int id) {
-    super(id);
-  }
+/**
+ * The start node in an Abstract Syntax Tree as defined in JavaCC
+ */
+public class ASTStart extends SimpleNode{
+    /**
+     * Constructs a new instance
+     * @param id
+     */
+    public ASTStart(int id) {
+        super(id);
+    }
 
-  public ASTStart(Grammar p, int id) {
-    super(p, id);
-  }
-
-
-  /** Accept the visitor. **/
-  public Object jjtAccept(GrammarVisitor visitor, Object data) {
-
-    return
-    visitor.visit(this, data);
-  }
+    /**
+     * Accepts a visitor
+     *
+     * @param visitor the visitor
+     * @param data the data
+     * @return
+     */
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
+        return visitor.visit(this, data);
+    }
 }
-/* JavaCC - OriginalChecksum=673d415c85db37eee28b05cc2cd30082 (do not edit this line) */

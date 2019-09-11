@@ -15,10 +15,66 @@
  */
 package com.cinchapi.ccl.syntax;
 
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.google.common.collect.Lists;
+
+import java.util.Collection;
+
 /**
  * An abstraction for a conjunction node in an {@link AbstractSyntaxTree}
  */
-public interface ConjunctionTree extends AbstractSyntaxTree {
-    public AbstractSyntaxTree left();
-    public AbstractSyntaxTree right();
+public class ConjunctionTree extends BaseAbstractSyntaxTree {
+
+    private final ConjunctionSymbol conjunction;
+    private final AbstractSyntaxTree left;
+    private final AbstractSyntaxTree right;
+
+    /**
+     * Construct a new instance.
+     *
+     * @param conjunction
+     * @param left
+     * @param right
+     */
+    public ConjunctionTree(ConjunctionSymbol conjunction,
+            AbstractSyntaxTree left, AbstractSyntaxTree right) {
+        this.conjunction = conjunction;
+        this.left = left;
+        this.right = right;
+    }
+
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Lists.newArrayList(left, right);
+    }
+
+    /**
+     * Return the left child of this {@link ConjunctionTree}.
+     *
+     * @return the left child
+     */
+    public AbstractSyntaxTree left() {
+        return left;
+    }
+
+    /**
+     * Return the right child of this {@link ConjunctionTree}.
+     *
+     * @return the right child
+     */
+    public AbstractSyntaxTree right() {
+        return right;
+    }
+
+    @Override
+    public Symbol root() {
+        return conjunction;
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return visitor.visit(this, data);
+    }
+
 }

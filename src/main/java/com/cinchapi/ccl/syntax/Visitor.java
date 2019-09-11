@@ -23,8 +23,6 @@ package com.cinchapi.ccl.syntax;
  */
 public interface Visitor<T> {
 
-    public T visit(AbstractSyntaxTree tree, Object... data);
-
     public T visit(ConjunctionTree tree, Object... data);
     
     public T visit(ExpressionTree tree, Object... data);

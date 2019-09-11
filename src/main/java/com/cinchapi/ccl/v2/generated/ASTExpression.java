@@ -35,8 +35,7 @@ import java.util.Objects;
 /**
  * A node that representation a CCL expression
  */
-public class ASTExpression extends SimpleNode implements BaseExpression,
-        ExpressionTree {
+public class ASTExpression extends SimpleNode implements BaseExpression {
     /**
      * The key
      */
@@ -163,42 +162,5 @@ public class ASTExpression extends SimpleNode implements BaseExpression,
      */
     public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
-    }
-
-    @Override
-    public Collection<AbstractSyntaxTree> children() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Symbol root() {
-        if (this.timestamp != null) {
-            return new Expression(timestamp, key, operator, values.toArray(new BaseValueSymbol[values.size()]));
-        }
-        else {
-            return new Expression(key, operator, values.toArray(new BaseValueSymbol[values.size()]));
-        }
-    }
-
-    @Override
-    public <T> T accept(Visitor<T> visitor, Object... data) {
-        return visitor.visit(this, data);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(root(), children());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof AbstractSyntaxTree) {
-            AbstractSyntaxTree other = (AbstractSyntaxTree) obj;
-            return Objects.equals(root(), other.root())
-                    && Objects.equals(children(), other.children());
-        }
-        else {
-            return false;
-        }
     }
 }

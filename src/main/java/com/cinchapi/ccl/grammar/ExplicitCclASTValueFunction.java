@@ -46,12 +46,6 @@ public class ExplicitCclASTValueFunction extends ExplicitValueFunction<AbstractS
             String string = "";
 
             @Override
-            public String visit(AbstractSyntaxTree tree,
-                    Object... data) {
-                return null;
-            }
-
-            @Override
             public String visit(ConjunctionTree tree, Object... data) {
                 tree.left().accept(this, data);
                 string += " " + tree.root().toString();

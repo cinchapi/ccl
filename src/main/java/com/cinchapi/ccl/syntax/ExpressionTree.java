@@ -15,11 +15,44 @@
  */
 package com.cinchapi.ccl.syntax;
 
+import com.cinchapi.ccl.grammar.Expression;
 import com.cinchapi.ccl.grammar.Symbol;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * An abstraction for an expression node in a {@link AbstractSyntaxTree}
  */
-public interface ExpressionTree extends AbstractSyntaxTree {
-    Symbol root();
+public class ExpressionTree extends BaseAbstractSyntaxTree {
+
+    /**
+     * The root.
+     */
+    private final Expression expression;
+
+    /**
+     * Construct a new instance.
+     *
+     * @param expression
+     */
+    public ExpressionTree(Expression expression) {
+        this.expression = expression;
+    }
+
+    @Override
+    public Collection<AbstractSyntaxTree> children() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Symbol root() {
+        return expression;
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor, Object... data) {
+        return visitor.visit(this, data);
+    }
+
 }

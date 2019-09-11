@@ -60,6 +60,7 @@ public class JavaCCParserTest extends AbstractParserTest {
         String ccl = "name=jeff";
         Parser parser = createParser(ccl);
         parser.order();
+
         Assert.assertEquals(new Expression(new KeySymbol("name"),
                 new OperatorSymbol(
                         com.cinchapi.concourse.thrift.Operator.EQUALS),

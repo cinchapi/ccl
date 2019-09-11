@@ -15,6 +15,8 @@
  */
 package com.cinchapi.ccl;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -24,6 +26,10 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
 import org.apache.commons.lang.StringUtils;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
@@ -91,7 +97,54 @@ final class ConcourseParser extends Parser {
 
     @Override
     public AbstractSyntaxTree parse() {
-        return Parsing.toAbstractSyntaxTree(tokenize());
+        List<Symbol> symbols = tokenize();
+        Deque<Symbol> operatorStack = new ArrayDeque<Symbol>();
+        Deque<AbstractSyntaxTree> operandStack = new ArrayDeque<AbstractSyntaxTree>();
+        symbols = Parsing.groupExpressions(symbols);
+        main: for (Symbol symbol : symbols) {
+            if(symbol == ParenthesisSymbol.LEFT) {
+                operatorStack.push(symbol);
+            }
+            else if(symbol == ParenthesisSymbol.RIGHT) {
+                while (!operatorStack.isEmpty()) {
+                    Symbol popped = operatorStack.pop();
+                    if(popped == ParenthesisSymbol.LEFT) {
+                        continue main;
+                    }
+                    else {
+                        addAbstractSyntaxTreeNode(operandStack, popped);
+                    }
+                }
+                throw new SyntaxException(AnyStrings.format(
+                        "Syntax error in {}: Mismatched parenthesis", symbols));
+            }
+            else if(symbol instanceof ConjunctionSymbol) {
+                final ConjunctionSymbol con1 = (ConjunctionSymbol) symbol;
+                Symbol symbol2;
+                while (!operatorStack.isEmpty()
+                        && (symbol2 = operatorStack.peek()) != null
+                        && symbol2 instanceof ConjunctionSymbol) {
+                    ConjunctionSymbol con2 = (ConjunctionSymbol) symbol2;
+                    if((!con1.isRightAssociative()
+                            && con1.comparePrecedence(con2) == 0)
+                            || con1.comparePrecedence(con2) < 0) {
+                        operatorStack.pop();
+                        addAbstractSyntaxTreeNode(operandStack, con2);
+                    }
+                    else {
+                        break;
+                    }
+                }
+                operatorStack.push(symbol);
+            }
+            else if(symbol instanceof Expression) {
+                operandStack.push(new ExpressionTree((Expression) symbol));
+            }
+        }
+        while (!operatorStack.isEmpty()) {
+            addAbstractSyntaxTreeNode(operandStack, operatorStack.pop());
+        }
+        return operandStack.pop();
     }
 
     @Override
@@ -193,6 +246,7 @@ final class ConcourseParser extends Parser {
         return symbols;
     }
 
+
     @Override
     public Operator transformOperator(String token) {
         return operatorTransformFunction.apply(token);
@@ -201,6 +255,26 @@ final class ConcourseParser extends Parser {
     @Override
     public Object transformValue(String token) {
         return valueTransformFunction.apply(token);
+    }
+
+    /**
+     * An the appropriate {@link AbstractSyntaxTree} node to the {@code stack}
+     * based on
+     * {@code operator}.
+     *
+     * @param stack
+     * @param operator
+     */
+    private void addAbstractSyntaxTreeNode(Deque<AbstractSyntaxTree> stack,
+            Symbol operator) {
+        AbstractSyntaxTree right = stack.pop();
+        AbstractSyntaxTree left = stack.pop();
+        if(operator == ConjunctionSymbol.AND) {
+            stack.push(new AndTree(left, right));
+        }
+        else {
+            stack.push(new OrTree(left, right));
+        }
     }
 
     /**

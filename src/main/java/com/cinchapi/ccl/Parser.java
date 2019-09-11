@@ -406,12 +406,6 @@ public abstract class Parser {
         }
 
         @Override
-        public Boolean visit(AbstractSyntaxTree tree,
-                Object... data) {
-            return true;
-        }
-
-        @Override
         public Boolean visit(ConjunctionTree tree, Object... data) {
             if(tree.root() == ConjunctionSymbol.AND) {
                 boolean a = false;
