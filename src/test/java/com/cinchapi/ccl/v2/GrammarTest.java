@@ -237,8 +237,9 @@ public class GrammarTest {
     public void singleLeftAndRightQuotation() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = ‘name’";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8));
-        Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
     }
 
     @Test
@@ -342,23 +343,26 @@ public class GrammarTest {
     public void validNavigationKeyAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
         String ccl = "a.b = 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
     }
 
     @Test
     public void validLongNavigationKeyAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
         String ccl = "a.b.c.d = 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
-        grammar.Start();
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
     }
 
     @Test
     public void validPeriodSeparatedValue() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = a.b.c";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream);
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 

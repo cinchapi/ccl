@@ -18,12 +18,12 @@ package com.cinchapi.ccl.grammar;
 /**
  * A {@link Symbol} that contains a navigation key.
  */
-public class NavigationKeySymbol extends KeySymbol {
+public class NavigationKeySymbol extends BaseKeySymbol<String> {
 
     /**
      * Construct a new instance.
      *
-     * @param keys
+     * @param key
      */
     public NavigationKeySymbol(String key) {
         super(key);

@@ -805,7 +805,7 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof OrTree);
+        Assert.assertTrue(tree instanceof AndTree);
         ConjunctionTree rootNode = (ConjunctionTree) tree;
 
         // Left node
@@ -816,7 +816,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("1", leftExpression.values().get(0).toString());
 
         // Right node
-        Assert.assertTrue(rootNode.right() instanceof AndTree);
+        Assert.assertTrue(rootNode.right() instanceof OrTree);
         ConjunctionTree rightNode = (ConjunctionTree) rootNode.right();
 
         // Right left node

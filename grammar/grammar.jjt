@@ -34,10 +34,9 @@ import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.ImplicitRecordKeyFunction;
 import com.cinchapi.ccl.grammar.ImplicitIndexValueFunction;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.ParenthesisSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
@@ -161,6 +160,8 @@ TOKEN :
 |
   < COMMA_SEPARATED_ALPHANUMERIC : <ALPHANUMERIC> ",">
 |
+  < COMMA_SEPARATED_PERIOD_SEPARATED_STRING : <PERIOD_SEPARATED_STRING> ",">
+|
   < NUMERIC: (<DIGIT>)+ >
 |
   < PIPE: "|">
@@ -254,11 +255,14 @@ BaseKeySymbol Key() :
   (
     LOOKAHEAD(2)
 
-    (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>) <PIPE> function=<ALPHANUMERIC>
+    (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <PIPE> function=<ALPHANUMERIC>
     { return new FunctionKeySymbol(new ImplicitRecordKeyFunction(function.image, key.image.substring(0, key.image.length())));}
   |
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
     { return new KeySymbol(key.image); }
+  |
+    (key=<PERIOD_SEPARATED_STRING>)
+    { return new NavigationKeySymbol(key.image); }
   )
 }
 
@@ -278,24 +282,24 @@ BaseValueSymbol UnaryValue() :
    (
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>) <CLOSE_PARENTHESES>
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <CLOSE_PARENTHESES>
      { return new FunctionValueSymbol(new ImplicitIndexValueFunction(function.image, key.image.substring(0, key.image.length())));}
    |
      LOOKAHEAD(2)
 
-     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
+     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>)
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
      (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
      { return new FunctionValueSymbol(new ExplicitRecordsValueFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
-     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>) ccl=generateSubAST() <CLOSE_PARENTHESES>
+     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
         AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
         return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
 |
-  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   {
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
@@ -356,19 +360,19 @@ BaseValueSymbol BinaryValue() :
    |
      LOOKAHEAD(2)
 
-     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>)
+     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>)
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
      (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
      { return new FunctionValueSymbol(new ExplicitRecordsValueFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
-     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC>) ccl=generateSubAST() <CLOSE_PARENTHESES>
+     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
         AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
         return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
 |
-  (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+  (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>)
   {
     value = word.image;
     if(value.charAt(0) == '$') {
@@ -388,6 +392,9 @@ BaseValueSymbol BinaryValue() :
     else if(value.length() > 2 && value.charAt(0) == '\\'
             && value.charAt(1) == '$') {
         value = value.substring(1);
+    }
+    else {
+        value = value.replace("\\@", "@");
     }
     return new ValueSymbol(transformValue(value));
   }

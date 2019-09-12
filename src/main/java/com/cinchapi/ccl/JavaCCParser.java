@@ -154,7 +154,6 @@ public class JavaCCParser extends Parser {
 
             Grammar grammar = new Grammar(stream, valueTransformFunction,
                     operatorTransformFunction, data, visitor);
-
             ASTStart start = grammar.generateAST();
 
             return (Queue<PostfixNotationSymbol>) start.jjtAccept(visitor,
@@ -218,7 +217,6 @@ public class JavaCCParser extends Parser {
 
             Grammar grammar = new Grammar(stream, valueTransformFunction,
                     operatorTransformFunction, data, visitor);
-
             ASTStart start = grammar.generateAST();
 
             return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
