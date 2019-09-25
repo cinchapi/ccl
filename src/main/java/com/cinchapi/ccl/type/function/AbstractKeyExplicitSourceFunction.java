@@ -13,35 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.type.function;
+
+import com.cinchapi.ccl.type.Function;
+import com.cinchapi.common.base.AnyStrings;
 
 /**
- * A {@link Symbol} that contains a key.
+ *
+ *
+ * @author Jeff Nelson
  */
-public abstract class BaseKeySymbol<T> extends BaseSymbol
-        implements PostfixNotationSymbol, Key<T> {
-
-    /**
-     * The content of the {@link Symbol}.
-     */
-    protected final T key;
+public abstract class AbstractKeyExplicitSourceFunction<S> extends Function {
 
     /**
      * Construct a new instance.
-     *
-     * @param key
+     * @param name
+     * @param arg
+     * @param args
      */
-    public BaseKeySymbol(T key) {
-        this.key = key;
+    protected AbstractKeyExplicitSourceFunction(String name, String key,
+            S source) {
+        super(name, key, source);
     }
-
+    
     @Override
-    public String toString() {
-        return key.toString();
+    public final String toString() {
+        return AnyStrings.format("{}({},{})", name(), key(), _sourceToString());
     }
+    
+    protected abstract String _sourceToString();
 
-    @Override
-    public T key() {
-        return key;
-    }
 }

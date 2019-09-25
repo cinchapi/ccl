@@ -15,31 +15,24 @@
  */
 package com.cinchapi.ccl.v2.generated;
 
-import com.cinchapi.ccl.grammar.BaseExpression;
-import com.cinchapi.ccl.grammar.BaseKeySymbol;
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
-import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A node that representation a CCL expression
  */
-public class ASTExpression extends SimpleNode implements BaseExpression {
+public class ASTExpression extends SimpleNode implements ExpressionSymbol {
+    
     /**
      * The key
      */
-    private BaseKeySymbol key;
+    private KeySymbol<?> key;
 
     /**
      * The operator
@@ -49,7 +42,7 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
     /**
      * The values
      */
-    private List<BaseValueSymbol> values = Lists.newArrayList();
+    private List<ValueSymbol<?>> values = Lists.newArrayList();
 
     /**
      * The timestamp
@@ -70,7 +63,7 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      *
      * @param key the key
      */
-    public void key(BaseKeySymbol key) {
+    public void key(KeySymbol<?> key) {
         this.key = key;
     }
 
@@ -88,7 +81,7 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      *
      * @param value the value
      */
-    public void addValue(BaseValueSymbol value) {
+    public void addValue(ValueSymbol<?> value) {
         this.values.add(value);
     }
 
@@ -106,7 +99,7 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      *
      * @return the key
      */
-    public BaseKeySymbol key() {
+    public KeySymbol<?> key() {
         return key;
     }
 
@@ -124,7 +117,7 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      *
      * @return the value
      */
-    public List<BaseValueSymbol> values() {
+    public List<ValueSymbol<?>> values() {
         return values;
     }
 
@@ -144,7 +137,7 @@ public class ASTExpression extends SimpleNode implements BaseExpression {
      */
     public String toString() {
         String string = key.toString() + " " + operator.toString();
-        for (BaseValueSymbol value : values) {
+        for (ValueSymbol<?> value : values) {
             string += " " + value.toString();
         }
         if (timestamp != null) {

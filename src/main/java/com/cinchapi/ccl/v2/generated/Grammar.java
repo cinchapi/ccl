@@ -3,19 +3,19 @@
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.SyntaxException;
-import com.cinchapi.ccl.grammar.BaseKeySymbol;
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
-import com.cinchapi.ccl.grammar.ExplicitCclASTValueFunction;
-import com.cinchapi.ccl.grammar.ExplicitRecordsValueFunction;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeyCclFunction;
+import com.cinchapi.ccl.grammar.KeyRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
-import com.cinchapi.ccl.grammar.ImplicitRecordKeyFunction;
-import com.cinchapi.ccl.grammar.ImplicitIndexValueFunction;
+import com.cinchapi.ccl.grammar.KeyRecordImplicitFunction;
+import com.cinchapi.ccl.grammar.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.SimpleKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.ScalarValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -290,10 +290,10 @@ if (jjtc001) {
   final public void RelationalExpression() throws ParseException {/*@bgen(jjtree) Expression */
     ASTExpression jjtn000 = new ASTExpression(JJTEXPRESSION);
     boolean jjtc000 = true;
-    jjtree.openNodeScope(jjtn000);BaseKeySymbol key = null;
+    jjtree.openNodeScope(jjtn000);StatementKeySymbol key = null;
     OperatorSymbol operator = null;
-    BaseValueSymbol value1 = null;
-    BaseValueSymbol value2 = null;
+    ValueSymbol value1 = null;
+    ValueSymbol value2 = null;
     TimestampSymbol timestamp = null;
     try {
       key = Key();
@@ -350,7 +350,7 @@ if (jjtc000) {
     }
 }
 
-  final public BaseKeySymbol Key() throws ParseException {Token key;
+  final public StatementKeySymbol Key() throws ParseException {Token key;
   Token function;
     if (jj_2_1(2)) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -381,7 +381,7 @@ if (jjtc000) {
       }
       jj_consume_token(PIPE);
       function = jj_consume_token(ALPHANUMERIC);
-{if ("" != null) return new FunctionKeySymbol(new ImplicitRecordKeyFunction(function.image, key.image.substring(0, key.image.length())));}
+{if ("" != null) return new FunctionKeySymbol(new KeyImplicitRecordFunction(function.image, key.image.substring(0, key.image.length())));}
     } else {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case RESERVED_IDENTIFIER:
@@ -415,7 +415,7 @@ if (jjtc000) {
           jj_consume_token(-1);
           throw new ParseException();
         }
-{if ("" != null) return new KeySymbol(key.image);}
+{if ("" != null) return new SimpleKeySymbol(key.image);}
         break;
         }
       case PERIOD_SEPARATED_STRING:{
@@ -432,7 +432,7 @@ if (jjtc000) {
     throw new Error("Missing return statement in function");
 }
 
-  final public BaseValueSymbol UnaryValue() throws ParseException {Token function;
+  final public ValueSymbol UnaryValue() throws ParseException {Token function;
   Token key;
   Token word;
   String value = "";
@@ -465,7 +465,7 @@ if (jjtc000) {
           throw new ParseException();
         }
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ImplicitIndexValueFunction(function.image, key.image.substring(0, key.image.length())));}
+{if ("" != null) return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
       } else if (jj_2_3(2)) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA_SEPARATED_SIGNED_INTEGER:{
@@ -519,7 +519,7 @@ records.add(word.image.substring(0, word.image.length()-1));
         }
 records.add(word.image);
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ExplicitRecordsValueFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+{if ("" != null) return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
       } else {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA_SEPARATED_SIGNED_INTEGER:
@@ -552,7 +552,7 @@ records.add(word.image);
           jj_consume_token(CLOSE_PARENTHESES);
 AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        {if ("" != null) return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        {if ("" != null) return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
           break;
           }
         default:
@@ -630,12 +630,12 @@ if(value.charAt(0) == '$') {
         value = value.replace("\\@", "@");
     }
 
-    {if ("" != null) return new ValueSymbol(transformValue(value));}
+    {if ("" != null) return new ScalarValueSymbol(transformValue(value));}
         break;
         }
       case QUOTED_STRING:{
         word = jj_consume_token(QUOTED_STRING);
-{if ("" != null) return new ValueSymbol(transformValue(word.image.replace("\\\"", "\"")));}
+{if ("" != null) return new ScalarValueSymbol(transformValue(word.image.replace("\\\"", "\"")));}
         break;
         }
       default:
@@ -647,13 +647,13 @@ if(value.charAt(0) == '$') {
     throw new Error("Missing return statement in function");
 }
 
-  final public BaseValueSymbol LinksToValue() throws ParseException {Token word;
+  final public ValueSymbol LinksToValue() throws ParseException {Token word;
     word = jj_consume_token(NUMERIC);
-{if ("" != null) return new ValueSymbol(transformValue(word.image));}
+{if ("" != null) return new ScalarValueSymbol(transformValue(word.image));}
     throw new Error("Missing return statement in function");
 }
 
-  final public BaseValueSymbol BinaryValue() throws ParseException {Token function;
+  final public ValueSymbol BinaryValue() throws ParseException {Token function;
   Token key;
   Token word;
   String value = "";
@@ -682,7 +682,7 @@ if(value.charAt(0) == '$') {
           throw new ParseException();
         }
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ImplicitIndexValueFunction(function.image, key.image.substring(0, key.image.length())));}
+{if ("" != null) return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
       } else if (jj_2_7(2)) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA_SEPARATED_SIGNED_INTEGER:{
@@ -736,7 +736,7 @@ records.add(word.image.substring(0, word.image.length()-1));
         }
 records.add(word.image);
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new ExplicitRecordsValueFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+{if ("" != null) return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
       } else {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA_SEPARATED_SIGNED_INTEGER:
@@ -769,7 +769,7 @@ records.add(word.image);
           jj_consume_token(CLOSE_PARENTHESES);
 AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        {if ("" != null) return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        {if ("" != null) return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
           break;
           }
         default:
@@ -838,12 +838,12 @@ value = word.image;
     else {
         value = value.replace("\\@", "@");
     }
-    {if ("" != null) return new ValueSymbol(transformValue(value));}
+    {if ("" != null) return new ScalarValueSymbol(transformValue(value));}
         break;
         }
       case QUOTED_STRING:{
         word = jj_consume_token(QUOTED_STRING);
-{if ("" != null) return new ValueSymbol(transformValue(word.image.replace("\\\"", "\"")));}
+{if ("" != null) return new ScalarValueSymbol(transformValue(word.image.replace("\\\"", "\"")));}
         break;
         }
       default:

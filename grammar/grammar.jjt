@@ -26,14 +26,14 @@ PARSER_BEGIN(Grammar)
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.SyntaxException;
-import com.cinchapi.ccl.grammar.BaseKeySymbol;
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
-import com.cinchapi.ccl.grammar.ExplicitCclASTValueFunction;
-import com.cinchapi.ccl.grammar.ExplicitRecordsValueFunction;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.type.function.KeyCclFunction;
+import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
-import com.cinchapi.ccl.grammar.ImplicitRecordKeyFunction;
-import com.cinchapi.ccl.grammar.ImplicitIndexValueFunction;
+import com.cinchapi.ccl.type.function.KeyImplicitRecordFunction;
+import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
@@ -224,10 +224,10 @@ void UnaryExpression() : {}
 
 void RelationalExpression() #Expression :
 {
-    BaseKeySymbol key = null;
+    KeySymbol key = null;
     OperatorSymbol operator = null;
-    BaseValueSymbol value1 = null;
-    BaseValueSymbol value2 = null;
+    ValueSymbol value1 = null;
+    ValueSymbol value2 = null;
     TimestampSymbol timestamp = null;
 }
 {
@@ -246,7 +246,7 @@ void RelationalExpression() #Expression :
         }
 }
 
-BaseKeySymbol Key() :
+KeySymbol Key() :
 {
   Token key;
   Token function;
@@ -256,7 +256,7 @@ BaseKeySymbol Key() :
     LOOKAHEAD(2)
 
     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <PIPE> function=<ALPHANUMERIC>
-    { return new FunctionKeySymbol(new ImplicitRecordKeyFunction(function.image, key.image.substring(0, key.image.length())));}
+    { return new FunctionKeySymbol(new KeyImplicitRecordFunction(function.image, key.image.substring(0, key.image.length())));}
   |
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
     { return new KeySymbol(key.image); }
@@ -266,7 +266,7 @@ BaseKeySymbol Key() :
   )
 }
 
-BaseValueSymbol UnaryValue() :
+ValueSymbol UnaryValue() :
 {
   Token function;
   Token key;
@@ -283,20 +283,20 @@ BaseValueSymbol UnaryValue() :
      LOOKAHEAD(3)
 
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ImplicitIndexValueFunction(function.image, key.image.substring(0, key.image.length())));}
+     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
    |
      LOOKAHEAD(2)
 
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>)
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
      (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitRecordsValueFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
         AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
 |
   ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
@@ -330,7 +330,7 @@ BaseValueSymbol UnaryValue() :
   { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 }
 
-BaseValueSymbol LinksToValue() :
+ValueSymbol LinksToValue() :
 {
   Token word;
 }
@@ -339,7 +339,7 @@ BaseValueSymbol LinksToValue() :
   { return new ValueSymbol(transformValue(word.image)); }
 }
 
-BaseValueSymbol BinaryValue() :
+ValueSymbol BinaryValue() :
 {
   Token function;
   Token key;
@@ -356,20 +356,20 @@ BaseValueSymbol BinaryValue() :
      LOOKAHEAD(3)
 
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>) <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ImplicitIndexValueFunction(function.image, key.image.substring(0, key.image.length())));}
+     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
    |
      LOOKAHEAD(2)
 
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>)
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
      (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new ExplicitRecordsValueFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
         AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        return new FunctionValueSymbol(new ExplicitCclASTValueFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
 |
   (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>)

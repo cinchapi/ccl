@@ -18,12 +18,12 @@ package com.cinchapi.ccl;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.SimpleKeySymbol;
+import com.cinchapi.ccl.grammar.ScalarValueSymbol;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Array;
@@ -61,10 +61,10 @@ public class JavaCCParserTest extends AbstractParserTest {
         Parser parser = createParser(ccl);
         parser.order();
 
-        Assert.assertEquals(new Expression(new KeySymbol("name"),
+        Assert.assertEquals(new ExpressionSymbol(new SimpleKeySymbol("name"),
                 new OperatorSymbol(
                         com.cinchapi.concourse.thrift.Operator.EQUALS),
-                new ValueSymbol("jeff")), parser.order().peek());
+                new ScalarValueSymbol("jeff")), parser.order().peek());
     }
 
     @Test

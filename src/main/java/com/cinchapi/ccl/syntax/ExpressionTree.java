@@ -15,7 +15,7 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 
 import java.util.Collection;
@@ -29,14 +29,14 @@ public class ExpressionTree extends BaseAbstractSyntaxTree {
     /**
      * The root.
      */
-    private final Expression expression;
+    private final ExpressionSymbol expression;
 
     /**
      * Construct a new instance.
      *
      * @param expression
      */
-    public ExpressionTree(Expression expression) {
+    public ExpressionTree(ExpressionSymbol expression) {
         this.expression = expression;
     }
 

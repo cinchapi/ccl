@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Queue;
 
-import com.cinchapi.ccl.grammar.BaseKeySymbol;
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
@@ -34,6 +34,7 @@ import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.reflect.Reflection;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -46,7 +47,7 @@ public final class Parsing {
 
     /**
      * Go through a list of symbols and group the expressions together in a
-     * {@link Expression} object.
+     * {@link ExpressionSymbol} object.
      * 
      * @param symbols
      * @return the expression
@@ -57,22 +58,64 @@ public final class Parsing {
             ListIterator<Symbol> it = symbols.listIterator();
             while (it.hasNext()) {
                 Symbol symbol = it.next();
-                if(symbol instanceof BaseKeySymbol) {
+                if(symbol instanceof KeySymbol) {
                     // NOTE: We are assuming that the list of symbols is well
                     // formed, and, as such, the next elements will be an
                     // operator and one or more symbols. If this is not the
                     // case, this method will throw a ClassCastException
                     OperatorSymbol operator = (OperatorSymbol) it.next();
-                    BaseValueSymbol value = (BaseValueSymbol) it.next();
-                    Expression expression;
+                    ValueSymbol<?> value = (ValueSymbol<?>) it.next();
+                    ExpressionSymbol expression;
                     if(operator.operator().operands() == 2) {
-                        BaseValueSymbol value2 = (BaseValueSymbol) it.next();
-                        expression = new Expression((BaseKeySymbol) symbol,
-                                operator, value, value2);
+                        ValueSymbol<?> value2 = (ValueSymbol<?>) it.next();
+                        expression = new ExpressionSymbol() {
+
+                            @Override
+                            public KeySymbol<?> key() {
+                                return (KeySymbol<?>) symbol;
+                            }
+
+                            @Override
+                            public OperatorSymbol operator() {
+                                return operator;
+                            }
+
+                            @Override
+                            public TimestampSymbol timestamp() {
+                                return TimestampSymbol.PRESENT;
+                            }
+
+                            @Override
+                            public List<ValueSymbol<?>> values() {
+                                return ImmutableList.of(value, value2);
+                            }
+
+                        };
                     }
                     else {
-                        expression = new Expression((BaseKeySymbol) symbol,
-                                operator, value);
+                        expression = new ExpressionSymbol() {
+
+                            @Override
+                            public KeySymbol<?> key() {
+                                return (KeySymbol<?>) symbol;
+                            }
+
+                            @Override
+                            public OperatorSymbol operator() {
+                                return operator;
+                            }
+
+                            @Override
+                            public TimestampSymbol timestamp() {
+                                return TimestampSymbol.PRESENT;
+                            }
+
+                            @Override
+                            public List<ValueSymbol<?>> values() {
+                                return ImmutableList.of(value);
+                            }
+
+                        };
                     }
                     grouped.add(expression);
                 }
@@ -104,7 +147,8 @@ public final class Parsing {
      * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}
      */
-    public static Queue<PostfixNotationSymbol> toPostfixNotation(List<Symbol> symbols) {
+    public static Queue<PostfixNotationSymbol> toPostfixNotation(
+            List<Symbol> symbols) {
         Preconditions.checkState(symbols.size() >= 3,
                 "Not enough symbols to process. It should have at least 3 symbols but only has %s",
                 symbols, symbols.size());
@@ -168,7 +212,7 @@ public final class Parsing {
     }
 
     /**
-     * Go through the list of symbols and break up any {@link Expression
+     * Go through the list of symbols and break up any {@link ExpressionSymbol
      * expressions} into individual symbol tokens.
      * 
      * @param symbols
@@ -177,8 +221,8 @@ public final class Parsing {
     public static List<Symbol> ungroupExpressions(List<Symbol> symbols) {
         List<Symbol> ungrouped = Lists.newArrayList();
         symbols.forEach((symbol) -> {
-            if(symbol instanceof Expression) {
-                Expression expression = (Expression) symbol;
+            if(symbol instanceof ExpressionSymbol) {
+                ExpressionSymbol expression = (ExpressionSymbol) symbol;
                 ungrouped.add(expression.key());
                 ungrouped.add(expression.operator());
                 ungrouped.addAll(expression.values());

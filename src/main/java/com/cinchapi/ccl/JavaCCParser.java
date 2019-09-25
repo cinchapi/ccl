@@ -15,20 +15,16 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.Visitor;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.ASTAnd;
 import com.cinchapi.ccl.v2.generated.ASTExpression;
@@ -136,16 +132,7 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTExpression node, Object data) {
-                    Expression expression;
-                    if (node.timestamp()!= null) {
-                        expression = new Expression(node.timestamp(), node.key(),
-                                node.operator(), node.values()
-                                .toArray(new BaseValueSymbol[node.values().size()]));
-                    }
-                    else {
-                        expression = new Expression(node.key(), node.operator(),
-                                node.values().toArray(new BaseValueSymbol[node.values().size()]));
-                    }
+                    ExpressionSymbol expression = (ExpressionSymbol) node;
                     ((Queue<PostfixNotationSymbol>) data).add(expression);
                     return data;
                 }
@@ -164,7 +151,6 @@ public class JavaCCParser extends Parser {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public AbstractSyntaxTree parse() {
         try {
@@ -201,16 +187,7 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTExpression node, Object data) {
-                    Expression expression;
-                    if (node.timestamp()!= null) {
-                        expression = new Expression(node.timestamp(), node.key(),
-                                node.operator(), node.values()
-                                .toArray(new BaseValueSymbol[node.values().size()]));
-                    }
-                    else {
-                        expression = new Expression(node.key(), node.operator(),
-                                node.values().toArray(new BaseValueSymbol[node.values().size()]));
-                    }
+                    ExpressionSymbol expression = (ExpressionSymbol) node;
                     return new ExpressionTree(expression);
                 }
             };
@@ -292,7 +269,7 @@ public class JavaCCParser extends Parser {
                 public Object visit(ASTExpression node, Object data) {
                     ((List<Symbol>) data).add(node.key());
                     ((List<Symbol>) data).add(node.operator());
-                    for(BaseValueSymbol valueSymbol : node.values()) {
+                    for(ValueSymbol<?> valueSymbol : node.values()) {
                         ((List<Symbol>) data).add(valueSymbol);
                     }
                     if (node.timestamp() != null) {

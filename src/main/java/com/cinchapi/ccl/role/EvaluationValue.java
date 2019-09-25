@@ -24,24 +24,13 @@
  * REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE, USE, OR
  * SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
  */
-package com.cinchapi.ccl.grammar;
-
-import com.cinchapi.ccl.type.Function;
+package com.cinchapi.ccl.role;
 
 /**
  *
  *
  * @author jeff
  */
-public class FunctionKeySymbol extends KeySymbol<Function>{
-
-    /**
-     * Construct a new instance.
-     * @param key
-     */
-    public FunctionKeySymbol(Function key) {
-        super(key);
-        // TODO Auto-generated constructor stub
-    }
+public interface EvaluationValue {
 
 }

@@ -15,66 +15,36 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.common.base.AnyStrings;
-import com.cinchapi.common.reflect.Reflection;
-
 /**
- * A {@link Symbol} that contains a value.;
- *
- * @author Jeff Nelson
+ * A {@link Symbol} that contains a value.
  */
-public final class ValueSymbol extends BaseValueSymbol<Object> {
+public abstract class ValueSymbol<T> implements PostfixNotationSymbol {
+
+    /**
+     * The content of the {@link Symbol}.
+     */
+    protected final T value;
 
     /**
      * Construct a new instance.
      *
      * @param value
      */
-    public ValueSymbol(Object value) {
-        super(value);
+    public ValueSymbol(T value) {
+        this.value = value;
     }
 
     /**
-     * Do any escaping of the {@code value} in order to preserve it during the
-     * translation.
-     * 
-     * @param value
-     * @return the escaped value
+     * Return the value that this {@link Symbol} expresses.
+     *
+     * @return the value
      */
-    private static Object escape(Object value) {
-        if(value instanceof String && ((String) value).matches("`([^`]+)`")) {
-            // CON-167: surround by quotes so the backticks are not interpreted
-            // as indicators of an encoded Tag. This case would happen if the
-            // user manually placed text wrapped in backticks in the Criteria
-            // instead of using the #Tag.create() method.
-            return "\"" + value + "\"";
-        }
-        else if((value instanceof String || value.getClass().getName()
-                .equals("com.cinchapi.concourse.Tag"))
-                && AnyStrings.tryParseNumberStrict(value.toString()) != null) {
-            // CON-628: Must wrap numeric strings/tags within quotes so they are
-            // re-interpreted as the original type
-            char wrap = value instanceof String ? '"' : '`';
-            return new StringBuilder().append(wrap).append(value).append(wrap)
-                    .toString();
-        }
-        else if(value.getClass().getName()
-                .equals("com.cinchapi.concourse.Timestamp")) {
-            // NOTE: See com.cinchapi.concourse.util.Convert to see the
-            // conventions for the way that a Timestamp is parsed from a long
-            // (microseconds) or string (natural language or date time format)
-            // wrapped in vertical bars.
-            long micros = Reflection.call(value, "getMicros"); // (Authorized)
-            return AnyStrings.format("|{}|", micros);
-        }
-        else {
-            return value;
-        }
+    public T value() {
+        return value;
     }
 
     @Override
     public String toString() {
-        return escape(value).toString();
+        return value.toString();
     }
-
 }

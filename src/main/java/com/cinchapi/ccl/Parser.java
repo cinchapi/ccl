@@ -25,8 +25,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.SimpleKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
@@ -223,11 +223,11 @@ public abstract class Parser {
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    if(symbol instanceof Expression) {
-                        keys.add(((Expression) symbol).raw().key());
+                    if(symbol instanceof ExpressionSymbol) {
+                        keys.add(((ExpressionSymbol) symbol).raw().key());
                     }
-                    else if(symbol instanceof KeySymbol) {
-                        keys.add(((KeySymbol) symbol).key());
+                    else if(symbol instanceof SimpleKeySymbol) {
+                        keys.add(((SimpleKeySymbol) symbol).key());
                     }
                 });
                 return Collections.unmodifiableSet(keys);
@@ -240,9 +240,9 @@ public abstract class Parser {
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    Expression expression;
-                    if(symbol instanceof Expression
-                            && (expression = (Expression) symbol).raw()
+                    ExpressionSymbol expression;
+                    if(symbol instanceof ExpressionSymbol
+                            && (expression = (ExpressionSymbol) symbol).raw()
                                     .operator().equals(operator)) {
                         keys.add(expression.raw().key());
                     }
@@ -256,8 +256,8 @@ public abstract class Parser {
                 Set<Operator> operators = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    if(symbol instanceof Expression) {
-                        operators.add(((Expression) symbol).raw().operator());
+                    if(symbol instanceof ExpressionSymbol) {
+                        operators.add(((ExpressionSymbol) symbol).raw().operator());
                     }
                     else if(symbol instanceof OperatorSymbol) {
                         operators.add(((OperatorSymbol) symbol).operator());
@@ -308,7 +308,7 @@ public abstract class Parser {
      * 
      * <p>
      * NOTE: This method will group non-conjunctive symbols into
-     * {@link Expression} objects.
+     * {@link ExpressionSymbol} objects.
      * </p>
      * 
      * @param symbols a sequential list of tokens
@@ -432,7 +432,7 @@ public abstract class Parser {
             Verify.thatArgument(data.length > 0);
             Verify.thatArgument(data[0] instanceof Multimap);
             Multimap<String, Object> dataset = (Multimap<String, Object>) data[0];
-            Expression expression = ((Expression) tree.root());
+            ExpressionSymbol expression = ((ExpressionSymbol) tree.root());
             String key = expression.raw().key();
             Operator operator = expression.raw().operator();
             List<Object> values = expression.raw().values();

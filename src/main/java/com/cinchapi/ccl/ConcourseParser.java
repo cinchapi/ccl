@@ -26,20 +26,20 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import org.apache.commons.lang.StringUtils;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.SimpleKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.ScalarValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -137,8 +137,8 @@ final class ConcourseParser extends Parser {
                 }
                 operatorStack.push(symbol);
             }
-            else if(symbol instanceof Expression) {
-                operandStack.push(new ExpressionTree((Expression) symbol));
+            else if(symbol instanceof ExpressionSymbol) {
+                operandStack.push(new ExpressionTree((ExpressionSymbol) symbol));
             }
         }
         while (!operatorStack.isEmpty()) {
@@ -193,7 +193,7 @@ final class ConcourseParser extends Parser {
                 continue;
             }
             else if(guess == TokenTypeGuess.KEY) {
-                symbols.add(new KeySymbol(tok));
+                symbols.add(new SimpleKeySymbol(tok));
                 guess = TokenTypeGuess.OPERATOR;
             }
             else if(guess == TokenTypeGuess.OPERATOR) {
@@ -231,7 +231,7 @@ final class ConcourseParser extends Parser {
                     buffer.append(tok).append(" ");
                 }
                 else {
-                    symbols.add(new ValueSymbol(transformValue(tok)));
+                    symbols.add(new ScalarValueSymbol(transformValue(tok)));
                 }
             }
             else if(guess == TokenTypeGuess.TIMESTAMP) {
@@ -295,7 +295,7 @@ final class ConcourseParser extends Parser {
 
     /**
      * This is a helper method for {@link #tokenize(String, Multimap)} that
-     * contains the logic to create a {@link ValueSymbol} from a buffered value.
+     * contains the logic to create a {@link ScalarValueSymbol} from a buffered value.
      * 
      * @param buffer
      * @param symbols
@@ -303,7 +303,7 @@ final class ConcourseParser extends Parser {
     private void addBufferedValue(StringBuilder buffer, List<Symbol> symbols) {
         if(buffer != null && buffer.length() > 0) {
             buffer.delete(buffer.length() - 1, buffer.length());
-            symbols.add(new ValueSymbol(transformValue(buffer.toString())));
+            symbols.add(new ScalarValueSymbol(transformValue(buffer.toString())));
             buffer.delete(0, buffer.length());
         }
     }

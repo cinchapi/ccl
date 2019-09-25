@@ -13,13 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.type.function;
+
+import com.cinchapi.ccl.type.Function;
+import com.cinchapi.common.base.AnyStrings;
 
 /**
- * An abstraction for a value in a key-relation-value triplet.
- *
- * @param <T> the type of the value
+ * Represents an implicit function, i.e. a function implicitly applied to the
+ * entire index
  */
-public interface Value<T> {
-    T value();
+public class IndexFunction extends Function {
+
+    /**
+     * Creates a new instances
+     *
+     * @param function the function
+     * @param key the key
+     */
+    public IndexFunction(String name, String key) {
+        super(name, key);
+    }
+
+    @Override
+    public String toString() {
+        return AnyStrings.format("{}({})", name(), key());
+    }
 }

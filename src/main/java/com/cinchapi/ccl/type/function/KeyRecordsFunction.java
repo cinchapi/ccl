@@ -13,18 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.type.function;
 
 import java.util.List;
 
 /**
- * An {@link BaseExpression} describes a query operation
- * on a key with respect to one or more values (e.g. key = value, key >=
- * value, etc) at a certain timestamp.
+ * A function applied to a key across multiple records.
  */
-public interface BaseExpression {
-    public BaseKeySymbol key();
-    public OperatorSymbol operator();
-    public List<BaseValueSymbol> values();
-    public TimestampSymbol timestamp();
+public class KeyRecordsFunction
+        extends AbstractKeyExplicitSourceFunction<List<String>> {
+    /**
+     * Constructs a new instance
+     *
+     * @param function the function
+     * @param key the key
+     * @param records the records
+     */
+    public KeyRecordsFunction(String function, String key,
+            List<String> records) {
+        super(function, key, records);
+    }
+
+    @Override
+    protected String _sourceToString() {
+        return args[1].toString();
+    }
 }

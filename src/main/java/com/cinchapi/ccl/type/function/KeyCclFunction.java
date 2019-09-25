@@ -13,36 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.type.function;
 
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.Visitor;
-import com.cinchapi.common.base.AnyStrings;
 
 /**
- * Represents a {@link ExplicitValueFunction} where the value is a CCL represented
- * as a {@link AbstractSyntaxTree}
+ * A function that is applied to a key across the records that match a condition
+ * (represented by an {@link AbstractSyntaxTree}).
  */
-public class ExplicitCclASTValueFunction extends ExplicitValueFunction<AbstractSyntaxTree> {
+public class KeyCclFunction
+        extends AbstractKeyExplicitSourceFunction<AbstractSyntaxTree> {
     /**
      * Constructs a new instance
      *
      * @param function the function
-     * @param key      the key
-     * @param value    the value
+     * @param key the key
+     * @param value the value
      */
-    public ExplicitCclASTValueFunction(String function, String key,
+    public KeyCclFunction(String function, String key,
             AbstractSyntaxTree value) {
         super(function, key, value);
     }
 
     @Override
-    public String toString() {
-        String string = AnyStrings.format("{} ({},", function, key);
-
-        Visitor<String> visitor = new Visitor<String>() {
+    protected String _sourceToString() {
+        return ((AbstractSyntaxTree) args[1]).accept(new Visitor<String>() {
             String string = "";
 
             @Override
@@ -58,9 +56,6 @@ public class ExplicitCclASTValueFunction extends ExplicitValueFunction<AbstractS
                 string += " " + tree.root().toString();
                 return string;
             }
-        };
-
-        string += value.accept(visitor) + ")";
-        return string;
+        });
     }
 }

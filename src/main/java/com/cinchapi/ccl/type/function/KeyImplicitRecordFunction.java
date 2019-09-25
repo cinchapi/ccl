@@ -13,35 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.type.function;
 
+import com.cinchapi.ccl.type.Function;
 import com.cinchapi.common.base.AnyStrings;
 
-import java.util.List;
-
 /**
- * Represents a {@link ExplicitValueFunction} where the value is a list of records
+ * Represents a function invocation that is implicitly bound to the "current"
+ * record
  */
-public class ExplicitRecordsValueFunction extends ExplicitValueFunction<List<String>> {
+public class KeyImplicitRecordFunction extends Function {
+
     /**
-     * Constructs a new instance
+     * Creates a new instances
      *
      * @param function the function
-     * @param key      the key
-     * @param records  the records
+     * @param key the key
      */
-    public ExplicitRecordsValueFunction(String function, String key,
-            List<String> records) {
-        super(function, key, records);
+    public KeyImplicitRecordFunction(String function, String key) {
+        super(function, key);
     }
 
     @Override
     public String toString() {
-        String string = AnyStrings.format("{} ({}", function, key);
-        for (String record  : value) {
-            string +=  ", " + record;
-        }
-        string += ")";
-        return string;
+        return AnyStrings.format("{} | {}", key(), name());
     }
 }

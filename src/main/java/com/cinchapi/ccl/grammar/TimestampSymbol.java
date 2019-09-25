@@ -22,10 +22,10 @@ import com.cinchapi.common.base.AnyStrings;
  *
  * @author Jeff Nelson
  */
-public final class TimestampSymbol extends BaseSymbol {
+public final class TimestampSymbol implements Symbol {
 
     /**
-     * A {@link TimestampSymbol} that can be included in a {@link Expression} to
+     * A {@link TimestampSymbol} that can be included in a {@link ExpressionSymbol} to
      * indicate that the expression is not temporal.
      */
     // default timestamp value of 0 indicates this is a present state query

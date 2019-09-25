@@ -22,7 +22,7 @@ import com.cinchapi.ccl.type.Operator;
  *
  * @author Jeff Nelson
  */
-public final class OperatorSymbol extends BaseSymbol implements
+public final class OperatorSymbol implements
         PostfixNotationSymbol {
 
     /**

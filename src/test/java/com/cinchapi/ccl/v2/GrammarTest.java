@@ -16,8 +16,8 @@
 package com.cinchapi.ccl.v2;
 
 import com.cinchapi.ccl.Parser;
-import com.cinchapi.ccl.grammar.BaseValueSymbol;
-import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
@@ -37,9 +37,6 @@ import com.google.common.collect.Multimap;
 import org.junit.Test;
 
 import com.cinchapi.ccl.v2.generated.Grammar;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-
 import com.cinchapi.ccl.v2.generated.ParseException;
 
 import java.io.ByteArrayInputStream;
@@ -468,15 +465,15 @@ public class GrammarTest {
 
         @Override
         public Object visit(ASTExpression node, Object data) {
-            Expression expression;
+            ExpressionSymbol expression;
             if (node.timestamp()!= null) {
-                expression = new Expression(node.timestamp(), node.key(),
+                expression = new ExpressionSymbol(node.timestamp(), node.key(),
                         node.operator(), node.values()
-                        .toArray(new BaseValueSymbol[node.values().size()]));
+                        .toArray(new ValueSymbol[node.values().size()]));
             }
             else {
-                expression = new Expression(node.key(), node.operator(),
-                        node.values().toArray(new BaseValueSymbol[node.values().size()]));
+                expression = new ExpressionSymbol(node.key(), node.operator(),
+                        node.values().toArray(new ValueSymbol[node.values().size()]));
             }
             return new ExpressionTree(expression);
         }
