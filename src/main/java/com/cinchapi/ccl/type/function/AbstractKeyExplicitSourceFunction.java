@@ -38,7 +38,7 @@ public abstract class AbstractKeyExplicitSourceFunction<S> extends Function {
     
     @Override
     public final String toString() {
-        return AnyStrings.format("{}({},{})", name(), key(), _sourceToString());
+        return AnyStrings.format("{}({},{})", operation(), key(), _sourceToString());
     }
     
     @SuppressWarnings("unchecked")

@@ -1108,7 +1108,7 @@ public class JavaCCParserLogicTest {
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
         FunctionKeySymbol symbol = expression.key();
-        Assert.assertEquals("avg", symbol.key().name());
+        Assert.assertEquals("avg", symbol.key().operation());
         Assert.assertEquals("friends", symbol.key().key());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertEquals("3", expression.values().get(0).toString());
@@ -1130,7 +1130,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((IndexFunction) expression.values().get(0).value()).name());
+        Assert.assertEquals("avg", ((IndexFunction) expression.values().get(0).value()).operation());
         Assert.assertEquals("age", ((IndexFunction) expression.values().get(0).value()).key());
     }
 
@@ -1151,7 +1151,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).name());
+        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).operation());
         Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
         Assert.assertEquals(1, ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).size());
         Assert.assertEquals("1", ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).get(0));
@@ -1173,7 +1173,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((IndexFunction) expression.values().get(0).value()).name());
+        Assert.assertEquals("avg", ((IndexFunction) expression.values().get(0).value()).operation());
         Assert.assertEquals("age", ((IndexFunction) expression.values().get(0).value()).key());
 
         Assert.assertEquals("1000", expression.values().get(1).toString());
@@ -1222,7 +1222,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).name());
+        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).operation());
         Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
         Assert.assertEquals(2, ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).size());
         Assert.assertEquals("1", ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).get(0));
@@ -1245,7 +1245,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).name());
+        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).operation());
         Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
 
         Assert.assertTrue((((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()) instanceof ExpressionTree);
@@ -1268,10 +1268,10 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(tree instanceof ExpressionTree);
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
-        Assert.assertEquals("avg", ((KeyImplicitRecordFunction) expression.key().key()).name());
+        Assert.assertEquals("avg", ((KeyImplicitRecordFunction) expression.key().key()).operation());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).name());
+        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).operation());
         Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
 
         Assert.assertTrue((((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()) instanceof ExpressionTree);

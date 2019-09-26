@@ -36,6 +36,6 @@ public class KeyImplicitRecordFunction extends Function {
 
     @Override
     public String toString() {
-        return AnyStrings.format("{} | {}", key(), name());
+        return AnyStrings.format("{} | {}", key(), operation());
     }
 }

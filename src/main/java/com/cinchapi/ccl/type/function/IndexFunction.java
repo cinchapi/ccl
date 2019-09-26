@@ -36,6 +36,6 @@ public class IndexFunction extends Function {
 
     @Override
     public String toString() {
-        return AnyStrings.format("{}({})", name(), key());
+        return AnyStrings.format("{}({})", operation(), key());
     }
 }

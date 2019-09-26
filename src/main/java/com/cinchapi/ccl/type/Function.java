@@ -32,12 +32,12 @@ public abstract class Function {
     /**
      * Construct a new instance.
      * 
-     * @param name
+     * @param operation
      * @param key
      * @param args
      */
-    protected Function(String name, String key, Object... args) {
-        Verify.thatArgument(!Empty.ness().describes(name));
+    protected Function(String operation, String key, Object... args) {
+        Verify.thatArgument(!Empty.ness().describes(operation));
         Verify.thatArgument(!Empty.ness().describes(key));
         ArrayBuilder<Object> $args = ArrayBuilder.builder();
         $args.add(key);
@@ -45,14 +45,14 @@ public abstract class Function {
             Verify.thatArgument(!Empty.ness().describes($arg));
             $args.add($arg);
         });
-        this.name = name;
+        this.operation = operation;
         this.args = $args.build();
     }
 
     /**
      * The name of the function.
      */
-    private final String name;
+    private final String operation;
 
     /**
      * The arguments that are supplied to the function.
@@ -60,12 +60,12 @@ public abstract class Function {
     protected final Object[] args;
 
     /**
-     * Return the name of the function.
+     * Return the name of the function's operation.
      * 
-     * @return the name
+     * @return the operation
      */
-    public String name() {
-        return name;
+    public String operation() {
+        return operation;
     }
 
     /**
