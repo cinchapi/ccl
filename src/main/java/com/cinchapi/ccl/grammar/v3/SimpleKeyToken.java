@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
-
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
+package com.cinchapi.ccl.grammar.v3;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
+ * A {@link Token} that represents a simple key.
+ *
  * @author Jeff Nelson
  */
-public final class OrTree extends ConjunctionTree {
+public final class SimpleKeyToken extends KeyToken<String> {
 
     /**
      * Construct a new instance.
      *
-     * @param left
-     * @param right
+     * @param key the key
      */
-    public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
-        super(ConjunctionToken.OR, left, right);
+    public SimpleKeyToken(String key) {
+        super(key);
     }
 
+    @Override
+    public String toString() {
+        return key;
+    }
 }

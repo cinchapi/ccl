@@ -15,8 +15,8 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
+import com.cinchapi.ccl.grammar.v3.Token;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ import java.util.Collection;
  */
 public class ConjunctionTree extends BaseAbstractSyntaxTree {
 
-    private final ConjunctionSymbol conjunction;
+    private final ConjunctionToken conjunction;
     private final AbstractSyntaxTree left;
     private final AbstractSyntaxTree right;
 
@@ -37,7 +37,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
      * @param left
      * @param right
      */
-    public ConjunctionTree(ConjunctionSymbol conjunction,
+    public ConjunctionTree(ConjunctionToken conjunction,
             AbstractSyntaxTree left, AbstractSyntaxTree right) {
         this.conjunction = conjunction;
         this.left = left;
@@ -68,7 +68,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
     }
 
     @Override
-    public Symbol root() {
+    public Token root() {
         return conjunction;
     }
 

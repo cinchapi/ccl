@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
-
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
+package com.cinchapi.ccl.grammar.v3;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
- * @author Jeff Nelson
+ * A {@link KeyToken} that represents a navigation key.
  */
-public final class OrTree extends ConjunctionTree {
+public class NavigationKeyToken extends KeyToken<String> {
 
     /**
      * Construct a new instance.
      *
-     * @param left
-     * @param right
+     * @param key
      */
-    public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
-        super(ConjunctionToken.OR, left, right);
+    public NavigationKeyToken(String key) {
+        super(key);
+    }
+
+    /**
+     * Return each of the navigation key's components.
+     *
+     * @return the key components
+     */
+    public String[] components() {
+        return key().split("\\.");
     }
 
 }

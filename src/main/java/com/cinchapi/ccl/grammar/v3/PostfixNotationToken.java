@@ -13,25 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
-
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
+package com.cinchapi.ccl.grammar.v3;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
+ * A {@link PostfixNotationToken} is one that can be used in a reverse polish
+ * (or postfix notation) expression.
  * 
  * @author Jeff Nelson
  */
-public final class OrTree extends ConjunctionTree {
-
-    /**
-     * Construct a new instance.
-     *
-     * @param left
-     * @param right
-     */
-    public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
-        super(ConjunctionToken.OR, left, right);
-    }
-
-}
+public interface PostfixNotationToken extends Token {/* marker */}

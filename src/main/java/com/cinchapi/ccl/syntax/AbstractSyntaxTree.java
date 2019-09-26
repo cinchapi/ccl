@@ -18,14 +18,14 @@ package com.cinchapi.ccl.syntax;
 import java.util.Collection;
 import javax.annotation.concurrent.Immutable;
 
-import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.v3.Token;
 
 /**
  * An {@link AbstractSyntaxTree} is a generic structure that can be used to
  * represent a statement in a formal language.
  * 
  * <p>
- * Each {@link AbstractSyntaxTree} contains a single {@link Symbol}, which
+ * Each {@link AbstractSyntaxTree} contains a single {@link Token}, which
  * contains any number of {@link #children} nodes. If the tree contains no
  * children, it is considered a "leaf". This property can be checked in the
  * {@link #isLeaf()} method.
@@ -61,11 +61,11 @@ public interface AbstractSyntaxTree {
     }
 
     /**
-     * Return the {@link Symbol} contained in the "root" node of the tree.
+     * Return the {@link Token} contained in the "root" node of the tree.
      *
-     * @return the root node {@link Symbol}
+     * @return the root node {@link Token}
      */
-    public Symbol root();
+    public Token root();
 
     /**
      * This method is part of the visitor design pattern It accepts an

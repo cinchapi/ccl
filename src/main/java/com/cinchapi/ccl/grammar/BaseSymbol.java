@@ -13,39 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.type.function;
+package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.type.Function;
-import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.ccl.grammar.v3.Token;
 
 /**
- *
- *
+ * An abstract implementation of the {@link Symbol} interface that provides
+ * {@link #hashCode()} and {@link #equals(Object)}.
+ * 
  * @author Jeff Nelson
  */
-public abstract class AbstractKeyExplicitSourceFunction<S> extends Function {
-
-    /**
-     * Construct a new instance.
-     * @param name
-     * @param arg
-     * @param args
-     */
-    protected AbstractKeyExplicitSourceFunction(String name, String key,
-            S source) {
-        super(name, key, source);
-    }
+abstract class BaseSymbol implements Symbol {
     
     @Override
+    public final boolean equals(Object obj) {
+        if(obj.getClass() == getClass()) {
+            return delegate().equals(((BaseSymbol) obj).delegate());
+        }
+        else {
+            return delegate().equals(obj);
+        }
+    }
+
+    @Override
+    public final int hashCode() {
+        return delegate().hashCode();
+    }
+
+    @Override
     public final String toString() {
-        return AnyStrings.format("{}({},{})", name(), key(), _sourceToString());
+        return delegate().toString();
     }
     
-    @SuppressWarnings("unchecked")
-    public final S source() {
-        return (S) args[1];
-    }
     
-    protected abstract String _sourceToString();
+    protected abstract Token delegate();
 
 }

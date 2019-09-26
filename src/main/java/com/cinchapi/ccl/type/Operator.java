@@ -16,7 +16,7 @@
 package com.cinchapi.ccl.type;
 
 /**
- * An interface representing the input to an {@link OperatorSymbol}.
+ * An interface representing the input to an {@link OperatorToken}.
  *
  * @author Jeff Nelson
  */

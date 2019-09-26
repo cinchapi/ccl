@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.grammar.v3;
 
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
+import com.cinchapi.ccl.type.Function;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
+ * A {@link ValueToken} that represents a {@link Function}.
+ *
  * @author Jeff Nelson
  */
-public final class OrTree extends ConjunctionTree {
+public class FunctionValueToken extends ValueToken<Function> {
 
     /**
      * Construct a new instance.
-     *
-     * @param left
-     * @param right
+     * 
+     * @param value
      */
-    public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
-        super(ConjunctionToken.OR, left, right);
+    public FunctionValueToken(Function value) {
+        super(value);
     }
 
 }

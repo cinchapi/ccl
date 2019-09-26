@@ -17,10 +17,12 @@ package com.cinchapi.ccl.grammar;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.cinchapi.ccl.grammar.v3.Token;
+
 /**
  * A {@link Symbol} is a terminal or non-terminal component in a grammar.
  *
  * @author Jeff Nelson
  */
 @Immutable
-public interface Symbol {/* marker */}
+public interface Symbol extends Token {/* marker */}

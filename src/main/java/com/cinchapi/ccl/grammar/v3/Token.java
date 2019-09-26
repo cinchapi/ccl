@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.grammar.v3;
 
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
+import javax.annotation.concurrent.Immutable;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
+ * A {@link Token} is a non-terminal symbol in the grammar.
+ *
  * @author Jeff Nelson
  */
-public final class OrTree extends ConjunctionTree {
-
-    /**
-     * Construct a new instance.
-     *
-     * @param left
-     * @param right
-     */
-    public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
-        super(ConjunctionToken.OR, left, right);
-    }
-
-}
+@Immutable
+public interface Token {/* marker */}

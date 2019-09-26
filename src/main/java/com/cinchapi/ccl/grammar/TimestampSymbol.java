@@ -15,26 +15,14 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.ccl.grammar.v3.TimestampToken;
 
 /**
  * A {@link Symbol} containing a timestamp (in microseconds) phrase.
  *
  * @author Jeff Nelson
  */
-public final class TimestampSymbol implements Symbol {
-
-    /**
-     * A {@link TimestampSymbol} that can be included in a {@link ExpressionSymbol} to
-     * indicate that the expression is not temporal.
-     */
-    // default timestamp value of 0 indicates this is a present state query
-    public static final TimestampSymbol PRESENT = new TimestampSymbol(0);
-
-    /**
-     * The content of the symbol.
-     */
-    private final long timestamp;
+public final class TimestampSymbol extends TimestampToken implements Symbol {
 
     /**
      * Construct a new instance.
@@ -42,22 +30,7 @@ public final class TimestampSymbol implements Symbol {
      * @param timestamp
      */
     public TimestampSymbol(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * Return the timestamp (in microseconds) associated with this
-     * {@link Symbol}.
-     * 
-     * @return the timestamp
-     */
-    public long timestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public String toString() {
-        return AnyStrings.format("at {}", timestamp);
+        super(timestamp);
     }
 
 }

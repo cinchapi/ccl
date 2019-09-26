@@ -15,36 +15,22 @@
  */
 package com.cinchapi.ccl.grammar;
 
-/**
- * A {@link Symbol} that contains a value.
- */
-public abstract class ValueSymbol<T> implements PostfixNotationSymbol {
+import com.cinchapi.ccl.grammar.v3.ScalarValueToken;
 
-    /**
-     * The content of the {@link Symbol}.
-     */
-    protected final T value;
+/**
+ * A {@link Symbol} that contains a value.;
+ *
+ * @author Jeff Nelson
+ */
+public final class ValueSymbol extends ScalarValueToken implements Symbol {
 
     /**
      * Construct a new instance.
-     *
+     * 
      * @param value
      */
-    public ValueSymbol(T value) {
-        this.value = value;
+    public ValueSymbol(Object value) {
+        super(value);
     }
 
-    /**
-     * Return the value that this {@link Symbol} expresses.
-     *
-     * @return the value
-     */
-    public T value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return value.toString();
-    }
 }

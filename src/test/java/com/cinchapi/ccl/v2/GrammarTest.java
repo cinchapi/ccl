@@ -21,19 +21,19 @@ import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.ccl.v2.generated.ASTAnd;
-import com.cinchapi.ccl.v2.generated.ASTExpression;
-import com.cinchapi.ccl.v2.generated.ASTOr;
-import com.cinchapi.ccl.v2.generated.ASTStart;
-import com.cinchapi.ccl.v2.generated.GrammarVisitor;
-import com.cinchapi.ccl.v2.generated.SimpleNode;
+import com.cinchapi.ccl.generated.ASTAnd;
+import com.cinchapi.ccl.generated.ASTExpression;
+import com.cinchapi.ccl.generated.ASTOr;
+import com.cinchapi.ccl.generated.ASTStart;
+import com.cinchapi.ccl.generated.GrammarVisitor;
+import com.cinchapi.ccl.generated.SimpleNode;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.junit.Test;
 
-import com.cinchapi.ccl.v2.generated.Grammar;
-import com.cinchapi.ccl.v2.generated.ParseException;
+import com.cinchapi.ccl.generated.Grammar;
+import com.cinchapi.ccl.generated.ParseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

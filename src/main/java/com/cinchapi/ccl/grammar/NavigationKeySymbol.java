@@ -15,27 +15,20 @@
  */
 package com.cinchapi.ccl.grammar;
 
+import com.cinchapi.ccl.grammar.v3.NavigationKeyToken;
+
 /**
  * A {@link Symbol} that contains a navigation key.
  */
-public class NavigationKeySymbol extends KeySymbol<String> {
+public class NavigationKeySymbol extends NavigationKeyToken implements Symbol {
 
     /**
      * Construct a new instance.
      *
-     * @param key
+     * @param keys
      */
     public NavigationKeySymbol(String key) {
         super(key);
-    }
-
-    /**
-     * Return each of the navigation key's components.
-     *
-     * @return the key components
-     */
-    public String[] components() {
-        return key().split("\\.");
     }
 
 }

@@ -15,12 +15,12 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.SimpleKeySymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
-import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.ScalarValueSymbol;
+import com.cinchapi.ccl.grammar.v3.ExpressionToken;
+import com.cinchapi.ccl.grammar.v3.KeyToken;
+import com.cinchapi.ccl.grammar.v3.OperatorToken;
+import com.cinchapi.ccl.grammar.v3.ScalarValueToken;
+import com.cinchapi.ccl.grammar.v3.SimpleKeyToken;
+import com.cinchapi.ccl.grammar.v3.ValueToken;
 import com.cinchapi.concourse.thrift.Operator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,18 +33,18 @@ public class VisitorTest {
     @Test
     public void testVisitorPattern() {
         // Build tree
-        KeySymbol<String> key = new SimpleKeySymbol("key");
-        OperatorSymbol operator = new OperatorSymbol(Operator.EQUALS);
-        ValueSymbol<Object> value = new ScalarValueSymbol("value");
+        KeyToken<String> key = new SimpleKeyToken("key");
+        OperatorToken operator = new OperatorToken(Operator.EQUALS);
+        ValueToken<Object> value = new ScalarValueToken("value");
 
-        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
+        ExpressionToken expression = ExpressionToken.create(key, operator, value);
         ExpressionTree leftTree = new ExpressionTree(expression);
 
-        key = new SimpleKeySymbol("key");
-        operator = new OperatorSymbol(Operator.EQUALS);
-        value = new ScalarValueSymbol("value");
+        key = new SimpleKeyToken("key");
+        operator = new OperatorToken(Operator.EQUALS);
+        value = new ScalarValueToken("value");
 
-        expression = ExpressionSymbol.create(key, operator, value);
+        expression = ExpressionToken.create(key, operator, value);
         ExpressionTree rightTree = new ExpressionTree(expression);
 
         AndTree tree = new AndTree(leftTree, rightTree);
@@ -59,11 +59,11 @@ public class VisitorTest {
 
             @Override
             public Object visit(ExpressionTree tree, Object... data) {
-                Assert.assertTrue(((ExpressionSymbol) tree.root()).key().toString()
+                Assert.assertTrue(((ExpressionToken) tree.root()).key().toString()
                         .equals("key"));
-                Assert.assertTrue(((ExpressionSymbol) tree.root()).operator()
+                Assert.assertTrue(((ExpressionToken) tree.root()).operator()
                         .toString().equals("="));
-                Assert.assertTrue(((ExpressionSymbol) tree.root()).values().get(0)
+                Assert.assertTrue(((ExpressionToken) tree.root()).values().get(0)
                         .toString().equals("value"));
                 return data;
             }
