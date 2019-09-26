@@ -18,12 +18,9 @@ package com.cinchapi.ccl.v2;
 import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.Parser;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.ExplicitValueFunction;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
-import com.cinchapi.ccl.grammar.IndexFunction;
-import com.cinchapi.ccl.grammar.KeyRecordImplicitFunction;
 import com.cinchapi.ccl.grammar.SimpleKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
@@ -36,6 +33,8 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.ccl.type.function.AbstractKeyExplicitSourceFunction;
+import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
@@ -290,14 +289,14 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ScalarValueSymbol value = new ScalarValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        ExpressionSymbol expression = new ExpressionSymbol(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("b");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
@@ -321,14 +320,14 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ScalarValueSymbol value = new ScalarValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        ExpressionSymbol expression = new ExpressionSymbol(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("b");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.OR);
@@ -353,14 +352,14 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ScalarValueSymbol value = new ScalarValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        ExpressionSymbol expression = new ExpressionSymbol(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("b");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
@@ -369,7 +368,7 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
@@ -394,14 +393,14 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ScalarValueSymbol value = new ScalarValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        ExpressionSymbol expression = new ExpressionSymbol(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("b");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.OR);
@@ -410,7 +409,7 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.OR);
@@ -435,14 +434,14 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ScalarValueSymbol value = new ScalarValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        ExpressionSymbol expression = new ExpressionSymbol(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("b");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
@@ -451,7 +450,7 @@ public class JavaCCParserLogicTest {
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.OR);
@@ -476,21 +475,21 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ScalarValueSymbol value = new ScalarValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        ExpressionSymbol expression = new ExpressionSymbol(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("b");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("c");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
@@ -516,21 +515,21 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         ScalarValueSymbol value = new ScalarValueSymbol(
                 PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        ExpressionSymbol expression = new ExpressionSymbol(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("b");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         key = new SimpleKeySymbol("c");
         operator = new OperatorSymbol(
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
         value = new ScalarValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expression = new ExpressionSymbol(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
@@ -1106,7 +1105,7 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(tree instanceof ExpressionTree);
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
-        Assert.assertEquals("avg", ((KeyImplicitRecordFunction) expression.key().key()).function());
+        Assert.assertEquals("avg", ((KeyImplicitRecordFunction) expression.key().key()).name());
         Assert.assertEquals("friends", ((KeyImplicitRecordFunction) expression.key().key()).key());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertEquals("3", expression.values().get(0).toString());
@@ -1128,7 +1127,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((IndexFunction) expression.values().get(0).value()).function());
+        Assert.assertEquals("avg", ((IndexFunction) expression.values().get(0).value()).name());
         Assert.assertEquals("age", ((IndexFunction) expression.values().get(0).value()).key());
     }
 
@@ -1149,10 +1148,10 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((ExplicitValueFunction) expression.values().get(0).value()).function());
-        Assert.assertEquals("age", ((ExplicitValueFunction) expression.values().get(0).value()).key());
-        Assert.assertEquals(1, ((List<String>) ((ExplicitValueFunction) expression.values().get(0).value()).value()).size());
-        Assert.assertEquals("1", ((List<String>) ((ExplicitValueFunction) expression.values().get(0).value()).value()).get(0));
+        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).name());
+        Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
+        Assert.assertEquals(1, ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).size());
+        Assert.assertEquals("1", ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).get(0));
     }
 
     @SuppressWarnings("unchecked")
@@ -1172,7 +1171,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((IndexFunction) expression.values().get(0).value()).function());
+        Assert.assertEquals("avg", ((IndexFunction) expression.values().get(0).value()).name());
         Assert.assertEquals("age", ((IndexFunction) expression.values().get(0).value()).key());
 
         Assert.assertEquals("1000", expression.values().get(1).toString());
@@ -1195,10 +1194,10 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
 
-        Assert.assertTrue((((ExplicitValueFunction) expression.values().get(0).value()).value()) instanceof ExpressionTree);
-        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).key().toString());
-        Assert.assertEquals(">", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).operator().toString());
-        Assert.assertEquals("10", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).values().get(0).toString());
+        Assert.assertTrue((((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).key().toString());
+        Assert.assertEquals(">", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).operator().toString());
+        Assert.assertEquals("10", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).values().get(0).toString());
 
         Assert.assertEquals("1000", expression.values().get(1).toString());
     }
@@ -1220,11 +1219,11 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((ExplicitValueFunction) expression.values().get(0).value()).function());
-        Assert.assertEquals("age", ((ExplicitValueFunction) expression.values().get(0).value()).key());
-        Assert.assertEquals(2, ((List<String>) ((ExplicitValueFunction) expression.values().get(0).value()).value()).size());
-        Assert.assertEquals("1", ((List<String>) ((ExplicitValueFunction) expression.values().get(0).value()).value()).get(0));
-        Assert.assertEquals("2", ((List<String>) ((ExplicitValueFunction) expression.values().get(0).value()).value()).get(1));
+        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).name());
+        Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
+        Assert.assertEquals(2, ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).size());
+        Assert.assertEquals("1", ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).get(0));
+        Assert.assertEquals("2", ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).get(1));
     }
 
     @SuppressWarnings("unchecked")
@@ -1244,13 +1243,13 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((ExplicitValueFunction) expression.values().get(0).value()).function());
-        Assert.assertEquals("age", ((ExplicitValueFunction) expression.values().get(0).value()).key());
+        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).name());
+        Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
 
-        Assert.assertTrue((((ExplicitValueFunction) expression.values().get(0).value()).value()) instanceof ExpressionTree);
-        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).key().toString());
-        Assert.assertEquals("<", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).operator().toString());
-        Assert.assertEquals("30", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).values().get(0).toString());
+        Assert.assertTrue((((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).key().toString());
+        Assert.assertEquals("<", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).operator().toString());
+        Assert.assertEquals("30", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).values().get(0).toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -1268,16 +1267,16 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(tree instanceof ExpressionTree);
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
-        Assert.assertEquals("avg", ((KeyImplicitRecordFunction) expression.key().key()).function());
+        Assert.assertEquals("avg", ((KeyImplicitRecordFunction) expression.key().key()).name());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((ExplicitValueFunction) expression.values().get(0).value()).function());
-        Assert.assertEquals("age", ((ExplicitValueFunction) expression.values().get(0).value()).key());
+        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).name());
+        Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
 
-        Assert.assertTrue((((ExplicitValueFunction) expression.values().get(0).value()).value()) instanceof ExpressionTree);
-        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).key().toString());
-        Assert.assertEquals("<", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).operator().toString());
-        Assert.assertEquals("30", ((ExpressionSymbol) ((AbstractSyntaxTree) ((ExplicitValueFunction) expression.values().get(0).value()).value()).root()).values().get(0).toString());
+        Assert.assertTrue((((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).key().toString());
+        Assert.assertEquals("<", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).operator().toString());
+        Assert.assertEquals("30", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).value()).root()).values().get(0).toString());
     }
 
     @Test

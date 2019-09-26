@@ -37,7 +37,6 @@ import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
 import com.cinchapi.common.function.TriFunction;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -125,47 +124,6 @@ public abstract class Parser {
             TriFunction<Object, Operator, List<Object>, Boolean> localEvaluationFunction) {
         return new JavaCCParser(ccl, data, valueTransformFunction,
                 operatorTransformFunction, localEvaluationFunction);
-    }
-
-    /**
-     * Return a new {@link Parser} for the {@code ccl} statement that uses the
-     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
-     * 
-     * @param ccl
-     * @param valueTransformFunction
-     * @param operatorTransformFunction
-     * @return the {@link Parser}
-     * @deprecated Deprecated since version 2.2.0; use
-     *             {@link #create(String, Function, Function)} instead.
-     */
-    @Deprecated
-    public static Parser newParser(String ccl,
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction) {
-        return newParser(ccl, ImmutableMultimap.of(), valueTransformFunction,
-                operatorTransformFunction);
-    }
-
-    /**
-     * Return a new {@link Parser} for the {@code ccl} statement that uses the
-     * {@code data} for location resolution and the
-     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
-     * 
-     * @param ccl
-     * @param data
-     * @param valueTransformFunction
-     * @param operatorTransformFunction
-     * @return the {@link Parser}
-     * @deprecated Deprecated since version 2.2.0; use
-     *             {@link #create(String, Multimap, Function, Function)}
-     *             instead.
-     */
-    @Deprecated
-    public static Parser newParser(String ccl, Multimap<String, Object> data,
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction) {
-        return new ConcourseParser(ccl, data, valueTransformFunction,
-                operatorTransformFunction, null);
     }
 
     /**

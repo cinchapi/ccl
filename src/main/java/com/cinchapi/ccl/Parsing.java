@@ -32,9 +32,8 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.common.base.AnyStrings;
-import com.cinchapi.common.reflect.Reflection;
+import com.cinchapi.common.base.Array;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -52,6 +51,7 @@ public final class Parsing {
      * @param symbols
      * @return the expression
      */
+    @SuppressWarnings("unchecked")
     public static List<Symbol> groupExpressions(List<Symbol> symbols) {
         try {
             List<Symbol> grouped = Lists.newArrayList();
@@ -59,6 +59,7 @@ public final class Parsing {
             while (it.hasNext()) {
                 Symbol symbol = it.next();
                 if(symbol instanceof KeySymbol) {
+                    KeySymbol<String> key = (KeySymbol<String>) symbol;
                     // NOTE: We are assuming that the list of symbols is well
                     // formed, and, as such, the next elements will be an
                     // operator and one or more symbols. If this is not the
@@ -68,54 +69,12 @@ public final class Parsing {
                     ExpressionSymbol expression;
                     if(operator.operator().operands() == 2) {
                         ValueSymbol<?> value2 = (ValueSymbol<?>) it.next();
-                        expression = new ExpressionSymbol() {
-
-                            @Override
-                            public KeySymbol<?> key() {
-                                return (KeySymbol<?>) symbol;
-                            }
-
-                            @Override
-                            public OperatorSymbol operator() {
-                                return operator;
-                            }
-
-                            @Override
-                            public TimestampSymbol timestamp() {
-                                return TimestampSymbol.PRESENT;
-                            }
-
-                            @Override
-                            public List<ValueSymbol<?>> values() {
-                                return ImmutableList.of(value, value2);
-                            }
-
-                        };
+                        expression = ExpressionSymbol.create(key, operator,
+                                value, value2);
                     }
                     else {
-                        expression = new ExpressionSymbol() {
-
-                            @Override
-                            public KeySymbol<?> key() {
-                                return (KeySymbol<?>) symbol;
-                            }
-
-                            @Override
-                            public OperatorSymbol operator() {
-                                return operator;
-                            }
-
-                            @Override
-                            public TimestampSymbol timestamp() {
-                                return TimestampSymbol.PRESENT;
-                            }
-
-                            @Override
-                            public List<ValueSymbol<?>> values() {
-                                return ImmutableList.of(value);
-                            }
-
-                        };
+                        expression = ExpressionSymbol.create(key, operator,
+                                value);
                     }
                     grouped.add(expression);
                 }
@@ -123,9 +82,13 @@ public final class Parsing {
                                                              // timestamp to the
                                                              // previously
                                                              // generated
-                                                             // ExpressionTree
-                    Reflection.set("timestamp", symbol,
-                            Iterables.getLast(grouped)); // (authorized)
+                                                             // ExpressionSymbol
+                    ExpressionSymbol prev = (ExpressionSymbol) Iterables
+                            .getLast(grouped);
+                    grouped.set(grouped.size() - 1,
+                            ExpressionSymbol.create((TimestampSymbol) symbol,
+                                    prev.key(), prev.operator(),
+                                    prev.values().toArray(Array.containing())));
                 }
                 else {
                     grouped.add(symbol);

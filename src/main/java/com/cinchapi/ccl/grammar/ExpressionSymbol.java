@@ -15,7 +15,10 @@
  */
 package com.cinchapi.ccl.grammar;
 
+import java.util.Arrays;
 import java.util.List;
+
+import com.cinchapi.ccl.type.Operator;
 
 /**
  * An {@link ExpressionSymbol} is a {@link Symbol} that describes a query operation
@@ -29,13 +32,43 @@ import java.util.List;
  * @author Jeff Nelson
  */
 public interface ExpressionSymbol extends PostfixNotationSymbol {
+    
+    public static ExpressionSymbol create(KeySymbol<String> key, OperatorSymbol operator, ValueSymbol<?>...values) {
+        return create(TimestampSymbol.PRESENT, key, operator, values);
+    }
+    
+    public static ExpressionSymbol create(TimestampSymbol timestamp, KeySymbol<String> key, OperatorSymbol operator, ValueSymbol<?>...values) {
+        return new ExpressionSymbol() {
+
+            @Override
+            public KeySymbol<String> key() {
+                return key;
+            }
+
+            @Override
+            public OperatorSymbol operator() {
+                return operator;
+            }
+
+            @Override
+            public TimestampSymbol timestamp() {
+                return timestamp;
+            }
+
+            @Override
+            public List<ValueSymbol<?>> values() {
+                return Arrays.asList(values);
+            }
+            
+        };
+    }
 
     /**
      * Return the raw key associated with this {@link ExpressionSymbol}.
      * 
      * @return the key
      */
-    public KeySymbol<?> key();
+    public KeySymbol<String> key();
 
     /**
      * Return the operator associated with this {@link ExpressionSymbol}.
@@ -58,5 +91,18 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      * @return the values
      */
     public List<ValueSymbol<?>> values();
+    
+    public default Content raw() {
+        return null;
+    }
+    
+    interface Content {
+        
+        public String key();
+        public Operator operator();
+        public long timestamp();
+        public <T> List<T> values();
+        
+    }
 
 }

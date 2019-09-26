@@ -16,7 +16,6 @@
 package com.cinchapi.ccl.syntax;
 
 import java.util.Collection;
-import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 
 import com.cinchapi.ccl.grammar.Symbol;

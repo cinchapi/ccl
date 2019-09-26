@@ -678,17 +678,17 @@ public abstract class ParserTest {
         Queue<PostfixNotationSymbol> pfn = Parsing
                 .toPostfixNotation(Reflection.call(criteria, "getSymbols"));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 0)),
-                new ExpressionSymbol(new SimpleKeySymbol("a"),
+                ExpressionSymbol.create(new SimpleKeySymbol("a"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(1)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 1)),
-                new ExpressionSymbol(new SimpleKeySymbol("b"),
+                ExpressionSymbol.create(new SimpleKeySymbol("b"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(2)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 2)),
-                new ExpressionSymbol(new SimpleKeySymbol("c"),
+                ExpressionSymbol.create(new SimpleKeySymbol("c"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(3)));
@@ -710,18 +710,18 @@ public abstract class ParserTest {
                 .toPostfixNotation(Reflection.call(criteria, "getSymbols"));
         Assert.assertEquals(pfn.size(), 5);
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 0)),
-                new ExpressionSymbol(new SimpleKeySymbol("a"),
+                ExpressionSymbol.create(new SimpleKeySymbol("a"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(1)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 1)),
-                new ExpressionSymbol(new SimpleKeySymbol("b"),
+                ExpressionSymbol.create(new SimpleKeySymbol("b"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(2)));
         Assert.assertEquals(Iterables.get(pfn, 2), ConjunctionSymbol.AND);
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 3)),
-                new ExpressionSymbol(new SimpleKeySymbol("c"),
+                ExpressionSymbol.create(new SimpleKeySymbol("c"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(3)));
@@ -746,23 +746,23 @@ public abstract class ParserTest {
         Queue<PostfixNotationSymbol> pfn = Parsing
                 .toPostfixNotation(Reflection.call(criteria, "getSymbols"));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 0)),
-                new ExpressionSymbol(new SimpleKeySymbol("a"),
+                ExpressionSymbol.create(new SimpleKeySymbol("a"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(1)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 1)),
-                new ExpressionSymbol(new SimpleKeySymbol("b"),
+                ExpressionSymbol.create(new SimpleKeySymbol("b"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(2)));
         Assert.assertEquals(Iterables.get(pfn, 2), ConjunctionSymbol.OR);
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 3)),
-                new ExpressionSymbol(new SimpleKeySymbol("c"),
+                ExpressionSymbol.create(new SimpleKeySymbol("c"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(3)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 4)),
-                new ExpressionSymbol(new SimpleKeySymbol("d"),
+                ExpressionSymbol.create(new SimpleKeySymbol("d"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(4)));
@@ -789,23 +789,23 @@ public abstract class ParserTest {
         Queue<PostfixNotationSymbol> pfn = Parsing
                 .toPostfixNotation(Reflection.call(criteria, "getSymbols"));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 0)),
-                new ExpressionSymbol(new SimpleKeySymbol("a"),
+                ExpressionSymbol.create(new SimpleKeySymbol("a"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(1)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 1)),
-                new ExpressionSymbol(new SimpleKeySymbol("b"),
+                ExpressionSymbol.create(new SimpleKeySymbol("b"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(2)));
         Assert.assertEquals(Iterables.get(pfn, 2), ConjunctionSymbol.OR);
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 3)),
-                new ExpressionSymbol(new SimpleKeySymbol("c"),
+                ExpressionSymbol.create(new SimpleKeySymbol("c"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(3)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 4)),
-                new ExpressionSymbol(new SimpleKeySymbol("d"),
+                ExpressionSymbol.create(new SimpleKeySymbol("d"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(4)));
@@ -844,12 +844,12 @@ public abstract class ParserTest {
                 .toPostfixNotation(Reflection.call(criteria, "getSymbols"));
         Assert.assertEquals(pfn.size(), 3);
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 0)),
-                new ExpressionSymbol(new SimpleKeySymbol("a"),
+                ExpressionSymbol.create(new SimpleKeySymbol("a"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(1)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 1)),
-                new ExpressionSymbol(new SimpleKeySymbol("b"),
+                ExpressionSymbol.create(new SimpleKeySymbol("b"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(2)));
@@ -889,12 +889,12 @@ public abstract class ParserTest {
                 .toPostfixNotation(Reflection.call(criteria, "getSymbols"));
         Assert.assertEquals(pfn.size(), 3);
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 0)),
-                new ExpressionSymbol(new SimpleKeySymbol("a"),
+                ExpressionSymbol.create(new SimpleKeySymbol("a"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(1)));
         Assert.assertEquals(((ExpressionSymbol) Iterables.get(pfn, 1)),
-                new ExpressionSymbol(new SimpleKeySymbol("b"),
+                ExpressionSymbol.create(new SimpleKeySymbol("b"),
                         new OperatorSymbol(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS),
                         new ScalarValueSymbol(2)));
@@ -958,7 +958,7 @@ public abstract class ParserTest {
                         .value("Cinchapi").or().key("company")
                         .operator(Operator.EQUALS).value("Blavity"))
                 .build();
-        String ccl = criteria.getCclString();
+        String ccl = criteria.ccl();
         Parser parser = createParser(ccl);
         List<Symbol> symbols = parser.tokenize();
         Assert.assertEquals(Lists.newArrayList(new SimpleKeySymbol("name"),
@@ -983,7 +983,7 @@ public abstract class ParserTest {
     public void testParseNumericString() {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value("17").build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ScalarValueSymbol) {
@@ -997,7 +997,7 @@ public abstract class ParserTest {
     public void testParseNumericTag() {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(Tag.create("17")).build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ScalarValueSymbol) {
@@ -1011,7 +1011,7 @@ public abstract class ParserTest {
     public void testParseNumericNumber() {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(17).build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ScalarValueSymbol) {
@@ -1027,7 +1027,7 @@ public abstract class ParserTest {
         Timestamp end = Timestamp.now();
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.BETWEEN).value(start).value(end).build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         int count = 0;
         for (Symbol symbol : parser.tokenize()) {
             if(symbol instanceof ScalarValueSymbol) {
@@ -1049,6 +1049,7 @@ public abstract class ParserTest {
         Parser parser = createParser(ccl);
         Visitor<Queue<Symbol>> visitor = new Visitor<Queue<Symbol>>() {
 
+            @SuppressWarnings("unchecked")
             @Override
             public Queue<Symbol> visit(ConjunctionTree tree,
                     Object... data) {
@@ -1059,6 +1060,7 @@ public abstract class ParserTest {
                 return queue;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public Queue<Symbol> visit(ExpressionTree tree,
                     Object... data) {

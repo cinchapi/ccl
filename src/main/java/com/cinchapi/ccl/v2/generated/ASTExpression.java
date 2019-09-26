@@ -32,7 +32,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     /**
      * The key
      */
-    private KeySymbol<?> key;
+    private KeySymbol<String> key;
 
     /**
      * The operator
@@ -63,7 +63,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      *
      * @param key the key
      */
-    public void key(KeySymbol<?> key) {
+    public void key(KeySymbol<String> key) {
         this.key = key;
     }
 
@@ -99,7 +99,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      *
      * @return the key
      */
-    public KeySymbol<?> key() {
+    public KeySymbol<String> key() {
         return key;
     }
 

@@ -26,7 +26,7 @@ PARSER_BEGIN(Grammar)
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.SyntaxException;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.SimpleKeySymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
@@ -38,7 +38,7 @@ import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.ScalarValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -259,7 +259,7 @@ KeySymbol Key() :
     { return new FunctionKeySymbol(new KeyImplicitRecordFunction(function.image, key.image.substring(0, key.image.length())));}
   |
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
-    { return new KeySymbol(key.image); }
+    { return new SimpleKeySymbol(key.image); }
   |
     (key=<PERIOD_SEPARATED_STRING>)
     { return new NavigationKeySymbol(key.image); }
@@ -323,11 +323,11 @@ ValueSymbol UnaryValue() :
         value = value.replace("\\@", "@");
     }
 
-    return new ValueSymbol(transformValue(value));
+    return new ScalarValueSymbol(transformValue(value));
   }
 |
   (word=<QUOTED_STRING>)
-  { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+  { return new ScalarValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 }
 
 ValueSymbol LinksToValue() :
@@ -336,7 +336,7 @@ ValueSymbol LinksToValue() :
 }
 {
   (word=<NUMERIC>)
-  { return new ValueSymbol(transformValue(word.image)); }
+  { return new ScalarValueSymbol(transformValue(word.image)); }
 }
 
 ValueSymbol BinaryValue() :
@@ -396,11 +396,11 @@ ValueSymbol BinaryValue() :
     else {
         value = value.replace("\\@", "@");
     }
-    return new ValueSymbol(transformValue(value));
+    return new ScalarValueSymbol(transformValue(value));
   }
 |
   (word=<QUOTED_STRING>)
-  { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+  { return new ScalarValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 
 }
 

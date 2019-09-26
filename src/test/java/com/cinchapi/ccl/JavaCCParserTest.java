@@ -61,7 +61,7 @@ public class JavaCCParserTest extends AbstractParserTest {
         Parser parser = createParser(ccl);
         parser.order();
 
-        Assert.assertEquals(new ExpressionSymbol(new SimpleKeySymbol("name"),
+        Assert.assertEquals(ExpressionSymbol.create(new SimpleKeySymbol("name"),
                 new OperatorSymbol(
                         com.cinchapi.concourse.thrift.Operator.EQUALS),
                 new ScalarValueSymbol("jeff")), parser.order().peek());
@@ -91,7 +91,7 @@ public class JavaCCParserTest extends AbstractParserTest {
                 "a", -1);
         Assert.assertFalse(parser.evaluate(missing));
     }
-    
+
     @Test
     public void testLocalEvaluationOr() {
         String ccl = "a > 1 OR b bw 10 15";
@@ -106,17 +106,17 @@ public class JavaCCParserTest extends AbstractParserTest {
                             .stringToOperator(operator.symbol());
                     return tvalue.is(toperator, tvalues);
                 });
-        Multimap<String, Object> a = ImmutableMultimap.of("a", 5, "b", 12,
-                "c", 4, "a", -1);
+        Multimap<String, Object> a = ImmutableMultimap.of("a", 5, "b", 12, "c",
+                4, "a", -1);
         Assert.assertTrue(parser.evaluate(a));
-        Multimap<String, Object> b = ImmutableMultimap.of("a", 1, "b", 12,
-                "c", 4, "a", -1);
+        Multimap<String, Object> b = ImmutableMultimap.of("a", 1, "b", 12, "c",
+                4, "a", -1);
         Assert.assertTrue(parser.evaluate(b));
-        Multimap<String, Object> c = ImmutableMultimap.of("a", 2, "c", 4,
-                "a", -1);
+        Multimap<String, Object> c = ImmutableMultimap.of("a", 2, "c", 4, "a",
+                -1);
         Assert.assertTrue(parser.evaluate(c));
-        Multimap<String, Object> d = ImmutableMultimap.of("a", 1, "c", 4,
-                "a", -1);
+        Multimap<String, Object> d = ImmutableMultimap.of("a", 1, "c", 4, "a",
+                -1);
         Assert.assertFalse(parser.evaluate(d));
     }
 

@@ -15,9 +15,10 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.SimpleKeySymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ScalarValueSymbol;
 import com.cinchapi.concourse.thrift.Operator;
@@ -29,47 +30,40 @@ import org.junit.Test;
  */
 public class VisitorTest {
 
-    /*
     @Test
     public void testVisitorPattern() {
         // Build tree
-        KeySymbol key = new KeySymbol("key");
+        KeySymbol<String> key = new SimpleKeySymbol("key");
         OperatorSymbol operator = new OperatorSymbol(Operator.EQUALS);
-        ValueSymbol value = new ValueSymbol("value");
+        ValueSymbol<Object> value = new ScalarValueSymbol("value");
 
-        Expression expression = new Expression(key, operator, value);
-        //ConcourseExpressionTree leftTree = new ConcourseExpressionTree(expression);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
+        ExpressionTree leftTree = new ExpressionTree(expression);
 
-        key = new KeySymbol("key");
+        key = new SimpleKeySymbol("key");
         operator = new OperatorSymbol(Operator.EQUALS);
-        value = new ValueSymbol("value");
+        value = new ScalarValueSymbol("value");
 
-        expression = new Expression(key, operator, value);
-        //ConcourseExpressionTree rightTree = new ConcourseExpressionTree(expression);
+        expression = ExpressionSymbol.create(key, operator, value);
+        ExpressionTree rightTree = new ExpressionTree(expression);
 
-        AndTree tree = new ConcourseAndTree(leftTree, rightTree);
+        AndTree tree = new AndTree(leftTree, rightTree);
 
         // Test visitor
         Visitor<Object> visitor = new Visitor<Object>() {
             @Override
-            public Object visit(AbstractSyntaxTree tree,
-                    Object... data) {
-                return data;
-            }
-
-            @Override
             public Object visit(ConjunctionTree tree, Object... data) {
-                Assert.assertTrue(tree.root() == ConjunctionSymbol.AND);
+                Assert.assertTrue(tree instanceof AndTree);
                 return data;
             }
 
             @Override
             public Object visit(ExpressionTree tree, Object... data) {
-                Assert.assertTrue(((Expression) tree.root()).key().toString()
+                Assert.assertTrue(((ExpressionSymbol) tree.root()).key().toString()
                         .equals("key"));
-                Assert.assertTrue(((Expression) tree.root()).operator()
+                Assert.assertTrue(((ExpressionSymbol) tree.root()).operator()
                         .toString().equals("="));
-                Assert.assertTrue(((Expression) tree.root()).values().get(0)
+                Assert.assertTrue(((ExpressionSymbol) tree.root()).values().get(0)
                         .toString().equals("value"));
                 return data;
             }
@@ -77,6 +71,5 @@ public class VisitorTest {
         };
         tree.accept(visitor);
     }
-    */
 
 }

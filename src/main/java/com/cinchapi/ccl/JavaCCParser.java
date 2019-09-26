@@ -17,7 +17,6 @@ package com.cinchapi.ccl;
 
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
@@ -132,8 +131,7 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTExpression node, Object data) {
-                    ExpressionSymbol expression = (ExpressionSymbol) node;
-                    ((Queue<PostfixNotationSymbol>) data).add(expression);
+                    ((Queue<PostfixNotationSymbol>) data).add(node);
                     return data;
                 }
             };
@@ -187,8 +185,7 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTExpression node, Object data) {
-                    ExpressionSymbol expression = (ExpressionSymbol) node;
-                    return new ExpressionTree(expression);
+                    return new ExpressionTree(node);
                 }
             };
 

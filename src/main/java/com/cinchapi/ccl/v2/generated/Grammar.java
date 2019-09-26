@@ -3,16 +3,16 @@
 package com.cinchapi.ccl.v2.generated;
 
 import com.cinchapi.ccl.SyntaxException;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.SimpleKeySymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
-import com.cinchapi.ccl.grammar.KeyCclFunction;
-import com.cinchapi.ccl.grammar.KeyRecordsFunction;
+import com.cinchapi.ccl.type.function.KeyCclFunction;
+import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
-import com.cinchapi.ccl.grammar.KeyRecordImplicitFunction;
-import com.cinchapi.ccl.grammar.IndexFunction;
+import com.cinchapi.ccl.type.function.KeyImplicitRecordFunction;
+import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
-import com.cinchapi.ccl.grammar.SimpleKeySymbol;
+import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ScalarValueSymbol;
@@ -290,7 +290,7 @@ if (jjtc001) {
   final public void RelationalExpression() throws ParseException {/*@bgen(jjtree) Expression */
     ASTExpression jjtn000 = new ASTExpression(JJTEXPRESSION);
     boolean jjtc000 = true;
-    jjtree.openNodeScope(jjtn000);StatementKeySymbol key = null;
+    jjtree.openNodeScope(jjtn000);KeySymbol key = null;
     OperatorSymbol operator = null;
     ValueSymbol value1 = null;
     ValueSymbol value2 = null;
@@ -350,7 +350,7 @@ if (jjtc000) {
     }
 }
 
-  final public StatementKeySymbol Key() throws ParseException {Token key;
+  final public KeySymbol Key() throws ParseException {Token key;
   Token function;
     if (jj_2_1(2)) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {

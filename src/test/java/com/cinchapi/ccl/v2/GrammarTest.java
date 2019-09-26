@@ -16,14 +16,10 @@
 package com.cinchapi.ccl.v2;
 
 import com.cinchapi.ccl.Parser;
-import com.cinchapi.ccl.grammar.ValueSymbol;
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.v2.generated.ASTAnd;
 import com.cinchapi.ccl.v2.generated.ASTExpression;
@@ -465,17 +461,7 @@ public class GrammarTest {
 
         @Override
         public Object visit(ASTExpression node, Object data) {
-            ExpressionSymbol expression;
-            if (node.timestamp()!= null) {
-                expression = new ExpressionSymbol(node.timestamp(), node.key(),
-                        node.operator(), node.values()
-                        .toArray(new ValueSymbol[node.values().size()]));
-            }
-            else {
-                expression = new ExpressionSymbol(node.key(), node.operator(),
-                        node.values().toArray(new ValueSymbol[node.values().size()]));
-            }
-            return new ExpressionTree(expression);
+            return new ExpressionTree(node);
         }
     };
 
