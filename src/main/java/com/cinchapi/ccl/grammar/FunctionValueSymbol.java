@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.v3;
+package com.cinchapi.ccl.grammar;
+
+import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link PostfixNotationToken} is one that can be used in a reverse polish
- * (or postfix notation) expression.
- * 
+ * A {@link AbstractValueSymbol} that represents a {@link Function}.
+ *
  * @author Jeff Nelson
  */
-public interface PostfixNotationToken extends Token {/* marker */}
+public class FunctionValueSymbol extends AbstractValueSymbol<Function> {
+
+    /**
+     * Construct a new instance.
+     * 
+     * @param value
+     */
+    public FunctionValueSymbol(Function value) {
+        super(value);
+    }
+
+}

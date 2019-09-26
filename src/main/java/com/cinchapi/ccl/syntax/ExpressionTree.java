@@ -18,8 +18,8 @@ package com.cinchapi.ccl.syntax;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.cinchapi.ccl.grammar.v3.ExpressionToken;
-import com.cinchapi.ccl.grammar.v3.Token;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
 
 /**
  * An abstraction for an expression node in a {@link AbstractSyntaxTree}
@@ -29,14 +29,14 @@ public class ExpressionTree extends BaseAbstractSyntaxTree {
     /**
      * The root.
      */
-    private final ExpressionToken expression;
+    private final ExpressionSymbol expression;
 
     /**
      * Construct a new instance.
      *
      * @param expression
      */
-    public ExpressionTree(ExpressionToken expression) {
+    public ExpressionTree(ExpressionSymbol expression) {
         this.expression = expression;
     }
 
@@ -46,7 +46,7 @@ public class ExpressionTree extends BaseAbstractSyntaxTree {
     }
 
     @Override
-    public Token root() {
+    public Symbol root() {
         return expression;
     }
 

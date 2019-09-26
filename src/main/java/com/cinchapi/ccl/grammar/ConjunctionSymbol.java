@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a conjunction.
+ * A {@link Symbol} that represents a conjunction (e.g. "and" or "or").
  * 
  * @author Jeff Nelson
  */

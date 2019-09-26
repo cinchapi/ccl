@@ -24,12 +24,12 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
-import com.cinchapi.ccl.grammar.v3.ExpressionToken;
-import com.cinchapi.ccl.grammar.v3.OperatorToken;
-import com.cinchapi.ccl.grammar.v3.PostfixNotationToken;
-import com.cinchapi.ccl.grammar.v3.SimpleKeyToken;
-import com.cinchapi.ccl.grammar.v3.Token;
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
@@ -177,15 +177,15 @@ public abstract class Parser {
 
             @Override
             public Set<String> keys() {
-                List<Token> tokens = tokenize();
+                List<Symbol> tokens = tokenize();
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    if(symbol instanceof ExpressionToken) {
-                        keys.add(((ExpressionToken) symbol).raw().key());
+                    if(symbol instanceof ExpressionSymbol) {
+                        keys.add(((ExpressionSymbol) symbol).raw().key());
                     }
-                    else if(symbol instanceof SimpleKeyToken) {
-                        keys.add(((SimpleKeyToken) symbol).key());
+                    else if(symbol instanceof KeySymbol) {
+                        keys.add(((KeySymbol) symbol).key());
                     }
                 });
                 return Collections.unmodifiableSet(keys);
@@ -193,14 +193,14 @@ public abstract class Parser {
 
             @Override
             public Set<String> keys(Operator operator) {
-                List<Token> tokens = tokenize();
+                List<Symbol> tokens = tokenize();
                 tokens = Parsing.groupExpressions(tokens);
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    ExpressionToken expression;
-                    if(symbol instanceof ExpressionToken
-                            && (expression = (ExpressionToken) symbol).raw()
+                    ExpressionSymbol expression;
+                    if(symbol instanceof ExpressionSymbol
+                            && (expression = (ExpressionSymbol) symbol).raw()
                                     .operator().equals(operator)) {
                         keys.add(expression.raw().key());
                     }
@@ -210,15 +210,15 @@ public abstract class Parser {
 
             @Override
             public Set<Operator> operators() {
-                List<Token> tokens = tokenize();
+                List<Symbol> tokens = tokenize();
                 Set<Operator> operators = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    if(symbol instanceof ExpressionToken) {
-                        operators.add(((ExpressionToken) symbol).raw().operator());
+                    if(symbol instanceof ExpressionSymbol) {
+                        operators.add(((ExpressionSymbol) symbol).raw().operator());
                     }
-                    else if(symbol instanceof OperatorToken) {
-                        operators.add(((OperatorToken) symbol).operator());
+                    else if(symbol instanceof OperatorSymbol) {
+                        operators.add(((OperatorSymbol) symbol).operator());
                     }
                 });
                 return operators;
@@ -251,22 +251,22 @@ public abstract class Parser {
     }
 
     /**
-     * Transform a sequential list of {@link Token} tokens to an {@link Queue}
-     * of symbols in {@link PostfixNotationToken postfix notation} that are
+     * Transform a sequential list of {@link Symbol} tokens to an {@link Queue}
+     * of symbols in {@link PostfixNotationSymbol postfix notation} that are
      * sorted by the proper order of operations.
      * 
-     * @return a {@link Queue} of {@link PostfixNotationToken
+     * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}
      */
-    public abstract Queue<PostfixNotationToken> order();
+    public abstract Queue<PostfixNotationSymbol> order();
 
     /**
-     * Transform a sequential list of {@link Token} tokens to an
+     * Transform a sequential list of {@link Symbol} tokens to an
      * {@link AbstractSyntaxTree}.
      * 
      * <p>
      * NOTE: This method will group non-conjunctive symbols into
-     * {@link ExpressionToken} objects.
+     * {@link ExpressionSymbol} objects.
      * </p>
      * 
      * @param symbols a sequential list of tokens
@@ -276,14 +276,14 @@ public abstract class Parser {
     public abstract AbstractSyntaxTree parse();
 
     /**
-     * Convert a CCL statement to a list of {@link Token} tokens and bind any
+     * Convert a CCL statement to a list of {@link Symbol} tokens and bind any
      * local variables using the provided {@code data}.
      * 
      * @param ccl the CCL statement
      * @param data the data to use for binding local variables
-     * @return a list of {@link Token} tokens
+     * @return a list of {@link Symbol} tokens
      */
-    public abstract List<Token> tokenize();
+    public abstract List<Symbol> tokenize();
 
     @Override
     public String toString() {
@@ -365,7 +365,7 @@ public abstract class Parser {
 
         @Override
         public Boolean visit(ConjunctionTree tree, Object... data) {
-            if(tree.root() == ConjunctionToken.AND) {
+            if(tree.root() == ConjunctionSymbol.AND) {
                 boolean a = false;
                 AbstractSyntaxTree bTree;
                 if(!tree.left().isLeaf() && tree.right().isLeaf()) {
@@ -390,7 +390,7 @@ public abstract class Parser {
             Verify.thatArgument(data.length > 0);
             Verify.thatArgument(data[0] instanceof Multimap);
             Multimap<String, Object> dataset = (Multimap<String, Object>) data[0];
-            ExpressionToken expression = ((ExpressionToken) tree.root());
+            ExpressionSymbol expression = ((ExpressionSymbol) tree.root());
             String key = expression.raw().key();
             Operator operator = expression.raw().operator();
             List<Object> values = expression.raw().values();

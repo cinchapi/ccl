@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.v3;
+package com.cinchapi.ccl.grammar;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +22,7 @@ import com.cinchapi.ccl.generated.ASTExpression;
 import com.cinchapi.ccl.type.Operator;
 
 /**
- * An {@link ExpressionToken} is a {@link Token} that describes a query
+ * An {@link ExpressionSymbol} is a {@link Symbol} that describes a query
  * operation on a key with respect to one or more values (e.g. key = value, key
  * >= value, etc) at a certain timestamp.
  * <p>
@@ -32,25 +32,25 @@ import com.cinchapi.ccl.type.Operator;
  * 
  * @author Jeff Nelson
  */
-public interface ExpressionToken extends PostfixNotationToken {
+public interface ExpressionSymbol extends PostfixNotationSymbol {
 
     /**
-     * Create a new {@link ExpressionToken} to represent the expression made up
+     * Create a new {@link ExpressionSymbol} to represent the expression made up
      * on the {@code key} symbol, {@code operator} symbol and {@code values}
      * symbols.
      * 
      * @param key
      * @param operator
      * @param values
-     * @return a new {@link ExpressionToken}
+     * @return a new {@link ExpressionSymbol}
      */
-    public static ExpressionToken create(KeyToken<?> key,
-            OperatorToken operator, ValueToken<?>... values) {
+    public static ExpressionSymbol create(AbstractKeySymbol<?> key,
+            OperatorSymbol operator, AbstractValueSymbol<?>... values) {
         return create(null, key, operator, values);
     }
 
     /**
-     * Create a new {@link ExpressionToken} to represent the expression made up
+     * Create a new {@link ExpressionSymbol} to represent the expression made up
      * on the {@code key} symbol, {@code operator} symbol, {@code values}
      * symbols and {@code timestamp} symbol.
      * 
@@ -58,73 +58,73 @@ public interface ExpressionToken extends PostfixNotationToken {
      * @param key
      * @param operator
      * @param values
-     * @return a new {@link ExpressionToken}
+     * @return a new {@link ExpressionSymbol}
      */
-    public static ExpressionToken create(TimestampToken timestamp,
-            KeyToken<?> key, OperatorToken operator, ValueToken<?>... values) {
+    public static ExpressionSymbol create(TimestampSymbol timestamp,
+            AbstractKeySymbol<?> key, OperatorSymbol operator, AbstractValueSymbol<?>... values) {
         ASTExpression token = new ASTExpression(0);
-        if(timestamp != null && timestamp != TimestampToken.PRESENT) {
+        if(timestamp != null && timestamp != TimestampSymbol.PRESENT) {
             token.timestamp(timestamp);
         }
         token.key(key);
         token.operator(operator);
-        for(ValueToken<?> value : values) {
+        for(AbstractValueSymbol<?> value : values) {
             token.addValue(value);
         }
         return token;
     }
 
     /**
-     * Return the raw key associated with this {@link ExpressionToken}.
+     * Return the raw key associated with this {@link ExpressionSymbol}.
      * 
      * @return the key
      */
-    public <T extends KeyToken<?>> T key();
+    public <T extends AbstractKeySymbol<?>> T key();
 
     /**
-     * Return the operator associated with this {@link ExpressionToken}.
+     * Return the operator associated with this {@link ExpressionSymbol}.
      * 
      * @return the operator
      */
-    public OperatorToken operator();
+    public OperatorSymbol operator();
 
     /**
-     * Return the timestamp associated with this {@link ExpressionToken}.
+     * Return the timestamp associated with this {@link ExpressionSymbol}.
      * 
      * @return the timestamp
      */
-    public TimestampToken timestamp();
+    public TimestampSymbol timestamp();
 
     /**
-     * Return the values associated with this {@link ExpressionToken}.
+     * Return the values associated with this {@link ExpressionSymbol}.
      * 
      * @return the values
      */
-    public List<ValueToken<?>> values();
+    public List<AbstractValueSymbol<?>> values();
 
     public default Content raw() {
         return new Content() {
 
             @Override
             public String key() {
-                return ExpressionToken.this.key().key().toString();
+                return ExpressionSymbol.this.key().key().toString();
             }
 
             @Override
             public Operator operator() {
-                return ExpressionToken.this.operator().operator();
+                return ExpressionSymbol.this.operator().operator();
             }
 
             @Override
             public long timestamp() {
-                return ExpressionToken.this.timestamp().timestamp();
+                return ExpressionSymbol.this.timestamp().timestamp();
             }
 
             @SuppressWarnings("unchecked")
             @Override
             public <T> List<T> values() {
-                return (List<T>) ExpressionToken.this.values().stream()
-                        .map(ValueToken::value).collect(Collectors.toList());
+                return (List<T>) ExpressionSymbol.this.values().stream()
+                        .map(AbstractValueSymbol::value).collect(Collectors.toList());
             }
 
         };

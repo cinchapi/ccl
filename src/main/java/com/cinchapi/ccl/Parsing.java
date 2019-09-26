@@ -22,15 +22,15 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Queue;
 
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
-import com.cinchapi.ccl.grammar.v3.ExpressionToken;
-import com.cinchapi.ccl.grammar.v3.KeyToken;
-import com.cinchapi.ccl.grammar.v3.OperatorToken;
-import com.cinchapi.ccl.grammar.v3.ParenthesisToken;
-import com.cinchapi.ccl.grammar.v3.PostfixNotationToken;
-import com.cinchapi.ccl.grammar.v3.TimestampToken;
-import com.cinchapi.ccl.grammar.v3.Token;
-import com.cinchapi.ccl.grammar.v3.ValueToken;
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.AbstractKeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
+import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.AbstractValueSymbol;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.Array;
 import com.google.common.base.Preconditions;
@@ -46,47 +46,47 @@ public final class Parsing {
 
     /**
      * Go through a list of symbols and group the expressions together in a
-     * {@link ExpressionToken} object.
+     * {@link ExpressionSymbol} object.
      * 
      * @param symbols
      * @return the expression
      */
     @SuppressWarnings("unchecked")
-    public static List<Token> groupExpressions(List<Token> symbols) {
+    public static List<Symbol> groupExpressions(List<Symbol> symbols) {
         try {
-            List<Token> grouped = Lists.newArrayList();
-            ListIterator<Token> it = symbols.listIterator();
+            List<Symbol> grouped = Lists.newArrayList();
+            ListIterator<Symbol> it = symbols.listIterator();
             while (it.hasNext()) {
-                Token symbol = it.next();
-                if(symbol instanceof KeyToken) {
-                    KeyToken<String> key = (KeyToken<String>) symbol;
+                Symbol symbol = it.next();
+                if(symbol instanceof AbstractKeySymbol) {
+                    AbstractKeySymbol<String> key = (AbstractKeySymbol<String>) symbol;
                     // NOTE: We are assuming that the list of symbols is well
                     // formed, and, as such, the next elements will be an
                     // operator and one or more symbols. If this is not the
                     // case, this method will throw a ClassCastException
-                    OperatorToken operator = (OperatorToken) it.next();
-                    ValueToken<?> value = (ValueToken<?>) it.next();
-                    ExpressionToken expression;
+                    OperatorSymbol operator = (OperatorSymbol) it.next();
+                    AbstractValueSymbol<?> value = (AbstractValueSymbol<?>) it.next();
+                    ExpressionSymbol expression;
                     if(operator.operator().operands() == 2) {
-                        ValueToken<?> value2 = (ValueToken<?>) it.next();
-                        expression = ExpressionToken.create(key, operator,
+                        AbstractValueSymbol<?> value2 = (AbstractValueSymbol<?>) it.next();
+                        expression = ExpressionSymbol.create(key, operator,
                                 value, value2);
                     }
                     else {
-                        expression = ExpressionToken.create(key, operator,
+                        expression = ExpressionSymbol.create(key, operator,
                                 value);
                     }
                     grouped.add(expression);
                 }
-                else if(symbol instanceof TimestampToken) { // Add the
+                else if(symbol instanceof TimestampSymbol) { // Add the
                                                              // timestamp to the
                                                              // previously
                                                              // generated
                                                              // ExpressionSymbol
-                    ExpressionToken prev = (ExpressionToken) Iterables
+                    ExpressionSymbol prev = (ExpressionSymbol) Iterables
                             .getLast(grouped);
                     grouped.set(grouped.size() - 1,
-                            ExpressionToken.create((TimestampToken) symbol,
+                            ExpressionSymbol.create((TimestampSymbol) symbol,
                                     prev.key(), prev.operator(),
                                     prev.values().toArray(Array.containing())));
                 }
@@ -102,30 +102,30 @@ public final class Parsing {
     }
 
     /**
-     * Transform a sequential list of {@link Token} tokens to an {@link Queue}
-     * of symbols in {@link PostfixNotationToken postfix notation} that are
+     * Transform a sequential list of {@link Symbol} tokens to an {@link Queue}
+     * of symbols in {@link PostfixNotationSymbol postfix notation} that are
      * sorted by the proper order of operations.
      * 
      * @param symbols a sequential list of tokens
-     * @return a {@link Queue} of {@link PostfixNotationToken
+     * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}
      */
-    public static Queue<PostfixNotationToken> toPostfixNotation(
-            List<Token> symbols) {
+    public static Queue<PostfixNotationSymbol> toPostfixNotation(
+            List<Symbol> symbols) {
         Preconditions.checkState(symbols.size() >= 3,
                 "Not enough symbols to process. It should have at least 3 symbols but only has %s",
                 symbols, symbols.size());
-        Deque<Token> stack = new ArrayDeque<Token>();
-        Queue<PostfixNotationToken> queue = new LinkedList<PostfixNotationToken>();
+        Deque<Symbol> stack = new ArrayDeque<Symbol>();
+        Queue<PostfixNotationSymbol> queue = new LinkedList<PostfixNotationSymbol>();
         symbols = Parsing.groupExpressions(symbols);
-        for (Token symbol : symbols) {
-            if(symbol instanceof ConjunctionToken) {
+        for (Symbol symbol : symbols) {
+            if(symbol instanceof ConjunctionSymbol) {
                 while (!stack.isEmpty()) {
-                    Token top = stack.peek();
-                    if(symbol == ConjunctionToken.OR
-                            && (top == ConjunctionToken.OR
-                                    || top == ConjunctionToken.AND)) {
-                        queue.add((PostfixNotationToken) stack.pop());
+                    Symbol top = stack.peek();
+                    if(symbol == ConjunctionSymbol.OR
+                            && (top == ConjunctionSymbol.OR
+                                    || top == ConjunctionSymbol.AND)) {
+                        queue.add((PostfixNotationSymbol) stack.pop());
                     }
                     else {
                         break;
@@ -133,19 +133,19 @@ public final class Parsing {
                 }
                 stack.push(symbol);
             }
-            else if(symbol == ParenthesisToken.LEFT) {
+            else if(symbol == ParenthesisSymbol.LEFT) {
                 stack.push(symbol);
             }
-            else if(symbol == ParenthesisToken.RIGHT) {
+            else if(symbol == ParenthesisSymbol.RIGHT) {
                 boolean foundLeftParen = false;
                 while (!stack.isEmpty()) {
-                    Token top = stack.peek();
-                    if(top == ParenthesisToken.LEFT) {
+                    Symbol top = stack.peek();
+                    if(top == ParenthesisSymbol.LEFT) {
                         foundLeftParen = true;
                         break;
                     }
                     else {
-                        queue.add((PostfixNotationToken) stack.pop());
+                        queue.add((PostfixNotationSymbol) stack.pop());
                     }
                 }
                 if(!foundLeftParen) {
@@ -158,34 +158,34 @@ public final class Parsing {
                 }
             }
             else {
-                queue.add((PostfixNotationToken) symbol);
+                queue.add((PostfixNotationSymbol) symbol);
             }
         }
         while (!stack.isEmpty()) {
-            Token top = stack.peek();
-            if(top instanceof ParenthesisToken) {
+            Symbol top = stack.peek();
+            if(top instanceof ParenthesisSymbol) {
                 throw new SyntaxException(AnyStrings.format(
                         "Syntax error in {}: Mismatched parenthesis", symbols));
             }
             else {
-                queue.add((PostfixNotationToken) stack.pop());
+                queue.add((PostfixNotationSymbol) stack.pop());
             }
         }
         return queue;
     }
 
     /**
-     * Go through the list of symbols and break up any {@link ExpressionToken
+     * Go through the list of symbols and break up any {@link ExpressionSymbol
      * expressions} into individual symbol tokens.
      * 
      * @param symbols
      * @return the list of symbols with no expressions
      */
-    public static List<Token> ungroupExpressions(List<Token> symbols) {
-        List<Token> ungrouped = Lists.newArrayList();
+    public static List<Symbol> ungroupExpressions(List<Symbol> symbols) {
+        List<Symbol> ungrouped = Lists.newArrayList();
         symbols.forEach((symbol) -> {
-            if(symbol instanceof ExpressionToken) {
-                ExpressionToken expression = (ExpressionToken) symbol;
+            if(symbol instanceof ExpressionSymbol) {
+                ExpressionSymbol expression = (ExpressionSymbol) symbol;
                 ungrouped.add(expression.key());
                 ungrouped.add(expression.operator());
                 ungrouped.addAll(expression.values());

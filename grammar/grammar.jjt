@@ -23,22 +23,22 @@ options {
 
 PARSER_BEGIN(Grammar)
 
-package com.cinchapi.ccl.v2.generated;
+package com.cinchapi.ccl.generated;
 
 import com.cinchapi.ccl.SyntaxException;
-import com.cinchapi.ccl.grammar.SimpleKeyToken;
-import com.cinchapi.ccl.grammar.ValueToken;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.AbstractValueSymbol;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
-import com.cinchapi.ccl.grammar.FunctionKeyToken;
-import com.cinchapi.ccl.grammar.FunctionValueToken;
+import com.cinchapi.ccl.grammar.FunctionKeySymbol;
+import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.type.function.KeyImplicitRecordFunction;
 import com.cinchapi.ccl.type.function.IndexFunction;
-import com.cinchapi.ccl.grammar.NavigationKeyToken;
-import com.cinchapi.ccl.grammar.KeyToken;
-import com.cinchapi.ccl.grammar.OperatorToken;
-import com.cinchapi.ccl.grammar.TimestampToken;
-import com.cinchapi.ccl.grammar.ScalarValueToken;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
+import com.cinchapi.ccl.grammar.AbstractKeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -224,11 +224,11 @@ void UnaryExpression() : {}
 
 void RelationalExpression() #Expression :
 {
-    KeyToken key = null;
-    OperatorToken operator = null;
-    ValueToken value1 = null;
-    ValueToken value2 = null;
-    TimestampToken timestamp = null;
+    AbstractKeySymbol key = null;
+    OperatorSymbol operator = null;
+    AbstractValueSymbol value1 = null;
+    AbstractValueSymbol value2 = null;
+    TimestampSymbol timestamp = null;
 }
 {
     key=Key()
@@ -246,7 +246,7 @@ void RelationalExpression() #Expression :
         }
 }
 
-KeyToken Key() :
+AbstractKeySymbol Key() :
 {
   Token key;
   Token function;
@@ -256,17 +256,17 @@ KeyToken Key() :
     LOOKAHEAD(2)
 
     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <PIPE> function=<ALPHANUMERIC>
-    { return new FunctionKeyToken(new KeyImplicitRecordFunction(function.image, key.image.substring(0, key.image.length())));}
+    { return new FunctionKeySymbol(new KeyImplicitRecordFunction(function.image, key.image.substring(0, key.image.length())));}
   |
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
-    { return new SimpleKeyToken(key.image); }
+    { return new KeySymbol(key.image); }
   |
     (key=<PERIOD_SEPARATED_STRING>)
-    { return new NavigationKeyToken(key.image); }
+    { return new NavigationKeySymbol(key.image); }
   )
 }
 
-ValueToken UnaryValue() :
+AbstractValueSymbol UnaryValue() :
 {
   Token function;
   Token key;
@@ -283,20 +283,20 @@ ValueToken UnaryValue() :
      LOOKAHEAD(3)
 
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <CLOSE_PARENTHESES>
-     { return new FunctionValueToken(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
+     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
    |
      LOOKAHEAD(2)
 
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>)
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
      (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueToken(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
         AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        return new FunctionValueToken(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
 |
   ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
@@ -323,23 +323,23 @@ ValueToken UnaryValue() :
         value = value.replace("\\@", "@");
     }
 
-    return new ScalarValueToken(transformValue(value));
+    return new ValueSymbol(transformValue(value));
   }
 |
   (word=<QUOTED_STRING>)
-  { return new ScalarValueToken(transformValue(word.image.replace("\\\"", "\""))); }
+  { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 }
 
-ValueToken LinksToValue() :
+AbstractValueSymbol LinksToValue() :
 {
   Token word;
 }
 {
   (word=<NUMERIC>)
-  { return new ScalarValueToken(transformValue(word.image)); }
+  { return new ValueSymbol(transformValue(word.image)); }
 }
 
-ValueToken BinaryValue() :
+AbstractValueSymbol BinaryValue() :
 {
   Token function;
   Token key;
@@ -356,20 +356,20 @@ ValueToken BinaryValue() :
      LOOKAHEAD(3)
 
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>) <CLOSE_PARENTHESES>
-     { return new FunctionValueToken(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
+     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
    |
      LOOKAHEAD(2)
 
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>)
      (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
      (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueToken(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
    |
      (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>) ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
         AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        return new FunctionValueToken(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
    )
 |
   (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>)
@@ -396,45 +396,45 @@ ValueToken BinaryValue() :
     else {
         value = value.replace("\\@", "@");
     }
-    return new ScalarValueToken(transformValue(value));
+    return new ValueSymbol(transformValue(value));
   }
 |
   (word=<QUOTED_STRING>)
-  { return new ScalarValueToken(transformValue(word.image.replace("\\\"", "\""))); }
+  { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 
 }
 
-OperatorToken LinksToOperator() :
+OperatorSymbol LinksToOperator() :
 {
   Token operator;
 }
 {
-  operator=<LINKS_TO> { return new OperatorToken(transformOperator(operator.image)); }
+  operator=<LINKS_TO> { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
-OperatorToken UnaryOperator() :
+OperatorSymbol UnaryOperator() :
 {
   Token operator;
 }
 {
-  operator=<UNARY_OPERATOR> { return new OperatorToken(transformOperator(operator.image)); }
+  operator=<UNARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
-OperatorToken BinaryOperator() :
+OperatorSymbol BinaryOperator() :
 {
   Token operator;
 }
 {
-  operator=<BINARY_OPERATOR> { return new OperatorToken(transformOperator(operator.image)); }
+  operator=<BINARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
-TimestampToken Timestamp() :
+TimestampSymbol Timestamp() :
 {
   Token word;
   String timestamp = "";
 }
 {
   (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
-  { return new TimestampToken(NaturalLanguage.parseMicros(timestamp)); })?
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); })?
   { return null; }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.v3;
+package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Token} that represents a value.
+ * A {@link Symbol} that represents a key (e.g. selection key or evaluation key).
  */
-public abstract class ValueToken<T> implements PostfixNotationToken {
+public abstract class AbstractKeySymbol<T> implements PostfixNotationSymbol {
 
     /**
-     * The content of the {@link Token}.
+     * The content of the {@link Symbol}.
      */
-    protected final T value;
+    protected final T key;
 
     /**
      * Construct a new instance.
      *
-     * @param value
+     * @param key
      */
-    public ValueToken(T value) {
-        this.value = value;
+    public AbstractKeySymbol(T key) {
+        this.key = key;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof ValueToken) {
-            return value.equals(((ValueToken<?>) obj).value);
+        if(obj instanceof AbstractKeySymbol) {
+            return key.equals(((AbstractKeySymbol<?>) obj).key);
         }
         else {
             return false;
@@ -46,20 +46,20 @@ public abstract class ValueToken<T> implements PostfixNotationToken {
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return key.hashCode();
+    }
+    
+    /**
+     * Return the key that this symbol expresses.
+     * 
+     * @return the key
+     */
+    public T key() {
+        return key;
     }
     
     @Override
     public String toString() {
-        return value.toString();
-    }
-
-    /**
-     * Return the value that this {@link Token} expresses.
-     *
-     * @return the value
-     */
-    public T value() {
-        return value;
+        return key.toString();
     }
 }

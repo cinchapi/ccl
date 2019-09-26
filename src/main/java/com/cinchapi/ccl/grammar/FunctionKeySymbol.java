@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.v3;
+package com.cinchapi.ccl.grammar;
+
+import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link KeyToken} that represents a navigation key.
+ * A {@link AbstractKeySymbol} that represents a {@link Function}.
+ *
+ * @author Jeff Nelson
  */
-public class NavigationKeyToken extends KeyToken<String> {
+public class FunctionKeySymbol extends AbstractKeySymbol<Function> {
 
     /**
      * Construct a new instance.
-     *
+     * 
      * @param key
      */
-    public NavigationKeyToken(String key) {
+    public FunctionKeySymbol(Function key) {
         super(key);
-    }
-
-    /**
-     * Return each of the navigation key's components.
-     *
-     * @return the key components
-     */
-    public String[] components() {
-        return key().split("\\.");
     }
 
 }

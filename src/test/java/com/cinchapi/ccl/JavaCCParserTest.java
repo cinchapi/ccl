@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.cinchapi.ccl.grammar.v3.ExpressionToken;
-import com.cinchapi.ccl.grammar.v3.OperatorToken;
-import com.cinchapi.ccl.grammar.v3.ScalarValueToken;
-import com.cinchapi.ccl.grammar.v3.SimpleKeyToken;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Array;
 import com.cinchapi.concourse.thrift.TObject;
@@ -61,10 +61,10 @@ public class JavaCCParserTest extends AbstractParserTest {
         Parser parser = createParser(ccl);
         parser.order();
 
-        Assert.assertEquals(ExpressionToken.create(new SimpleKeyToken("name"),
-                new OperatorToken(
+        Assert.assertEquals(ExpressionSymbol.create(new KeySymbol("name"),
+                new OperatorSymbol(
                         com.cinchapi.concourse.thrift.Operator.EQUALS),
-                new ScalarValueToken("jeff")), parser.order().peek());
+                new ValueSymbol("jeff")), parser.order().peek());
     }
 
     @Test

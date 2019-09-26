@@ -15,14 +15,27 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.v3.TimestampToken;
+import com.cinchapi.common.base.AnyStrings;
+import com.google.common.primitives.Longs;
 
 /**
- * A {@link Symbol} containing a timestamp (in microseconds) phrase.
+ * A {@link Symbol} representing a timestamp (in microseconds) phrase.
  *
  * @author Jeff Nelson
  */
-public final class TimestampSymbol extends TimestampToken implements Symbol {
+public class TimestampSymbol implements Symbol {
+
+    /**
+     * A {@link TimestampSymbol} that can be included in a
+     * {@link ExpressionSymbol} to indicate that the expression is not temporal.
+     */
+    // default timestamp value of 0 indicates this is a present state query
+    public static final TimestampSymbol PRESENT = new TimestampSymbol(0);
+
+    /**
+     * The content of the symbol.
+     */
+    private final long timestamp;
 
     /**
      * Construct a new instance.
@@ -30,7 +43,37 @@ public final class TimestampSymbol extends TimestampToken implements Symbol {
      * @param timestamp
      */
     public TimestampSymbol(long timestamp) {
-        super(timestamp);
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof TimestampSymbol) {
+            return timestamp == ((TimestampSymbol) obj).timestamp;
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Longs.hashCode(timestamp);
+    }
+    
+    /**
+     * Return the timestamp (in microseconds) associated with this
+     * {@link Symbol}.
+     * 
+     * @return the timestamp
+     */
+    public long timestamp() {
+        return timestamp;
+    }
+    
+    @Override
+    public String toString() {
+        return AnyStrings.format("at {}", timestamp);
     }
 
 }

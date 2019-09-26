@@ -15,12 +15,10 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.v3.PostfixNotationToken;
-
 /**
  * A {@link PostfixNotationSymbol} is one that can be used in a reverse polish
  * (or postfix notation) expression.
  * 
  * @author Jeff Nelson
  */
-public interface PostfixNotationSymbol extends Symbol, PostfixNotationToken {/* marker */}
+public interface PostfixNotationSymbol extends Symbol {/* marker */}

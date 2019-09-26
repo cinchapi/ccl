@@ -3,19 +3,19 @@
 package com.cinchapi.ccl.generated;
 
 import com.cinchapi.ccl.SyntaxException;
-import com.cinchapi.ccl.grammar.v3.FunctionKeyToken;
-import com.cinchapi.ccl.grammar.v3.FunctionValueToken;
-import com.cinchapi.ccl.grammar.v3.KeyToken;
-import com.cinchapi.ccl.grammar.v3.NavigationKeyToken;
-import com.cinchapi.ccl.grammar.v3.OperatorToken;
-import com.cinchapi.ccl.grammar.v3.ScalarValueToken;
-import com.cinchapi.ccl.grammar.v3.SimpleKeyToken;
-import com.cinchapi.ccl.grammar.v3.TimestampToken;
-import com.cinchapi.ccl.grammar.v3.ValueToken;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.AbstractValueSymbol;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
+import com.cinchapi.ccl.grammar.FunctionKeySymbol;
+import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.type.function.KeyImplicitRecordFunction;
 import com.cinchapi.ccl.type.function.IndexFunction;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
+import com.cinchapi.ccl.grammar.AbstractKeySymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -291,11 +291,11 @@ if (jjtc001) {
   final public void RelationalExpression() throws ParseException {/*@bgen(jjtree) Expression */
     ASTExpression jjtn000 = new ASTExpression(JJTEXPRESSION);
     boolean jjtc000 = true;
-    jjtree.openNodeScope(jjtn000);KeyToken key = null;
-    OperatorToken operator = null;
-    ValueToken value1 = null;
-    ValueToken value2 = null;
-    TimestampToken timestamp = null;
+    jjtree.openNodeScope(jjtn000);AbstractKeySymbol key = null;
+    OperatorSymbol operator = null;
+    AbstractValueSymbol value1 = null;
+    AbstractValueSymbol value2 = null;
+    TimestampSymbol timestamp = null;
     try {
       key = Key();
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -351,7 +351,7 @@ if (jjtc000) {
     }
 }
 
-  final public KeyToken Key() throws ParseException {Token key;
+  final public AbstractKeySymbol Key() throws ParseException {Token key;
   Token function;
     if (jj_2_1(2)) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -382,7 +382,7 @@ if (jjtc000) {
       }
       jj_consume_token(PIPE);
       function = jj_consume_token(ALPHANUMERIC);
-{if ("" != null) return new FunctionKeyToken(new KeyImplicitRecordFunction(function.image, key.image.substring(0, key.image.length())));}
+{if ("" != null) return new FunctionKeySymbol(new KeyImplicitRecordFunction(function.image, key.image.substring(0, key.image.length())));}
     } else {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case RESERVED_IDENTIFIER:
@@ -416,12 +416,12 @@ if (jjtc000) {
           jj_consume_token(-1);
           throw new ParseException();
         }
-{if ("" != null) return new SimpleKeyToken(key.image);}
+{if ("" != null) return new KeySymbol(key.image);}
         break;
         }
       case PERIOD_SEPARATED_STRING:{
         key = jj_consume_token(PERIOD_SEPARATED_STRING);
-{if ("" != null) return new NavigationKeyToken(key.image);}
+{if ("" != null) return new NavigationKeySymbol(key.image);}
         break;
         }
       default:
@@ -433,7 +433,7 @@ if (jjtc000) {
     throw new Error("Missing return statement in function");
 }
 
-  final public ValueToken UnaryValue() throws ParseException {Token function;
+  final public AbstractValueSymbol UnaryValue() throws ParseException {Token function;
   Token key;
   Token word;
   String value = "";
@@ -466,7 +466,7 @@ if (jjtc000) {
           throw new ParseException();
         }
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueToken(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
+{if ("" != null) return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
       } else if (jj_2_3(2)) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA_SEPARATED_SIGNED_INTEGER:{
@@ -520,7 +520,7 @@ records.add(word.image.substring(0, word.image.length()-1));
         }
 records.add(word.image);
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueToken(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+{if ("" != null) return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
       } else {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA_SEPARATED_SIGNED_INTEGER:
@@ -553,7 +553,7 @@ records.add(word.image);
           jj_consume_token(CLOSE_PARENTHESES);
 AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        {if ("" != null) return new FunctionValueToken(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        {if ("" != null) return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
           break;
           }
         default:
@@ -631,12 +631,12 @@ if(value.charAt(0) == '$') {
         value = value.replace("\\@", "@");
     }
 
-    {if ("" != null) return new ScalarValueToken(transformValue(value));}
+    {if ("" != null) return new ValueSymbol(transformValue(value));}
         break;
         }
       case QUOTED_STRING:{
         word = jj_consume_token(QUOTED_STRING);
-{if ("" != null) return new ScalarValueToken(transformValue(word.image.replace("\\\"", "\"")));}
+{if ("" != null) return new ValueSymbol(transformValue(word.image.replace("\\\"", "\"")));}
         break;
         }
       default:
@@ -648,13 +648,13 @@ if(value.charAt(0) == '$') {
     throw new Error("Missing return statement in function");
 }
 
-  final public ValueToken LinksToValue() throws ParseException {Token word;
+  final public AbstractValueSymbol LinksToValue() throws ParseException {Token word;
     word = jj_consume_token(NUMERIC);
-{if ("" != null) return new ScalarValueToken(transformValue(word.image));}
+{if ("" != null) return new ValueSymbol(transformValue(word.image));}
     throw new Error("Missing return statement in function");
 }
 
-  final public ValueToken BinaryValue() throws ParseException {Token function;
+  final public AbstractValueSymbol BinaryValue() throws ParseException {Token function;
   Token key;
   Token word;
   String value = "";
@@ -683,7 +683,7 @@ if(value.charAt(0) == '$') {
           throw new ParseException();
         }
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueToken(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
+{if ("" != null) return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
       } else if (jj_2_7(2)) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA_SEPARATED_SIGNED_INTEGER:{
@@ -737,7 +737,7 @@ records.add(word.image.substring(0, word.image.length()-1));
         }
 records.add(word.image);
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueToken(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+{if ("" != null) return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
       } else {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA_SEPARATED_SIGNED_INTEGER:
@@ -770,7 +770,7 @@ records.add(word.image);
           jj_consume_token(CLOSE_PARENTHESES);
 AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        {if ("" != null) return new FunctionValueToken(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        {if ("" != null) return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
           break;
           }
         default:
@@ -839,12 +839,12 @@ value = word.image;
     else {
         value = value.replace("\\@", "@");
     }
-    {if ("" != null) return new ScalarValueToken(transformValue(value));}
+    {if ("" != null) return new ValueSymbol(transformValue(value));}
         break;
         }
       case QUOTED_STRING:{
         word = jj_consume_token(QUOTED_STRING);
-{if ("" != null) return new ScalarValueToken(transformValue(word.image.replace("\\\"", "\"")));}
+{if ("" != null) return new ValueSymbol(transformValue(word.image.replace("\\\"", "\"")));}
         break;
         }
       default:
@@ -856,25 +856,25 @@ value = word.image;
     throw new Error("Missing return statement in function");
 }
 
-  final public OperatorToken LinksToOperator() throws ParseException {Token operator;
+  final public OperatorSymbol LinksToOperator() throws ParseException {Token operator;
     operator = jj_consume_token(LINKS_TO);
-{if ("" != null) return new OperatorToken(transformOperator(operator.image));}
+{if ("" != null) return new OperatorSymbol(transformOperator(operator.image));}
     throw new Error("Missing return statement in function");
 }
 
-  final public OperatorToken UnaryOperator() throws ParseException {Token operator;
+  final public OperatorSymbol UnaryOperator() throws ParseException {Token operator;
     operator = jj_consume_token(UNARY_OPERATOR);
-{if ("" != null) return new OperatorToken(transformOperator(operator.image));}
+{if ("" != null) return new OperatorSymbol(transformOperator(operator.image));}
     throw new Error("Missing return statement in function");
 }
 
-  final public OperatorToken BinaryOperator() throws ParseException {Token operator;
+  final public OperatorSymbol BinaryOperator() throws ParseException {Token operator;
     operator = jj_consume_token(BINARY_OPERATOR);
-{if ("" != null) return new OperatorToken(transformOperator(operator.image));}
+{if ("" != null) return new OperatorSymbol(transformOperator(operator.image));}
     throw new Error("Missing return statement in function");
 }
 
-  final public TimestampToken Timestamp() throws ParseException {Token word;
+  final public TimestampSymbol Timestamp() throws ParseException {Token word;
   String timestamp = "";
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TIMESTAMP:{
@@ -927,7 +927,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
           break label_6;
         }
       }
-{if ("" != null) return new TimestampToken(NaturalLanguage.parseMicros(timestamp));}
+{if ("" != null) return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp));}
       break;
       }
     default:

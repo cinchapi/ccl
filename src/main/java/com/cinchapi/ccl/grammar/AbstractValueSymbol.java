@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Cinchapi Inc.
+ * Copyright (c) 2013-2017 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.v3;
+package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Token} that represents a key (e.g. selection key or evaluation key).
+ * A {@link Symbol} that represents a value.
  */
-public abstract class KeyToken<T> implements PostfixNotationToken {
+public abstract class AbstractValueSymbol<T> implements PostfixNotationSymbol {
 
     /**
-     * The content of the {@link Token}.
+     * The content of the {@link Symbol}.
      */
-    protected final T key;
+    protected final T value;
 
     /**
      * Construct a new instance.
      *
-     * @param key
+     * @param value
      */
-    public KeyToken(T key) {
-        this.key = key;
+    public AbstractValueSymbol(T value) {
+        this.value = value;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof KeyToken) {
-            return key.equals(((KeyToken<?>) obj).key);
+        if(obj instanceof AbstractValueSymbol) {
+            return value.equals(((AbstractValueSymbol<?>) obj).value);
         }
         else {
             return false;
@@ -46,20 +46,20 @@ public abstract class KeyToken<T> implements PostfixNotationToken {
 
     @Override
     public int hashCode() {
-        return key.hashCode();
-    }
-    
-    /**
-     * Return the key that this symbol expresses.
-     * 
-     * @return the key
-     */
-    public T key() {
-        return key;
+        return value.hashCode();
     }
     
     @Override
     public String toString() {
-        return key.toString();
+        return value.toString();
+    }
+
+    /**
+     * Return the value that this {@link Symbol} expresses.
+     *
+     * @return the value
+     */
+    public T value() {
+        return value;
     }
 }

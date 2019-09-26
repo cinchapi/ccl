@@ -15,15 +15,19 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.v3.OperatorToken;
 import com.cinchapi.ccl.type.Operator;
 
 /**
- * A {@link Symbol} that contains an {@link Operator}.
+ * A {@link Symbol} that represents an {@link Operator}.
  *
  * @author Jeff Nelson
  */
-public final class OperatorSymbol extends OperatorToken implements Symbol {
+public class OperatorSymbol implements PostfixNotationSymbol {
+
+    /**
+     * The content of the symbol.
+     */
+    private final Operator operator;
 
     /**
      * Construct a new instance.
@@ -31,7 +35,36 @@ public final class OperatorSymbol extends OperatorToken implements Symbol {
      * @param operator
      */
     public OperatorSymbol(Operator operator) {
-        super(operator);
+        this.operator = operator;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof OperatorSymbol) {
+            return operator.equals(((OperatorSymbol) obj).operator);
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return operator.hashCode();
+    }
+
+    /**
+     * Return the operator represented by this {@link Symbol}.
+     * 
+     * @return the operator
+     */
+    public Operator operator() {
+        return operator;
+    }
+    
+    @Override
+    public String toString() {
+        return operator.symbol();
     }
 
 }

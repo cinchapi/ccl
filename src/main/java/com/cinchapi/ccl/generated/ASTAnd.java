@@ -15,8 +15,8 @@
  */
 package com.cinchapi.ccl.generated;
 
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
-import com.cinchapi.ccl.grammar.v3.Token;
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
 
 /**
  * Represents an And conjunction node in the CCL grammar.
@@ -40,8 +40,8 @@ public class ASTAnd extends SimpleNode {
         return "and";
     }
 
-    public Token root() {
-        return ConjunctionToken.AND;
+    public Symbol root() {
+        return ConjunctionSymbol.AND;
     }
 
     /**

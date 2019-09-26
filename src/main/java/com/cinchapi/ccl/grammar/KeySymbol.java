@@ -15,22 +15,24 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.v3.KeyToken;
-
 /**
- * A {@link Symbol} that contains a key.
+ * A {@link Symbol} that represents a simple key.
  *
  * @author Jeff Nelson
  */
-public class KeySymbol extends KeyToken<String> implements Symbol {
+public final class KeySymbol extends AbstractKeySymbol<String> {
 
     /**
      * Construct a new instance.
-     * 
-     * @param key
+     *
+     * @param key the key
      */
     public KeySymbol(String key) {
         super(key);
     }
 
+    @Override
+    public String toString() {
+        return key;
+    }
 }

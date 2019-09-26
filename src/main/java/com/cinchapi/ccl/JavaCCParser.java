@@ -15,11 +15,6 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
-import com.cinchapi.ccl.grammar.v3.ParenthesisToken;
-import com.cinchapi.ccl.grammar.v3.PostfixNotationToken;
-import com.cinchapi.ccl.grammar.v3.Token;
-import com.cinchapi.ccl.grammar.v3.ValueToken;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
@@ -32,6 +27,11 @@ import com.cinchapi.ccl.generated.ASTStart;
 import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.generated.SimpleNode;
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
+import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.AbstractValueSymbol;
 import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
@@ -90,7 +90,7 @@ public class JavaCCParser extends Parser {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Queue<PostfixNotationToken> order() {
+    public Queue<PostfixNotationSymbol> order() {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
@@ -106,7 +106,7 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTStart node, Object data) {
-                    Queue<PostfixNotationToken> symbols = new LinkedList<>();
+                    Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
                     data = node.childrenAccept(this, symbols);
                     return data;
                 }
@@ -114,24 +114,24 @@ public class JavaCCParser extends Parser {
                 @Override
                 public Object visit(ASTOr node, Object data) {
                     node.jjtGetChild(0).jjtAccept(this, data);
-                    Queue<PostfixNotationToken> symbols =
-                            (Queue<PostfixNotationToken>) node.jjtGetChild(1).jjtAccept(this, data);
-                    symbols.add(ConjunctionToken.OR);
+                    Queue<PostfixNotationSymbol> symbols =
+                            (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+                    symbols.add(ConjunctionSymbol.OR);
                     return symbols;
                 }
 
                 @Override
                 public Object visit(ASTAnd node, Object data) {
                     node.jjtGetChild(0).jjtAccept(this, data);
-                    Queue<PostfixNotationToken> symbols =
-                            (Queue<PostfixNotationToken>) node.jjtGetChild(1).jjtAccept(this, data);
-                    symbols.add(ConjunctionToken.AND);
+                    Queue<PostfixNotationSymbol> symbols =
+                            (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+                    symbols.add(ConjunctionSymbol.AND);
                     return symbols;
                 }
 
                 @Override
                 public Object visit(ASTExpression node, Object data) {
-                    ((Queue<PostfixNotationToken>) data).add(node);
+                    ((Queue<PostfixNotationSymbol>) data).add(node);
                     return data;
                 }
             };
@@ -141,7 +141,7 @@ public class JavaCCParser extends Parser {
                     operatorTransformFunction, data, visitor);
             ASTStart start = grammar.generateAST();
 
-            return (Queue<PostfixNotationToken>) start.jjtAccept(visitor,
+            return (Queue<PostfixNotationSymbol>) start.jjtAccept(visitor,
                     null);
         }
         catch (Exception exception) {
@@ -202,7 +202,7 @@ public class JavaCCParser extends Parser {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Token> tokenize() {
+    public List<Symbol> tokenize() {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
@@ -217,46 +217,46 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTStart node, Object data) {
-                    List<Token> symbols = Lists.newArrayList();
+                    List<Symbol> symbols = Lists.newArrayList();
                     data = node.childrenAccept(this, symbols);
                     return data;
                 }
 
                 @Override
                 public Object visit(ASTOr node, Object data) {
-                    List<Token> symbols = (List<Token>) node.jjtGetChild(0).jjtAccept(this, data);
-                    symbols.add(ConjunctionToken.OR);
-                    symbols = (List<Token>) node.jjtGetChild(1).jjtAccept(this, data);
+                    List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
+                    symbols.add(ConjunctionSymbol.OR);
+                    symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
                     return symbols;
                 }
 
                 @Override
                 public Object visit(ASTAnd node, Object data) {
-                    List<Token> symbols = (List<Token>) data;
+                    List<Symbol> symbols = (List<Symbol>) data;
                     boolean parenthesis = false;
                     if (node.jjtGetChild(0) instanceof ASTOr) {
-                        symbols.add(ParenthesisToken.LEFT);
+                        symbols.add(ParenthesisSymbol.LEFT);
                         parenthesis = true;
                     }
 
                     node.jjtGetChild(0).jjtAccept(this, data);
 
                     if (parenthesis) {
-                        symbols.add(ParenthesisToken.RIGHT);
+                        symbols.add(ParenthesisSymbol.RIGHT);
                         parenthesis = false;
                     }
 
-                    symbols.add(ConjunctionToken.AND);
+                    symbols.add(ConjunctionSymbol.AND);
 
                     if (node.jjtGetChild(1) instanceof ASTOr) {
-                        symbols.add(ParenthesisToken.LEFT);
+                        symbols.add(ParenthesisSymbol.LEFT);
                         parenthesis = true;
                     }
 
                     node.jjtGetChild(1).jjtAccept(this, data);
 
                     if (parenthesis) {
-                        symbols.add(ParenthesisToken.RIGHT);
+                        symbols.add(ParenthesisSymbol.RIGHT);
                     }
 
                     return symbols;
@@ -264,13 +264,13 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTExpression node, Object data) {
-                    ((List<Token>) data).add(node.key());
-                    ((List<Token>) data).add(node.operator());
-                    for(ValueToken<?> valueSymbol : node.values()) {
-                        ((List<Token>) data).add(valueSymbol);
+                    ((List<Symbol>) data).add(node.key());
+                    ((List<Symbol>) data).add(node.operator());
+                    for(AbstractValueSymbol<?> valueSymbol : node.values()) {
+                        ((List<Symbol>) data).add(valueSymbol);
                     }
                     if (node.timestamp() != null) {
-                        ((List<Token>) data).add(node.timestamp());
+                        ((List<Symbol>) data).add(node.timestamp());
                     }
                     return data;
                 }
@@ -280,7 +280,7 @@ public class JavaCCParser extends Parser {
                     operatorTransformFunction, data, visitor);
             ASTStart start = grammar.generateAST();
 
-            return (List<Token>) start.jjtAccept(visitor, null);
+            return (List<Symbol>) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, this);

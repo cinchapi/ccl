@@ -15,8 +15,8 @@
  */
 package com.cinchapi.ccl.generated;
 
-import com.cinchapi.ccl.grammar.v3.ConjunctionToken;
-import com.cinchapi.ccl.grammar.v3.Token;
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
 
 /**
  * Represents an Or node in the CCL grammar.
@@ -40,8 +40,8 @@ public class ASTOr extends SimpleNode {
         return "or";
     }
 
-    public Token root() {
-        return ConjunctionToken.OR;
+    public Symbol root() {
+        return ConjunctionSymbol.OR;
     }
 
     /**
