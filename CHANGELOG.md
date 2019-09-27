@@ -46,8 +46,9 @@ In an effort to avoid any ambiguity, we've adopted the following conventions:
 | `key \| function`             | YES           | YES            | NO               |
 
 ##### API Breaks
-* The `Expression` symbol has been renamed `ExpressionSymbol` for clarity.
+* The `Expression` symbol has been deprecated and renamed `ExpressionSymbol` for clarity.
 * The deprecated `ConcourseParser` has been removed. We will no longer distinguish the current parser as `v2` since it is the only one.
+* Renamed the `com.cinchapi.ccl.v2.generated` package to `com.cinchapi.ccl.generated`.
 
 ##### Bug Fixes
 * Fixed a bug that cause the parser to fail when trying to parse a CCL statement that contained unquoted string values with periods.
