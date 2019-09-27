@@ -15,10 +15,12 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.concourse.thrift.Operator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,18 +33,18 @@ public class VisitorTest {
     @Test
     public void testVisitorPattern() {
         // Build tree
-        KeySymbol key = new KeySymbol("key");
+        KeyTokenSymbol<String> key = new KeySymbol("key");
         OperatorSymbol operator = new OperatorSymbol(Operator.EQUALS);
-        ValueSymbol value = new ValueSymbol("value");
+        ValueTokenSymbol<Object> value = new ValueSymbol("value");
 
-        Expression expression = new Expression(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         ExpressionTree leftTree = new ExpressionTree(expression);
 
         key = new KeySymbol("key");
         operator = new OperatorSymbol(Operator.EQUALS);
         value = new ValueSymbol("value");
 
-        expression = new Expression(key, operator, value);
+        expression = ExpressionSymbol.create(key, operator, value);
         ExpressionTree rightTree = new ExpressionTree(expression);
 
         AndTree tree = new AndTree(leftTree, rightTree);
@@ -57,11 +59,11 @@ public class VisitorTest {
 
             @Override
             public Object visit(ExpressionTree tree, Object... data) {
-                Assert.assertTrue(((Expression) tree.root()).key().toString()
+                Assert.assertTrue(((ExpressionSymbol) tree.root()).key().toString()
                         .equals("key"));
-                Assert.assertTrue(((Expression) tree.root()).operator()
+                Assert.assertTrue(((ExpressionSymbol) tree.root()).operator()
                         .toString().equals("="));
-                Assert.assertTrue(((Expression) tree.root()).values().get(0)
+                Assert.assertTrue(((ExpressionSymbol) tree.root()).values().get(0)
                         .toString().equals("value"));
                 return data;
             }

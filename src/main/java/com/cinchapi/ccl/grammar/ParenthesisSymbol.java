@@ -16,8 +16,9 @@
 package com.cinchapi.ccl.grammar;
 
 import com.cinchapi.common.base.AnyStrings;
+
 /**
- * A {@link Symbol} that represents either an open or close parenthesis.
+ * A {@link Symbol} that represents either an opened or closed parenthesis.
  * 
  * @author Jeff Nelson
  */
@@ -39,8 +40,9 @@ public enum ParenthesisSymbol implements Symbol {
                 || string.equalsIgnoreCase(RIGHT.name())) {
             return RIGHT;
         }
-        throw new RuntimeException(AnyStrings
-                .format("Cannot parse {} into a ParenthesisSymbol", string));
+        throw new RuntimeException(
+                AnyStrings.format("Cannot parse {} into a {}", string,
+                        ParenthesisSymbol.class.getSimpleName()));
     }
 
     @Override

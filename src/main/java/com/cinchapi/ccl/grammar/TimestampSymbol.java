@@ -16,17 +16,18 @@
 package com.cinchapi.ccl.grammar;
 
 import com.cinchapi.common.base.AnyStrings;
+import com.google.common.primitives.Longs;
 
 /**
- * A {@link Symbol} containing a timestamp (in microseconds) phrase.
+ * A {@link Symbol} representing a timestamp (in microseconds) phrase.
  *
  * @author Jeff Nelson
  */
-public final class TimestampSymbol extends BaseSymbol {
+public class TimestampSymbol implements Symbol {
 
     /**
-     * A {@link TimestampSymbol} that can be included in a {@link Expression} to
-     * indicate that the expression is not temporal.
+     * A {@link TimestampSymbol} that can be included in a
+     * {@link ExpressionSymbol} to indicate that the expression is not temporal.
      */
     // default timestamp value of 0 indicates this is a present state query
     public static final TimestampSymbol PRESENT = new TimestampSymbol(0);
@@ -45,6 +46,21 @@ public final class TimestampSymbol extends BaseSymbol {
         this.timestamp = timestamp;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof TimestampSymbol) {
+            return timestamp == ((TimestampSymbol) obj).timestamp;
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Longs.hashCode(timestamp);
+    }
+    
     /**
      * Return the timestamp (in microseconds) associated with this
      * {@link Symbol}.
@@ -54,7 +70,7 @@ public final class TimestampSymbol extends BaseSymbol {
     public long timestamp() {
         return timestamp;
     }
-
+    
     @Override
     public String toString() {
         return AnyStrings.format("at {}", timestamp);

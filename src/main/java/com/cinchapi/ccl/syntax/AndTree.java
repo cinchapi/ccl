@@ -26,7 +26,7 @@ public final class AndTree extends ConjunctionTree {
 
     /**
      * Construct a new instance.
-     * 
+     *
      * @param left
      * @param right
      */

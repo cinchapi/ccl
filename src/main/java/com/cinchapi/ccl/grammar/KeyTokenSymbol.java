@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,29 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.type.Operator;
-
 /**
- * A {@link Symbol} that represents an {@link Operator}.
- *
- * @author Jeff Nelson
+ * A {@link Symbol} that represents a key (e.g. selection key or evaluation key).
  */
-public class OperatorSymbol implements PostfixNotationSymbol {
+public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
 
     /**
-     * The content of the symbol.
+     * The content of the {@link Symbol}.
      */
-    private final Operator operator;
+    protected final T key;
 
     /**
      * Construct a new instance.
-     * 
-     * @param operator
+     *
+     * @param key
      */
-    public OperatorSymbol(Operator operator) {
-        this.operator = operator;
+    public KeyTokenSymbol(T key) {
+        this.key = key;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof OperatorSymbol) {
-            return operator.equals(((OperatorSymbol) obj).operator);
+        if(obj instanceof KeyTokenSymbol) {
+            return key.equals(((KeyTokenSymbol<?>) obj).key);
         }
         else {
             return false;
@@ -50,21 +46,20 @@ public class OperatorSymbol implements PostfixNotationSymbol {
 
     @Override
     public int hashCode() {
-        return operator.hashCode();
+        return key.hashCode();
     }
-
+    
     /**
-     * Return the operator represented by this {@link Symbol}.
+     * Return the key that this symbol expresses.
      * 
-     * @return the operator
+     * @return the key
      */
-    public Operator operator() {
-        return operator;
+    public T key() {
+        return key;
     }
     
     @Override
     public String toString() {
-        return operator.symbol();
+        return key.toString();
     }
-
 }

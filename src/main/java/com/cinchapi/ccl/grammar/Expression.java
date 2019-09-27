@@ -17,10 +17,6 @@ package com.cinchapi.ccl.grammar;
 
 import java.util.List;
 
-import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.common.base.AnyStrings;
-import com.google.common.collect.Lists;
-
 /**
  * An {@link Expression} is a {@link Symbol} that describes a query operation
  * on a key with respect to one or more values (e.g. key = value, key >=
@@ -32,17 +28,13 @@ import com.google.common.collect.Lists;
  * 
  * @author Jeff Nelson
  */
-public class Expression extends BaseSymbol implements PostfixNotationSymbol {
-
-    private final KeySymbol key;
-    private final OperatorSymbol operator;
-    private final ValueSymbol[] values;
-    private final TimestampSymbol timestamp;
+@Deprecated
+public class Expression implements ExpressionSymbol {
 
     /**
-     * The symbol {@link Content} returned from the {@link #raw()} method.
+     * The {@link ExpressionSymbol} that serves as a delegate.
      */
-    private final Content content = new Content();
+    private final ExpressionSymbol delegate;
 
     /**
      * Construct a new instance.
@@ -50,10 +42,14 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
      * @param key
      * @param operator
      * @param values
+     * @deprecated use
+     *             {@link ExpressionSymbol#create(KeyTokenSymbol, OperatorSymbol, ValueTokenSymbol...)}
+     *             instead.
      */
+    @Deprecated
     public Expression(KeySymbol key, OperatorSymbol operator,
             ValueSymbol... values) {
-        this(TimestampSymbol.PRESENT, key, operator, values);
+        this.delegate = ExpressionSymbol.create(null, key, operator, values);
     }
 
     /**
@@ -63,121 +59,53 @@ public class Expression extends BaseSymbol implements PostfixNotationSymbol {
      * @param key
      * @param operator
      * @param values
+     * @deprecated use
+     *             {@link ExpressionSymbol#create(TimestampSymbol, KeyTokenSymbol, OperatorSymbol, ValueTokenSymbol...)}
+     *             instead.
      */
     public Expression(TimestampSymbol timestamp, KeySymbol key,
             OperatorSymbol operator, ValueSymbol... values) {
-        this.key = key;
-        this.operator = operator;
-        this.values = values;
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * Return the raw key associated with this {@link Expression}.
-     * 
-     * @return the key
-     */
-    public KeySymbol key() {
-        return key;
-    }
-
-    /**
-     * Return the operator associated with this {@link Expression}.
-     * 
-     * @return the operator
-     */
-    public OperatorSymbol operator() {
-        return operator;
-    }
-
-    /**
-     * Return the raw symbol {@link Content}.
-     * 
-     * @return the raw symbol content
-     */
-    public Content raw() {
-        return content;
-    }
-
-    /**
-     * Return the timestamp associated with this {@link Expression}.
-     * 
-     * @return the timestamp
-     */
-    public TimestampSymbol timestamp() {
-        return timestamp;
+        this.delegate = ExpressionSymbol.create(key, operator, values);
     }
 
     @Override
+    public <T extends KeyTokenSymbol<?>> T key() {
+        return delegate.key();
+    }
+
+    @Override
+    public OperatorSymbol operator() {
+        return delegate.operator();
+    }
+
+    @Override
+    public TimestampSymbol timestamp() {
+        return delegate.timestamp();
+    }
+
+    @Override
+    public List<ValueTokenSymbol<?>> values() {
+        return delegate.values();
+    }
+    
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+    
+    @Override
     public String toString() {
-        String string = AnyStrings.format("{} {}", key, operator);
-        for (ValueSymbol value : values) {
-            string += " " + value;
-        }
-        if(timestamp.timestamp() > 0) {
-            string += " " + timestamp;
-        }
-        return string;
+        return delegate.toString();
     }
-
-    /**
-     * Return the values associated with this {@link Expression}.
-     * 
-     * @return the values
-     */
-    public List<ValueSymbol> values() {
-        return Lists.newArrayList(values);
-    }
-
-    /**
-     * A wrapper class that contains the content of the symbols in this
-     * {@link Expression}.
-     *
-     * @author Jeff Nelson
-     */
-    public class Content {
-
-        /**
-         * Return the content of the {@link KeySymbol}.
-         * 
-         * @return key content
-         */
-        public String key() {
-            return Expression.this.key().key();
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Expression) {
+            return delegate.equals(((Expression) obj).delegate);
         }
-
-        /**
-         * Return the content of the {@link OperatorSymbol}.
-         * 
-         * @return operator content
-         */
-        public Operator operator() {
-            return Expression.this.operator().operator();
+        else {
+            return delegate.equals(obj);
         }
-
-        /**
-         * Return the content of the {@link TimestampSymbol}.
-         * 
-         * @return timestamp content
-         */
-        public long timestamp() {
-            return Expression.this.timestamp().timestamp();
-        }
-
-        /**
-         * Return the content of each {@link ValueSymbol}.
-         * 
-         * @return value content
-         */
-        public List<Object> values() {
-            List<Object> values = Lists
-                    .newArrayListWithCapacity(Expression.this.values.length);
-            for (ValueSymbol symbol : Expression.this.values) {
-                values.add(symbol.value());
-            }
-            return values;
-        }
-
     }
 
 }

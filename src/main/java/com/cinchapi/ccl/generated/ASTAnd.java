@@ -13,46 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.generated;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 
 /**
- * An abstraction for an expression node in a {@link AbstractSyntaxTree}
+ * Represents an And conjunction node in the CCL grammar.
  */
-public class ExpressionTree extends BaseAbstractSyntaxTree {
-
+public class ASTAnd extends SimpleNode {
     /**
-     * The root.
-     */
-    private final ExpressionSymbol expression;
-
-    /**
-     * Construct a new instance.
+     * Constructs a new instance.
      *
-     * @param expression
+     * @param id the id
      */
-    public ExpressionTree(ExpressionSymbol expression) {
-        this.expression = expression;
+    public ASTAnd(int id) {
+        super(id);
     }
 
-    @Override
-    public Collection<AbstractSyntaxTree> children() {
-        return Collections.emptyList();
+    /**
+     * Convert the node a string representation
+     *
+     * @return the string
+     */
+    public String toString() {
+        return "and";
     }
 
-    @Override
     public Symbol root() {
-        return expression;
+        return ConjunctionSymbol.AND;
     }
 
-    @Override
-    public <T> T accept(Visitor<T> visitor, Object... data) {
+    /**
+     * Accept a visitor
+     *
+     * @param visitor the visitor
+     * @param data the data
+     * @return the result of the visit
+     */
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
-
 }

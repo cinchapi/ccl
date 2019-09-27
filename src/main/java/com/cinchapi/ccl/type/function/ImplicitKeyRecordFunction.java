@@ -13,14 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.type.function;
 
-import javax.annotation.concurrent.Immutable;
+import com.cinchapi.ccl.type.Function;
+import com.cinchapi.common.base.AnyStrings;
 
 /**
- * A {@link Symbol} is a non-terminal symbol in the grammar.
- *
- * @author Jeff Nelson
+ * Represents a function invocation that is implicitly bound to the "current"
+ * record
  */
-@Immutable
-public interface Symbol {/* marker */}
+public class ImplicitKeyRecordFunction extends Function {
+
+    /**
+     * Creates a new instances
+     *
+     * @param function the function
+     * @param key the key
+     */
+    public ImplicitKeyRecordFunction(String function, String key) {
+        super(function, key);
+    }
+
+    @Override
+    public String toString() {
+        return AnyStrings.format("{} | {}", key(), operation());
+    }
+}

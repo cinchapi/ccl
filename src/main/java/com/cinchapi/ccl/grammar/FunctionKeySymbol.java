@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,22 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import javax.annotation.concurrent.Immutable;
+import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link Symbol} is a non-terminal symbol in the grammar.
+ * A {@link KeyTokenSymbol} that represents a {@link Function}.
  *
  * @author Jeff Nelson
  */
-@Immutable
-public interface Symbol {/* marker */}
+public class FunctionKeySymbol extends KeyTokenSymbol<Function> {
+
+    /**
+     * Construct a new instance.
+     * 
+     * @param key
+     */
+    public FunctionKeySymbol(Function key) {
+        super(key);
+    }
+
+}

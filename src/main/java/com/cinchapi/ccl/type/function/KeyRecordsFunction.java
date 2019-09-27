@@ -13,14 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.type.function;
 
-import javax.annotation.concurrent.Immutable;
+import java.util.List;
 
 /**
- * A {@link Symbol} is a non-terminal symbol in the grammar.
- *
- * @author Jeff Nelson
+ * A function applied to a key across multiple records.
  */
-@Immutable
-public interface Symbol {/* marker */}
+public class KeyRecordsFunction
+        extends ExplicitBinaryFunction<List<String>> {
+    /**
+     * Constructs a new instance
+     *
+     * @param function the function
+     * @param key the key
+     * @param records the records
+     */
+    public KeyRecordsFunction(String function, String key,
+            List<String> records) {
+        super(function, key, records);
+    }
+
+    @Override
+    protected String _sourceToString() {
+        return args[1].toString();
+    }
+}

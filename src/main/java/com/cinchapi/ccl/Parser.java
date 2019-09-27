@@ -25,10 +25,10 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
@@ -37,7 +37,6 @@ import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
 import com.cinchapi.common.function.TriFunction;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -128,47 +127,6 @@ public abstract class Parser {
     }
 
     /**
-     * Return a new {@link Parser} for the {@code ccl} statement that uses the
-     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
-     * 
-     * @param ccl
-     * @param valueTransformFunction
-     * @param operatorTransformFunction
-     * @return the {@link Parser}
-     * @deprecated Deprecated since version 2.2.0; use
-     *             {@link #create(String, Function, Function)} instead.
-     */
-    @Deprecated
-    public static Parser newParser(String ccl,
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction) {
-        return newParser(ccl, ImmutableMultimap.of(), valueTransformFunction,
-                operatorTransformFunction);
-    }
-
-    /**
-     * Return a new {@link Parser} for the {@code ccl} statement that uses the
-     * {@code data} for location resolution and the
-     * {@code valueTransformFunction} and {@code operatorTransformFunction}.
-     * 
-     * @param ccl
-     * @param data
-     * @param valueTransformFunction
-     * @param operatorTransformFunction
-     * @return the {@link Parser}
-     * @deprecated Deprecated since version 2.2.0; use
-     *             {@link #create(String, Multimap, Function, Function)}
-     *             instead.
-     */
-    @Deprecated
-    public static Parser newParser(String ccl, Multimap<String, Object> data,
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction) {
-        return new ConcourseParser(ccl, data, valueTransformFunction,
-                operatorTransformFunction, null);
-    }
-
-    /**
      * The ccl statement being parsed.
      */
     protected final String ccl;
@@ -223,8 +181,8 @@ public abstract class Parser {
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    if(symbol instanceof Expression) {
-                        keys.add(((Expression) symbol).raw().key());
+                    if(symbol instanceof ExpressionSymbol) {
+                        keys.add(((ExpressionSymbol) symbol).raw().key());
                     }
                     else if(symbol instanceof KeySymbol) {
                         keys.add(((KeySymbol) symbol).key());
@@ -240,9 +198,9 @@ public abstract class Parser {
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    Expression expression;
-                    if(symbol instanceof Expression
-                            && (expression = (Expression) symbol).raw()
+                    ExpressionSymbol expression;
+                    if(symbol instanceof ExpressionSymbol
+                            && (expression = (ExpressionSymbol) symbol).raw()
                                     .operator().equals(operator)) {
                         keys.add(expression.raw().key());
                     }
@@ -256,8 +214,8 @@ public abstract class Parser {
                 Set<Operator> operators = Sets
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
-                    if(symbol instanceof Expression) {
-                        operators.add(((Expression) symbol).raw().operator());
+                    if(symbol instanceof ExpressionSymbol) {
+                        operators.add(((ExpressionSymbol) symbol).raw().operator());
                     }
                     else if(symbol instanceof OperatorSymbol) {
                         operators.add(((OperatorSymbol) symbol).operator());
@@ -308,7 +266,7 @@ public abstract class Parser {
      * 
      * <p>
      * NOTE: This method will group non-conjunctive symbols into
-     * {@link Expression} objects.
+     * {@link ExpressionSymbol} objects.
      * </p>
      * 
      * @param symbols a sequential list of tokens
@@ -432,7 +390,7 @@ public abstract class Parser {
             Verify.thatArgument(data.length > 0);
             Verify.thatArgument(data[0] instanceof Multimap);
             Multimap<String, Object> dataset = (Multimap<String, Object>) data[0];
-            Expression expression = ((Expression) tree.root());
+            ExpressionSymbol expression = ((ExpressionSymbol) tree.root());
             String key = expression.raw().key();
             Operator operator = expression.raw().operator();
             List<Object> values = expression.raw().values();

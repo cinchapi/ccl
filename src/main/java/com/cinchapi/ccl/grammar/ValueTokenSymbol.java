@@ -15,33 +15,29 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.type.Operator;
-
 /**
- * A {@link Symbol} that represents an {@link Operator}.
- *
- * @author Jeff Nelson
+ * A {@link Symbol} that represents a value.
  */
-public class OperatorSymbol implements PostfixNotationSymbol {
+public abstract class ValueTokenSymbol<T> implements PostfixNotationSymbol {
 
     /**
-     * The content of the symbol.
+     * The content of the {@link Symbol}.
      */
-    private final Operator operator;
+    protected final T value;
 
     /**
      * Construct a new instance.
-     * 
-     * @param operator
+     *
+     * @param value
      */
-    public OperatorSymbol(Operator operator) {
-        this.operator = operator;
+    public ValueTokenSymbol(T value) {
+        this.value = value;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof OperatorSymbol) {
-            return operator.equals(((OperatorSymbol) obj).operator);
+        if(obj instanceof ValueTokenSymbol) {
+            return value.equals(((ValueTokenSymbol<?>) obj).value);
         }
         else {
             return false;
@@ -50,21 +46,20 @@ public class OperatorSymbol implements PostfixNotationSymbol {
 
     @Override
     public int hashCode() {
-        return operator.hashCode();
-    }
-
-    /**
-     * Return the operator represented by this {@link Symbol}.
-     * 
-     * @return the operator
-     */
-    public Operator operator() {
-        return operator;
+        return value.hashCode();
     }
     
     @Override
     public String toString() {
-        return operator.symbol();
+        return value.toString();
     }
 
+    /**
+     * Return the value that this {@link Symbol} expresses.
+     *
+     * @return the value
+     */
+    public T value() {
+        return value;
+    }
 }

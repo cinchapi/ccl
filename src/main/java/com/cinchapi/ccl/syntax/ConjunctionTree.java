@@ -15,19 +15,14 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import java.util.Collection;
-
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.google.common.collect.Lists;
 
+import java.util.Collection;
+
 /**
- * A {@link ConjunctionTree} contains a {@link ConjunctionSymbol} and is flanked
- * on the left and right, by exactly two other {@link AbstractSyntaxTree} nodes.
- * The {@link ConjunctionTree} is used to represent an expression that connects
- * two other expressions in a logical manner (e.g AND/OR)
- * 
- * @author Jeff Nelson
+ * An abstraction for a conjunction node in an {@link AbstractSyntaxTree}
  */
 public class ConjunctionTree extends BaseAbstractSyntaxTree {
 
@@ -37,7 +32,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
 
     /**
      * Construct a new instance.
-     * 
+     *
      * @param conjunction
      * @param left
      * @param right
@@ -56,7 +51,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
 
     /**
      * Return the left child of this {@link ConjunctionTree}.
-     * 
+     *
      * @return the left child
      */
     public AbstractSyntaxTree left() {
@@ -65,7 +60,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
 
     /**
      * Return the right child of this {@link ConjunctionTree}.
-     * 
+     *
      * @return the right child
      */
     public AbstractSyntaxTree right() {
