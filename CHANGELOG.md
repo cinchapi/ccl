@@ -12,7 +12,7 @@ In Concourse, a function is an operation that is applied to a collection of valu
 * `function(key, ccl/criteria)` - applied to every value stored for key in each of the records that match the `ccl` or `criteria`.
 * `function(key, record)` - applied to every value stored for key in the `record`
 
-####### Expressions in CCL
+###### Expressions in CCL
 In CCL, the notion of an `expression` is core. A `Condition` is really just one or more expressions that are logically joined together in a manner that expresses clear evaluation precedence.
 
 An expression, generally takes the form:
