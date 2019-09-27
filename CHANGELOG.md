@@ -39,11 +39,11 @@ In an effort to avoid any ambiguity, we've adopted the following conventions:
 
 |                        | Operation Key | Evaluation Key | Evaluation Value |
 |------------------------|---------------|----------------|------------------|
-| function(key)          | NO            | NO             | YES              |
-| function(key, records) | NO            | NO             | YES              |
-| function(key, record)  | NO            | NO             | YES              |
-| function(key, ccl)     | NO            | NO             | YES              |
-| key | func             | YES           | YES            | NO               |
+| `function(key)`          | NO            | NO             | YES              |
+| `function(key, records)` | NO            | NO             | YES              |
+| `function(key, record)`  | NO            | NO             | YES              |
+| `function(key, ccl)`     | NO            | NO             | YES              |
+| `key | func`             | YES           | YES            | NO               |
 
 ##### API Breaks
 * The `Expression` symbol has been renamed `ExpressionSymbol` for clarity.
