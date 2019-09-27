@@ -69,6 +69,21 @@ public class Expression implements ExpressionSymbol {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Expression) {
+            return delegate.equals(((Expression) obj).delegate);
+        }
+        else {
+            return delegate.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
     public <T extends KeyTokenSymbol<?>> T key() {
         return delegate.key();
     }
@@ -77,35 +92,25 @@ public class Expression implements ExpressionSymbol {
     public OperatorSymbol operator() {
         return delegate.operator();
     }
-
+    
     @Override
     public TimestampSymbol timestamp() {
         return delegate.timestamp();
     }
-
-    @Override
-    public List<ValueTokenSymbol<?>> values() {
-        return delegate.values();
-    }
     
     @Override
-    public int hashCode() {
-        return delegate.hashCode();
+    public void timestamp(TimestampSymbol symbol) {
+        delegate.timestamp(symbol);      
     }
     
     @Override
     public String toString() {
         return delegate.toString();
     }
-    
+
     @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof Expression) {
-            return delegate.equals(((Expression) obj).delegate);
-        }
-        else {
-            return delegate.equals(obj);
-        }
+    public List<ValueTokenSymbol<?>> values() {
+        return delegate.values();
     }
 
 }

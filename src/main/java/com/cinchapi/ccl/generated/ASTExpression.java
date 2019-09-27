@@ -138,7 +138,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     public TimestampSymbol timestamp() {
         return timestamp;
     }
-
+    
     /**
      * Set the timestamp.
      *
@@ -147,7 +147,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     public void timestamp(TimestampSymbol timestamp) {
         this.timestamp = timestamp;
     }
-    
+
     /**
      * Convert the node a string representation.
      *

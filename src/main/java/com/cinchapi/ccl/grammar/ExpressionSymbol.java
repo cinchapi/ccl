@@ -61,14 +61,15 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      * @return a new {@link ExpressionSymbol}
      */
     public static ExpressionSymbol create(TimestampSymbol timestamp,
-            KeyTokenSymbol<?> key, OperatorSymbol operator, ValueTokenSymbol<?>... values) {
+            KeyTokenSymbol<?> key, OperatorSymbol operator,
+            ValueTokenSymbol<?>... values) {
         ASTExpression token = new ASTExpression(0);
         if(timestamp != null && timestamp != TimestampSymbol.PRESENT) {
             token.timestamp(timestamp);
         }
         token.key(key);
         token.operator(operator);
-        for(ValueTokenSymbol<?> value : values) {
+        for (ValueTokenSymbol<?> value : values) {
             token.addValue(value);
         }
         return token;
@@ -89,19 +90,10 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
     public OperatorSymbol operator();
 
     /**
-     * Return the timestamp associated with this {@link ExpressionSymbol}.
+     * Return the raw symbol {@link Content}.
      * 
-     * @return the timestamp
+     * @return the raw symbol content
      */
-    public TimestampSymbol timestamp();
-
-    /**
-     * Return the values associated with this {@link ExpressionSymbol}.
-     * 
-     * @return the values
-     */
-    public List<ValueTokenSymbol<?>> values();
-
     public default Content raw() {
         return new Content() {
 
@@ -124,20 +116,68 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
             @Override
             public <T> List<T> values() {
                 return (List<T>) ExpressionSymbol.this.values().stream()
-                        .map(ValueTokenSymbol::value).collect(Collectors.toList());
+                        .map(ValueTokenSymbol::value)
+                        .collect(Collectors.toList());
             }
 
         };
     }
 
+    /**
+     * Set the {@link #timestamp()} symbol of this {@link ExpressionSymbol}.
+     * 
+     * @param symbol
+     */
+    public void timestamp(TimestampSymbol symbol);
+
+    /**
+     * Return the timestamp associated with this {@link ExpressionSymbol}.
+     * 
+     * @return the timestamp
+     */
+    public TimestampSymbol timestamp();
+
+    /**
+     * Return the values associated with this {@link ExpressionSymbol}.
+     * 
+     * @return the values
+     */
+    public List<ValueTokenSymbol<?>> values();
+
+    /**
+     * A wrapper class that contains the content of the symbols in this
+     * {@link Expression}.
+     *
+     * @author Jeff Nelson
+     */
     interface Content {
 
+        /**
+         * Return the content of the {@link KeySymbol}.
+         * 
+         * @return key content
+         */
         public String key();
 
+        /**
+         * Return the content of the {@link OperatorSymbol}.
+         * 
+         * @return operator content
+         */
         public Operator operator();
 
+        /**
+         * Return the content of the {@link TimestampSymbol}.
+         * 
+         * @return timestamp content
+         */
         public long timestamp();
 
+        /**
+         * Return the content of each {@link ValueSymbol}.
+         * 
+         * @return value content
+         */
         public <T> List<T> values();
 
     }
