@@ -88,16 +88,4 @@ public interface AbstractSyntaxTree {
      */
     public <T> T accept(Visitor<T> visitor, Object... data);
 
-    /**
-     *
-     * @return
-     */
-    public int hashCode();
-
-    /**
-     *
-     * @param obj
-     * @return
-     */
-    public boolean equals(Object obj);
 }
