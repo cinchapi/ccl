@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.v2;
+package com.cinchapi.ccl;
 
 import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.Parser;
@@ -33,10 +33,10 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.ccl.type.function.AbstractKeyExplicitSourceFunction;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
-import com.cinchapi.ccl.type.function.KeyImplicitRecordFunction;
+import com.cinchapi.ccl.type.function.KeyRecordsFunction;
+import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
@@ -1134,7 +1134,6 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", ((IndexFunction) expression.values().get(0).value()).key());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testExplicitFunctionWithSingleRecordAsEvaluationValue() {
         String ccl = "age > avg(age, 1)";
@@ -1151,10 +1150,10 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).operation());
-        Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
-        Assert.assertEquals(1, ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).size());
-        Assert.assertEquals("1", ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).get(0));
+        Assert.assertEquals("avg", ((KeyRecordsFunction) expression.values().get(0).value()).operation());
+        Assert.assertEquals("age", ((KeyRecordsFunction) expression.values().get(0).value()).key());
+        Assert.assertEquals(1, ((List<String>) ((KeyRecordsFunction) expression.values().get(0).value()).source()).size());
+        Assert.assertEquals("1", ((List<String>) ((KeyRecordsFunction) expression.values().get(0).value()).source()).get(0));
     }
 
     @Test
@@ -1205,7 +1204,6 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("1000", expression.values().get(1).toString());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testExplicitFunctionWithMultipleRecordsAsEvaluationValue() {
         String ccl = "age > avg(age, 1, 2)";
@@ -1222,11 +1220,11 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).operation());
-        Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
-        Assert.assertEquals(2, ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).size());
-        Assert.assertEquals("1", ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).get(0));
-        Assert.assertEquals("2", ((List<String>) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).get(1));
+        Assert.assertEquals("avg", ((KeyRecordsFunction) expression.values().get(0).value()).operation());
+        Assert.assertEquals("age", ((KeyRecordsFunction) expression.values().get(0).value()).key());
+        Assert.assertEquals(2, ((List<String>) ((KeyRecordsFunction) expression.values().get(0).value()).source()).size());
+        Assert.assertEquals("1", ((List<String>) ((KeyRecordsFunction) expression.values().get(0).value()).source()).get(0));
+        Assert.assertEquals("2", ((List<String>) ((KeyRecordsFunction) expression.values().get(0).value()).source()).get(1));
     }
 
     @Test
@@ -1245,13 +1243,13 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).operation());
-        Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
+        Assert.assertEquals("avg", ((KeyCclFunction) expression.values().get(0).value()).operation());
+        Assert.assertEquals("age", ((KeyCclFunction) expression.values().get(0).value()).key());
 
-        Assert.assertTrue((((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()) instanceof ExpressionTree);
-        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).root()).key().toString());
-        Assert.assertEquals("<", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).root()).operator().toString());
-        Assert.assertEquals("30", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).root()).values().get(0).toString());
+        Assert.assertTrue((((KeyCclFunction) expression.values().get(0).value()).source()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression.values().get(0).value()).source()).root()).key().toString());
+        Assert.assertEquals("<", ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression.values().get(0).value()).source()).root()).operator().toString());
+        Assert.assertEquals("30", ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression.values().get(0).value()).source()).root()).values().get(0).toString());
     }
 
     @Test
@@ -1268,16 +1266,16 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(tree instanceof ExpressionTree);
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
-        Assert.assertEquals("avg", ((KeyImplicitRecordFunction) expression.key().key()).operation());
+        Assert.assertEquals("avg", ((ImplicitKeyRecordFunction) expression.key().key()).operation());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(expression.values().get(0) instanceof FunctionValueSymbol);
-        Assert.assertEquals("avg", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).operation());
-        Assert.assertEquals("age", ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).key());
+        Assert.assertEquals("avg", ((KeyCclFunction) expression.values().get(0).value()).operation());
+        Assert.assertEquals("age", ((KeyCclFunction) expression.values().get(0).value()).key());
 
-        Assert.assertTrue((((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()) instanceof ExpressionTree);
-        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).root()).key().toString());
-        Assert.assertEquals("<", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).root()).operator().toString());
-        Assert.assertEquals("30", ((ExpressionSymbol) ((AbstractSyntaxTree) ((AbstractKeyExplicitSourceFunction<?>) expression.values().get(0).value()).source()).root()).values().get(0).toString());
+        Assert.assertTrue((((KeyCclFunction) expression.values().get(0).value()).source()) instanceof ExpressionTree);
+        Assert.assertEquals("age", ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression.values().get(0).value()).source()).root()).key().toString());
+        Assert.assertEquals("<", ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression.values().get(0).value()).source()).root()).operator().toString());
+        Assert.assertEquals("30", ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression.values().get(0).value()).source()).root()).values().get(0).toString());
     }
 
     @Test

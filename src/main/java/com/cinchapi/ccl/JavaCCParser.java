@@ -31,7 +31,7 @@ import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.grammar.AbstractValueSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
@@ -266,7 +266,7 @@ public class JavaCCParser extends Parser {
                 public Object visit(ASTExpression node, Object data) {
                     ((List<Symbol>) data).add(node.key());
                     ((List<Symbol>) data).add(node.operator());
-                    for(AbstractValueSymbol<?> valueSymbol : node.values()) {
+                    for(ValueTokenSymbol<?> valueSymbol : node.values()) {
                         ((List<Symbol>) data).add(valueSymbol);
                     }
                     if (node.timestamp() != null) {

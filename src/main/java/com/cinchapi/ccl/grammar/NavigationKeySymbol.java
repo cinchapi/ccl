@@ -16,9 +16,9 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link AbstractKeySymbol} that represents a navigation key.
+ * A {@link KeyTokenSymbol} that represents a navigation key.
  */
-public class NavigationKeySymbol extends AbstractKeySymbol<String> {
+public class NavigationKeySymbol extends KeyTokenSymbol<String> {
 
     /**
      * Construct a new instance.

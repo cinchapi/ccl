@@ -18,11 +18,11 @@ package com.cinchapi.ccl.grammar;
 import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link AbstractKeySymbol} that represents a {@link Function}.
+ * A {@link KeyTokenSymbol} that represents a {@link Function}.
  *
  * @author Jeff Nelson
  */
-public class FunctionKeySymbol extends AbstractKeySymbol<Function> {
+public class FunctionKeySymbol extends KeyTokenSymbol<Function> {
 
     /**
      * Construct a new instance.

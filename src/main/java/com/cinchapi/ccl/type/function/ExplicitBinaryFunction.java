@@ -19,33 +19,41 @@ import com.cinchapi.ccl.type.Function;
 import com.cinchapi.common.base.AnyStrings;
 
 /**
- *
+ * A {@link Function} that requires two explicit arguments: a key and a source
+ * that can be resolved to a list of records whose values stored for key should
+ * be used handled to the operation.
  *
  * @author Jeff Nelson
  */
-public abstract class AbstractKeyExplicitSourceFunction<S> extends Function {
+abstract class ExplicitBinaryFunction<S> extends Function {
 
     /**
      * Construct a new instance.
+     * 
      * @param name
      * @param arg
      * @param args
      */
-    protected AbstractKeyExplicitSourceFunction(String name, String key,
-            S source) {
+    protected ExplicitBinaryFunction(String name, String key, S source) {
         super(name, key, source);
     }
-    
-    @Override
-    public final String toString() {
-        return AnyStrings.format("{}({},{})", operation(), key(), _sourceToString());
-    }
-    
+
     @SuppressWarnings("unchecked")
     public final S source() {
         return (S) args[1];
     }
-    
+
+    @Override
+    public final String toString() {
+        return AnyStrings.format("{}({},{})", operation(), key(),
+                _sourceToString());
+    }
+
+    /**
+     * Return the preferred {@link Object#toString()} of the {@link #source()}.
+     * 
+     * @return the {@link #source()}'s {@link #toString()}
+     */
     protected abstract String _sourceToString();
 
 }

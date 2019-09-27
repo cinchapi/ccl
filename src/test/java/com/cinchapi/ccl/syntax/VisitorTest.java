@@ -16,11 +16,11 @@
 package com.cinchapi.ccl.syntax;
 
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.AbstractKeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.AbstractValueSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.concourse.thrift.Operator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,9 +33,9 @@ public class VisitorTest {
     @Test
     public void testVisitorPattern() {
         // Build tree
-        AbstractKeySymbol<String> key = new KeySymbol("key");
+        KeyTokenSymbol<String> key = new KeySymbol("key");
         OperatorSymbol operator = new OperatorSymbol(Operator.EQUALS);
-        AbstractValueSymbol<Object> value = new ValueSymbol("value");
+        ValueTokenSymbol<Object> value = new ValueSymbol("value");
 
         ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
         ExpressionTree leftTree = new ExpressionTree(expression);

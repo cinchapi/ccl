@@ -25,7 +25,7 @@ import com.cinchapi.ccl.syntax.Visitor;
  * (represented by an {@link AbstractSyntaxTree}).
  */
 public class KeyCclFunction
-        extends AbstractKeyExplicitSourceFunction<AbstractSyntaxTree> {
+        extends ExplicitBinaryFunction<AbstractSyntaxTree> {
     /**
      * Constructs a new instance
      *

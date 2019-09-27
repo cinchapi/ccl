@@ -24,13 +24,13 @@ import java.util.Queue;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.AbstractKeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.grammar.AbstractValueSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.Array;
 import com.google.common.base.Preconditions;
@@ -58,17 +58,17 @@ public final class Parsing {
             ListIterator<Symbol> it = symbols.listIterator();
             while (it.hasNext()) {
                 Symbol symbol = it.next();
-                if(symbol instanceof AbstractKeySymbol) {
-                    AbstractKeySymbol<String> key = (AbstractKeySymbol<String>) symbol;
+                if(symbol instanceof KeyTokenSymbol) {
+                    KeyTokenSymbol<String> key = (KeyTokenSymbol<String>) symbol;
                     // NOTE: We are assuming that the list of symbols is well
                     // formed, and, as such, the next elements will be an
                     // operator and one or more symbols. If this is not the
                     // case, this method will throw a ClassCastException
                     OperatorSymbol operator = (OperatorSymbol) it.next();
-                    AbstractValueSymbol<?> value = (AbstractValueSymbol<?>) it.next();
+                    ValueTokenSymbol<?> value = (ValueTokenSymbol<?>) it.next();
                     ExpressionSymbol expression;
                     if(operator.operator().operands() == 2) {
-                        AbstractValueSymbol<?> value2 = (AbstractValueSymbol<?>) it.next();
+                        ValueTokenSymbol<?> value2 = (ValueTokenSymbol<?>) it.next();
                         expression = ExpressionSymbol.create(key, operator,
                                 value, value2);
                     }

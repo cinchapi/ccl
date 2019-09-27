@@ -18,7 +18,7 @@ package com.cinchapi.ccl.grammar;
 /**
  * A {@link Symbol} that represents a value.
  */
-public abstract class AbstractValueSymbol<T> implements PostfixNotationSymbol {
+public abstract class ValueTokenSymbol<T> implements PostfixNotationSymbol {
 
     /**
      * The content of the {@link Symbol}.
@@ -30,14 +30,14 @@ public abstract class AbstractValueSymbol<T> implements PostfixNotationSymbol {
      *
      * @param value
      */
-    public AbstractValueSymbol(T value) {
+    public ValueTokenSymbol(T value) {
         this.value = value;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof AbstractValueSymbol) {
-            return value.equals(((AbstractValueSymbol<?>) obj).value);
+        if(obj instanceof ValueTokenSymbol) {
+            return value.equals(((ValueTokenSymbol<?>) obj).value);
         }
         else {
             return false;

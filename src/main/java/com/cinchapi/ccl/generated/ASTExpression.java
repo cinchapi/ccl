@@ -18,8 +18,8 @@ package com.cinchapi.ccl.generated;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.grammar.AbstractKeySymbol;
-import com.cinchapi.ccl.grammar.AbstractValueSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     /**
      * The key
      */
-    private AbstractKeySymbol<?> key;
+    private KeyTokenSymbol<?> key;
 
     /**
      * The operator
@@ -42,7 +42,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     /**
      * The values
      */
-    private List<AbstractValueSymbol<?>> values = Lists.newArrayList();
+    private List<ValueTokenSymbol<?>> values = Lists.newArrayList();
 
     /**
      * The timestamp
@@ -63,7 +63,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      *
      * @param value the value
      */
-    public void addValue(AbstractValueSymbol<?> value) {
+    public void addValue(ValueTokenSymbol<?> value) {
         this.values.add(value);
     }
 
@@ -99,7 +99,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      * @return the key
      */
     @SuppressWarnings("unchecked")
-    public AbstractKeySymbol<?> key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
@@ -108,7 +108,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      *
      * @param key the key
      */
-    public void key(AbstractKeySymbol<?> key) {
+    public void key(KeyTokenSymbol<?> key) {
         this.key = key;
     }
 
@@ -155,7 +155,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      */
     public String toString() {
         String string = key.toString() + " " + operator.toString();
-        for (AbstractValueSymbol<?> value : values) {
+        for (ValueTokenSymbol<?> value : values) {
             string += " " + value.toString();
         }
         if (timestamp != null) {
@@ -169,7 +169,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      *
      * @return the value
      */
-    public List<AbstractValueSymbol<?>> values() {
+    public List<ValueTokenSymbol<?>> values() {
         return values;
     }
 }

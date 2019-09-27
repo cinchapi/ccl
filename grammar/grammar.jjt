@@ -27,7 +27,7 @@ package com.cinchapi.ccl.generated;
 
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.AbstractValueSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
@@ -35,7 +35,7 @@ import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.type.function.KeyImplicitRecordFunction;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
-import com.cinchapi.ccl.grammar.AbstractKeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
@@ -224,10 +224,10 @@ void UnaryExpression() : {}
 
 void RelationalExpression() #Expression :
 {
-    AbstractKeySymbol key = null;
+    KeyTokenSymbol key = null;
     OperatorSymbol operator = null;
-    AbstractValueSymbol value1 = null;
-    AbstractValueSymbol value2 = null;
+    ValueTokenSymbol value1 = null;
+    ValueTokenSymbol value2 = null;
     TimestampSymbol timestamp = null;
 }
 {
@@ -246,7 +246,7 @@ void RelationalExpression() #Expression :
         }
 }
 
-AbstractKeySymbol Key() :
+KeyTokenSymbol Key() :
 {
   Token key;
   Token function;
@@ -266,7 +266,7 @@ AbstractKeySymbol Key() :
   )
 }
 
-AbstractValueSymbol UnaryValue() :
+ValueTokenSymbol UnaryValue() :
 {
   Token function;
   Token key;
@@ -330,7 +330,7 @@ AbstractValueSymbol UnaryValue() :
   { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 }
 
-AbstractValueSymbol LinksToValue() :
+ValueTokenSymbol LinksToValue() :
 {
   Token word;
 }
@@ -339,7 +339,7 @@ AbstractValueSymbol LinksToValue() :
   { return new ValueSymbol(transformValue(word.image)); }
 }
 
-AbstractValueSymbol BinaryValue() :
+ValueTokenSymbol BinaryValue() :
 {
   Token function;
   Token key;

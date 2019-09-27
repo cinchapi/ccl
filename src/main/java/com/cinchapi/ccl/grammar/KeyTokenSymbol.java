@@ -18,7 +18,7 @@ package com.cinchapi.ccl.grammar;
 /**
  * A {@link Symbol} that represents a key (e.g. selection key or evaluation key).
  */
-public abstract class AbstractKeySymbol<T> implements PostfixNotationSymbol {
+public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
 
     /**
      * The content of the {@link Symbol}.
@@ -30,14 +30,14 @@ public abstract class AbstractKeySymbol<T> implements PostfixNotationSymbol {
      *
      * @param key
      */
-    public AbstractKeySymbol(T key) {
+    public KeyTokenSymbol(T key) {
         this.key = key;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof AbstractKeySymbol) {
-            return key.equals(((AbstractKeySymbol<?>) obj).key);
+        if(obj instanceof KeyTokenSymbol) {
+            return key.equals(((KeyTokenSymbol<?>) obj).key);
         }
         else {
             return false;

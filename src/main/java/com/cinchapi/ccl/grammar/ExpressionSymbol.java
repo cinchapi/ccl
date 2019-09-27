@@ -44,8 +44,8 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      * @param values
      * @return a new {@link ExpressionSymbol}
      */
-    public static ExpressionSymbol create(AbstractKeySymbol<?> key,
-            OperatorSymbol operator, AbstractValueSymbol<?>... values) {
+    public static ExpressionSymbol create(KeyTokenSymbol<?> key,
+            OperatorSymbol operator, ValueTokenSymbol<?>... values) {
         return create(null, key, operator, values);
     }
 
@@ -61,14 +61,14 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      * @return a new {@link ExpressionSymbol}
      */
     public static ExpressionSymbol create(TimestampSymbol timestamp,
-            AbstractKeySymbol<?> key, OperatorSymbol operator, AbstractValueSymbol<?>... values) {
+            KeyTokenSymbol<?> key, OperatorSymbol operator, ValueTokenSymbol<?>... values) {
         ASTExpression token = new ASTExpression(0);
         if(timestamp != null && timestamp != TimestampSymbol.PRESENT) {
             token.timestamp(timestamp);
         }
         token.key(key);
         token.operator(operator);
-        for(AbstractValueSymbol<?> value : values) {
+        for(ValueTokenSymbol<?> value : values) {
             token.addValue(value);
         }
         return token;
@@ -79,7 +79,7 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      * 
      * @return the key
      */
-    public <T extends AbstractKeySymbol<?>> T key();
+    public <T extends KeyTokenSymbol<?>> T key();
 
     /**
      * Return the operator associated with this {@link ExpressionSymbol}.
@@ -100,7 +100,7 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      * 
      * @return the values
      */
-    public List<AbstractValueSymbol<?>> values();
+    public List<ValueTokenSymbol<?>> values();
 
     public default Content raw() {
         return new Content() {
@@ -124,7 +124,7 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
             @Override
             public <T> List<T> values() {
                 return (List<T>) ExpressionSymbol.this.values().stream()
-                        .map(AbstractValueSymbol::value).collect(Collectors.toList());
+                        .map(ValueTokenSymbol::value).collect(Collectors.toList());
             }
 
         };

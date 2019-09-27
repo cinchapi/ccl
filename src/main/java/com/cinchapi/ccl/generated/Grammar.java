@@ -4,15 +4,15 @@ package com.cinchapi.ccl.generated;
 
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.AbstractValueSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
-import com.cinchapi.ccl.type.function.KeyImplicitRecordFunction;
+import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
-import com.cinchapi.ccl.grammar.AbstractKeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
@@ -291,10 +291,10 @@ if (jjtc001) {
   final public void RelationalExpression() throws ParseException {/*@bgen(jjtree) Expression */
     ASTExpression jjtn000 = new ASTExpression(JJTEXPRESSION);
     boolean jjtc000 = true;
-    jjtree.openNodeScope(jjtn000);AbstractKeySymbol key = null;
+    jjtree.openNodeScope(jjtn000);KeyTokenSymbol key = null;
     OperatorSymbol operator = null;
-    AbstractValueSymbol value1 = null;
-    AbstractValueSymbol value2 = null;
+    ValueTokenSymbol value1 = null;
+    ValueTokenSymbol value2 = null;
     TimestampSymbol timestamp = null;
     try {
       key = Key();
@@ -351,7 +351,7 @@ if (jjtc000) {
     }
 }
 
-  final public AbstractKeySymbol Key() throws ParseException {Token key;
+  final public KeyTokenSymbol Key() throws ParseException {Token key;
   Token function;
     if (jj_2_1(2)) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -382,7 +382,7 @@ if (jjtc000) {
       }
       jj_consume_token(PIPE);
       function = jj_consume_token(ALPHANUMERIC);
-{if ("" != null) return new FunctionKeySymbol(new KeyImplicitRecordFunction(function.image, key.image.substring(0, key.image.length())));}
+{if ("" != null) return new FunctionKeySymbol(new ImplicitKeyRecordFunction(function.image, key.image.substring(0, key.image.length())));}
     } else {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case RESERVED_IDENTIFIER:
@@ -433,7 +433,7 @@ if (jjtc000) {
     throw new Error("Missing return statement in function");
 }
 
-  final public AbstractValueSymbol UnaryValue() throws ParseException {Token function;
+  final public ValueTokenSymbol UnaryValue() throws ParseException {Token function;
   Token key;
   Token word;
   String value = "";
@@ -648,13 +648,13 @@ if(value.charAt(0) == '$') {
     throw new Error("Missing return statement in function");
 }
 
-  final public AbstractValueSymbol LinksToValue() throws ParseException {Token word;
+  final public ValueTokenSymbol LinksToValue() throws ParseException {Token word;
     word = jj_consume_token(NUMERIC);
 {if ("" != null) return new ValueSymbol(transformValue(word.image));}
     throw new Error("Missing return statement in function");
 }
 
-  final public AbstractValueSymbol BinaryValue() throws ParseException {Token function;
+  final public ValueTokenSymbol BinaryValue() throws ParseException {Token function;
   Token key;
   Token word;
   String value = "";

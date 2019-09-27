@@ -22,7 +22,7 @@ import com.cinchapi.common.base.AnyStrings;
  * Represents a function invocation that is implicitly bound to the "current"
  * record
  */
-public class KeyImplicitRecordFunction extends Function {
+public class ImplicitKeyRecordFunction extends Function {
 
     /**
      * Creates a new instances
@@ -30,7 +30,7 @@ public class KeyImplicitRecordFunction extends Function {
      * @param function the function
      * @param key the key
      */
-    public KeyImplicitRecordFunction(String function, String key) {
+    public ImplicitKeyRecordFunction(String function, String key) {
         super(function, key);
     }
 

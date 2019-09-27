@@ -23,7 +23,7 @@ import com.cinchapi.common.reflect.Reflection;
  *
  * @author Jeff Nelson
  */
-public class ValueSymbol extends AbstractValueSymbol<Object> {
+public class ValueSymbol extends ValueTokenSymbol<Object> {
 
     /**
      * Do any escaping of the {@code value} in order to preserve it during the

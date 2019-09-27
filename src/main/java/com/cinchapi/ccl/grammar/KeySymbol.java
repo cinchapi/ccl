@@ -20,7 +20,7 @@ package com.cinchapi.ccl.grammar;
  *
  * @author Jeff Nelson
  */
-public final class KeySymbol extends AbstractKeySymbol<String> {
+public final class KeySymbol extends KeyTokenSymbol<String> {
 
     /**
      * Construct a new instance.

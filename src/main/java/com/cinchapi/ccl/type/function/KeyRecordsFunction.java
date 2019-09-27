@@ -21,7 +21,7 @@ import java.util.List;
  * A function applied to a key across multiple records.
  */
 public class KeyRecordsFunction
-        extends AbstractKeyExplicitSourceFunction<List<String>> {
+        extends ExplicitBinaryFunction<List<String>> {
     /**
      * Constructs a new instance
      *

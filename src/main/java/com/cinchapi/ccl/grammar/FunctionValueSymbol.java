@@ -18,11 +18,11 @@ package com.cinchapi.ccl.grammar;
 import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link AbstractValueSymbol} that represents a {@link Function}.
+ * A {@link ValueTokenSymbol} that represents a {@link Function}.
  *
  * @author Jeff Nelson
  */
-public class FunctionValueSymbol extends AbstractValueSymbol<Function> {
+public class FunctionValueSymbol extends ValueTokenSymbol<Function> {
 
     /**
      * Construct a new instance.
