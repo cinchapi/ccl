@@ -322,7 +322,6 @@ ValueTokenSymbol UnaryValue() :
     else {
         value = value.replace("\\@", "@");
     }
-
     return new ValueSymbol(transformValue(value));
   }
 |

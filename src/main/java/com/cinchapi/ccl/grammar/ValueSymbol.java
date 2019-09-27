@@ -74,7 +74,12 @@ public class ValueSymbol extends ValueTokenSymbol<Object> {
 
     @Override
     public String toString() {
-        return escape(value).toString();
+        if (value instanceof String) {
+            return escape(AnyStrings.ensureWithinQuotesIfNeeded((String)value, ' ')).toString();
+        }
+        else {
+            return escape(value).toString();
+        }
     }
 
 }
