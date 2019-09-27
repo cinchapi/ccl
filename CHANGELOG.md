@@ -4,7 +4,7 @@
 ##### Function Statements
 In version `3.0.0` we added support for **function statements**.
 
-###### Background
+###### *Background*
 ###### Functions in Concourse
 In Concourse, a function is an operation that is applied to a collection of values; values that can be retrived from a key stored in one or more records. Concourse functions be expressed in the following ways:
 * `function(key)` - applied to every value stored for key in every record
