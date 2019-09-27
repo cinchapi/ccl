@@ -43,7 +43,7 @@ In an effort to avoid any ambiguity, we've adopted the following conventions:
 | `function(key, records)` | NO            | NO             | YES              |
 | `function(key, record)`  | NO            | NO             | YES              |
 | `function(key, ccl)`     | NO            | NO             | YES              |
-| `key \| func`             | YES           | YES            | NO               |
+| `key \| function`             | YES           | YES            | NO               |
 
 ##### API Breaks
 * The `Expression` symbol has been renamed `ExpressionSymbol` for clarity.
