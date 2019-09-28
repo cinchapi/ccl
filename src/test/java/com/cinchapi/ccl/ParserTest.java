@@ -1008,6 +1008,20 @@ public abstract class ParserTest {
     }
 
     @Test
+    public void testParseNonNumericTag() {
+        Criteria criteria = Criteria.where().key("foo")
+                .operator(Operator.EQUALS).value(Tag.create("bar")).build();
+        Parser parser = createParser(criteria.getCclString());
+        List<Symbol> tokens = parser.tokenize();
+        for (Symbol token : tokens) {
+            if(token instanceof ValueSymbol) {
+                Assert.assertEquals(Tag.class,
+                        ((ValueSymbol) token).value().getClass());
+            }
+        }
+    }
+
+    @Test
     public void testParseNumericNumber() {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(17).build();
@@ -1032,8 +1046,10 @@ public abstract class ParserTest {
         for (Symbol symbol : parser.tokenize()) {
             if(symbol instanceof ValueSymbol) {
                 ValueSymbol $symbol = (ValueSymbol) symbol;
-                Assert.assertEquals(Timestamp.class, $symbol.value().getClass());
-                Assert.assertTrue($symbol.value().equals(start) || $symbol.value().equals(end));
+                Assert.assertEquals(Timestamp.class,
+                        $symbol.value().getClass());
+                Assert.assertTrue($symbol.value().equals(start)
+                        || $symbol.value().equals(end));
                 ++count;
             }
         }
