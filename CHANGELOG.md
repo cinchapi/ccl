@@ -45,6 +45,9 @@ In an effort to avoid any ambiguity, we've adopted the following conventions:
 | `function(key, ccl)`     | NO            | NO             | YES              |
 | `key \| function`             | YES           | YES            | NO               |
 
+##### Deprecations
+* Deprecated the `Parser#tokenize` method in favor of `Parser#tokens`. This is purely a semantic change and both methods return the same value.
+
 ##### API Breaks
 * The `Expression` symbol has been deprecated and renamed `ExpressionSymbol` for clarity.
 * The deprecated `ConcourseParser` has been removed. We will no longer distinguish the current parser as `v2` since it is the only one.

@@ -441,7 +441,7 @@ public abstract class ParserTest {
         data.put("age", 30);
         data.put("team", "Cleveland Cavaliers");
         Parser parser = createParser(ccl, data);
-        Parsing.toPostfixNotation(parser.tokenize());
+        Parsing.toPostfixNotation(parser.tokens());
     }
 
     @Test
@@ -474,7 +474,7 @@ public abstract class ParserTest {
         data.put("age", 30);
         data.put("team", "Cleveland Cavaliers");
         Parser parser = createParser(ccl, data);
-        Parsing.toPostfixNotation(parser.tokenize());
+        Parsing.toPostfixNotation(parser.tokens());
     }
 
     @Test
@@ -943,7 +943,7 @@ public abstract class ParserTest {
                 .build();
         String ccl = criteria.ccl();
         Parser parser = createParser(ccl);
-        List<Symbol> symbols = parser.tokenize();
+        List<Symbol> symbols = parser.tokens();
         Assert.assertEquals(Lists.newArrayList(new KeySymbol("name"),
                 new OperatorSymbol(Operator.EQUALS),
                 new ValueSymbol("Jeff Nelson"), ConjunctionSymbol.AND,
@@ -968,7 +968,7 @@ public abstract class ParserTest {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value("17").build();
         Parser parser = createParser(criteria.ccl());
-        List<Symbol> tokens = parser.tokenize();
+        List<Symbol> tokens = parser.tokens();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
                 Assert.assertEquals(String.class,
@@ -982,7 +982,7 @@ public abstract class ParserTest {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(Tag.create("17")).build();
         Parser parser = createParser(criteria.ccl());
-        List<Symbol> tokens = parser.tokenize();
+        List<Symbol> tokens = parser.tokens();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
                 Assert.assertEquals(Tag.class,
@@ -996,7 +996,7 @@ public abstract class ParserTest {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(Tag.create("bar")).build();
         Parser parser = createParser(criteria.ccl());
-        List<Symbol> tokens = parser.tokenize();
+        List<Symbol> tokens = parser.tokens();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
                 Assert.assertEquals(Tag.class,
@@ -1010,7 +1010,7 @@ public abstract class ParserTest {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(17).build();
         Parser parser = createParser(criteria.ccl());
-        List<Symbol> tokens = parser.tokenize();
+        List<Symbol> tokens = parser.tokens();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
                 Assert.assertEquals(Integer.class,
@@ -1027,7 +1027,7 @@ public abstract class ParserTest {
                 .operator(Operator.BETWEEN).value(start).value(end).build();
         Parser parser = createParser(criteria.ccl());
         int count = 0;
-        for (Symbol symbol : parser.tokenize()) {
+        for (Symbol symbol : parser.tokens()) {
             if(symbol instanceof ValueSymbol) {
                 ValueSymbol $symbol = (ValueSymbol) symbol;
                 Assert.assertEquals(Timestamp.class,

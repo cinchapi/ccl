@@ -97,17 +97,17 @@ public class JavaCCParser extends Parser {
 
             GrammarVisitor visitor = new GrammarVisitor() {
                 @Override
-                public Object visit(SimpleNode node, Object data) {
-                    System.out.println(node +
-                            ": acceptor not unimplemented in subclass?");
-                    data = node.childrenAccept(this, data);
-                    return data;
+                public Object visit(ASTAnd node, Object data) {
+                    node.jjtGetChild(0).jjtAccept(this, data);
+                    Queue<PostfixNotationSymbol> symbols =
+                            (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
+                    symbols.add(ConjunctionSymbol.AND);
+                    return symbols;
                 }
 
                 @Override
-                public Object visit(ASTStart node, Object data) {
-                    Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
-                    data = node.childrenAccept(this, symbols);
+                public Object visit(ASTExpression node, Object data) {
+                    ((Queue<PostfixNotationSymbol>) data).add(node);
                     return data;
                 }
 
@@ -121,17 +121,17 @@ public class JavaCCParser extends Parser {
                 }
 
                 @Override
-                public Object visit(ASTAnd node, Object data) {
-                    node.jjtGetChild(0).jjtAccept(this, data);
-                    Queue<PostfixNotationSymbol> symbols =
-                            (Queue<PostfixNotationSymbol>) node.jjtGetChild(1).jjtAccept(this, data);
-                    symbols.add(ConjunctionSymbol.AND);
-                    return symbols;
+                public Object visit(ASTStart node, Object data) {
+                    Queue<PostfixNotationSymbol> symbols = new LinkedList<>();
+                    data = node.childrenAccept(this, symbols);
+                    return data;
                 }
 
                 @Override
-                public Object visit(ASTExpression node, Object data) {
-                    ((Queue<PostfixNotationSymbol>) data).add(node);
+                public Object visit(SimpleNode node, Object data) {
+                    System.out.println(node +
+                            ": acceptor not unimplemented in subclass?");
+                    data = node.childrenAccept(this, data);
                     return data;
                 }
             };
@@ -157,16 +157,15 @@ public class JavaCCParser extends Parser {
 
             GrammarVisitor visitor = new GrammarVisitor() {
                 @Override
-                public Object visit(SimpleNode node, Object data) {
-                    System.out.println(node + ": acceptor not unimplemented in subclass?");
-                    data = node.childrenAccept(this, data);
-                    return data;
+                public Object visit(ASTAnd node, Object data) {
+                    AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+                    AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+                    return new AndTree(left, right);
                 }
 
                 @Override
-                public Object visit(ASTStart node, Object data) {
-                    data = node.jjtGetChild(0).jjtAccept(this, data);
-                    return data;
+                public Object visit(ASTExpression node, Object data) {
+                    return new ExpressionTree(node);
                 }
 
                 @Override
@@ -177,15 +176,16 @@ public class JavaCCParser extends Parser {
                 }
 
                 @Override
-                public Object visit(ASTAnd node, Object data) {
-                    AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-                    AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
-                    return new AndTree(left, right);
+                public Object visit(ASTStart node, Object data) {
+                    data = node.jjtGetChild(0).jjtAccept(this, data);
+                    return data;
                 }
 
                 @Override
-                public Object visit(ASTExpression node, Object data) {
-                    return new ExpressionTree(node);
+                public Object visit(SimpleNode node, Object data) {
+                    System.out.println(node + ": acceptor not unimplemented in subclass?");
+                    data = node.childrenAccept(this, data);
+                    return data;
                 }
             };
 
@@ -202,34 +202,12 @@ public class JavaCCParser extends Parser {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Symbol> tokenize() {
+    public List<Symbol> tokens() {
         try {
             InputStream stream = new ByteArrayInputStream(
                     ccl.getBytes(StandardCharsets.UTF_8.name()));
 
             GrammarVisitor visitor = new GrammarVisitor() {
-                @Override
-                public Object visit(SimpleNode node, Object data) {
-                    System.out.println(node + ": acceptor not unimplemented in subclass?");
-                    data = node.childrenAccept(this, data);
-                    return data;
-                }
-
-                @Override
-                public Object visit(ASTStart node, Object data) {
-                    List<Symbol> symbols = Lists.newArrayList();
-                    data = node.childrenAccept(this, symbols);
-                    return data;
-                }
-
-                @Override
-                public Object visit(ASTOr node, Object data) {
-                    List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
-                    symbols.add(ConjunctionSymbol.OR);
-                    symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
-                    return symbols;
-                }
-
                 @Override
                 public Object visit(ASTAnd node, Object data) {
                     List<Symbol> symbols = (List<Symbol>) data;
@@ -272,6 +250,28 @@ public class JavaCCParser extends Parser {
                     if (node.timestamp() != null) {
                         ((List<Symbol>) data).add(node.timestamp());
                     }
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTOr node, Object data) {
+                    List<Symbol> symbols = (List<Symbol>) node.jjtGetChild(0).jjtAccept(this, data);
+                    symbols.add(ConjunctionSymbol.OR);
+                    symbols = (List<Symbol>) node.jjtGetChild(1).jjtAccept(this, data);
+                    return symbols;
+                }
+
+                @Override
+                public Object visit(ASTStart node, Object data) {
+                    List<Symbol> symbols = Lists.newArrayList();
+                    data = node.childrenAccept(this, symbols);
+                    return data;
+                }
+
+                @Override
+                public Object visit(SimpleNode node, Object data) {
+                    System.out.println(node + ": acceptor not unimplemented in subclass?");
+                    data = node.childrenAccept(this, data);
                     return data;
                 }
             };
