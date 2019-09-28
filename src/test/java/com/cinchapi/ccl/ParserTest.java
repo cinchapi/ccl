@@ -237,8 +237,7 @@ public abstract class ParserTest {
         String ccl = "a = '1' and b = 2 or c = 3";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -251,13 +250,11 @@ public abstract class ParserTest {
         String ccl2 = "where foo >< bar baz";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
         Parser parser2 = createParser(ccl2);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser2.order());
     }
 
@@ -274,8 +271,7 @@ public abstract class ParserTest {
         data.put("team", "Cleveland Cavaliers");
         Parser parser = createParser(ccl, data);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -291,8 +287,7 @@ public abstract class ParserTest {
         data.put("team", "Cleveland Cavaliers");
         Parser parser = createParser(ccl, data);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -308,8 +303,7 @@ public abstract class ParserTest {
         data.put("team", "Cleveland Cavaliers");
         Parser parser = createParser(ccl, data);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -345,8 +339,7 @@ public abstract class ParserTest {
         String ccl = "(a = 1 or b = 2) AND (c = 3 or d = 4)";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -368,8 +361,7 @@ public abstract class ParserTest {
         String ccl = "(a = 1 || b = 2) && (c = 3 || d = 4)";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
 
     }
@@ -392,8 +384,7 @@ public abstract class ParserTest {
         String ccl = "(a = 1 || b = 2) & (c = 3 || d = 4)";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -415,8 +406,7 @@ public abstract class ParserTest {
         String ccl = "(a = 1 || b = 2) || (c = 3 || d = 4)";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -438,8 +428,7 @@ public abstract class ParserTest {
         String ccl = "(a = 1 or b = 2) or (c = 3 or d = 4)";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -467,8 +456,7 @@ public abstract class ParserTest {
         data.put("team", "Cleveland Cavaliers");
         Parser parser = createParser(ccl, data);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -497,8 +485,7 @@ public abstract class ParserTest {
         String ccl = "where foo = bar";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
 
     }
@@ -513,8 +500,7 @@ public abstract class ParserTest {
         String ccl = "a = 1 and b = 2";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -528,8 +514,7 @@ public abstract class ParserTest {
         String ccl = "a = 1 or b = 2";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -649,8 +634,7 @@ public abstract class ParserTest {
         String ccl = "a = 1 and (b = 2 or c = 3)";
         Parser parser = createParser(ccl);
         Assert.assertEquals(
-                Parsing.toPostfixNotation(
-                        Reflection.call(criteria, "getSymbols")),
+                Parsing.toPostfixNotation(Reflection.call(criteria, "symbols")),
                 parser.order());
     }
 
@@ -822,11 +806,11 @@ public abstract class ParserTest {
         Queue<PostfixNotationSymbol> pfn = Parsing
                 .toPostfixNotation(Reflection.call(criteria, "getSymbols"));
         Assert.assertEquals(pfn.size(), 1);
-        Assert.assertEquals(((Expression) Iterables.getOnlyElement(pfn)).key(),
-                new KeySymbol("foo"));
         Assert.assertEquals(
-                ((Expression) Iterables.getOnlyElement(pfn)).values().get(0),
-                new ValueSymbol("bar"));
+                ((ExpressionSymbol) Iterables.getOnlyElement(pfn)).key(),
+                new KeySymbol("foo"));
+        Assert.assertEquals(((ExpressionSymbol) Iterables.getOnlyElement(pfn))
+                .values().get(0), new ValueSymbol("bar"));
         Assert.assertEquals(
                 ((Expression) Iterables.getOnlyElement(pfn)).operator(),
                 new OperatorSymbol(
@@ -864,14 +848,13 @@ public abstract class ParserTest {
         Queue<PostfixNotationSymbol> pfn = Parsing
                 .toPostfixNotation(Reflection.call(criteria, "getSymbols"));
         Assert.assertEquals(pfn.size(), 1);
-        Assert.assertEquals(((Expression) Iterables.getOnlyElement(pfn)).key(),
+        Assert.assertEquals(
+                ((ExpressionSymbol) Iterables.getOnlyElement(pfn)).key(),
                 new KeySymbol("foo"));
-        Assert.assertEquals(
-                ((Expression) Iterables.getOnlyElement(pfn)).values().get(0),
-                new ValueSymbol("bar"));
-        Assert.assertEquals(
-                ((Expression) Iterables.getOnlyElement(pfn)).values().get(1),
-                new ValueSymbol("baz"));
+        Assert.assertEquals(((ExpressionSymbol) Iterables.getOnlyElement(pfn))
+                .values().get(0), new ValueSymbol("bar"));
+        Assert.assertEquals(((ExpressionSymbol) Iterables.getOnlyElement(pfn))
+                .values().get(1), new ValueSymbol("baz"));
         Assert.assertEquals(
                 ((Expression) Iterables.getOnlyElement(pfn)).operator(),
                 new OperatorSymbol(
@@ -976,7 +959,8 @@ public abstract class ParserTest {
         String ccl = "location = 'Atlanta (HQ)'";
         Parser parser = createParser(ccl);
         Assert.assertEquals("Atlanta (HQ)",
-                ((Expression) parser.order().poll()).raw().values().get(0));
+                ((ExpressionSymbol) parser.order().poll()).raw().values()
+                        .get(0));
     }
 
     @Test
@@ -998,6 +982,20 @@ public abstract class ParserTest {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(Tag.create("17")).build();
         Parser parser = createParser(criteria.getCclString());
+        List<Symbol> tokens = parser.tokenize();
+        for (Symbol token : tokens) {
+            if(token instanceof ValueSymbol) {
+                Assert.assertEquals(Tag.class,
+                        ((ValueSymbol) token).value().getClass());
+            }
+        }
+    }
+
+    @Test
+    public void testParseNonNumericTag() {
+        Criteria criteria = Criteria.where().key("foo")
+                .operator(Operator.EQUALS).value(Tag.create("bar")).build();
+        Parser parser = createParser(criteria.ccl());
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
@@ -1032,8 +1030,10 @@ public abstract class ParserTest {
         for (Symbol symbol : parser.tokenize()) {
             if(symbol instanceof ValueSymbol) {
                 ValueSymbol $symbol = (ValueSymbol) symbol;
-                Assert.assertEquals(Timestamp.class, $symbol.value().getClass());
-                Assert.assertTrue($symbol.value().equals(start) || $symbol.value().equals(end));
+                Assert.assertEquals(Timestamp.class,
+                        $symbol.value().getClass());
+                Assert.assertTrue($symbol.value().equals(start)
+                        || $symbol.value().equals(end));
                 ++count;
             }
         }
