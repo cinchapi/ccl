@@ -1430,16 +1430,16 @@ public class JavaCCParserLogicTest {
         Criteria criteria = Criteria.where()
                 .group(Criteria.where().key("_")
                         .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
-                        .value("org.internx.model.data.user.Student"))
+                        .value(Tag.create("org.internx.model.data.user.Student")))
                 .and()
                 .group(Criteria.where()
                         .group(Criteria.where().key("group").operator(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS)
-                                .value(Tag.create("Accounting")))
+                                .value(Tag.create("Accounting And Business/management")))
                         .or()
                         .group(Criteria.where().key("major").operator(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS)
-                                .value(Tag.create("accounting"))));
+                                .value(Tag.create("accounting and business/management"))));
         System.out.println(criteria.ccl());
 
         // Generate tree
