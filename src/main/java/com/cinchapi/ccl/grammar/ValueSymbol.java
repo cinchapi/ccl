@@ -50,10 +50,6 @@ public final class ValueSymbol extends BaseSymbol {
                     .toString();
         }
         else if(value.getClass().getName()
-                .equals("com.cinchapi.concourse.Tag")) {
-            return AnyStrings.format("`{}`", value);
-        }
-        else if(value.getClass().getName()
                 .equals("com.cinchapi.concourse.Timestamp")) {
             // NOTE: See com.cinchapi.concourse.util.Convert to see the
             // conventions for the way that a Timestamp is parsed from a long
