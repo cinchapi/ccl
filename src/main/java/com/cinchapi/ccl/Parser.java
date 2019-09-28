@@ -282,22 +282,8 @@ public abstract class Parser {
      * @param ccl the CCL statement
      * @param data the data to use for binding local variables
      * @return a list of {@link Symbol} tokens
-     * @deprecated use {@link #tokens()} instead
      */
-    @Deprecated
-    public List<Symbol> tokenize() {
-        return tokens();
-    }
-    
-    /**
-     * Convert a CCL statement to a list of {@link Symbol} tokens and bind any
-     * local variables using the provided {@code data}.
-     * 
-     * @param ccl the CCL statement
-     * @param data the data to use for binding local variables
-     * @return a list of {@link Symbol} tokens
-     */
-    public abstract List<Symbol> tokens();
+    public abstract List<Symbol> tokenize();
 
     @Override
     public String toString() {
