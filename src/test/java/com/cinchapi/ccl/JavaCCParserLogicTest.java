@@ -1420,26 +1420,29 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         parser.tokenize().forEach(token -> {
             if(token instanceof ValueSymbol) {
-                Assert.assertEquals(String.class, ((ValueSymbol) token).value().getClass());
+                Assert.assertEquals(String.class,
+                        ((ValueSymbol) token).value().getClass());
             }
         });
     }
-    
+
     @Test
     public void testReproIX5B() {
         Criteria criteria = Criteria.where()
                 .group(Criteria.where().key("_")
                         .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
-                        .value(Tag.create("org.internx.model.data.user.Student")))
+                        .value(Tag
+                                .create("org.internx.model.data.user.Student")))
                 .and()
-                .group(Criteria.where()
-                        .group(Criteria.where().key("group").operator(
-                                com.cinchapi.concourse.thrift.Operator.EQUALS)
-                                .value(Tag.create("Accounting And Business/management")))
+                .group(Criteria.where().group(Criteria.where().key("group")
+                        .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                        .value(Tag
+                                .create("Accounting And Business/management")))
                         .or()
                         .group(Criteria.where().key("major").operator(
                                 com.cinchapi.concourse.thrift.Operator.EQUALS)
-                                .value(Tag.create("accounting and business/management"))));
+                                .value(Tag.create(
+                                        "accounting and business/management"))));
         System.out.println(criteria.ccl());
 
         // Generate tree
@@ -1448,7 +1451,8 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         parser.tokenize().forEach(token -> {
             if(token instanceof ValueSymbol) {
-                Assert.assertEquals(Tag.class, ((ValueSymbol) token).value().getClass());
+                Assert.assertEquals(Tag.class,
+                        ((ValueSymbol) token).value().getClass());
             }
         });
     }
