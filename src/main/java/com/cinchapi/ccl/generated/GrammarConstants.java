@@ -137,6 +137,8 @@ public interface GrammarConstants {
     "<DIGIT>",
     "\".\"",
     "\"\\n\"",
+    "\"_\"",
+    "\"=\"",
   };
 
 }
