@@ -305,8 +305,10 @@ if (jjtc001) {
         break;
         }
       case REGEX:
-      case NOT_REGEX:{
-        operator = RegexOperator();
+      case NOT_REGEX:
+      case LIKE:
+      case NOT_LIKE:{
+        operator = RegexBasedOperator();
         value1 = RegexValue();
         timestamp = Timestamp();
         break;
@@ -929,7 +931,7 @@ value = word.image;
     throw new Error("Missing return statement in function");
 }
 
-  final public OperatorSymbol RegexOperator() throws ParseException {Token operator;
+  final public OperatorSymbol RegexBasedOperator() throws ParseException {Token operator;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case REGEX:{
       operator = jj_consume_token(REGEX);
@@ -937,6 +939,14 @@ value = word.image;
       }
     case NOT_REGEX:{
       operator = jj_consume_token(NOT_REGEX);
+      break;
+      }
+    case LIKE:{
+      operator = jj_consume_token(LIKE);
+      break;
+      }
+    case NOT_LIKE:{
+      operator = jj_consume_token(NOT_LIKE);
       break;
       }
     default:
@@ -1305,7 +1315,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x80000088,0x1c0c00,0x80000000,0x80000080,0x80000080,0x0,0x78000000,0x8000000,0x80000000,0x78000000,0x78000000,0x80000000,0x81000000,0x80000018,0x0,0x78000000,0x8000000,0x80000000,0x78000000,0x78000000,0x80000000,0x81000000,0x180000,0x81000000,0x81000000,0x20,};
+	   jj_la1_0 = new int[] {0x40,0x40,0x200,0x100,0x80000088,0x7c0c00,0x80000000,0x80000080,0x80000080,0x0,0x78000000,0x8000000,0x80000000,0x78000000,0x78000000,0x80000000,0x81000000,0x80000018,0x0,0x78000000,0x8000000,0x80000000,0x78000000,0x78000000,0x80000000,0x81000000,0x780000,0x81000000,0x81000000,0x20,};
 	}
 	private static void jj_la1_init_1() {
 	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x1e,0x0,0x1e,0xe,0x1e,0x1e,0x0,0x0,0x2,0x0,0x0,0x3e,0x3e,0x183e,0xe,0x0,0x0,0x2,0x0,0x0,0x3e,0x3e,0x0,0x2e,0x2e,0x0,};

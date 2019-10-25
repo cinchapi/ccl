@@ -117,7 +117,7 @@ TOKEN [IGNORE_CASE]:
 
 TOKEN [IGNORE_CASE]:
 {
-  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> | <LIKE> | <NOT_LIKE> >
+  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> >
 |
   < BINARY_OPERATOR: <BETWEEN> >
 |
@@ -139,9 +139,9 @@ TOKEN [IGNORE_CASE]:
 |
   < NOT_REGEX: "nregex" | "not_regex" >
 |
-  < #LIKE: "like" >
+  < LIKE: "like" >
 |
-  < #NOT_LIKE: "nlike" | "not_like" >
+  < NOT_LIKE: "nlike" | "not_like" >
 |
   < #BETWEEN: "><" | "bw" | "between" >
 }
@@ -235,7 +235,7 @@ void RelationalExpression() #Expression :
       (
         operator=LinksToOperator() value1=LinksToValue() timestamp=Timestamp()
       |
-        operator=RegexOperator() value1=RegexValue() timestamp=Timestamp()
+        operator=RegexBasedOperator() value1=RegexValue() timestamp=Timestamp()
       |
         operator=UnaryOperator() value1=UnaryValue() timestamp=Timestamp()
       |
@@ -424,12 +424,12 @@ OperatorSymbol LinksToOperator() :
   operator=<LINKS_TO> { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
-OperatorSymbol RegexOperator() :
+OperatorSymbol RegexBasedOperator() :
 {
   Token operator;
 }
 {
-  (operator=<REGEX> | operator=<NOT_REGEX>) { return new OperatorSymbol(transformOperator(operator.image)); }
+  (operator=<REGEX> | operator=<NOT_REGEX> | operator=<LIKE> | operator =<NOT_LIKE>) { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 OperatorSymbol UnaryOperator() :
