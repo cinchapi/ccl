@@ -19,11 +19,12 @@ import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.Parser;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.Expression;
-import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
@@ -59,14 +60,34 @@ public class JavaCCParserLogicTest {
         // Build expected queue
         List<Object> expectedTokens = Lists.newArrayList();
 
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
+
+        // Generate queue
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testSingleBinaryExpressionTokenize() {
+        String ccl = "a >< 1 3";
+
+        // Build expected queue
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("><")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -83,24 +104,17 @@ public class JavaCCParserLogicTest {
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
 
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
         expectedTokens.add(ConjunctionSymbol.AND);
-
-        key = new KeySymbol("b");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
+        expectedTokens.add(new KeySymbol("b"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -117,24 +131,17 @@ public class JavaCCParserLogicTest {
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
 
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
         expectedTokens.add(ConjunctionSymbol.OR);
-
-        key = new KeySymbol("b");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
+        expectedTokens.add(new KeySymbol("b"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -151,34 +158,23 @@ public class JavaCCParserLogicTest {
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
 
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
         expectedTokens.add(ConjunctionSymbol.AND);
-
-        key = new KeySymbol("b");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("b"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
         expectedTokens.add(ConjunctionSymbol.AND);
-
-        key = new KeySymbol("c");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
+        expectedTokens.add(new KeySymbol("c"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -195,34 +191,23 @@ public class JavaCCParserLogicTest {
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
 
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
         expectedTokens.add(ConjunctionSymbol.OR);
-
-        key = new KeySymbol("b");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("b"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
         expectedTokens.add(ConjunctionSymbol.OR);
-
-        key = new KeySymbol("c");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
+        expectedTokens.add(new KeySymbol("c"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -239,34 +224,23 @@ public class JavaCCParserLogicTest {
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
 
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
         expectedTokens.add(ConjunctionSymbol.AND);
-
-        key = new KeySymbol("b");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("b"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
         expectedTokens.add(ConjunctionSymbol.OR);
-
-        key = new KeySymbol("c");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
+        expectedTokens.add(new KeySymbol("c"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -283,34 +257,23 @@ public class JavaCCParserLogicTest {
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
 
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
         expectedTokens.add(ConjunctionSymbol.OR);
-
-        key = new KeySymbol("b");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("b"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
         expectedTokens.add(ConjunctionSymbol.AND);
-
-        key = new KeySymbol("c");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
+        expectedTokens.add(new KeySymbol("c"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -321,63 +284,31 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
-    public void testSingleExpressionPostFix() {
-        String ccl = "a = 1";
-
-        // Build expected queue
-        Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
-
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        Expression expression = new Expression(key, operator, value);
-        expectedOrder.add(expression);
-
-        // Generate queue
-        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        Queue<PostfixNotationSymbol> order = parser.order();
-
-        Assert.assertEquals(expectedOrder, order);
-    }
-
-    @Test
     public void testDisjunctionParenthesizedConjunctionTokenize() {
-        String ccl = "a = 1 or (b = 2 and c = 3)";
+        String ccl = "a = 1 and (b = 2 or c = 3)";
 
         // Build expected queue
         List<Symbol> expectedTokens = Lists.newArrayList();
 
-        KeySymbol key = new KeySymbol("a");
-        OperatorSymbol operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        ValueSymbol value = new ValueSymbol(
-                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
-        expectedTokens.add(ConjunctionSymbol.OR);
-
-        key = new KeySymbol("b");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
-
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
         expectedTokens.add(ConjunctionSymbol.AND);
-
-        key = new KeySymbol("c");
-        operator = new OperatorSymbol(
-                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
-        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3"));
-        expectedTokens.add(key);
-        expectedTokens.add(operator);
-        expectedTokens.add(value);
+        expectedTokens.add(ParenthesisSymbol.LEFT);
+        expectedTokens.add(new KeySymbol("b"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2")));
+        expectedTokens.add(ConjunctionSymbol.OR);
+        expectedTokens.add(new KeySymbol("c"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("3")));
+        expectedTokens.add(ParenthesisSymbol.RIGHT);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -671,6 +602,24 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
+    public void testSingleBinaryExpressionAbstractSyntaxTree() {
+        String ccl = "a >< 1 2";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Expression expression = (Expression) tree.root();
+        Assert.assertEquals("a", expression.key().toString());
+        Assert.assertEquals("><", expression.operator().toString());
+        Assert.assertEquals("1", expression.values().get(0).toString());
+        Assert.assertEquals("2", expression.values().get(1).toString());
+    }
+
+    @Test
     public void testSingleConjunctionAbstractSyntaxTree() {
         String ccl = "a = 1 and b = 2";
 
@@ -876,19 +825,22 @@ public class JavaCCParserLogicTest {
         Expression rightLeftExpression = (Expression) (rightNode.left()).root();
         Assert.assertEquals("b", rightLeftExpression.key().toString());
         Assert.assertEquals("=", rightLeftExpression.operator().toString());
-        Assert.assertEquals("2", rightLeftExpression.values().get(0).toString());
+        Assert.assertEquals("2",
+                rightLeftExpression.values().get(0).toString());
 
         // Right right node
         Assert.assertTrue(rightNode.right() instanceof ExpressionTree);
-        Expression rightRightExpression = (Expression) (rightNode.right()).root();
+        Expression rightRightExpression = (Expression) (rightNode.right())
+                .root();
         Assert.assertEquals("c", rightRightExpression.key().toString());
         Assert.assertEquals("=", rightRightExpression.operator().toString());
-        Assert.assertEquals("3", rightRightExpression.values().get(0).toString());
+        Assert.assertEquals("3",
+                rightRightExpression.values().get(0).toString());
     }
 
     @Test
     public void testDisjunctionParenthesizedConjunctionAbstractSyntaxTree() {
-        String ccl = "a = 1 or (b = 2 and c = 3)";
+        String ccl = "a = 1 and (b = 2 or c = 3)";
 
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
@@ -896,7 +848,7 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof OrTree);
+        Assert.assertTrue(tree instanceof AndTree);
         ConjunctionTree rootNode = (ConjunctionTree) tree;
 
         // Left node
@@ -907,7 +859,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("1", leftExpression.values().get(0).toString());
 
         // Right node
-        Assert.assertTrue(rootNode.right() instanceof AndTree);
+        Assert.assertTrue(rootNode.right() instanceof OrTree);
         ConjunctionTree rightNode = (ConjunctionTree) rootNode.right();
 
         // Right left node
@@ -947,7 +899,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("Lebron James",
+        Assert.assertEquals("\"Lebron James\"",
                 expression.values().get(0).toString());
     }
 
@@ -970,8 +922,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("$name",
-                expression.values().get(0).toString());
+        Assert.assertEquals("$name", expression.values().get(0).toString());
     }
 
     @Test
@@ -979,8 +930,7 @@ public class JavaCCParserLogicTest {
         String ccl = "name = \"Javier Lores\"";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -989,7 +939,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("Javier Lores",
+        Assert.assertEquals("\"Javier Lores\"",
                 expression.values().get(0).toString());
     }
 
@@ -998,8 +948,7 @@ public class JavaCCParserLogicTest {
         String ccl = "name = “Javier Lores”";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1008,7 +957,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("Javier Lores",
+        Assert.assertEquals("\"Javier Lores\"",
                 expression.values().get(0).toString());
     }
 
@@ -1017,8 +966,7 @@ public class JavaCCParserLogicTest {
         String ccl = "name = \"Javier \\\"Lores\"";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1027,7 +975,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("Javier \"Lores",
+        Assert.assertEquals("'Javier \"Lores'",
                 expression.values().get(0).toString());
     }
 
@@ -1036,8 +984,7 @@ public class JavaCCParserLogicTest {
         String ccl = "name = \"Javier \\\"\\@Lores\"";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1046,7 +993,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("Javier \"\\@Lores",
+        Assert.assertEquals("'Javier \"\\@Lores'",
                 expression.values().get(0).toString());
     }
 
@@ -1055,8 +1002,7 @@ public class JavaCCParserLogicTest {
         String ccl = "name = \\$name";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1065,8 +1011,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("$name",
-                expression.values().get(0).toString());
+        Assert.assertEquals("$name", expression.values().get(0).toString());
     }
 
     @Test
@@ -1074,8 +1019,7 @@ public class JavaCCParserLogicTest {
         String ccl = "name = \\@name";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1084,8 +1028,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("@name",
-                expression.values().get(0).toString());
+        Assert.assertEquals("@name", expression.values().get(0).toString());
     }
 
     @Test
@@ -1093,8 +1036,7 @@ public class JavaCCParserLogicTest {
         String ccl = "name -> 30";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1103,8 +1045,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("LINKS_TO", expression.operator().toString());
-        Assert.assertEquals("30",
-                expression.values().get(0).toString());
+        Assert.assertEquals("30", expression.values().get(0).toString());
     }
 
     @Test
@@ -1112,8 +1053,7 @@ public class JavaCCParserLogicTest {
         String ccl = "name LINKS_TO 30";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1122,8 +1062,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("LINKS_TO", expression.operator().toString());
-        Assert.assertEquals("30",
-                expression.values().get(0).toString());
+        Assert.assertEquals("30", expression.values().get(0).toString());
     }
 
     @Test
@@ -1131,8 +1070,7 @@ public class JavaCCParserLogicTest {
         String ccl = "mother.children = 3";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1141,8 +1079,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("mother.children", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("3",
-                expression.values().get(0).toString());
+        Assert.assertEquals("3", expression.values().get(0).toString());
     }
 
     @Test
@@ -1150,18 +1087,17 @@ public class JavaCCParserLogicTest {
         String ccl = "mother.mother.siblings = 3";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
         Assert.assertTrue(tree instanceof ExpressionTree);
         Expression expression = (Expression) tree.root();
-        Assert.assertEquals("mother.mother.siblings", expression.key().toString());
+        Assert.assertEquals("mother.mother.siblings",
+                expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("3",
-                expression.values().get(0).toString());
+        Assert.assertEquals("3", expression.values().get(0).toString());
     }
 
     @Test
@@ -1169,8 +1105,7 @@ public class JavaCCParserLogicTest {
         String ccl = "mother = a.b.c";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1179,8 +1114,7 @@ public class JavaCCParserLogicTest {
         Expression expression = (Expression) tree.root();
         Assert.assertEquals("mother", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
-        Assert.assertEquals("a.b.c",
-                expression.values().get(0).toString());
+        Assert.assertEquals("a.b.c", expression.values().get(0).toString());
     }
 
     @Test
@@ -1188,8 +1122,7 @@ public class JavaCCParserLogicTest {
         String ccl = "$id$ != 40";
 
         // Generate tree
-        Parser parser = Parser.create(ccl,
-                PARSER_TRANSFORM_VALUE_FUNCTION,
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
         AbstractSyntaxTree tree = parser.parse();
 
@@ -1200,7 +1133,7 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("!=", expression.operator().toString());
         Assert.assertEquals("40", expression.values().get(0).toString());
     }
-    
+
     @Test
     public void testReproIX5A() {
         Criteria criteria = Criteria.where()
@@ -1265,13 +1198,15 @@ public class JavaCCParserLogicTest {
      * The canonical function to transform strings to java values in a
      * {@link Parser}.
      */
-    public final Function<String, Object> PARSER_TRANSFORM_VALUE_FUNCTION = value -> Convert.stringToJava(value);
+    public final Function<String, Object> PARSER_TRANSFORM_VALUE_FUNCTION = value -> Convert
+            .stringToJava(value);
 
     /**
      * The canonical function to transform strings to operators in a
      * {@link Parser}.
      */
-    public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert.stringToOperator(operator);
+    public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert
+            .stringToOperator(operator);
 
     /**
      *
