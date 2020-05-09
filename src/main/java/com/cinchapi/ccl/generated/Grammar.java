@@ -630,7 +630,6 @@ if(value.charAt(0) == '$') {
     else {
         value = value.replace("\\@", "@");
     }
-
     {if ("" != null) return new ValueSymbol(transformValue(value));}
         break;
         }
@@ -1002,12 +1001,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     finally { jj_save(7, xla); }
   }
 
-  private boolean jj_3R_7()
- {
-    if (jj_scan_token(COMMA_SEPARATED_SIGNED_INTEGER)) return true;
-    return false;
-  }
-
   private boolean jj_3_7()
  {
     Token xsp;
@@ -1100,27 +1093,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     return false;
   }
 
-  private boolean jj_3_1()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(33)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(34)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(31)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(35)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(36)) return true;
-    }
-    }
-    }
-    }
-    if (jj_scan_token(PIPE)) return true;
-    return false;
-  }
-
   private boolean jj_3_4()
  {
     Token xsp;
@@ -1144,6 +1116,27 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     return false;
   }
 
+  private boolean jj_3_1()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(33)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(34)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(31)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(35)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(36)) return true;
+    }
+    }
+    }
+    }
+    if (jj_scan_token(PIPE)) return true;
+    return false;
+  }
+
   private boolean jj_3_5()
  {
     if (jj_scan_token(ALPHANUMERIC)) return true;
@@ -1152,6 +1145,12 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
   }
 
   private boolean jj_3R_8()
+ {
+    if (jj_scan_token(COMMA_SEPARATED_SIGNED_INTEGER)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_7()
  {
     if (jj_scan_token(COMMA_SEPARATED_SIGNED_INTEGER)) return true;
     return false;

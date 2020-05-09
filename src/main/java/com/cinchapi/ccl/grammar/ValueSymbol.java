@@ -32,7 +32,7 @@ public class ValueSymbol extends ValueTokenSymbol<Object> {
      * {@link #escape(Object)} function.
      */
     private static Character[] STRING_CHARACTERS_THAT_MUST_BE_QUOTED = Array
-            .containing('='); // CON-672
+            .containing('=', ' '); // CON-672, CCL-21
 
     /**
      * Do any escaping of the {@code value} in order to preserve it during the
@@ -71,7 +71,7 @@ public class ValueSymbol extends ValueTokenSymbol<Object> {
             long micros = Reflection.call(value, "getMicros"); // (Authorized)
             return AnyStrings.format("|{}|", micros);
         }
-        else if(value instanceof String) { // CON-672
+        else if(value instanceof String) {
             return AnyStrings.ensureWithinQuotesIfNeeded((String) value,
                     STRING_CHARACTERS_THAT_MUST_BE_QUOTED);
         }
