@@ -1,7 +1,61 @@
 # Changelog
 
-#### Version 2.6.2
-* Fixed a bug that cause the `v2` parser to fail when trying to parse a CCL statement that contained unquoted string values with periods.
+#### Version 3.0.0 (TBD)
+##### Function Statements
+In version `3.0.0` we added support for **function statements**.
+
+###### *Background*
+###### Functions in Concourse
+In Concourse, a function is an operation that is applied to a collection of values; values that can be retrived from a key stored in one or more records. Concourse functions be expressed in the following ways:
+* `function(key)` - applied to every value stored for key in every record
+* `function(key, records)` - applied to every value stored for key in each of the `records`
+* `function(key, ccl/criteria)` - applied to every value stored for key in each of the records that match the `ccl` or `criteria`.
+* `function(key, record)` - applied to every value stored for key in the `record`
+
+###### Expressions in CCL
+In CCL, the notion of an `expression` is core. A `Condition` is really just one or more expressions that are logically joined together in a manner that expresses clear evaluation precedence.
+
+An expression, generally takes the form:
+```
+<key> <operator> <values>
+```
+
+So, in the context of a database query like `select(<key1>, "<key2> <operator> <value>")`, `key2` and `key1` are both keys, but they have different roles in the operation. In this scenario, `key2` isn't returned to the caller, but is part of the *evaluation* expression. So, we call `key2` an **evaluation key**. On the other hand, `key1` doesn't play a role in *evaluation*, but is an *artifact* of the operation. So, we call this a **operation key**. As you can imahine, in more complex examples, a key can play both roles. 
+
+Similar to an **evaluation key**, a value that is part of an expression plays the role of **evaluation value**.
+
+##### Functions in CCL
+The roles **evaluation key** and **evaluation value** are important for understanding how functions work in CCL. Conceptually the value(s) of an expression's `evaluation key` are retrieved and considered in relation to the expression's `operator` and `evaluation values` to determine if the record satisfies the expression. And since functions return a value, you can imagine using a function statement as either am evaluation key or an evaluation value.
+
+In a programming language this would be easy, but in CCL it is possible with caveats due to language ambiguity. To understand these challenges, consider the question: *who's average score is greater than the average of all scores?*. 
+
+This question could be answered by issuing a database query of the form `find("{evaluation key} > {evaluation value}")`. In this case, we know that the evaluation value should be `average(score)` since we want to compare against the average of all scores. Now, our query looks like `find("{evaluation key} > average(score)")`. 
+
+But confusion abounds when we consider how to express selecting the average score of each record that is being evaluated. Concourse functions support providing an explicit record or records, but, in CCL, we don't know which records are being evaluated. To get around this, we created **implicit function** syntax that uses the pipe character (e.g. `|`) to indicate that an operation should only be applied to the key in the record that is currently being evaluated. So, our complete query would look like `find("score | average > average(score)")`.
+
+In an effort to avoid any ambiguity, we've adopted the following conventions:
+* An **implicit function** statement can only be used as an evaluation key and never an evaluation value
+* All other function statements can be used as an evaluation value but never as an evlauation key.
+
+|                        | Operation Key | Evaluation Key | Evaluation Value |
+|------------------------|---------------|----------------|------------------|
+| `function(key)`          | NO            | NO             | YES              |
+| `function(key, records)` | NO            | NO             | YES              |
+| `function(key, record)`  | NO            | NO             | YES              |
+| `function(key, ccl)`     | NO            | NO             | YES              |
+| `key \| function`             | YES           | YES            | NO               |
+
+##### API Breaks
+* The `Expression` symbol has been deprecated and renamed `ExpressionSymbol` for clarity.
+* The deprecated `ConcourseParser` has been removed. We will no longer distinguish the current parser as `v2` since it is the only one.
+* Renamed the `com.cinchapi.ccl.v2.generated` package to `com.cinchapi.ccl.generated`.
+
+#### Version 2.6.3 (May 9, 2020)
+* Fixed a bug that caused non-numeric Tags to be erroneously parsed and transformed into symbols containing String values instead of Tag values
+* Fixed a bug that caused Strings or String-like values that contained a `=` (equals sign) character to not be properly quoted in a `ValueSymbol`.
+
+#### Version 2.6.2 (August 20, 2019)
+* Fixed a bug that caused the `v2` parser to fail when trying to parse a CCL statement that contained unquoted string values with periods.
 
 #### Version 2.6.1 (July 20, 2019)
 * Fixed a bug that caused a `ValueSymbol` containing a `Timestamp` value to be written in a CCL format that could not be re-parsed by a CCL parser. This bug cased a `SyntaxException` to thrown when attempting to tokenize a CCL statement generated by a Criteria that contained any `Timestamp` values.
