@@ -30,6 +30,8 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.concourse.Tag;
+import com.cinchapi.concourse.lang.Criteria;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
@@ -1197,6 +1199,66 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("$id$", expression.key().toString());
         Assert.assertEquals("!=", expression.operator().toString());
         Assert.assertEquals("40", expression.values().get(0).toString());
+    }
+    
+    @Test
+    public void testReproIX5A() {
+        Criteria criteria = Criteria.where()
+                .group(Criteria.where().key("_")
+                        .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                        .value("org.internx.model.data.user.Student"))
+                .and()
+                .group(Criteria.where()
+                        .group(Criteria.where().key("group").operator(
+                                com.cinchapi.concourse.thrift.Operator.LIKE)
+                                .value("%Accounting And Business/management%"))
+                        .or()
+                        .group(Criteria.where().key("major").operator(
+                                com.cinchapi.concourse.thrift.Operator.LIKE)
+                                .value("%accounting and business/management%")));
+        System.out.println(criteria.ccl());
+
+        // Generate tree
+        Parser parser = Parser.create(criteria.ccl(),
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        parser.tokenize().forEach(token -> {
+            if(token instanceof ValueSymbol) {
+                Assert.assertEquals(String.class,
+                        ((ValueSymbol) token).value().getClass());
+            }
+        });
+    }
+
+    @Test
+    public void testReproIX5B() {
+        Criteria criteria = Criteria.where()
+                .group(Criteria.where().key("_")
+                        .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                        .value(Tag
+                                .create("org.internx.model.data.user.Student")))
+                .and()
+                .group(Criteria.where().group(Criteria.where().key("group")
+                        .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                        .value(Tag
+                                .create("Accounting And Business/management")))
+                        .or()
+                        .group(Criteria.where().key("major").operator(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS)
+                                .value(Tag.create(
+                                        "accounting and business/management"))));
+        System.out.println(criteria.ccl());
+
+        // Generate tree
+        Parser parser = Parser.create(criteria.ccl(),
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        parser.tokenize().forEach(token -> {
+            if(token instanceof ValueSymbol) {
+                Assert.assertEquals(Tag.class,
+                        ((ValueSymbol) token).value().getClass());
+            }
+        });
     }
 
     /**
