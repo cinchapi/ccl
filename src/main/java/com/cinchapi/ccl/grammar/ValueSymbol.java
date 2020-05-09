@@ -16,6 +16,7 @@
 package com.cinchapi.ccl.grammar;
 
 import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.common.base.Array;
 import com.cinchapi.common.reflect.Reflection;
 
 /**
@@ -24,6 +25,14 @@ import com.cinchapi.common.reflect.Reflection;
  * @author Jeff Nelson
  */
 public class ValueSymbol extends ValueTokenSymbol<Object> {
+
+    /**
+     * A list of characters that, when contained within a string or string-like
+     * value, necessitate the need for the value to be quoted in the
+     * {@link #escape(Object)} function.
+     */
+    private static Character[] STRING_CHARACTERS_THAT_MUST_BE_QUOTED = Array
+            .containing('=', ' '); // CON-672, CCL-21
 
     /**
      * Do any escaping of the {@code value} in order to preserve it during the
@@ -61,6 +70,10 @@ public class ValueSymbol extends ValueTokenSymbol<Object> {
             // wrapped in vertical bars.
             long micros = Reflection.call(value, "getMicros"); // (Authorized)
             return AnyStrings.format("|{}|", micros);
+        }
+        else if(value instanceof String) {
+            return AnyStrings.ensureWithinQuotesIfNeeded((String) value,
+                    STRING_CHARACTERS_THAT_MUST_BE_QUOTED);
         }
         else {
             return value;

@@ -50,8 +50,9 @@ In an effort to avoid any ambiguity, we've adopted the following conventions:
 * The deprecated `ConcourseParser` has been removed. We will no longer distinguish the current parser as `v2` since it is the only one.
 * Renamed the `com.cinchapi.ccl.v2.generated` package to `com.cinchapi.ccl.generated`.
 
-#### Version 2.6.3 (TBD)
+##### Version 2.6.3 (May 9, 2020)
 * Fixed a bug that caused non-numeric Tags to be erroneously parsed and transformed into symbols containing String values instead of Tag values
+* Fixed a bug that caused Strings or String-like values that contained an `=` (equals sign) or whitespace character to not be properly quoted in a `ValueSymbol`.
 
 #### Version 2.6.2 (August 20, 2019)
 * Fixed a bug that caused the `v2` parser to fail when trying to parse a CCL statement that contained unquoted string values with periods.
