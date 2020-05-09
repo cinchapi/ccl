@@ -958,7 +958,7 @@ public abstract class ParserTest {
                         .value("Cinchapi").or().key("company")
                         .operator(Operator.EQUALS).value("Blavity"))
                 .build();
-        String ccl = criteria.getCclString();
+        String ccl = criteria.ccl();
         Parser parser = createParser(ccl);
         List<Symbol> symbols = parser.tokenize();
         Assert.assertEquals(Lists.newArrayList(new KeySymbol("name"),
@@ -983,7 +983,7 @@ public abstract class ParserTest {
     public void testParseNumericString() {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value("17").build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
@@ -997,7 +997,7 @@ public abstract class ParserTest {
     public void testParseNumericTag() {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(Tag.create("17")).build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
@@ -1011,7 +1011,7 @@ public abstract class ParserTest {
     public void testParseNonNumericTag() {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(Tag.create("bar")).build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
@@ -1025,7 +1025,7 @@ public abstract class ParserTest {
     public void testParseNumericNumber() {
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.EQUALS).value(17).build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         List<Symbol> tokens = parser.tokenize();
         for (Symbol token : tokens) {
             if(token instanceof ValueSymbol) {
@@ -1041,7 +1041,7 @@ public abstract class ParserTest {
         Timestamp end = Timestamp.now();
         Criteria criteria = Criteria.where().key("foo")
                 .operator(Operator.BETWEEN).value(start).value(end).build();
-        Parser parser = createParser(criteria.getCclString());
+        Parser parser = createParser(criteria.ccl());
         int count = 0;
         for (Symbol symbol : parser.tokenize()) {
             if(symbol instanceof ValueSymbol) {
