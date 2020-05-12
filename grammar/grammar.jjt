@@ -347,8 +347,11 @@ ValueTokenSymbol RegexValue() :
   String value = "";
 }
 {
-  (LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=") { value += word.image; })+
-  { return new ValueSymbol(transformValue(value)); }
+    (LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=") { value += word.image; })+
+    { return new ValueSymbol(transformValue(value)); }
+  |
+    (word=<QUOTED_STRING>)
+    { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 }
 
 ValueTokenSymbol BinaryValue() :
