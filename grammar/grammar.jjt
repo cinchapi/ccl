@@ -117,7 +117,7 @@ TOKEN [IGNORE_CASE]:
 
 TOKEN [IGNORE_CASE]:
 {
-  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> | <REGEX> | <NOT_REGEX> | <LIKE> | <NOT_LIKE> >
+  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> >
 |
   < BINARY_OPERATOR: <BETWEEN> >
 |
@@ -135,13 +135,13 @@ TOKEN [IGNORE_CASE]:
 |
   < LINKS_TO: "->" | "lnks2" | "lnk2" | "links_to" >
 |
-  < #REGEX: "regex" >
+  < REGEX: "regex" >
 |
-  < #NOT_REGEX: "nregex" | "not_regex" >
+  < NOT_REGEX: "nregex" | "not_regex" >
 |
-  < #LIKE: "like" >
+  < LIKE: "like" >
 |
-  < #NOT_LIKE: "nlike" | "not_like" >
+  < NOT_LIKE: "nlike" | "not_like" >
 |
   < #BETWEEN: "><" | "bw" | "between" >
 }
@@ -235,6 +235,8 @@ void RelationalExpression() #Expression :
     key=Key()
       (
         operator=LinksToOperator() value1=LinksToValue() timestamp=Timestamp()
+      |
+        operator=RegexBasedOperator() value1=RegexValue() timestamp=Timestamp()
       |
         operator=UnaryOperator() value1=UnaryValue() timestamp=Timestamp()
       |
@@ -339,6 +341,19 @@ ValueTokenSymbol LinksToValue() :
   { return new ValueSymbol(transformValue(word.image)); }
 }
 
+ValueTokenSymbol RegexValue() :
+{
+  Token word;
+  String value = "";
+}
+{
+    (LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=") { value += word.image; })+
+    { return new ValueSymbol(transformValue(value)); }
+  |
+    (word=<QUOTED_STRING>)
+    { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+}
+
 ValueTokenSymbol BinaryValue() :
 {
   Token function;
@@ -410,6 +425,14 @@ OperatorSymbol LinksToOperator() :
 }
 {
   operator=<LINKS_TO> { return new OperatorSymbol(transformOperator(operator.image)); }
+}
+
+OperatorSymbol RegexBasedOperator() :
+{
+  Token operator;
+}
+{
+  (operator=<REGEX> | operator=<NOT_REGEX> | operator=<LIKE> | operator =<NOT_LIKE>) { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 OperatorSymbol UnaryOperator() :

@@ -359,6 +359,24 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void validRegex() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name nregex (?i:%jeff%)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validLike() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name like (?i:%jeff%)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     @Test (expected = ParseException.class)
     public void missingKeyExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "= 1";
