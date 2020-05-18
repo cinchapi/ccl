@@ -64,7 +64,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      * @param grammar the grammar
      * @param id the id
      */
-    public ASTRelationalExpression(CriteriaGrammar grammar, int id) {
+    public ASTExpression(CriteriaGrammar grammar, int id) {
         super(grammar, id);
     }
 

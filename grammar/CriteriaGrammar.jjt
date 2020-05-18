@@ -58,12 +58,12 @@ public class CriteriaGrammar {
     private Multimap<String, Object> data;
     private Function<String, Object> valueTransformFunction;
     private Function<String, Operator> operatorTransformFunction;
-    private GrammarVisitor visitor;
+    private CriteriaGrammarVisitor visitor;
 
     public CriteriaGrammar(java.io.InputStream stream,
                 Function<String, Object> valueTransformFunction,
                 Function<String, Operator> operatorTransformFunction,
-                GrammarVisitor visitor) {
+                CriteriaGrammarVisitor visitor) {
         this(stream, null);
         this.data = null;
         this.valueTransformFunction = valueTransformFunction;
@@ -75,7 +75,7 @@ public class CriteriaGrammar {
                 Function<String, Object> valueTransformFunction,
                 Function<String, Operator> operatorTransformFunction,
                 Multimap<String, Object> data,
-                GrammarVisitor visitor) {
+                CriteriaGrammarVisitor visitor) {
         this(stream, null);
         this.data = data;
         this.valueTransformFunction = valueTransformFunction;

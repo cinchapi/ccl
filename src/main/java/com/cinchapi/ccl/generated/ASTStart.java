@@ -21,7 +21,7 @@ public class ASTStart extends SimpleNode{
      * @param data the data
      * @return
      */
-    public Object jjtAccept(GrammarVisitor visitor, Object data) {
+    public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
 }
