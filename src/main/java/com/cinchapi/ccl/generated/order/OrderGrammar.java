@@ -35,6 +35,8 @@ public class OrderGrammar/*@bgen(jjtree)*/implements OrderGrammarTreeConstants, 
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case OPEN_ANGLE_BRACKET:
         case CLOSE_ANGLE_BRACKET:
+        case ASC:
+        case DESC:
         case SIGNED_DECIMAL:
         case NUMERIC:
         case ALPHANUMERIC:
@@ -85,6 +87,8 @@ if (jjtc000) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case OPEN_ANGLE_BRACKET:
         case CLOSE_ANGLE_BRACKET:
+        case ASC:
+        case DESC:
         case SIGNED_DECIMAL:
         case NUMERIC:
         case ALPHANUMERIC:
@@ -139,11 +143,12 @@ if (jjtc000) {
         key = Key();
         break;
         }
+      case ASC:
+      case DESC:
       case SIGNED_DECIMAL:
       case NUMERIC:
       case ALPHANUMERIC:
       case PERIOD_SEPARATED_STRING:{
-        key = Key();
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case ASC:
         case DESC:{
@@ -154,6 +159,7 @@ if (jjtc000) {
           jj_la1[2] = jj_gen;
           ;
         }
+        key = Key();
         break;
         }
       default:
@@ -320,7 +326,7 @@ if (jjtc000) {
 	   jj_la1_init_0();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0xf060,0xf060,0x180,0xf060,0x8,0x2200,0x10,0x60,0x180,0xf000,};
+	   jj_la1_0 = new int[] {0xf1e0,0xf1e0,0x180,0xf1e0,0x8,0x2200,0x10,0x60,0x180,0xf000,};
 	}
 
   /** Constructor with InputStream. */

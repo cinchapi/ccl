@@ -137,7 +137,7 @@ public class JavaCCParser extends Parser {
             };
 
 
-            CriteriaGrammar grammar = new CriteriGarammar(stream, valueTransformFunction,
+            CriteriaGrammar grammar = new CriteriaGrammar(stream, valueTransformFunction,
                     operatorTransformFunction, data, visitor);
             ASTStart start = grammar.generateAST();
 
@@ -145,7 +145,7 @@ public class JavaCCParser extends Parser {
                     null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 
@@ -196,7 +196,7 @@ public class JavaCCParser extends Parser {
             return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 
@@ -283,7 +283,7 @@ public class JavaCCParser extends Parser {
             return (List<Symbol>) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 
