@@ -43,6 +43,10 @@ public class OrderClause {
         specifications.add(orderSpecification);
     }
 
+    public List<OrderSpecification> spec() {
+        return specifications;
+    }
+
     @Override
     public String toString() {
         return StringUtils.join(specifications, " ");

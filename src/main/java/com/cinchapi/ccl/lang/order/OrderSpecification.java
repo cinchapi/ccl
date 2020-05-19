@@ -15,7 +15,7 @@
  */
 package com.cinchapi.ccl.lang.order;
 
-import com.cinchapi.ccl.v3.Timestamp;
+import com.cinchapi.concourse.Timestamp;
 
 public class OrderSpecification {
     private String key;
@@ -32,5 +32,22 @@ public class OrderSpecification {
         this.key = key;
         this.timestamp = Timestamp.now();
         this.direction = direction;
+    }
+
+    public String key() {
+        return key;
+    }
+
+    public Timestamp timestamp() {
+        return timestamp;
+    }
+
+    public Direction direction() {
+        return direction;
+    }
+
+    @Override
+    public String toString() {
+        return key + " " + timestamp.toString() + " " + direction.toString();
     }
 }

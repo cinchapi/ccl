@@ -120,7 +120,7 @@ void Order() #Order :
   (
     direction=SymbolicDirection() key=Key()
   |
-    key=Key() (direction=WordDirection())?
+    (direction=WordDirection())? key=Key()
   )
   (<AMPERSAND> (timestampNumber=TimestampNumber() | (timestampString=TimestampString() (<PIPE> timestampFormat=TimestampFormat())?)))?
   { jjtThis.direction(direction);

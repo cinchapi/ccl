@@ -18,7 +18,7 @@ package com.cinchapi.ccl.v2.generated.order;
 import com.cinchapi.ccl.lang.order.Direction;
 import com.cinchapi.ccl.lang.order.OrderClause;
 import com.cinchapi.ccl.lang.order.OrderSpecification;
-import com.cinchapi.ccl.v3.Timestamp;
+import com.cinchapi.concourse.Timestamp;
 
 /**
  * A visitor pattern implementation of {@link OrderGrammarVisitor} that
@@ -62,7 +62,8 @@ public class OrderGrammarBasicVisitor implements OrderGrammarVisitor
      * @return the expression tree
      */
     public Object visit(ASTOrder node, Object data) {
-        if (node.orderComponent() == null || node.orderComponent().equalsIgnoreCase("<")) {
+        if (node.direction() == null || node.direction().equalsIgnoreCase("<")
+                || node.direction().equalsIgnoreCase("ASC")) {
             if(node.timestampNumber() != null) {
                 long number = Long.valueOf(node.timestampNumber());
                 this.clause.add(new OrderSpecification(node.key(),
