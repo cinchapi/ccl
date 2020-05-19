@@ -196,7 +196,7 @@ public class JavaCCParser extends Parser {
             return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 

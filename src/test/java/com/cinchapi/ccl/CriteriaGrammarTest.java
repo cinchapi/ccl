@@ -15,7 +15,7 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.Parser;
+import com.cinchapi.ccl.generated.CriteriaGrammar;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
@@ -25,14 +25,13 @@ import com.cinchapi.ccl.generated.ASTAnd;
 import com.cinchapi.ccl.generated.ASTExpression;
 import com.cinchapi.ccl.generated.ASTOr;
 import com.cinchapi.ccl.generated.ASTStart;
-import com.cinchapi.ccl.generated.GrammarVisitor;
+import com.cinchapi.ccl.generated.CriteriaGrammarVisitor;
 import com.cinchapi.ccl.generated.SimpleNode;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.junit.Test;
 
-import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.ParseException;
 
 import java.io.ByteArrayInputStream;
@@ -42,16 +41,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
 /**
- * Tests for {@link Grammar}
+ * Tests for {@link CriteriaGrammar}
  */
-public class GrammarTest {
+public class CriteriaGrammarTest {
 
     @Test
     public void validUnaryOperatorSingleWordValueExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -61,7 +60,7 @@ public class GrammarTest {
         String ccl = "a = 1 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -71,7 +70,7 @@ public class GrammarTest {
         String ccl = "a >< 1 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -81,7 +80,7 @@ public class GrammarTest {
         String ccl = "friends | avg > 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -91,7 +90,7 @@ public class GrammarTest {
         String ccl = "age > avg(age)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -101,7 +100,7 @@ public class GrammarTest {
         String ccl = "age > avg(age, 1)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -111,7 +110,7 @@ public class GrammarTest {
         String ccl = "age bw avg(age) 1000";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -121,7 +120,7 @@ public class GrammarTest {
         String ccl = "age bw avg(age, age > 10) 1000";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -131,7 +130,7 @@ public class GrammarTest {
         String ccl = "age > avg(age, 1, 2)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -141,7 +140,7 @@ public class GrammarTest {
         String ccl = "age > avg(age, age < 30)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -151,7 +150,7 @@ public class GrammarTest {
         String ccl = "age | avg > avg(age, age < 30)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -161,7 +160,7 @@ public class GrammarTest {
         String ccl = "a >< 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -171,7 +170,7 @@ public class GrammarTest {
         String ccl = "a >< 1 2 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -181,7 +180,7 @@ public class GrammarTest {
         String ccl = "a = 1 at today";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -191,7 +190,7 @@ public class GrammarTest {
         String ccl = "$id$ != 40";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -201,7 +200,7 @@ public class GrammarTest {
         String ccl = "a = 1 on last christmas";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -211,7 +210,7 @@ public class GrammarTest {
         String ccl = "a = 1 at";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -221,7 +220,7 @@ public class GrammarTest {
         String ccl = "name = \"name\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -230,7 +229,7 @@ public class GrammarTest {
     public void singleLeftAndRightQuotation() throws UnsupportedEncodingException, ParseException {
         String ccl = "name = ‘name’";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -240,7 +239,7 @@ public class GrammarTest {
         String ccl = "name = \"wood\\\"ford\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -252,7 +251,7 @@ public class GrammarTest {
         data.put("name", "Lebron James");
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, data, visitor);
         grammar.generateAST();
     }
@@ -262,7 +261,7 @@ public class GrammarTest {
         String ccl = "name = \\$name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -272,7 +271,7 @@ public class GrammarTest {
         String ccl = "name = @name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -282,7 +281,7 @@ public class GrammarTest {
         String ccl = "name = \\@name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -291,7 +290,7 @@ public class GrammarTest {
     public void validLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "a -> 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -300,7 +299,7 @@ public class GrammarTest {
     public void validConjunctionExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 and b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -309,7 +308,7 @@ public class GrammarTest {
     public void validDisjunctionExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 or b = 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -318,7 +317,7 @@ public class GrammarTest {
     public void validParenthesizedExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = 1 or (b = 2 and c = 3)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -327,7 +326,7 @@ public class GrammarTest {
     public void operatorEnum() throws UnsupportedEncodingException, ParseException {
         String ccl = "a LINKS_TO 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -336,7 +335,7 @@ public class GrammarTest {
     public void validNavigationKeyAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
         String ccl = "a.b = 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -345,7 +344,7 @@ public class GrammarTest {
     public void validLongNavigationKeyAsEvaluationKey() throws UnsupportedEncodingException, ParseException {
         String ccl = "a.b.c.d = 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -354,7 +353,7 @@ public class GrammarTest {
     public void validPeriodSeparatedValue() throws UnsupportedEncodingException, ParseException {
         String ccl = "a = a.b.c";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -363,7 +362,7 @@ public class GrammarTest {
     public void validRegex() throws UnsupportedEncodingException, ParseException {
         String ccl = "name nregex (?i:%jeff%)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -372,7 +371,7 @@ public class GrammarTest {
     public void validLike() throws UnsupportedEncodingException, ParseException {
         String ccl = "name like (?i:%jeff%)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -382,7 +381,7 @@ public class GrammarTest {
         String ccl = "= 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -392,7 +391,7 @@ public class GrammarTest {
         String ccl = "a =";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -402,7 +401,7 @@ public class GrammarTest {
         String ccl = "a 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -412,7 +411,7 @@ public class GrammarTest {
         String ccl = "a = 1 and";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -422,7 +421,7 @@ public class GrammarTest {
         String ccl = "and a = 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -431,7 +430,7 @@ public class GrammarTest {
     public void invalidLink() throws UnsupportedEncodingException, ParseException {
         String ccl = "a LINKS_TO b";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
@@ -449,7 +448,7 @@ public class GrammarTest {
      */
     public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert.stringToOperator(operator);
 
-    public final GrammarVisitor visitor = new GrammarVisitor() {
+    public final CriteriaGrammarVisitor visitor = new CriteriaGrammarVisitor() {
         @Override
         public Object visit(SimpleNode node, Object data) {
             System.out.println(node + ": acceptor not unimplemented in subclass?");

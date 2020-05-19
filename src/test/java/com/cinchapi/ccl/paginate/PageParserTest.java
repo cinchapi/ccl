@@ -28,8 +28,7 @@ public class PageParserTest {
     static final String NUMBER = "number";
     static final String SIZE = "size";
 
-    @Test
-    public void testWithNumber() {
+    @Test public void testWithNumber() {
         int number = 3;
         StringBuilder builder = new StringBuilder();
         builder.append(NUMBER);
@@ -45,8 +44,7 @@ public class PageParserTest {
         Assert.assertEquals(expected, actual);
     }
 
-    @Test
-    public void testWithNumberAndSize() {
+    @Test public void testWithNumberAndSize() {
         int number = 3;
         int size = 1;
         StringBuilder builder = new StringBuilder();
@@ -67,8 +65,7 @@ public class PageParserTest {
         Assert.assertEquals(expected, actual);
     }
 
-    @Test
-    public void testWithSize() {
+    @Test public void testWithSize() {
         int size = 3;
         StringBuilder builder = new StringBuilder();
         builder.append(SIZE);
@@ -84,8 +81,7 @@ public class PageParserTest {
         Assert.assertEquals(expected, actual);
     }
 
-    @Test
-    public void testWithSizeAndNumber() {
+    @Test public void testWithSizeAndNumber() {
         int size = 1;
         int number = 3;
         StringBuilder builder = new StringBuilder();
@@ -105,3 +101,4 @@ public class PageParserTest {
 
         Assert.assertEquals(expected, actual);
     }
+}
