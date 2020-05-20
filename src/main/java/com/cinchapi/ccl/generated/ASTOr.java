@@ -37,7 +37,7 @@ public class ASTOr extends SimpleNode {
      * @param grammar the grammar
      * @param id the id
      */
-    public ASTOr(CriteriaGrammar grammar, int id) {
+    public ASTOr(Grammar grammar, int id) {
         super(grammar, id);
     }
 
@@ -61,7 +61,7 @@ public class ASTOr extends SimpleNode {
      * @param data the data
      * @return the result of the visit
      */
-    public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data) {
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
 }

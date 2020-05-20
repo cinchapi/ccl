@@ -20,7 +20,6 @@ import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
-import com.cinchapi.ccl.generated.CriteriaGrammar;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -65,7 +64,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      * @param grammar the grammar
      * @param id the id
      */
-    public ASTExpression(CriteriaGrammar grammar, int id) {
+    public ASTExpression(Grammar grammar, int id) {
         super(grammar, id);
     }
 
@@ -100,7 +99,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      * @param data the data
      * @return the result of the visit
      */
-    public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data) {
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
 

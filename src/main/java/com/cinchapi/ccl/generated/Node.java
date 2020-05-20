@@ -36,6 +36,6 @@ interface Node {
   public int getId();
 
   /** Accept the visitor. **/
-  public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data);
+  public Object jjtAccept(GrammarVisitor visitor, Object data);
 }
 /* JavaCC - OriginalChecksum=7e67f646460a5768d751ed0486a05cd0 (do not edit this line) */

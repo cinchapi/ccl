@@ -9,13 +9,13 @@ class SimpleNode implements Node {
   protected Node[] children;
   protected int id;
   protected Object value;
-  protected CriteriaGrammar parser;
+  protected Grammar parser;
 
   public SimpleNode(int i) {
     id = i;
   }
 
-  public SimpleNode(CriteriaGrammar p, int i) {
+  public SimpleNode(Grammar p, int i) {
     this(i);
     parser = p;
   }
@@ -52,13 +52,13 @@ class SimpleNode implements Node {
   public Object jjtGetValue() { return value; }
 
   /** Accept the visitor. **/
-  public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data)
+  public Object jjtAccept(GrammarVisitor visitor, Object data)
 {
     return visitor.visit(this, data);
   }
 
   /** Accept the visitor. **/
-  public Object childrenAccept(CriteriaGrammarVisitor visitor, Object data)
+  public Object childrenAccept(GrammarVisitor visitor, Object data)
 {
     if (children != null) {
       for (int i = 0; i < children.length; ++i) {
@@ -75,7 +75,7 @@ class SimpleNode implements Node {
      you need to do. */
 
   public String toString() {
-    return CriteriaGrammarTreeConstants.jjtNodeName[id];
+    return GrammarTreeConstants.jjtNodeName[id];
   }
   public String toString(String prefix) { return prefix + toString(); }
 
