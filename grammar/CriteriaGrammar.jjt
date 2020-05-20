@@ -193,7 +193,7 @@ TOKEN :
 ASTStart StartCommandLine() #Start : {}
 {
    (
-     (<WHERE>)? DisjunctionExpression() "\n"
+     (<WHERE>)? DisjunctionExpression() (Page())? "\n"
    |
      Page() "\n"
    )
@@ -203,7 +203,7 @@ ASTStart StartCommandLine() #Start : {}
 ASTStart generateAST() #Start : {}
 {
    (
-     (<WHERE>)? DisjunctionExpression() <EOF>
+     (<WHERE>)? DisjunctionExpression() (Page())? <EOF>
    |
      Page() <EOF>
    )

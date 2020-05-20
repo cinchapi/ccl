@@ -511,6 +511,16 @@ public class CriteriaGrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void validUnaryOperatorWithPage() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 1 number 1 size 3";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        CriteriaGrammar grammar = new CriteriaGrammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     // String constants
     static final String NUMBER = "number";
     static final String SIZE = "size";

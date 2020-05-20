@@ -1549,6 +1549,55 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals(expectedOrder, order);
     }
 
+    @Test
+    public void testWithSizeAndNumberAST() {
+        int size = 1;
+        int number = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        builder.append(" ");
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        String input = builder.toString();
+
+        // Build expected queue
+        Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
+
+        expectedOrder.add(new PageSymbol(String.valueOf(number),
+                String.valueOf(size)));
+
+        // Generate queue
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Queue<PostfixNotationSymbol> order = parser.order();
+
+        Assert.assertEquals(expectedOrder, order);
+    }
+
+    @Test
+    public void testSingleExpressionTokenizeWithPage() {
+        String ccl = "a = 1 number 1 size 3";
+
+        // Build expected queue
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
+        expectedTokens.add(new PageSymbol("1", "3"));
+
+        // Generate queue
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
 
     @Test
     public void testJsonReservedIdentifier() {
