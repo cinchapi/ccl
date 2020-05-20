@@ -15,11 +15,13 @@
  */
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.generated.ASTPage;
 import com.cinchapi.ccl.generated.CriteriaGrammar;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.generated.ASTAnd;
 import com.cinchapi.ccl.generated.ASTExpression;
@@ -435,6 +437,84 @@ public class CriteriaGrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void testWithNumber() throws UnsupportedEncodingException, ParseException {
+        int number = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        String input = builder.toString();
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        CriteriaGrammar grammar = new CriteriaGrammar(stream,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testWithNumberAndSize() throws UnsupportedEncodingException, ParseException {
+        int number = 3;
+        int size = 1;
+        StringBuilder builder = new StringBuilder();
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        builder.append(" ");
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        String input = builder.toString();
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        CriteriaGrammar grammar = new CriteriaGrammar(stream,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testWithSize() throws UnsupportedEncodingException, ParseException {
+        int size = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        String input = builder.toString();
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        CriteriaGrammar grammar = new CriteriaGrammar(stream,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testWithSizeAndNumber() throws UnsupportedEncodingException, ParseException {
+        int size = 1;
+        int number = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        builder.append(" ");
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        String input = builder.toString();
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        CriteriaGrammar grammar = new CriteriaGrammar(stream,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // String constants
+    static final String NUMBER = "number";
+    static final String SIZE = "size";
+
     /**
      * The canonical function to transform strings to java values in a
      * {@link Parser}.
@@ -479,6 +559,11 @@ public class CriteriaGrammarTest {
         @Override
         public Object visit(ASTExpression node, Object data) {
             return new ExpressionTree(node);
+        }
+
+        @Override
+        public Object visit(ASTPage node, Object data) {
+            return new PageTree(node.page());
         }
     };
 

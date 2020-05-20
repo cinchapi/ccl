@@ -21,6 +21,7 @@ import java.util.Queue;
 
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.PageTree;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -1062,6 +1063,14 @@ public abstract class ParserTest {
             @SuppressWarnings("unchecked")
             @Override
             public Queue<Symbol> visit(ExpressionTree tree, Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                queue.add(tree.root());
+                return queue;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<Symbol> visit(PageTree tree, Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
                 queue.add(tree.root());
                 return queue;

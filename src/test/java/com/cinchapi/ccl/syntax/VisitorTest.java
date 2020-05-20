@@ -67,7 +67,12 @@ public class VisitorTest {
                         .toString().equals("value"));
                 return data;
             }
-            
+
+            @Override
+            public Object visit(PageTree tree, Object... data) {
+                return data;
+            }
+
         };
         tree.accept(visitor);
     }

@@ -22,6 +22,7 @@ import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
@@ -1419,6 +1420,137 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
+    public void testWithNumber() {
+        int number = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        String input = builder.toString();
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new PageSymbol(String.valueOf(number),
+                null));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testWithNumberAndSize() {
+        int number = 3;
+        int size = 1;
+        StringBuilder builder = new StringBuilder();
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        builder.append(" ");
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        String input = builder.toString();
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new PageSymbol(String.valueOf(number),
+                String.valueOf(size)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testWithSize() {
+        int size = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        String input = builder.toString();
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new PageSymbol(null,
+                String.valueOf(size)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testWithSizeAndNumber() {
+        int size = 1;
+        int number = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        builder.append(" ");
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        String input = builder.toString();
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new PageSymbol(String.valueOf(number),
+                String.valueOf(size)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testWithSizeAndNumberQueue() {
+        int size = 1;
+        int number = 3;
+        StringBuilder builder = new StringBuilder();
+        builder.append(SIZE);
+        builder.append(" ");
+        builder.append(size);
+        builder.append(" ");
+        builder.append(NUMBER);
+        builder.append(" ");
+        builder.append(number);
+        String input = builder.toString();
+
+        // Build expected queue
+        Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
+
+        expectedOrder.add(new PageSymbol(String.valueOf(number),
+                String.valueOf(size)));
+
+        // Generate queue
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Queue<PostfixNotationSymbol> order = parser.order();
+
+        Assert.assertEquals(expectedOrder, order);
+    }
+
+
+    @Test
     public void testJsonReservedIdentifier() {
         String ccl = "$id$ != 40";
 
@@ -1450,7 +1582,6 @@ public class JavaCCParserLogicTest {
                         .group(Criteria.where().key("major").operator(
                                 com.cinchapi.concourse.thrift.Operator.LIKE)
                                 .value("%accounting and business/management%")));
-        System.out.println(criteria.ccl());
 
         // Generate tree
         Parser parser = Parser.create(criteria.ccl(),
@@ -1481,7 +1612,6 @@ public class JavaCCParserLogicTest {
                                 com.cinchapi.concourse.thrift.Operator.EQUALS)
                                 .value(Tag.create(
                                         "accounting and business/management"))));
-        System.out.println(criteria.ccl());
 
         // Generate tree
         Parser parser = Parser.create(criteria.ccl(),
@@ -1494,6 +1624,10 @@ public class JavaCCParserLogicTest {
             }
         });
     }
+
+    // String constants
+    static final String NUMBER = "number";
+    static final String SIZE = "size";
 
     /**
      * The canonical function to transform strings to java values in a
