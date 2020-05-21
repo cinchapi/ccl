@@ -17,16 +17,21 @@ package com.cinchapi.ccl;
 
 import com.cinchapi.ccl.JavaCCParser;
 import com.cinchapi.ccl.Parser;
+import com.cinchapi.ccl.generated.CriteriaGrammar;
+import com.cinchapi.ccl.generated.ParseException;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.lang.order.Direction;
+import com.cinchapi.ccl.lang.order.OrderSpecification;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
@@ -38,6 +43,7 @@ import com.cinchapi.ccl.type.function.KeyCclFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
 import com.cinchapi.concourse.Tag;
+import com.cinchapi.concourse.Timestamp;
 import com.cinchapi.concourse.lang.Criteria;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
@@ -46,6 +52,10 @@ import com.google.common.collect.Multimap;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -1436,6 +1446,382 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
+    public void testKey(){
+        String input = "order age";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyAscendingSymbol() {
+        String input = "order < age";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyAscendingWord() {
+        String input = "order age ASC";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyDescendingSymbol() {
+        String input = "order > age";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Direction.DESCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyDescendingWord() {
+        String input = "order age DESC";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Direction.DESCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithNumberTimestamp() {
+        String input = "order age @ " + String.valueOf(122L);
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.fromMicros(122L),
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithStringTimestamp() {
+        String input = "order age @ \"1992-10-02\"";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.fromString("1992-10-02"),
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithStringAndFormatTimestamp() {
+        String input = "order age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.parse("1992-10-02", "yyyy-mm-dd"),
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithNumberTimestampAscending() {
+        String input = "order < age @ " + String.valueOf(122L);
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.fromMicros(122L),
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithStringTimestampAscending() {
+        String input = "order < age @ \"1992-10-02\"";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.fromString("1992-10-02"),
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithStringAndFormatTimestampAscending() {
+        String input = "order < age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.parse("1992-10-02", "yyyy-mm-dd"),
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithNumberTimestampDescending() {
+        String input = "order > age @ " + String.valueOf(122L);
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.fromMicros(122L),
+                Direction.DESCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithStringTimestampDescending() {
+        String input = "order > age @ \"1992-10-02\"";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.fromString("1992-10-02"),
+                Direction.DESCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testKeyWithStringAndFormatTimestampDescending() {
+        String input = "order > age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Timestamp.parse("1992-10-02", "yyyy-mm-dd"),
+                Direction.DESCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testMultipleKeys() {
+        String input = "order age salary";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Direction.ASCENDING)));
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("salary",
+                Direction.ASCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testMultipleKeysWithDirectional() {
+        String input = "order < age > salary";
+
+        // Build expected list
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+                Direction.ASCENDING)));
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("salary",
+                Direction.DESCENDING)));
+
+        // Generate list
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testSingleExpressionWithOrderTokenize() {
+        String ccl = "a = 1 order a";
+
+        // Build expected queue
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("a",
+                Direction.ASCENDING)));
+
+        // Generate queue
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testSingleConjunctionWithOrderPostFix() {
+        String ccl = "a = 1 and b = 2 order a";
+
+        // Build expected queue
+        Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
+
+        KeySymbol key = new KeySymbol("a");
+        OperatorSymbol operator = new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
+        ValueSymbol value = new ValueSymbol(
+                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator,
+                value);
+        expectedOrder.add(expression);
+
+        key = new KeySymbol("b");
+        operator = new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
+        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
+        expression = ExpressionSymbol.create(key, operator, value);
+        expectedOrder.add(expression);
+
+        expectedOrder.add(ConjunctionSymbol.AND);
+        expectedOrder.add(new OrderSymbol(new OrderSpecification("a",
+                Direction.ASCENDING)));
+
+        // Generate queue
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Queue<PostfixNotationSymbol> order = parser.order();
+
+        Assert.assertEquals(expectedOrder, order);
+    }
+
+    @Test
+    public void testSingleExpressionWithOrderAbstractSyntaxTree() {
+        String ccl = "a = 1 order a";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("a", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("1", expression.values().get(0).toString());
+    }
+
+    @Test
     public void testReproIX5A() {
         Criteria criteria = Criteria.where()
                 .group(Criteria.where().key("_")
@@ -1450,7 +1836,6 @@ public class JavaCCParserLogicTest {
                         .group(Criteria.where().key("major").operator(
                                 com.cinchapi.concourse.thrift.Operator.LIKE)
                                 .value("%accounting and business/management%")));
-        System.out.println(criteria.ccl());
 
         // Generate tree
         Parser parser = Parser.create(criteria.ccl(),
@@ -1481,7 +1866,6 @@ public class JavaCCParserLogicTest {
                                 com.cinchapi.concourse.thrift.Operator.EQUALS)
                                 .value(Tag.create(
                                         "accounting and business/management"))));
-        System.out.println(criteria.ccl());
 
         // Generate tree
         Parser parser = Parser.create(criteria.ccl(),

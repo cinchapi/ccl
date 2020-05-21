@@ -33,6 +33,7 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
@@ -405,6 +406,11 @@ public abstract class Parser {
                 }
             }
             return matches;
+        }
+
+        @Override
+        public Boolean visit(OrderTree tree, Object... data) {
+            return true;
         }
 
     }

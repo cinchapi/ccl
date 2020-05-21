@@ -18,6 +18,7 @@ package com.cinchapi.ccl.type.function;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.Visitor;
 
 /**
@@ -53,6 +54,12 @@ public class KeyCclFunction
 
             @Override
             public String visit(ExpressionTree tree, Object... data) {
+                string += " " + tree.root().toString();
+                return string;
+            }
+
+            @Override
+            public String visit(OrderTree tree, Object... data) {
                 string += " " + tree.root().toString();
                 return string;
             }

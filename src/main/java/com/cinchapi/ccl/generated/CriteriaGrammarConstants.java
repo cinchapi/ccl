@@ -29,65 +29,77 @@ public interface CriteriaGrammarConstants {
   /** RegularExpression Id. */
   int BINARY_OPERATOR = 11;
   /** RegularExpression Id. */
-  int EQUALS = 12;
+  int OPEN_ANGLE_BRACKET = 12;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 13;
+  int CLOSE_ANGLE_BRACKET = 13;
   /** RegularExpression Id. */
-  int GREATER_THAN = 14;
+  int EQUALS = 14;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 15;
+  int NOT_EQUALS = 15;
   /** RegularExpression Id. */
-  int LESS_THAN = 16;
+  int GREATER_THAN = 16;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 17;
+  int GREATER_THAN_OR_EQUALS = 17;
   /** RegularExpression Id. */
-  int LINKS_TO = 18;
+  int LESS_THAN = 18;
   /** RegularExpression Id. */
-  int REGEX = 19;
+  int LESS_THAN_OR_EQUALS = 19;
   /** RegularExpression Id. */
-  int NOT_REGEX = 20;
+  int LINKS_TO = 20;
   /** RegularExpression Id. */
-  int LIKE = 21;
+  int REGEX = 21;
   /** RegularExpression Id. */
-  int NOT_LIKE = 22;
+  int NOT_REGEX = 22;
   /** RegularExpression Id. */
-  int BETWEEN = 23;
+  int LIKE = 23;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 24;
+  int NOT_LIKE = 24;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 25;
+  int BETWEEN = 25;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 26;
+  int ORDER = 26;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_INTEGER = 27;
+  int PIPE = 27;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_DECIMAL = 28;
+  int AMPERSAND = 28;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_ALPHANUMERIC = 29;
+  int ASC = 29;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 30;
+  int DESC = 30;
   /** RegularExpression Id. */
-  int NUMERIC = 31;
+  int QUOTED_STRING = 31;
   /** RegularExpression Id. */
-  int PIPE = 32;
+  int DOUBLE_QUOTED_STRING = 32;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 33;
+  int SINGLE_QUOTED_STRING = 33;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 34;
+  int COMMA_SEPARATED_SIGNED_INTEGER = 34;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 35;
+  int COMMA_SEPARATED_SIGNED_DECIMAL = 35;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 36;
+  int COMMA_SEPARATED_ALPHANUMERIC = 36;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 37;
+  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 37;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 38;
+  int NUMERIC = 38;
   /** RegularExpression Id. */
-  int LETTER = 39;
+  int SIGNED_INTEGER = 39;
   /** RegularExpression Id. */
-  int DIGIT = 40;
+  int SIGNED_DECIMAL = 40;
   /** RegularExpression Id. */
-  int PERIOD = 41;
+  int ALPHANUMERIC = 41;
+  /** RegularExpression Id. */
+  int PERIOD_SEPARATED_STRING = 42;
+  /** RegularExpression Id. */
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 43;
+  /** RegularExpression Id. */
+  int NON_ALPHANUMERIC = 44;
+  /** RegularExpression Id. */
+  int LETTER = 45;
+  /** RegularExpression Id. */
+  int DIGIT = 46;
+  /** RegularExpression Id. */
+  int PERIOD = 47;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -106,6 +118,8 @@ public interface CriteriaGrammarConstants {
     "<DISJUNCTION>",
     "<UNARY_OPERATOR>",
     "<BINARY_OPERATOR>",
+    "\"<\"",
+    "\">\"",
     "<EQUALS>",
     "<NOT_EQUALS>",
     "<GREATER_THAN>",
@@ -118,6 +132,11 @@ public interface CriteriaGrammarConstants {
     "\"like\"",
     "<NOT_LIKE>",
     "<BETWEEN>",
+    "\"order\"",
+    "\"|\"",
+    "\"@\"",
+    "\"ASC\"",
+    "\"DESC\"",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
     "<SINGLE_QUOTED_STRING>",
@@ -126,7 +145,6 @@ public interface CriteriaGrammarConstants {
     "<COMMA_SEPARATED_ALPHANUMERIC>",
     "<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>",
     "<NUMERIC>",
-    "\"|\"",
     "<SIGNED_INTEGER>",
     "<SIGNED_DECIMAL>",
     "<ALPHANUMERIC>",

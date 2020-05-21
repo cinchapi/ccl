@@ -26,5 +26,6 @@ public interface Visitor<T> {
     public T visit(ConjunctionTree tree, Object... data);
     
     public T visit(ExpressionTree tree, Object... data);
-    
+
+    public T visit(OrderTree tree, Object... data);
 }

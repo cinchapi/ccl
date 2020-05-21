@@ -15,10 +15,12 @@
  */
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.generated.ASTOrder;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.generated.ASTAnd;
 import com.cinchapi.ccl.generated.ASTExpression;
@@ -134,6 +136,12 @@ public class JavaCCParser extends Parser {
                     ((Queue<PostfixNotationSymbol>) data).add(node);
                     return data;
                 }
+
+                @Override
+                public Object visit(ASTOrder node, Object data) {
+                    ((Queue<PostfixNotationSymbol>) data).add(node.order());
+                    return data;
+                }
             };
 
 
@@ -186,6 +194,11 @@ public class JavaCCParser extends Parser {
                 @Override
                 public Object visit(ASTExpression node, Object data) {
                     return new ExpressionTree(node);
+                }
+
+                @Override
+                public Object visit(ASTOrder node, Object data) {
+                    return new OrderTree(node.order());
                 }
             };
 
@@ -272,6 +285,12 @@ public class JavaCCParser extends Parser {
                     if (node.timestamp() != null) {
                         ((List<Symbol>) data).add(node.timestamp());
                     }
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTOrder node, Object data) {
+                    ((List<Symbol>) data).add(node.order());
                     return data;
                 }
             };

@@ -170,11 +170,5 @@ task generateJavaCCParser(type: Exec) {
   commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/CriteriaGrammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/generated'
 }
 
-task generateJavaCCOrderParser(type: Exec) {
-  commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/OrderGrammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/generated/order'
-}
-
 compileJava.dependsOn generateJavaCCParser
 eclipseClasspath.dependsOn generateJavaCCParser
-compileJava.dependsOn generateJavaCCOrderParser
-eclipseClasspath.dependsOn generateJavaCCOrderParser

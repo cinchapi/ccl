@@ -8,6 +8,7 @@ public interface CriteriaGrammarTreeConstants
   public int JJTOR = 2;
   public int JJTAND = 3;
   public int JJTEXPRESSION = 4;
+  public int JJTORDER = 5;
 
 
   public String[] jjtNodeName = {
@@ -16,6 +17,7 @@ public interface CriteriaGrammarTreeConstants
     "Or",
     "And",
     "Expression",
+    "Order",
   };
 }
-/* JavaCC - OriginalChecksum=d3933dc1b334a074c9af2eecfb5798ca (do not edit this line) */
+/* JavaCC - OriginalChecksum=c64c46d16205dc1fa2482c2ec8de6c1e (do not edit this line) */

@@ -21,5 +21,8 @@ public class CriteriaGrammarDefaultVisitor implements CriteriaGrammarVisitor{
   public Object visit(ASTExpression node, Object data){
     return defaultVisit(node, data);
   }
+  public Object visit(ASTOrder node, Object data){
+    return defaultVisit(node, data);
+  }
 }
-/* JavaCC - OriginalChecksum=2a7cc16b990ff78537b6afb3f2737563 (do not edit this line) */
+/* JavaCC - OriginalChecksum=45aec9189d45a6393d0ee151eea9a56d (do not edit this line) */

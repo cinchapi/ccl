@@ -8,5 +8,6 @@ public interface CriteriaGrammarVisitor
   public Object visit(ASTOr node, Object data);
   public Object visit(ASTAnd node, Object data);
   public Object visit(ASTExpression node, Object data);
+  public Object visit(ASTOrder node, Object data);
 }
-/* JavaCC - OriginalChecksum=abb2debf2ea6112fc0f77bd930ed037a (do not edit this line) */
+/* JavaCC - OriginalChecksum=4cda9d3360e1534d042e2c98d41ec06c (do not edit this line) */

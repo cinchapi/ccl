@@ -16,6 +16,7 @@
 package com.cinchapi.ccl.lang.order;
 
 import com.cinchapi.concourse.Timestamp;
+import com.cinchapi.concourse.lang.sort.Order;
 
 public class OrderSpecification {
     private String key;
@@ -44,6 +45,26 @@ public class OrderSpecification {
 
     public Direction direction() {
         return direction;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof OrderSpecification) {
+            if (!key.equals(((OrderSpecification)obj).key)) {
+                return false;
+            }
+            else if (!timestamp.toString().equals(((OrderSpecification)obj)
+                    .timestamp.toString())) {
+                return false;
+            }
+            else if (!direction.equals(((OrderSpecification)obj).direction)) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
