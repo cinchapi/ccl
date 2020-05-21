@@ -22,6 +22,7 @@ import java.util.Queue;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.RootTree;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -1049,6 +1050,22 @@ public abstract class ParserTest {
     private void doTestAbstractSyntaxTreeGeneration(String ccl) {
         Parser parser = createParser(ccl);
         Visitor<Queue<Symbol>> visitor = new Visitor<Queue<Symbol>>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<Symbol> visit(RootTree tree,
+                    Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                if (tree.children().size() == 2) {
+                    tree.parseTree().accept(this, data);
+                    tree.pageTree().accept(this, data);
+                    return queue;
+                }
+                else {
+                    tree.parseTree().accept(this, data);
+                    return queue;
+                }
+            }
 
             @SuppressWarnings("unchecked")
             @Override

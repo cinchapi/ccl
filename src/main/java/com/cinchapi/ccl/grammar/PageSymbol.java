@@ -39,7 +39,7 @@ public class PageSymbol implements PostfixNotationSymbol {
             this.page = Page.number(Integer.parseInt(number));
         }
         else if (size != null & number != null) {
-            this.page = Page.number(Integer.parseInt(number)).size(Integer.parseInt(size));
+            this.page = Page.sized(Integer.parseInt(size)).go(Integer.parseInt(number));
         }
         else {
             this.page = Page.first();

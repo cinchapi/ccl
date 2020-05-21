@@ -19,6 +19,7 @@ import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.RootTree;
 import com.cinchapi.ccl.syntax.Visitor;
 
 /**
@@ -43,6 +44,13 @@ public class KeyCclFunction
     protected String _sourceToString() {
         return ((AbstractSyntaxTree) args[1]).accept(new Visitor<String>() {
             String string = "";
+
+            @Override
+            public String visit(RootTree tree, Object... data) {
+                tree.parseTree().accept(this, data);
+                tree.pageTree().accept(this, data);
+                return string;
+            }
 
             @Override
             public String visit(ConjunctionTree tree, Object... data) {

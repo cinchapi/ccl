@@ -481,9 +481,9 @@ void Page() #Page :
 }
 {
   (
-    (number=Number() (size=Size())?)
+    number=Number() (size=Size())?
   |
-    (size=Size() (number=Number())?)
+    size=Size() (number=Number())?
   )
   { jjtThis.page(new PageSymbol(number, size)); }
 }

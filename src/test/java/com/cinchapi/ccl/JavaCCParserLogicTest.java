@@ -31,6 +31,8 @@ import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.RootTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
@@ -1491,23 +1493,13 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testWithSizeAndNumberQueue() {
-        int size = 1;
-        int number = 3;
-        StringBuilder builder = new StringBuilder();
-        builder.append(SIZE);
-        builder.append(" ");
-        builder.append(size);
-        builder.append(" ");
-        builder.append(PAGE);
-        builder.append(" ");
-        builder.append(number);
-        String input = builder.toString();
+        String input = SIZE + " 1 " + PAGE + " 3";
 
         // Build expected queue
         Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
 
-        expectedOrder.add(new PageSymbol(String.valueOf(number),
-                String.valueOf(size)));
+        expectedOrder.add(new PageSymbol(String.valueOf(3),
+                String.valueOf(1)));
 
         // Generate queue
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1519,35 +1511,23 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testWithSizeAndNumberAST() {
-        int size = 1;
-        int number = 3;
-        StringBuilder builder = new StringBuilder();
-        builder.append(SIZE);
-        builder.append(" ");
-        builder.append(size);
-        builder.append(" ");
-        builder.append(PAGE);
-        builder.append(" ");
-        builder.append(number);
-        String input = builder.toString();
-
-        // Build expected queue
-        Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
-
-        expectedOrder.add(new PageSymbol(String.valueOf(number),
-                String.valueOf(size)));
+        String input = SIZE + " 1 " + PAGE + " 3";
 
         // Generate queue
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        Queue<PostfixNotationSymbol> order = parser.order();
+        AbstractSyntaxTree tree = parser.parse();
 
-        Assert.assertEquals(expectedOrder, order);
+        // Root node
+        Assert.assertTrue(tree instanceof PageTree);
+        PageSymbol page = (PageSymbol) tree.root();
+        Assert.assertEquals(2, page.page().offset());
+        Assert.assertEquals(1, page.page().limit());
     }
 
     @Test
     public void testSingleExpressionTokenizeWithPage() {
-        String ccl = "a = 1 page 1 size 3";
+        String ccl = "a = 1 " + SIZE + " 3 " + PAGE + " 1 ";
 
         // Build expected queue
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1565,6 +1545,30 @@ public class JavaCCParserLogicTest {
         List<Symbol> tokens = parser.tokenize();
 
         Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testSingleExpressionASTWithPage() {
+        String ccl = "a = 1 " + SIZE + " 1 " + PAGE + " 3 ";
+
+        // Generate queue
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof RootTree);
+        Assert.assertTrue(((RootTree) tree).parseTree() instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) (((RootTree) tree).parseTree().root());
+        Assert.assertEquals("a", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("1", expression.values().get(0).toString());
+
+        // Page Node
+        Assert.assertTrue(((RootTree) tree).pageTree() != null);
+        PageSymbol page = (PageSymbol)((RootTree) tree).pageTree().root();
+        Assert.assertEquals(2, page.page().offset());
+        Assert.assertEquals(1, page.page().limit());
     }
 
     @Test

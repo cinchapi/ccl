@@ -52,6 +52,11 @@ public class VisitorTest {
         // Test visitor
         Visitor<Object> visitor = new Visitor<Object>() {
             @Override
+            public Object visit(RootTree tree, Object... data) {
+                return data;
+            }
+
+            @Override
             public Object visit(ConjunctionTree tree, Object... data) {
                 Assert.assertTrue(tree instanceof AndTree);
                 return data;
