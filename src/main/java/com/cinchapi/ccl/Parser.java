@@ -35,6 +35,7 @@ import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.CommandTree;
+import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
@@ -426,6 +427,14 @@ public abstract class Parser {
             // May need more context.
             return true;
         }
+
+        @Override
+        public Boolean visit(OrderTree tree, Object... data) {
+            // TODO: implement and return true if data[0] fits within the page.
+            // May need more context.
+            return true;
+        }
+
     }
 
 }

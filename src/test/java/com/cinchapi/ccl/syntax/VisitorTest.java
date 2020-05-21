@@ -78,6 +78,10 @@ public class VisitorTest {
                 return data;
             }
 
+            @Override public Object visit(OrderTree tree, Object... data) {
+                return data;
+            }
+
         };
         tree.accept(visitor);
     }

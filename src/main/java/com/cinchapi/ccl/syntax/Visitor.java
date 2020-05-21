@@ -41,6 +41,8 @@ public interface Visitor<T> {
     
     public T visit(ExpressionTree tree, Object... data);
 
+    public T visit(OrderTree tree, Object... data);
+
     public T visit(PageTree tree, Object... data);
-    
+
 }

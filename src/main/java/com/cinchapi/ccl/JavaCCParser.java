@@ -15,14 +15,17 @@
  */
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.generated.ASTOrder;
 import com.cinchapi.ccl.generated.ASTPage;
 import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.type.Operator;
@@ -144,6 +147,12 @@ public class JavaCCParser extends Parser {
                     ((Queue<PostfixNotationSymbol>) data).add(node.page());
                     return data;
                 }
+
+                @Override
+                public Object visit(ASTOrder node, Object data) {
+                    ((Queue<PostfixNotationSymbol>) data).add(node.order());
+                    return data;
+                }
             };
 
 
@@ -208,6 +217,11 @@ public class JavaCCParser extends Parser {
                 @Override
                 public Object visit(ASTExpression node, Object data) {
                     return new ExpressionTree(node);
+                }
+
+                @Override
+                public Object visit(ASTOrder node, Object data) {
+                    return new OrderTree(node.order());
                 }
 
                 @Override
@@ -299,6 +313,12 @@ public class JavaCCParser extends Parser {
                     if (node.timestamp() != null) {
                         ((List<Symbol>) data).add(node.timestamp());
                     }
+                    return data;
+                }
+
+                @Override
+                public Object visit(ASTOrder node, Object data) {
+                    ((List<Symbol>) data).add(node.order());
                     return data;
                 }
 
