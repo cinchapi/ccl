@@ -94,7 +94,7 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
         }
         DisjunctionExpression();
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-        case NUMBER:
+        case PAGE:
         case SIZE:{
           Page();
           break;
@@ -106,7 +106,7 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
         jj_consume_token(44);
         break;
         }
-      case NUMBER:
+      case PAGE:
       case SIZE:{
         Page();
         jj_consume_token(44);
@@ -167,7 +167,7 @@ if (jjtc000) {
         }
         DisjunctionExpression();
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-        case NUMBER:
+        case PAGE:
         case SIZE:{
           Page();
           break;
@@ -179,7 +179,7 @@ if (jjtc000) {
         jj_consume_token(0);
         break;
         }
-      case NUMBER:
+      case PAGE:
       case SIZE:{
         Page();
         jj_consume_token(0);
@@ -1128,7 +1128,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
   String size = null;
     try {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case NUMBER:{
+      case PAGE:{
         number = Number();
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case SIZE:{
@@ -1144,7 +1144,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
       case SIZE:{
         size = Size();
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-        case NUMBER:{
+        case PAGE:{
           number = Number();
           break;
           }
@@ -1184,7 +1184,7 @@ if (jjtc000) {
 }
 
   final public String Number() throws ParseException {Token number;
-    jj_consume_token(NUMBER);
+    jj_consume_token(PAGE);
     number = jj_consume_token(NUMERIC);
 {if ("" != null) return number.image;}
     throw new Error("Missing return statement in function");

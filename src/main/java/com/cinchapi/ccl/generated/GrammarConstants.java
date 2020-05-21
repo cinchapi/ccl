@@ -53,7 +53,7 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int BETWEEN = 23;
   /** RegularExpression Id. */
-  int NUMBER = 24;
+  int PAGE = 24;
   /** RegularExpression Id. */
   int SIZE = 25;
   /** RegularExpression Id. */
@@ -122,7 +122,7 @@ public interface GrammarConstants {
     "\"like\"",
     "<NOT_LIKE>",
     "<BETWEEN>",
-    "\"number\"",
+    "\"page\"",
     "\"size\"",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",

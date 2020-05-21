@@ -15,8 +15,6 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.JavaCCParser;
-import com.cinchapi.ccl.Parser;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
@@ -1421,17 +1419,12 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testWithNumber() {
-        int number = 3;
-        StringBuilder builder = new StringBuilder();
-        builder.append(NUMBER);
-        builder.append(" ");
-        builder.append(number);
-        String input = builder.toString();
+        String input = PAGE + " 3";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(String.valueOf(number),
+        expectedTokens.add(new PageSymbol(String.valueOf(3),
                 null));
 
         // Generate list
@@ -1444,23 +1437,13 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testWithNumberAndSize() {
-        int number = 3;
-        int size = 1;
-        StringBuilder builder = new StringBuilder();
-        builder.append(NUMBER);
-        builder.append(" ");
-        builder.append(number);
-        builder.append(" ");
-        builder.append(SIZE);
-        builder.append(" ");
-        builder.append(size);
-        String input = builder.toString();
+        String input = SIZE + " 1 " + PAGE + " 3";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(String.valueOf(number),
-                String.valueOf(size)));
+        expectedTokens.add(new PageSymbol(String.valueOf(3),
+                String.valueOf(1)));
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1472,18 +1455,13 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testWithSize() {
-        int size = 3;
-        StringBuilder builder = new StringBuilder();
-        builder.append(SIZE);
-        builder.append(" ");
-        builder.append(size);
-        String input = builder.toString();
+        String input = SIZE + " 3";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
         expectedTokens.add(new PageSymbol(null,
-                String.valueOf(size)));
+                String.valueOf(3)));
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1495,23 +1473,13 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testWithSizeAndNumber() {
-        int size = 1;
-        int number = 3;
-        StringBuilder builder = new StringBuilder();
-        builder.append(SIZE);
-        builder.append(" ");
-        builder.append(size);
-        builder.append(" ");
-        builder.append(NUMBER);
-        builder.append(" ");
-        builder.append(number);
-        String input = builder.toString();
+        String input = SIZE + " 1 " + PAGE + " 3";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(String.valueOf(number),
-                String.valueOf(size)));
+        expectedTokens.add(new PageSymbol(String.valueOf(3),
+                String.valueOf(1)));
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1530,7 +1498,7 @@ public class JavaCCParserLogicTest {
         builder.append(" ");
         builder.append(size);
         builder.append(" ");
-        builder.append(NUMBER);
+        builder.append(PAGE);
         builder.append(" ");
         builder.append(number);
         String input = builder.toString();
@@ -1558,7 +1526,7 @@ public class JavaCCParserLogicTest {
         builder.append(" ");
         builder.append(size);
         builder.append(" ");
-        builder.append(NUMBER);
+        builder.append(PAGE);
         builder.append(" ");
         builder.append(number);
         String input = builder.toString();
@@ -1579,7 +1547,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testSingleExpressionTokenizeWithPage() {
-        String ccl = "a = 1 number 1 size 3";
+        String ccl = "a = 1 page 1 size 3";
 
         // Build expected queue
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1675,7 +1643,7 @@ public class JavaCCParserLogicTest {
     }
 
     // String constants
-    static final String NUMBER = "number";
+    static final String PAGE = "page";
     static final String SIZE = "size";
 
     /**

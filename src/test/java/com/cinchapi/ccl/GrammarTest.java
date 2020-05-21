@@ -439,12 +439,7 @@ public class GrammarTest {
 
     @Test
     public void testWithNumber() throws UnsupportedEncodingException, ParseException {
-        int number = 3;
-        StringBuilder builder = new StringBuilder();
-        builder.append(NUMBER);
-        builder.append(" ");
-        builder.append(number);
-        String input = builder.toString();
+        String input = PAGE + " 3";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream,
@@ -455,17 +450,7 @@ public class GrammarTest {
 
     @Test
     public void testWithNumberAndSize() throws UnsupportedEncodingException, ParseException {
-        int number = 3;
-        int size = 1;
-        StringBuilder builder = new StringBuilder();
-        builder.append(NUMBER);
-        builder.append(" ");
-        builder.append(number);
-        builder.append(" ");
-        builder.append(SIZE);
-        builder.append(" ");
-        builder.append(size);
-        String input = builder.toString();
+        String input = SIZE + " 1 " + PAGE + " 3";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream,
@@ -476,12 +461,7 @@ public class GrammarTest {
 
     @Test
     public void testWithSize() throws UnsupportedEncodingException, ParseException {
-        int size = 3;
-        StringBuilder builder = new StringBuilder();
-        builder.append(SIZE);
-        builder.append(" ");
-        builder.append(size);
-        String input = builder.toString();
+        String input = SIZE + " 3";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream,
@@ -492,17 +472,7 @@ public class GrammarTest {
 
     @Test
     public void testWithSizeAndNumber() throws UnsupportedEncodingException, ParseException {
-        int size = 1;
-        int number = 3;
-        StringBuilder builder = new StringBuilder();
-        builder.append(SIZE);
-        builder.append(" ");
-        builder.append(size);
-        builder.append(" ");
-        builder.append(NUMBER);
-        builder.append(" ");
-        builder.append(number);
-        String input = builder.toString();
+        String input = SIZE + " 1 " + PAGE + " 3";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream,
@@ -513,7 +483,7 @@ public class GrammarTest {
 
     @Test
     public void validUnaryOperatorWithPage() throws UnsupportedEncodingException, ParseException {
-        String ccl = "a = 1 number 1 size 3";
+        String ccl = "a = 1 page 1 size 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -522,7 +492,7 @@ public class GrammarTest {
     }
 
     // String constants
-    static final String NUMBER = "number";
+    static final String PAGE = "page";
     static final String SIZE = "size";
 
     /**

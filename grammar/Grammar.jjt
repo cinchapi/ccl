@@ -149,7 +149,7 @@ TOKEN [IGNORE_CASE]:
 
 TOKEN :
 {
-  < NUMBER : "number" >
+  < PAGE : "page" >
 |
   < SIZE : "size" >
 |
@@ -494,7 +494,7 @@ String Number() :
 }
 {
   (
-     (<NUMBER> number=<NUMERIC>)
+     (<PAGE> number=<NUMERIC>)
      { return number.image; }
   )
 }
