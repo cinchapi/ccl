@@ -36,16 +36,6 @@ public class ASTOrder extends SimpleNode {
     }
 
     /**
-     * Construct a new instance
-     *
-     * @param grammar the grammar
-     * @param id the id
-     */
-    public ASTOrder(CriteriaGrammar grammar, int id) {
-        super(grammar, id);
-    }
-
-    /**
      * Set the order
      *
      * @param order the order
@@ -77,7 +67,7 @@ public class ASTOrder extends SimpleNode {
      * @param data the data
      * @return the result of the visit
      */
-    public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data) {
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
 }

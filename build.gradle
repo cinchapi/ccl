@@ -167,7 +167,7 @@ dependencies {
 }
 
 task generateJavaCCParser(type: Exec) {
-  commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/CriteriaGrammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/generated'
+  commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/Grammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/generated'
 }
 
 compileJava.dependsOn generateJavaCCParser

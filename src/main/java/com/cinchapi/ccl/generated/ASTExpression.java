@@ -89,7 +89,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      * @param data the data
      * @return the result of the visit
      */
-    public Object jjtAccept(CriteriaGrammarVisitor visitor, Object data) {
+    public Object jjtAccept(GrammarVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
 
