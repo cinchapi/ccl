@@ -16,6 +16,7 @@
 package com.cinchapi.ccl.grammar;
 
 import com.cinchapi.ccl.lang.order.Direction;
+import com.cinchapi.ccl.lang.order.OrderClause;
 import com.cinchapi.ccl.lang.order.OrderSpecification;
 import com.cinchapi.concourse.Timestamp;
 
@@ -26,19 +27,35 @@ public class OrderSymbol implements PostfixNotationSymbol {
     /**
      * The content of the symbol.
      */
-    private final OrderSpecification order;
+    private OrderClause order;
 
     /**
      * Construct a new instance.
      *
      * @param order
      */
-    public OrderSymbol(OrderSpecification order) {
+    public OrderSymbol(OrderClause order) {
         this.order = order;
     }
 
     /**
      * Construct a new instance.
+     */
+    public OrderSymbol() {
+        this.order = new OrderClause();
+    }
+
+    /**
+     * Add an new OrderSpecification
+     *
+     * @param orderSpecification
+     */
+    public void add(OrderSpecification orderSpecification) {
+        this.order.add(orderSpecification);
+    }
+
+    /**
+     * Add an new OrderSpecification
      *
      * @param key
      * @param direction
@@ -46,56 +63,56 @@ public class OrderSymbol implements PostfixNotationSymbol {
      * @param timestampFormat
      * @param timestampNumber
      */
-    public OrderSymbol(String key, String direction, String timestampString,
+    public void add(String key, String direction, String timestampString,
             String timestampFormat, String timestampNumber) {
         if (direction == null || direction.equalsIgnoreCase("<")
                 || direction.equalsIgnoreCase("ASC")) {
             if(timestampNumber != null) {
                 long number = Long.valueOf(timestampNumber);
-                this.order = new OrderSpecification(key,
-                        Timestamp.fromMicros(number), Direction.ASCENDING);
+                this.order.add(new OrderSpecification(key,
+                        Timestamp.fromMicros(number), Direction.ASCENDING));
             }
             else if(timestampString != null) {
                 if(timestampFormat != null) {
-                    this.order = new OrderSpecification(key,
+                    this.order.add(new OrderSpecification(key,
                             Timestamp.parse(
                                     timestampString.replace("\"", ""),
                                     timestampFormat.replace("\"", "")),
-                            Direction.ASCENDING);
+                            Direction.ASCENDING));
                 }
                 else {
-                    this.order = new OrderSpecification(key,
+                    this.order.add(new OrderSpecification(key,
                             Timestamp.fromString(
                                     timestampString.replace("\"", "")),
-                            Direction.ASCENDING);
+                            Direction.ASCENDING));
                 }
             }
             else {
-                this.order = new OrderSpecification(key,
-                        Direction.ASCENDING);
+                this.order.add(new OrderSpecification(key,
+                        Direction.ASCENDING));
             }
         }
         else {
             if(timestampNumber != null) {
                 long number = Long.valueOf(timestampNumber);
-                this.order = new OrderSpecification(key,
-                        Timestamp.fromMicros(number), Direction.DESCENDING);
+                this.order.add(new OrderSpecification(key,
+                        Timestamp.fromMicros(number), Direction.DESCENDING));
             }
             else if(timestampString != null) {
                 if(timestampFormat != null) {
-                    this.order = new OrderSpecification(key,
+                    this.order.add(new OrderSpecification(key,
                             Timestamp.parse(timestampString.replace("\"", ""),
                                     timestampFormat.replace("\"", "")),
-                            Direction.DESCENDING);
+                            Direction.DESCENDING));
                 }
                 else {
-                    this.order = new OrderSpecification(key, Timestamp
+                    this.order.add(new OrderSpecification(key, Timestamp
                             .fromString(timestampString.replace("\"", "")),
-                            Direction.DESCENDING);
+                            Direction.DESCENDING));
                 }
             }
             else {
-                this.order = new OrderSpecification(key, Direction.DESCENDING);
+                this.order.add(new OrderSpecification(key, Direction.DESCENDING));
             }
         }
     }
@@ -120,7 +137,7 @@ public class OrderSymbol implements PostfixNotationSymbol {
      *
      * @return the order
      */
-    public OrderSpecification order() {
+    public OrderClause order() {
         return order;
     }
 

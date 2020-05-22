@@ -201,9 +201,9 @@ TOKEN :
 ASTStart StartCommandLine() #Start : {}
 {
    (
-     (<WHERE>)? DisjunctionExpression() (<ORDER> Order())* "\n"
+     (<WHERE>)? DisjunctionExpression() (Order())? "\n"
    |
-     <ORDER> (Order())+ "\n"
+     Order() "\n"
    )
    { return jjtThis; }
 }
@@ -211,9 +211,9 @@ ASTStart StartCommandLine() #Start : {}
 ASTStart generateAST() #Start : {}
 {
    (
-     (<WHERE>)? DisjunctionExpression() (<ORDER> Order())* <EOF>
+     (<WHERE>)? DisjunctionExpression() (Order())? <EOF>
    |
-     <ORDER> (Order())+ <EOF>
+     Order() <EOF>
    )
    { return jjtThis; }
 }
@@ -484,20 +484,30 @@ TimestampSymbol Timestamp() :
 
 void Order() #Order :
 {
-  String direction = null;
-  String key = null;
-  String timestampString = null;
-  String timestampFormat = null;
-  String timestampNumber = null;
+    OrderSymbol order = new OrderSymbol();
+
+    String direction = null;
+    String key = null;
+    String timestampString = null;
+    String timestampFormat = null;
+    String timestampNumber = null;
 }
 {
-  (
+  <ORDER> ((
     direction=SymbolicDirection() key=OrderKey()
   |
     key=OrderKey() (direction=WordDirection())?
   )
   (<AMPERSAND> (timestampNumber=TimestampNumber() | (timestampString=TimestampString() (<PIPE> timestampFormat=TimestampFormat())?)))?
-  { jjtThis.order(new OrderSymbol(key, direction, timestampString, timestampFormat, timestampNumber)); }
+  {
+    order.add(key, direction, timestampString, timestampFormat, timestampNumber);
+    key = null;
+    direction = null;
+    timestampString = null;
+    timestampFormat = null;
+    timestampNumber = null;
+  })+
+  { jjtThis.order(order); }
 }
 
 String SymbolicDirection() :

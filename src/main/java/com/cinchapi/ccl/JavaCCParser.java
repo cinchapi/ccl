@@ -21,6 +21,7 @@ import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.OrderTree;
+import com.cinchapi.ccl.syntax.RootTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.generated.ASTAnd;
 import com.cinchapi.ccl.generated.ASTExpression;
@@ -173,8 +174,14 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTStart node, Object data) {
-                    data = node.jjtGetChild(0).jjtAccept(this, data);
-                    return data;
+                    if (node.jjtGetNumChildren() == 2) {
+                        AbstractSyntaxTree parseTree = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
+                        OrderTree orderTree = (OrderTree) node.jjtGetChild(1).jjtAccept(this, data);
+                        return new RootTree(parseTree, orderTree);
+                    }
+                    else {
+                        return node.jjtGetChild(0).jjtAccept(this, data);
+                    }
                 }
 
                 @Override

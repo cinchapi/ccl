@@ -34,6 +34,7 @@ import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrderTree;
+import com.cinchapi.ccl.syntax.RootTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
@@ -362,6 +363,11 @@ public abstract class Parser {
         public LocalEvaluator(
                 TriFunction<Object, Operator, List<Object>, Boolean> function) {
             this.function = function;
+        }
+
+        @Override
+        public Boolean visit(RootTree tree, Object... data) {
+            return true;
         }
 
         @Override

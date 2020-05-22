@@ -608,11 +608,6 @@ public class CriteriaGrammarTest {
     }
 
     /**
-     * Constants
-     */
-    private static String ORDER = "order";
-
-    /**
      * The canonical function to transform strings to java values in a
      * {@link Parser}.
      */

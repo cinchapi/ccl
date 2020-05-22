@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.lang.order;
 
+import com.cinchapi.concourse.lang.sort.Order;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
@@ -50,5 +51,23 @@ public class OrderClause {
     @Override
     public String toString() {
         return StringUtils.join(specifications, " ");
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof OrderClause) {
+            if (specifications.size() != ((OrderClause) obj).specifications.size()) {
+                return false;
+            }
+            else {
+                for (int i = 0; i < specifications.size(); i++) {
+                    if (!specifications.get(i).equals(((OrderClause)obj).specifications.get(i))) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
