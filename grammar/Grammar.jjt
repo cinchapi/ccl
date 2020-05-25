@@ -507,7 +507,7 @@ void Order() #Order :
     timestampFormat = null;
     timestampNumber = null;
   })+
-  { jjtThis.order(order); }
+  {jjtThis.order(order); }
 }
 
 String SymbolicDirection() :
