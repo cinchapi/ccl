@@ -19,6 +19,7 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An abstraction for a root node in a {@link AbstractSyntaxTree}
@@ -48,7 +49,14 @@ public class RootTree extends BaseAbstractSyntaxTree {
 
     @Override
     public Collection<AbstractSyntaxTree> children() {
-        return Lists.newArrayList(parseTree, pageTree);
+        List<AbstractSyntaxTree> children = Lists.newArrayList();
+        if(parseTree != null) {
+            children.add(parseTree);
+        }
+        if(pageTree != null) {
+            children.add(pageTree);
+        }
+        return children;
     }
 
     @Override

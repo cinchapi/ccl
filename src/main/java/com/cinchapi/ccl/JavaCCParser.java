@@ -174,16 +174,19 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTStart node, Object data) {
-                    if (node.jjtGetNumChildren() == 2) {
-                        AbstractSyntaxTree parseTree = (AbstractSyntaxTree)node.jjtGetChild(0)
-                                .jjtAccept(this, data);
-                        PageTree pageTree = (PageTree) node.jjtGetChild(1)
-                                .jjtAccept(this, data);
-                        return new RootTree(parseTree, pageTree);
+                    AbstractSyntaxTree parseTree = null;
+                    PageTree pageTree = null;
+
+                    for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+                        Object child = node.jjtGetChild(i).jjtAccept(this, data);
+                        if(child instanceof PageTree) {
+                            pageTree = (PageTree) child;
+                        }
+                        else {
+                            parseTree = (AbstractSyntaxTree) child;
+                        }
                     }
-                    else {
-                        return node.jjtGetChild(0).jjtAccept(this, data);
-                    }
+                    return new RootTree(parseTree, pageTree);
                 }
 
                 @Override
