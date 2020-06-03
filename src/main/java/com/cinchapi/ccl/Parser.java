@@ -217,7 +217,8 @@ public abstract class Parser {
                         .newLinkedHashSetWithExpectedSize(tokens.size());
                 tokens.forEach((symbol) -> {
                     if(symbol instanceof ExpressionSymbol) {
-                        operators.add(((ExpressionSymbol) symbol).raw().operator());
+                        operators.add(
+                                ((ExpressionSymbol) symbol).raw().operator());
                     }
                     else if(symbol instanceof OperatorSymbol) {
                         operators.add(((OperatorSymbol) symbol).operator());
@@ -414,9 +415,10 @@ public abstract class Parser {
             return matches;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public Boolean visit(PageTree tree, Object... data) {
+            // TODO: implement and return true if data[0] fits within the page.
+            // May need more context.
             return true;
         }
     }
