@@ -908,7 +908,7 @@ public abstract class ParserTest {
         String ccl = "name = jeff OR name = bob AND age > 100";
         Parser parser = createParser(ccl);
         AbstractSyntaxTree ast = parser.parse();
-        Assert.assertEquals(ConjunctionSymbol.OR, ast.root());
+        Assert.assertEquals(ConjunctionSymbol.OR, ast.children().iterator().next().root());
     }
 
     @Test

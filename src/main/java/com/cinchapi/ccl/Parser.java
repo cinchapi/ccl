@@ -368,6 +368,11 @@ public abstract class Parser {
 
         @Override
         public Boolean visit(RootTree tree, Object... data) {
+            for(AbstractSyntaxTree child : tree.children()) {
+                if(!child.accept(this, data)) {
+                    return false;
+                }
+            }
             return true;
         }
 
