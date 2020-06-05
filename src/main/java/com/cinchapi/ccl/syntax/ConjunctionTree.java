@@ -24,7 +24,8 @@ import java.util.Collection;
 /**
  * An abstraction for a conjunction node in an {@link AbstractSyntaxTree}
  */
-public class ConjunctionTree extends BaseAbstractSyntaxTree {
+public class ConjunctionTree extends BaseAbstractSyntaxTree
+        implements ConditionNode {
 
     private final ConjunctionSymbol conjunction;
     private final AbstractSyntaxTree left;

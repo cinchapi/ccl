@@ -20,6 +20,8 @@ import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ConditionNode;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -174,7 +176,7 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTStart node, Object data) {
-                    AbstractSyntaxTree parseTree = null;
+                    ConditionNode conditionNode = null;
                     PageTree pageTree = null;
 
                     for(int i = 0; i < node.jjtGetNumChildren(); i++) {
@@ -183,10 +185,11 @@ public class JavaCCParser extends Parser {
                             pageTree = (PageTree) child;
                         }
                         else {
-                            parseTree = (AbstractSyntaxTree) child;
+                            conditionNode = (ConditionNode) child;
                         }
                     }
-                    return new RootTree(parseTree, pageTree);
+
+                    return new RootTree(new ConditionTree(conditionNode), pageTree);
                 }
 
                 @Override

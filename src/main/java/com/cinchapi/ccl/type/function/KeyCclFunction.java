@@ -16,6 +16,7 @@
 package com.cinchapi.ccl.type.function;
 
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -47,8 +48,14 @@ public class KeyCclFunction
 
             @Override
             public String visit(RootTree tree, Object... data) {
-                tree.parseTree().accept(this, data);
+                tree.conditionTree().accept(this, data);
                 tree.pageTree().accept(this, data);
+                return string;
+            }
+
+            @Override
+            public String visit(ConditionTree tree, Object... data) {
+                tree.condition().accept(this, data);
                 return string;
             }
 

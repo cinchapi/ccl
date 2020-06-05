@@ -31,6 +31,7 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -368,6 +369,16 @@ public abstract class Parser {
 
         @Override
         public Boolean visit(RootTree tree, Object... data) {
+            for(AbstractSyntaxTree child : tree.children()) {
+                if(!child.accept(this, data)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public Boolean visit(ConditionTree tree, Object... data) {
             for(AbstractSyntaxTree child : tree.children()) {
                 if(!child.accept(this, data)) {
                     return false;

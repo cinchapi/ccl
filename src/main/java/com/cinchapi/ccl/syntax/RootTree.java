@@ -25,22 +25,22 @@ import java.util.List;
  * An abstraction for a root node in a {@link AbstractSyntaxTree}
  */
 public class RootTree extends BaseAbstractSyntaxTree {
-    private AbstractSyntaxTree parseTree;
+    private ConditionTree conditionTree;
     private PageTree pageTree;
 
     /**
      * Construct a new instance.
      *
-     * @param parseTree
+     * @param conditionTree
      * @param pageTree
      */
-    public RootTree(AbstractSyntaxTree parseTree, PageTree pageTree) {
-        this.parseTree = parseTree;
+    public RootTree(ConditionTree conditionTree, PageTree pageTree) {
+        this.conditionTree = conditionTree;
         this.pageTree = pageTree;
     }
 
-    public AbstractSyntaxTree parseTree() {
-        return parseTree;
+    public ConditionTree conditionTree() {
+        return conditionTree;
     }
 
     public PageTree pageTree() {
@@ -50,8 +50,8 @@ public class RootTree extends BaseAbstractSyntaxTree {
     @Override
     public Collection<AbstractSyntaxTree> children() {
         List<AbstractSyntaxTree> children = Lists.newArrayList();
-        if(parseTree != null) {
-            children.add(parseTree);
+        if(conditionTree != null) {
+            children.add(conditionTree);
         }
         if(pageTree != null) {
             children.add(pageTree);

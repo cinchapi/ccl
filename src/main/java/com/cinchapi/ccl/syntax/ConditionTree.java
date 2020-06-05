@@ -15,39 +15,42 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.google.common.collect.Lists;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
- * An abstraction for a page node in a {@link AbstractSyntaxTree}
+ * An abstraction for a condition tree in a {@link AbstractSyntaxTree}
  */
-public class PageTree extends BaseAbstractSyntaxTree {
+public class ConditionTree extends BaseAbstractSyntaxTree {
 
     /**
      * The root.
      */
-    private final PageSymbol page;
+    private ConditionNode conditionNode;
 
     /**
      * Construct a new instance.
      *
-     * @param page
+     * @param conditionNode
      */
-    public PageTree(PageSymbol page) {
-        this.page = page;
+    public ConditionTree(ConditionNode conditionNode) {
+        this.conditionNode = conditionNode;
+    }
+
+    public AbstractSyntaxTree condition() {
+        return conditionNode;
     }
 
     @Override
     public Collection<AbstractSyntaxTree> children() {
-        return Collections.emptyList();
+        return Lists.newArrayList(conditionNode);
     }
 
     @Override
     public Symbol root() {
-        return page;
+        return null;
     }
 
     @Override
