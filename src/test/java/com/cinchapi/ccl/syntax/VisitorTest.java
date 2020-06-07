@@ -52,7 +52,7 @@ public class VisitorTest {
         // Test visitor
         Visitor<Object> visitor = new Visitor<Object>() {
             @Override
-            public Object visit(RootTree tree, Object... data) {
+            public Object visit(StatementTree tree, Object... data) {
                 return data;
             }
 

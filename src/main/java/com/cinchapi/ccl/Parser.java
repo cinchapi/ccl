@@ -35,7 +35,7 @@ import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.RootTree;
+import com.cinchapi.ccl.syntax.StatementTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
@@ -368,7 +368,7 @@ public abstract class Parser {
         }
 
         @Override
-        public Boolean visit(RootTree tree, Object... data) {
+        public Boolean visit(StatementTree tree, Object... data) {
             for(AbstractSyntaxTree child : tree.children()) {
                 if(!child.accept(this, data)) {
                     return false;

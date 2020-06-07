@@ -22,9 +22,11 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * An abstraction for a root node in a {@link AbstractSyntaxTree}
+ * An abstraction for the overall {@link AbstractSyntaxTree} returned when
+ * parsing a statement.
  */
-public class RootTree extends BaseAbstractSyntaxTree {
+public class StatementTree extends BaseAbstractSyntaxTree {
+
     private ConditionTree conditionTree;
     private PageTree pageTree;
 
@@ -34,7 +36,7 @@ public class RootTree extends BaseAbstractSyntaxTree {
      * @param conditionTree
      * @param pageTree
      */
-    public RootTree(ConditionTree conditionTree, PageTree pageTree) {
+    public StatementTree(ConditionTree conditionTree, PageTree pageTree) {
         this.conditionTree = conditionTree;
         this.pageTree = pageTree;
     }

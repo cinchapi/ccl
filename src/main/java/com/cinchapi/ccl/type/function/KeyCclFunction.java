@@ -20,7 +20,7 @@ import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.RootTree;
+import com.cinchapi.ccl.syntax.StatementTree;
 import com.cinchapi.ccl.syntax.Visitor;
 
 /**
@@ -47,7 +47,7 @@ public class KeyCclFunction
             String string = "";
 
             @Override
-            public String visit(RootTree tree, Object... data) {
+            public String visit(StatementTree tree, Object... data) {
                 tree.conditionTree().accept(this, data);
                 tree.pageTree().accept(this, data);
                 return string;
