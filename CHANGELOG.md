@@ -1,6 +1,18 @@
 # Changelog
 
 #### Version 3.0.0 (TBD)
+##### Expanded Grammar
+* This grammar has been expanded and renamed from _Concourse Criteria Language_ to **Concourse Command Language**. In addition to supporting the parsing of `Condition` statements, this grammar now supports parsing the following additional constructs:
+  * Page
+
+###### Page Statements
+A Page can be parsed from the following forms:
+  * `SIZE n` = the first page with `n` items
+  * `PAGE n` = the `n`th page with the default number of items
+  * `PAGE m SIZE n` = the `m`th page with `n` items
+
+A Page Statement can be included with a Condition Statement to paginate a result set.
+
 ##### Function Statements
 In version `3.0.0` we added support for **function statements**.
 
