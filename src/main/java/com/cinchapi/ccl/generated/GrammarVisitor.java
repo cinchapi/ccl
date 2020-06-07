@@ -8,5 +8,6 @@ public interface GrammarVisitor
   public Object visit(ASTOr node, Object data);
   public Object visit(ASTAnd node, Object data);
   public Object visit(ASTExpression node, Object data);
+  public Object visit(ASTPage node, Object data);
 }
-/* JavaCC - OriginalChecksum=1dbbedab3e015aceaec3c131fcfb9f65 (do not edit this line) */
+/* JavaCC - OriginalChecksum=a97298d6faaf96800b98e36e2b1d6b07 (do not edit this line) */

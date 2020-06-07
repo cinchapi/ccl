@@ -52,6 +52,16 @@ public class VisitorTest {
         // Test visitor
         Visitor<Object> visitor = new Visitor<Object>() {
             @Override
+            public Object visit(CommandTree tree, Object... data) {
+                return data;
+            }
+
+            @Override
+            public Object visit(ConditionTree tree, Object... data) {
+                return data;
+            }
+
+            @Override
             public Object visit(ConjunctionTree tree, Object... data) {
                 Assert.assertTrue(tree instanceof AndTree);
                 return data;
@@ -67,7 +77,12 @@ public class VisitorTest {
                         .toString().equals("value"));
                 return data;
             }
-            
+
+            @Override
+            public Object visit(PageTree tree, Object... data) {
+                return data;
+            }
+
         };
         tree.accept(visitor);
     }

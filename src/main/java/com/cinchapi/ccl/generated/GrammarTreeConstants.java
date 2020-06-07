@@ -8,6 +8,7 @@ public interface GrammarTreeConstants
   public int JJTOR = 2;
   public int JJTAND = 3;
   public int JJTEXPRESSION = 4;
+  public int JJTPAGE = 5;
 
 
   public String[] jjtNodeName = {
@@ -16,6 +17,7 @@ public interface GrammarTreeConstants
     "Or",
     "And",
     "Expression",
+    "Page",
   };
 }
-/* JavaCC - OriginalChecksum=64647097cf99be381ea177b73dfb3484 (do not edit this line) */
+/* JavaCC - OriginalChecksum=c6d04f043ed5dd2b66be416a6439b69a (do not edit this line) */

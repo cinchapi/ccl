@@ -15,17 +15,21 @@
  */
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.generated.ASTPage;
+import com.cinchapi.ccl.generated.Grammar;
+import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.generated.ASTAnd;
 import com.cinchapi.ccl.generated.ASTExpression;
 import com.cinchapi.ccl.generated.ASTOr;
 import com.cinchapi.ccl.generated.ASTStart;
-import com.cinchapi.ccl.generated.Grammar;
-import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.generated.SimpleNode;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
@@ -134,6 +138,12 @@ public class JavaCCParser extends Parser {
                     ((Queue<PostfixNotationSymbol>) data).add(node);
                     return data;
                 }
+
+                @Override
+                public Object visit(ASTPage node, Object data) {
+                    ((Queue<PostfixNotationSymbol>) data).add(node.page());
+                    return data;
+                }
             };
 
 
@@ -145,7 +155,7 @@ public class JavaCCParser extends Parser {
                     null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 
@@ -165,27 +175,44 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTStart node, Object data) {
-                    data = node.jjtGetChild(0).jjtAccept(this, data);
-                    return data;
+                    ConditionTree conditionTree = null;
+                    PageTree pageTree = null;
+
+                    for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+                        Object child = node.jjtGetChild(i).jjtAccept(this, data);
+                        if(child instanceof PageTree) {
+                            pageTree = (PageTree) child;
+                        }
+                        else {
+                            conditionTree = (ConditionTree) child;
+                        }
+                    }
+
+                    return new CommandTree(conditionTree, pageTree);
                 }
 
                 @Override
                 public Object visit(ASTOr node, Object data) {
-                    AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-                    AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+                    ConditionTree left = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
+                    ConditionTree right =(ConditionTree) node.jjtGetChild(1).jjtAccept(this, data);
                     return new OrTree(left, right);
                 }
 
                 @Override
                 public Object visit(ASTAnd node, Object data) {
-                    AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-                    AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+                    ConditionTree left = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
+                    ConditionTree right =(ConditionTree) node.jjtGetChild(1).jjtAccept(this, data);
                     return new AndTree(left, right);
                 }
 
                 @Override
                 public Object visit(ASTExpression node, Object data) {
                     return new ExpressionTree(node);
+                }
+
+                @Override
+                public Object visit(ASTPage node, Object data) {
+                    return new PageTree(node.page());
                 }
             };
 
@@ -196,7 +223,7 @@ public class JavaCCParser extends Parser {
             return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 
@@ -274,6 +301,12 @@ public class JavaCCParser extends Parser {
                     }
                     return data;
                 }
+
+                @Override
+                public Object visit(ASTPage node, Object data) {
+                    ((List<Symbol>) data).add(node.page());
+                    return data;
+                }
             };
 
             Grammar grammar = new Grammar(stream, valueTransformFunction,
@@ -283,7 +316,7 @@ public class JavaCCParser extends Parser {
             return (List<Symbol>) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, this);
+            throw new PropagatedSyntaxException(exception, ccl);
         }
     }
 

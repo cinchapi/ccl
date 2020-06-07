@@ -15,24 +15,25 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.Parser;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.generated.ASTPage;
+import com.cinchapi.ccl.generated.Grammar;
+import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.generated.ASTAnd;
 import com.cinchapi.ccl.generated.ASTExpression;
 import com.cinchapi.ccl.generated.ASTOr;
 import com.cinchapi.ccl.generated.ASTStart;
-import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.generated.SimpleNode;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.junit.Test;
 
-import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.ParseException;
 
 import java.io.ByteArrayInputStream;
@@ -436,6 +437,64 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void testWithNumber() throws UnsupportedEncodingException, ParseException {
+        String input = PAGE + " 3";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testWithNumberAndSize() throws UnsupportedEncodingException, ParseException {
+        String input = SIZE + " 1 " + PAGE + " 3";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testWithSize() throws UnsupportedEncodingException, ParseException {
+        String input = SIZE + " 3";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testWithSizeAndNumber() throws UnsupportedEncodingException, ParseException {
+        String input = SIZE + " 1 " + PAGE + " 3";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream,
+                PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validUnaryOperatorWithPage() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 1 page 1 size 3";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // String constants
+    static final String PAGE = "page";
+    static final String SIZE = "size";
+
     /**
      * The canonical function to transform strings to java values in a
      * {@link Parser}.
@@ -465,21 +524,26 @@ public class GrammarTest {
 
         @Override
         public Object visit(ASTOr node, Object data) {
-            AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-            AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+            ConditionTree left = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
+            ConditionTree right =(ConditionTree) node.jjtGetChild(1).jjtAccept(this, data);
             return new OrTree(left, right);
         }
 
         @Override
         public Object visit(ASTAnd node, Object data) {
-            AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-            AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+            ConditionTree left = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
+            ConditionTree right =(ConditionTree) node.jjtGetChild(1).jjtAccept(this, data);
             return new AndTree(left, right);
         }
 
         @Override
         public Object visit(ASTExpression node, Object data) {
             return new ExpressionTree(node);
+        }
+
+        @Override
+        public Object visit(ASTPage node, Object data) {
+            return new PageTree(node.page());
         }
     };
 

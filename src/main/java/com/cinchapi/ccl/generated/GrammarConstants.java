@@ -53,41 +53,45 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int BETWEEN = 23;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 24;
+  int PAGE = 24;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 25;
+  int SIZE = 25;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 26;
+  int QUOTED_STRING = 26;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_INTEGER = 27;
+  int DOUBLE_QUOTED_STRING = 27;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_DECIMAL = 28;
+  int SINGLE_QUOTED_STRING = 28;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_ALPHANUMERIC = 29;
+  int COMMA_SEPARATED_SIGNED_INTEGER = 29;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 30;
+  int COMMA_SEPARATED_SIGNED_DECIMAL = 30;
   /** RegularExpression Id. */
-  int NUMERIC = 31;
+  int COMMA_SEPARATED_ALPHANUMERIC = 31;
   /** RegularExpression Id. */
-  int PIPE = 32;
+  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 32;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 33;
+  int PIPE = 33;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 34;
+  int NUMERIC = 34;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 35;
+  int SIGNED_INTEGER = 35;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 36;
+  int SIGNED_DECIMAL = 36;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 37;
+  int ALPHANUMERIC = 37;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 38;
+  int PERIOD_SEPARATED_STRING = 38;
   /** RegularExpression Id. */
-  int LETTER = 39;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 39;
   /** RegularExpression Id. */
-  int DIGIT = 40;
+  int NON_ALPHANUMERIC = 40;
   /** RegularExpression Id. */
-  int PERIOD = 41;
+  int LETTER = 41;
+  /** RegularExpression Id. */
+  int DIGIT = 42;
+  /** RegularExpression Id. */
+  int PERIOD = 43;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -118,6 +122,8 @@ public interface GrammarConstants {
     "\"like\"",
     "<NOT_LIKE>",
     "<BETWEEN>",
+    "\"page\"",
+    "\"size\"",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
     "<SINGLE_QUOTED_STRING>",
@@ -125,8 +131,8 @@ public interface GrammarConstants {
     "<COMMA_SEPARATED_SIGNED_DECIMAL>",
     "<COMMA_SEPARATED_ALPHANUMERIC>",
     "<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>",
-    "<NUMERIC>",
     "\"|\"",
+    "<NUMERIC>",
     "<SIGNED_INTEGER>",
     "<SIGNED_DECIMAL>",
     "<ALPHANUMERIC>",

@@ -15,23 +15,7 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
- * @author Jeff Nelson
+ * An abstraction for a condition node in a {@link AbstractSyntaxTree}
  */
-public final class OrTree extends ConjunctionTree {
-
-    /**
-     * Construct a new instance.
-     *
-     * @param left
-     * @param right
-     */
-    public OrTree(ConditionTree left, ConditionTree right) {
-        super(ConjunctionSymbol.OR, left, right);
-    }
-
-}
+public interface ConditionTree extends AbstractSyntaxTree {/* marker */}

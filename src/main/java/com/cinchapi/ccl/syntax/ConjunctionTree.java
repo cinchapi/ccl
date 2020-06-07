@@ -24,11 +24,12 @@ import java.util.Collection;
 /**
  * An abstraction for a conjunction node in an {@link AbstractSyntaxTree}
  */
-public class ConjunctionTree extends BaseAbstractSyntaxTree {
+public class ConjunctionTree extends BaseAbstractSyntaxTree implements
+        ConditionTree {
 
     private final ConjunctionSymbol conjunction;
-    private final AbstractSyntaxTree left;
-    private final AbstractSyntaxTree right;
+    private final ConditionTree left;
+    private final ConditionTree right;
 
     /**
      * Construct a new instance.
@@ -37,8 +38,8 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
      * @param left
      * @param right
      */
-    public ConjunctionTree(ConjunctionSymbol conjunction,
-            AbstractSyntaxTree left, AbstractSyntaxTree right) {
+    public ConjunctionTree(ConjunctionSymbol conjunction, ConditionTree left,
+            ConditionTree right) {
         this.conjunction = conjunction;
         this.left = left;
         this.right = right;
@@ -54,7 +55,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
      *
      * @return the left child
      */
-    public AbstractSyntaxTree left() {
+    public ConditionTree left() {
         return left;
     }
 
@@ -63,7 +64,7 @@ public class ConjunctionTree extends BaseAbstractSyntaxTree {
      *
      * @return the right child
      */
-    public AbstractSyntaxTree right() {
+    public ConditionTree right() {
         return right;
     }
 

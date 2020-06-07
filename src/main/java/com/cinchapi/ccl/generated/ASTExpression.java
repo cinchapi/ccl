@@ -28,7 +28,7 @@ import java.util.List;
  * A node that representation a CCL expression
  */
 public class ASTExpression extends SimpleNode implements ExpressionSymbol {
-    
+
     /**
      * The key
      */
@@ -56,6 +56,16 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      */
     public ASTExpression(int id) {
         super(id);
+    }
+
+    /**
+     * Construct a new instance
+     *
+     * @param grammar the grammar
+     * @param id the id
+     */
+    public ASTExpression(Grammar grammar, int id) {
+        super(grammar, id);
     }
 
     /**
@@ -138,7 +148,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     public TimestampSymbol timestamp() {
         return timestamp;
     }
-    
+
     /**
      * Set the timestamp.
      *

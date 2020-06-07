@@ -32,6 +32,16 @@ public class ASTOr extends SimpleNode {
     }
 
     /**
+     * Constructs a new instance.
+     *
+     * @param grammar the grammar
+     * @param id the id
+     */
+    public ASTOr(Grammar grammar, int id) {
+        super(grammar, id);
+    }
+
+    /**
      * Convert the node a string representation
      *
      * @return the string

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2020 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
-
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+package com.cinchapi.ccl.grammar;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
+ * A {@link Symbol} that represents a "command".
+ *
  * @author Jeff Nelson
  */
-public final class OrTree extends ConjunctionTree {
-
-    /**
-     * Construct a new instance.
-     *
-     * @param left
-     * @param right
-     */
-    public OrTree(ConditionTree left, ConditionTree right) {
-        super(ConjunctionSymbol.OR, left, right);
-    }
-
+public enum CommandSymbol implements Symbol {
+    FIND
 }
