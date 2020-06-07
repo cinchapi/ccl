@@ -15,7 +15,7 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.concourse.lang.paginate.Page;
+import com.cinchapi.ccl.type.Page;
 
 /**
  * A {@link Symbol} that represents a page.
@@ -31,19 +31,19 @@ public class PageSymbol implements PostfixNotationSymbol {
      *
      * @param
      */
+    public PageSymbol(Page page) {
+        this.page = page;
+    }
+
+    /**
+     * Construct a new instance.
+     * 
+     * @param number
+     * @param size
+     */
     public PageSymbol(String number, String size) {
-        if (number == null && size != null) {
-            this.page = Page.sized(Integer.parseInt(size));
-        }
-        else if (size == null && number != null) {
-            this.page = Page.number(Integer.parseInt(number));
-        }
-        else if (size != null & number != null) {
-            this.page = Page.sized(Integer.parseInt(size)).go(Integer.parseInt(number));
-        }
-        else {
-            this.page = Page.first();
-        }
+        this(Page.create(number != null ? Integer.parseInt(number) : 1,
+                size != null ? Integer.parseInt(size) : 1));
     }
 
     /**
