@@ -23,7 +23,7 @@ import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.StatementTree;
+import com.cinchapi.ccl.syntax.CommandTree;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -1055,7 +1055,7 @@ public abstract class ParserTest {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Queue<Symbol> visit(StatementTree tree, Object... data) {
+            public Queue<Symbol> visit(CommandTree tree, Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
                 if(tree.children().size() == 2) {
                     tree.conditionTree().accept(this, data);

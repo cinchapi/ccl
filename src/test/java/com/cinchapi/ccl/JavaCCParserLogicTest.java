@@ -32,7 +32,7 @@ import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.StatementTree;
+import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
@@ -650,8 +650,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -673,8 +673,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -697,8 +697,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -733,8 +733,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -769,8 +769,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -818,8 +818,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -867,8 +867,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -916,8 +916,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -966,8 +966,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1021,8 +1021,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1050,8 +1050,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1073,8 +1073,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1097,8 +1097,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1121,8 +1121,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1145,8 +1145,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1169,8 +1169,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1192,8 +1192,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1215,8 +1215,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1238,8 +1238,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1261,8 +1261,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1284,8 +1284,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1308,8 +1308,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1331,8 +1331,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1357,8 +1357,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1386,8 +1386,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1421,8 +1421,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1452,8 +1452,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1469,10 +1469,10 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("avg", function.operation());
         Assert.assertEquals("age", function.key());
 
-        Assert.assertTrue(function.source() instanceof StatementTree);
+        Assert.assertTrue(function.source() instanceof CommandTree);
         Assert.assertTrue(
-                ((StatementTree) function.source()).conditionTree() != null);
-        StatementTree functionRoot = (StatementTree) function.source();
+                ((CommandTree) function.source()).conditionTree() != null);
+        CommandTree functionRoot = (CommandTree) function.source();
 
         Assert.assertTrue(functionRoot.conditionTree() != null);
         ConditionTree functionConditionTree = functionRoot.conditionTree();
@@ -1497,8 +1497,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1535,8 +1535,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1553,10 +1553,10 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("avg", function.operation());
         Assert.assertEquals("age", function.key());
 
-        Assert.assertTrue(function.source() instanceof StatementTree);
+        Assert.assertTrue(function.source() instanceof CommandTree);
         Assert.assertTrue(
-                ((StatementTree) function.source()).conditionTree() != null);
-        StatementTree functionRoot = (StatementTree) function.source();
+                ((CommandTree) function.source()).conditionTree() != null);
+        CommandTree functionRoot = (CommandTree) function.source();
 
         Assert.assertTrue(functionRoot.conditionTree() != null);
         ConditionTree functionConditionTree = functionRoot.conditionTree();
@@ -1579,8 +1579,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1600,10 +1600,10 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("avg", function.operation());
         Assert.assertEquals("age", function.key());
 
-        Assert.assertTrue(function.source() instanceof StatementTree);
+        Assert.assertTrue(function.source() instanceof CommandTree);
         Assert.assertTrue(
-                ((StatementTree) function.source()).conditionTree() != null);
-        StatementTree functionRoot = (StatementTree) function.source();
+                ((CommandTree) function.source()).conditionTree() != null);
+        CommandTree functionRoot = (CommandTree) function.source();
 
         Assert.assertTrue(functionRoot.conditionTree() != null);
         ConditionTree functionConditionTree = functionRoot.conditionTree();
@@ -1713,10 +1713,10 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        Assert.assertTrue(((StatementTree) tree).pageTree() != null);
+        Assert.assertTrue(tree instanceof CommandTree);
+        Assert.assertTrue(((CommandTree) tree).pageTree() != null);
 
-        PageSymbol page = (PageSymbol) ((StatementTree) tree).pageTree().root();
+        PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
         Assert.assertEquals(2, page.page().offset());
         Assert.assertEquals(1, page.page().limit());
     }
@@ -1753,8 +1753,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1766,8 +1766,8 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("1", expression.values().get(0).toString());
 
         // Page Node
-        Assert.assertTrue(((StatementTree) tree).pageTree() != null);
-        PageSymbol page = (PageSymbol) ((StatementTree) tree).pageTree().root();
+        Assert.assertTrue(((CommandTree) tree).pageTree() != null);
+        PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
         Assert.assertEquals(2, page.page().offset());
         Assert.assertEquals(1, page.page().limit());
     }
@@ -1782,8 +1782,8 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof StatementTree);
-        StatementTree rootNode = (StatementTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();

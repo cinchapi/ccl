@@ -15,18 +15,22 @@
  */
 package com.cinchapi.ccl.syntax;
 
+import com.cinchapi.ccl.grammar.CommandSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 /**
  * An abstraction for the overall {@link AbstractSyntaxTree} returned when
- * parsing a statement.
+ * parsing a command.
  */
-public class StatementTree extends BaseAbstractSyntaxTree {
+public class CommandTree extends BaseAbstractSyntaxTree {
 
+    private CommandSymbol command;
     private ConditionTree conditionTree;
     private PageTree pageTree;
 
@@ -36,15 +40,30 @@ public class StatementTree extends BaseAbstractSyntaxTree {
      * @param conditionTree
      * @param pageTree
      */
-    public StatementTree(ConditionTree conditionTree, PageTree pageTree) {
+    public CommandTree(ConditionTree conditionTree, PageTree pageTree) {
+        this.command = CommandSymbol.FIND;
         this.conditionTree = conditionTree;
         this.pageTree = pageTree;
     }
 
+    /**
+     * Return a {@link ConditonTree tree} for the parsed command's condition, if
+     * it exists.
+     * 
+     * @return the {@link ConditionTree}
+     */
+    @Nullable
     public ConditionTree conditionTree() {
         return conditionTree;
     }
 
+    /**
+     * Return a {@link PageTree tree} for the parsed command's page, if it
+     * exists.
+     * 
+     * @return the {@link PageTree}
+     */
+    @Nullable
     public PageTree pageTree() {
         return pageTree;
     }
@@ -63,8 +82,7 @@ public class StatementTree extends BaseAbstractSyntaxTree {
 
     @Override
     public Symbol root() {
-        // TODO: return the statement type when the grammar is fully expanded
-        return null;
+        return command;
     }
 
     @Override

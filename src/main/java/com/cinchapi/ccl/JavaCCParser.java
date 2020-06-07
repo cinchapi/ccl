@@ -24,7 +24,7 @@ import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.StatementTree;
+import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.generated.ASTAnd;
 import com.cinchapi.ccl.generated.ASTExpression;
@@ -188,7 +188,7 @@ public class JavaCCParser extends Parser {
                         }
                     }
 
-                    return new StatementTree(conditionTree, pageTree);
+                    return new CommandTree(conditionTree, pageTree);
                 }
 
                 @Override
