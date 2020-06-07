@@ -909,8 +909,8 @@ public abstract class ParserTest {
         String ccl = "name = jeff OR name = bob AND age > 100";
         Parser parser = createParser(ccl);
         AbstractSyntaxTree ast = parser.parse();
-        Assert.assertEquals(ConjunctionSymbol.OR, ast.children().iterator()
-                .next().children().iterator().next().root());
+        Assert.assertEquals(ConjunctionSymbol.OR,
+                ast.children().iterator().next().root());
     }
 
     @Test
@@ -1055,10 +1055,9 @@ public abstract class ParserTest {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Queue<Symbol> visit(StatementTree tree,
-                    Object... data) {
+            public Queue<Symbol> visit(StatementTree tree, Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
-                if (tree.children().size() == 2) {
+                if(tree.children().size() == 2) {
                     tree.conditionTree().accept(this, data);
                     tree.pageTree().accept(this, data);
                     return queue;
@@ -1071,10 +1070,9 @@ public abstract class ParserTest {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Queue<Symbol> visit(ConditionTree tree,
-                    Object... data) {
+            public Queue<Symbol> visit(ConditionTree tree, Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
-                tree.condition().accept(this, data);
+                tree.accept(this, data);
                 return queue;
             }
 

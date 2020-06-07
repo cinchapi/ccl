@@ -18,8 +18,8 @@ package com.cinchapi.ccl;
 import com.cinchapi.ccl.generated.ASTPage;
 import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.GrammarVisitor;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -524,15 +524,15 @@ public class GrammarTest {
 
         @Override
         public Object visit(ASTOr node, Object data) {
-            AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-            AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+            ConditionTree left = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
+            ConditionTree right =(ConditionTree) node.jjtGetChild(1).jjtAccept(this, data);
             return new OrTree(left, right);
         }
 
         @Override
         public Object visit(ASTAnd node, Object data) {
-            AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-            AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+            ConditionTree left = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
+            ConditionTree right =(ConditionTree) node.jjtGetChild(1).jjtAccept(this, data);
             return new AndTree(left, right);
         }
 

@@ -15,46 +15,7 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.Symbol;
-import com.google.common.collect.Lists;
-
-import java.util.Collection;
-
 /**
- * An abstraction for a condition tree in a {@link AbstractSyntaxTree}
+ * An abstraction for a condition node in a {@link AbstractSyntaxTree}
  */
-public class ConditionTree extends BaseAbstractSyntaxTree {
-
-    /**
-     * The root.
-     */
-    private ConditionNode conditionNode;
-
-    /**
-     * Construct a new instance.
-     *
-     * @param conditionNode
-     */
-    public ConditionTree(ConditionNode conditionNode) {
-        this.conditionNode = conditionNode;
-    }
-
-    public AbstractSyntaxTree condition() {
-        return conditionNode;
-    }
-
-    @Override
-    public Collection<AbstractSyntaxTree> children() {
-        return Lists.newArrayList(conditionNode);
-    }
-
-    @Override
-    public Symbol root() {
-        return null;
-    }
-
-    @Override
-    public <T> T accept(Visitor<T> visitor, Object... data) {
-        return visitor.visit(this, data);
-    }
-}
+public interface ConditionTree extends AbstractSyntaxTree {/* marker */}

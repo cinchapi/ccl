@@ -20,7 +20,6 @@ import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.ConditionNode;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
@@ -176,7 +175,7 @@ public class JavaCCParser extends Parser {
 
                 @Override
                 public Object visit(ASTStart node, Object data) {
-                    ConditionNode conditionNode = null;
+                    ConditionTree conditionTree = null;
                     PageTree pageTree = null;
 
                     for(int i = 0; i < node.jjtGetNumChildren(); i++) {
@@ -185,24 +184,24 @@ public class JavaCCParser extends Parser {
                             pageTree = (PageTree) child;
                         }
                         else {
-                            conditionNode = (ConditionNode) child;
+                            conditionTree = (ConditionTree) child;
                         }
                     }
 
-                    return new StatementTree(new ConditionTree(conditionNode), pageTree);
+                    return new StatementTree(conditionTree, pageTree);
                 }
 
                 @Override
                 public Object visit(ASTOr node, Object data) {
-                    AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-                    AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+                    ConditionTree left = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
+                    ConditionTree right =(ConditionTree) node.jjtGetChild(1).jjtAccept(this, data);
                     return new OrTree(left, right);
                 }
 
                 @Override
                 public Object visit(ASTAnd node, Object data) {
-                    AbstractSyntaxTree left = (AbstractSyntaxTree) node.jjtGetChild(0).jjtAccept(this, data);
-                    AbstractSyntaxTree right =(AbstractSyntaxTree) node.jjtGetChild(1).jjtAccept(this, data);
+                    ConditionTree left = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
+                    ConditionTree right =(ConditionTree) node.jjtGetChild(1).jjtAccept(this, data);
                     return new AndTree(left, right);
                 }
 

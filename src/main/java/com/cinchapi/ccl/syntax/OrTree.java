@@ -30,7 +30,7 @@ public final class OrTree extends ConjunctionTree {
      * @param left
      * @param right
      */
-    public OrTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
+    public OrTree(ConditionTree left, ConditionTree right) {
         super(ConjunctionSymbol.OR, left, right);
     }
 

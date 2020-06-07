@@ -30,7 +30,7 @@ public final class AndTree extends ConjunctionTree {
      * @param left
      * @param right
      */
-    public AndTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
+    public AndTree(ConditionTree left, ConditionTree right) {
         super(ConjunctionSymbol.AND, left, right);
     }
 

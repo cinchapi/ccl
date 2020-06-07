@@ -656,9 +656,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("a", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("1", expression.values().get(0).toString());
@@ -680,9 +679,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("a", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
         Assert.assertEquals("1", expression.values().get(0).toString());
@@ -705,8 +703,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof AndTree);
-        ConjunctionTree andNode = (ConjunctionTree) conditionTree.condition();
+        Assert.assertTrue(conditionTree instanceof AndTree);
+        ConjunctionTree andNode = (ConjunctionTree) conditionTree;
 
         // Left node
         Assert.assertTrue(andNode.left() instanceof ExpressionTree);
@@ -741,8 +739,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof OrTree);
-        ConjunctionTree orNode = (ConjunctionTree) conditionTree.condition();
+        Assert.assertTrue(conditionTree instanceof OrTree);
+        ConjunctionTree orNode = (ConjunctionTree) conditionTree;
 
         // Left node
         Assert.assertTrue(orNode.left() instanceof ExpressionTree);
@@ -777,8 +775,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof AndTree);
-        ConjunctionTree andNode = (ConjunctionTree) conditionTree.condition();
+        Assert.assertTrue(conditionTree instanceof AndTree);
+        ConjunctionTree andNode = (ConjunctionTree) conditionTree;
 
         // left node
         Assert.assertTrue(andNode.left() instanceof AndTree);
@@ -826,8 +824,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof OrTree);
-        ConjunctionTree orNode = (ConjunctionTree) conditionTree.condition();
+        Assert.assertTrue(conditionTree instanceof OrTree);
+        ConjunctionTree orNode = (ConjunctionTree) conditionTree;
 
         // left node
         Assert.assertTrue(orNode.left() instanceof OrTree);
@@ -875,8 +873,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof OrTree);
-        ConjunctionTree orNode = (ConjunctionTree) conditionTree.condition();
+        Assert.assertTrue(conditionTree instanceof OrTree);
+        ConjunctionTree orNode = (ConjunctionTree) conditionTree;
 
         // left node
         Assert.assertTrue(orNode.left() instanceof AndTree);
@@ -924,8 +922,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof OrTree);
-        ConjunctionTree orNode = (ConjunctionTree) conditionTree.condition();
+        Assert.assertTrue(conditionTree instanceof OrTree);
+        ConjunctionTree orNode = (ConjunctionTree) conditionTree;
 
         // Right node
         Assert.assertTrue(orNode.right() instanceof AndTree);
@@ -974,8 +972,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof AndTree);
-        ConjunctionTree andNode = (ConjunctionTree) conditionTree.condition();
+        Assert.assertTrue(conditionTree instanceof AndTree);
+        ConjunctionTree andNode = (ConjunctionTree) conditionTree;
 
         // Left node
         Assert.assertTrue(andNode.left() instanceof ExpressionTree);
@@ -1029,9 +1027,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("\"Lebron James\"",
@@ -1059,9 +1056,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("$name", expression.values().get(0).toString());
@@ -1083,9 +1079,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("\"Javier Lores\"",
@@ -1108,9 +1103,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("\"Javier Lores\"",
@@ -1133,9 +1127,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("'Javier \"Lores'",
@@ -1158,9 +1151,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("'Javier \"\\@Lores'",
@@ -1183,9 +1175,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("$name", expression.values().get(0).toString());
@@ -1207,9 +1198,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("@name", expression.values().get(0).toString());
@@ -1231,9 +1221,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("LINKS_TO", expression.operator().toString());
         Assert.assertEquals("30", expression.values().get(0).toString());
@@ -1255,9 +1244,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("name", expression.key().toString());
         Assert.assertEquals("LINKS_TO", expression.operator().toString());
         Assert.assertEquals("30", expression.values().get(0).toString());
@@ -1279,9 +1267,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("mother.children", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("3", expression.values().get(0).toString());
@@ -1303,9 +1290,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("mother.mother.siblings",
                 expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
@@ -1328,9 +1314,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("mother", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("a.b.c", expression.values().get(0).toString());
@@ -1352,9 +1337,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
         FunctionKeySymbol symbol = expression.key();
         Assert.assertEquals("avg", symbol.key().operation());
@@ -1379,9 +1363,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(
@@ -1409,9 +1392,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(
@@ -1445,9 +1427,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
         Assert.assertTrue(
@@ -1477,9 +1458,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
         Assert.assertTrue(
@@ -1490,14 +1470,15 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", function.key());
 
         Assert.assertTrue(function.source() instanceof StatementTree);
-        Assert.assertTrue(((StatementTree) function.source()).conditionTree() != null);
+        Assert.assertTrue(
+                ((StatementTree) function.source()).conditionTree() != null);
         StatementTree functionRoot = (StatementTree) function.source();
 
         Assert.assertTrue(functionRoot.conditionTree() != null);
         ConditionTree functionConditionTree = functionRoot.conditionTree();
 
-        Assert.assertTrue(functionConditionTree.condition() instanceof ExpressionTree);
-        ExpressionTree t = (ExpressionTree) functionConditionTree.condition();
+        Assert.assertTrue(functionConditionTree instanceof ExpressionTree);
+        ExpressionTree t = (ExpressionTree) functionConditionTree;
         ExpressionSymbol root = (ExpressionSymbol) t.root();
         Assert.assertEquals("age", root.key().key());
         Assert.assertEquals(">", root.operator().operator().symbol());
@@ -1522,9 +1503,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
         Assert.assertTrue(
@@ -1561,9 +1541,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals(">", expression.operator().toString());
 
@@ -1575,14 +1554,15 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", function.key());
 
         Assert.assertTrue(function.source() instanceof StatementTree);
-        Assert.assertTrue(((StatementTree) function.source()).conditionTree() != null);
+        Assert.assertTrue(
+                ((StatementTree) function.source()).conditionTree() != null);
         StatementTree functionRoot = (StatementTree) function.source();
 
         Assert.assertTrue(functionRoot.conditionTree() != null);
         ConditionTree functionConditionTree = functionRoot.conditionTree();
 
-        Assert.assertTrue(functionConditionTree.condition() instanceof ExpressionTree);
-        ExpressionTree t = (ExpressionTree) functionConditionTree.condition();
+        Assert.assertTrue(functionConditionTree instanceof ExpressionTree);
+        ExpressionTree t = (ExpressionTree) functionConditionTree;
         ExpressionSymbol root = (ExpressionSymbol) t.root();
         Assert.assertEquals("age", root.key().key());
         Assert.assertEquals("<", root.operator().operator().symbol());
@@ -1605,9 +1585,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
         Assert.assertEquals("avg",
                 ((ImplicitKeyRecordFunction) expression.key().key())
@@ -1622,14 +1601,15 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age", function.key());
 
         Assert.assertTrue(function.source() instanceof StatementTree);
-        Assert.assertTrue(((StatementTree) function.source()).conditionTree() != null);
+        Assert.assertTrue(
+                ((StatementTree) function.source()).conditionTree() != null);
         StatementTree functionRoot = (StatementTree) function.source();
 
         Assert.assertTrue(functionRoot.conditionTree() != null);
         ConditionTree functionConditionTree = functionRoot.conditionTree();
 
-        Assert.assertTrue(functionConditionTree.condition() instanceof ExpressionTree);
-        ExpressionTree t = (ExpressionTree) functionConditionTree.condition();
+        Assert.assertTrue(functionConditionTree instanceof ExpressionTree);
+        ExpressionTree t = (ExpressionTree) functionConditionTree;
         ExpressionSymbol root = (ExpressionSymbol) t.root();
         Assert.assertEquals("age", root.key().key());
         Assert.assertEquals("<", root.operator().operator().symbol());
@@ -1779,9 +1759,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("a", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("1", expression.values().get(0).toString());
@@ -1809,9 +1788,8 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
 
-        Assert.assertTrue(conditionTree.condition() instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.condition()
-                .root();
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("$id$", expression.key().toString());
         Assert.assertEquals("!=", expression.operator().toString());
         Assert.assertEquals("40", expression.values().get(0).toString());

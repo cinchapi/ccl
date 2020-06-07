@@ -55,7 +55,7 @@ public class KeyCclFunction
 
             @Override
             public String visit(ConditionTree tree, Object... data) {
-                tree.condition().accept(this, data);
+                tree.accept(this, data);
                 return string;
             }
 

@@ -63,6 +63,7 @@ public class StatementTree extends BaseAbstractSyntaxTree {
 
     @Override
     public Symbol root() {
+        // TODO: return the statement type when the grammar is fully expanded
         return null;
     }
 

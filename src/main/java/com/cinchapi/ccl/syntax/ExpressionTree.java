@@ -25,7 +25,7 @@ import com.cinchapi.ccl.grammar.Symbol;
  * An abstraction for an expression node in a {@link AbstractSyntaxTree}
  */
 public class ExpressionTree extends BaseAbstractSyntaxTree
-        implements ConditionNode {
+        implements ConditionTree {
 
     /**
      * The root.
