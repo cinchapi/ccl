@@ -40,6 +40,7 @@ import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
+import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -123,15 +124,19 @@ TOKEN [IGNORE_CASE]:
 |
   < BINARY_OPERATOR: <BETWEEN> >
 |
+  < OPEN_ANGLE_BRACKET : "<" >
+|
+  < CLOSE_ANGLE_BRACKET : ">" >
+|
   < #EQUALS: "=" | "==" | "eq" | "equals" >
 |
   < #NOT_EQUALS: "!=" | "ne" | "not_equals" >
 |
-  < #GREATER_THAN: ">" | "gt" | "greater_than">
+  < #GREATER_THAN: "gt" | "greater_than">
 |
   < #GREATER_THAN_OR_EQUALS: ">=" | "gte" | "greater_than_or_equals" >
 |
-  < #LESS_THAN: "<" | "lt" | "less_than">
+  < #LESS_THAN: "lt" | "less_than">
 |
   < #LESS_THAN_OR_EQUALS: "<=" | "lte" | "less_than_or_equals" >
 |
@@ -154,6 +159,16 @@ TOKEN :
 |
   < SIZE : "size" >
 |
+  < ORDER : "order" >
+|
+  < PIPE : "|" >
+|
+  < AMPERSAND : "@" >
+|
+  < ASC : "ASC" >
+|
+  < DESC : "DESC" >
+|
   < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
 |
   < DOUBLE_QUOTED_STRING : ("\"" ("\\" ~[] | ~["\"", "\\"])+ "\"") | ("“" ("\\" ~[] | ~["”", "\\"])+ "”") >
@@ -167,8 +182,6 @@ TOKEN :
   < COMMA_SEPARATED_ALPHANUMERIC : <ALPHANUMERIC> ",">
 |
   < COMMA_SEPARATED_PERIOD_SEPARATED_STRING : <PERIOD_SEPARATED_STRING> ",">
-|
-  < PIPE : "|" >
 |
   < NUMERIC: (<DIGIT>)+ >
 |
@@ -194,9 +207,11 @@ TOKEN :
 ASTStart StartCommandLine() #Start : {}
 {
    (
-     (<WHERE>)? DisjunctionExpression() (Page())? "\n"
+     (<WHERE>)? DisjunctionExpression() (<ORDER> Order())* (Page())? "\n"
    |
      Page() "\n"
+   |
+     <ORDER> (Order())+ "\n"
    )
    { return jjtThis; }
 }
@@ -204,9 +219,11 @@ ASTStart StartCommandLine() #Start : {}
 ASTStart generateAST() #Start : {}
 {
    (
-     (<WHERE>)? DisjunctionExpression() (Page())? <EOF>
+     (<WHERE>)? DisjunctionExpression() (<ORDER> Order())* (Page())? <EOF>
    |
      Page() <EOF>
+   |
+     <ORDER> (Order())+
    )
    { return jjtThis; }
 }
@@ -453,7 +470,7 @@ OperatorSymbol UnaryOperator() :
   Token operator;
 }
 {
-  operator=<UNARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
+  (operator=<UNARY_OPERATOR> | operator=<OPEN_ANGLE_BRACKET> | operator=<CLOSE_ANGLE_BRACKET> ) { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 OperatorSymbol BinaryOperator() :
@@ -508,5 +525,89 @@ String Size() :
   (
      (<SIZE> size=<NUMERIC>)
      { return size.image; }
+  )
+}
+
+void Order() #Order :
+{
+  String direction = null;
+  String key = null;
+  String timestampString = null;
+  String timestampFormat = null;
+  String timestampNumber = null;
+}
+{
+  (
+    direction=SymbolicDirection() key=OrderKey()
+  |
+    key=OrderKey() (direction=WordDirection())?
+  )
+  (<AMPERSAND> (timestampNumber=TimestampNumber() | (timestampString=TimestampString() (<PIPE> timestampFormat=TimestampFormat())?)))?
+  { jjtThis.order(new OrderSymbol(key, direction, timestampString, timestampFormat, timestampNumber)); }
+}
+
+String SymbolicDirection() :
+{
+   Token direction;
+}
+{
+  (
+     (direction=<OPEN_ANGLE_BRACKET> | direction=<CLOSE_ANGLE_BRACKET>)
+     { return direction.image; }
+  )
+}
+
+String WordDirection() :
+{
+   Token direction;
+}
+{
+  (
+     (direction=<ASC> | direction=<DESC>)
+     { return direction.image; }
+  )
+}
+
+String OrderKey() :
+{
+   Token key;
+}
+{
+  (
+     (key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
+     { return key.image; }
+  )
+}
+
+String TimestampString() :
+{
+   Token timestamp;
+}
+{
+  (
+     timestamp=<QUOTED_STRING>
+     { return timestamp.image; }
+  )
+}
+
+String TimestampFormat() :
+{
+   Token format;
+}
+{
+  (
+     format=<QUOTED_STRING>
+     { return format.image; }
+  )
+}
+
+String TimestampNumber() :
+{
+   Token timestamp;
+}
+{
+  (
+     timestamp=<NUMERIC>
+     { return timestamp.image; }
   )
 }

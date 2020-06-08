@@ -50,11 +50,28 @@ public class OrderSpecification {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof OrderSpecification) {
+            // Remove milliseconds from Timestamp
+            // This is needed to avoid millisecond errors when comparing timestamps in
+            // @JavaCCParserLogicTest
+            int mIndex = timestamp.toString().indexOf("M -");
+            int objmIndex = ((OrderSpecification)obj).timestamp.toString().indexOf("M -");
+            String tempTimestamp = timestamp.toString();
+            String objTempTimestamp = ((OrderSpecification)obj).timestamp.toString();
+            if (mIndex > 4 && objmIndex > 4) {
+                tempTimestamp =
+                        timestamp.toString().substring(0, mIndex - 4) + timestamp.toString().substring(mIndex
+                                - 1);
+                objTempTimestamp =
+                        ((OrderSpecification)obj).timestamp.toString().
+                                substring(0, mIndex - 4)
+                                + ((OrderSpecification)obj).timestamp.toString()
+                                .substring(mIndex - 1);
+            }
+
             if (!key.equals(((OrderSpecification)obj).key)) {
                 return false;
             }
-            else if (!timestamp.toString().equals(((OrderSpecification)obj)
-                    .timestamp.toString())) {
+            else if (!tempTimestamp.equals(objTempTimestamp)) {
                 return false;
             }
             else if (!direction.equals(((OrderSpecification)obj).direction)) {

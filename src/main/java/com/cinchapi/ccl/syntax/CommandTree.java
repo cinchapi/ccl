@@ -33,6 +33,7 @@ public class CommandTree extends BaseAbstractSyntaxTree {
     private CommandSymbol command;
     private ConditionTree conditionTree;
     private PageTree pageTree;
+    private OrderTree orderTree;
 
     /**
      * Construct a new instance.
@@ -40,10 +41,12 @@ public class CommandTree extends BaseAbstractSyntaxTree {
      * @param conditionTree
      * @param pageTree
      */
-    public CommandTree(ConditionTree conditionTree, PageTree pageTree) {
+    public CommandTree(ConditionTree conditionTree, PageTree pageTree,
+            OrderTree orderTree) {
         this.command = CommandSymbol.FIND;
         this.conditionTree = conditionTree;
         this.pageTree = pageTree;
+        this.orderTree = orderTree;
     }
 
     /**
@@ -68,6 +71,17 @@ public class CommandTree extends BaseAbstractSyntaxTree {
         return pageTree;
     }
 
+    /**
+     * Return a {@link OrderTree tree} for the parsed command's order, if it
+     * exists.
+     *
+     * @return the {@link OrderTree}
+     */
+    @Nullable
+    public OrderTree orderTree() {
+        return orderTree;
+    }
+
     @Override
     public Collection<AbstractSyntaxTree> children() {
         List<AbstractSyntaxTree> children = Lists.newArrayList();
@@ -76,6 +90,9 @@ public class CommandTree extends BaseAbstractSyntaxTree {
         }
         if(pageTree != null) {
             children.add(pageTree);
+        }
+        if(orderTree != null) {
+            children.add(orderTree);
         }
         return children;
     }

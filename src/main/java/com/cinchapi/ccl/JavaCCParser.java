@@ -40,6 +40,7 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.common.function.TriFunction;
+import com.cinchapi.concourse.lang.sort.Order;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -186,18 +187,22 @@ public class JavaCCParser extends Parser {
                 public Object visit(ASTStart node, Object data) {
                     ConditionTree conditionTree = null;
                     PageTree pageTree = null;
+                    OrderTree orderTree = null;
 
                     for(int i = 0; i < node.jjtGetNumChildren(); i++) {
                         Object child = node.jjtGetChild(i).jjtAccept(this, data);
                         if(child instanceof PageTree) {
                             pageTree = (PageTree) child;
                         }
+                        else if(child instanceof OrderTree) {
+                            orderTree = (OrderTree) child;
+                        }
                         else {
                             conditionTree = (ConditionTree) child;
                         }
                     }
 
-                    return new CommandTree(conditionTree, pageTree);
+                    return new CommandTree(conditionTree, pageTree, orderTree);
                 }
 
                 @Override

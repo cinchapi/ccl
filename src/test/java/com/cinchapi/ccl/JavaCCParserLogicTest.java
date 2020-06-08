@@ -15,10 +15,6 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.JavaCCParser;
-import com.cinchapi.ccl.Parser;
-import com.cinchapi.ccl.generated.CriteriaGrammar;
-import com.cinchapi.ccl.generated.ParseException;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
@@ -55,10 +51,6 @@ import com.google.common.collect.Multimap;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -1809,7 +1801,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKey(){
-        String input = "order age";
+        String input = ORDER + " age";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1827,7 +1819,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyAscendingSymbol() {
-        String input = "order < age";
+        String input = ORDER + " < age";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1845,7 +1837,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyAscendingWord() {
-        String input = "order age ASC";
+        String input = ORDER + " age ASC";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1863,7 +1855,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyDescendingSymbol() {
-        String input = "order > age";
+        String input = ORDER + " > age";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1881,7 +1873,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyDescendingWord() {
-        String input = "order age DESC";
+        String input = ORDER + " age DESC";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1899,7 +1891,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithNumberTimestamp() {
-        String input = "order age @ " + String.valueOf(122L);
+        String input = ORDER + " age @ " + String.valueOf(122L);
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1918,7 +1910,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithStringTimestamp() {
-        String input = "order age @ \"1992-10-02\"";
+        String input = ORDER + " age @ \"1992-10-02\"";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1937,7 +1929,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithStringAndFormatTimestamp() {
-        String input = "order age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+        String input = ORDER + " age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1956,7 +1948,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithNumberTimestampAscending() {
-        String input = "order < age @ " + String.valueOf(122L);
+        String input = ORDER + " < age @ " + String.valueOf(122L);
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1975,7 +1967,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithStringTimestampAscending() {
-        String input = "order < age @ \"1992-10-02\"";
+        String input = ORDER + " < age @ \"1992-10-02\"";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1994,7 +1986,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithStringAndFormatTimestampAscending() {
-        String input = "order < age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+        String input = ORDER + " < age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -2013,7 +2005,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithNumberTimestampDescending() {
-        String input = "order > age @ " + String.valueOf(122L);
+        String input = ORDER + " > age @ " + String.valueOf(122L);
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -2032,7 +2024,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithStringTimestampDescending() {
-        String input = "order > age @ \"1992-10-02\"";
+        String input = ORDER + " > age @ \"1992-10-02\"";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -2051,7 +2043,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testKeyWithStringAndFormatTimestampDescending() {
-        String input = "order > age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+        String input = ORDER + " > age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -2070,7 +2062,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testMultipleKeys() {
-        String input = "order age salary";
+        String input = ORDER + " age salary";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -2090,7 +2082,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testMultipleKeysWithDirectional() {
-        String input = "order < age > salary";
+        String input = ORDER + " < age > salary";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -2110,7 +2102,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testSingleExpressionWithOrderTokenize() {
-        String ccl = "a = 1 order a";
+        String ccl = "a = 1 " + ORDER + " a";
 
         // Build expected queue
         List<Object> expectedTokens = Lists.newArrayList();
@@ -2133,7 +2125,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testSingleConjunctionWithOrderPostFix() {
-        String ccl = "a = 1 and b = 2 order a";
+        String ccl = "a = 1 and b = 2 " + ORDER + " a";
 
         // Build expected queue
         Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
@@ -2168,7 +2160,7 @@ public class JavaCCParserLogicTest {
 
     @Test
     public void testSingleExpressionWithOrderAbstractSyntaxTree() {
-        String ccl = "a = 1 order a";
+        String ccl = "a = 1 " + ORDER + " a";
 
         // Generate tree
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2176,11 +2168,118 @@ public class JavaCCParserLogicTest {
         AbstractSyntaxTree tree = parser.parse();
 
         // Root node
-        Assert.assertTrue(tree instanceof ExpressionTree);
-        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+
+        Assert.assertTrue(rootNode.conditionTree() != null);
+        ConditionTree conditionTree = rootNode.conditionTree();
+
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
         Assert.assertEquals("a", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("1", expression.values().get(0).toString());
+
+        // Order Node
+        Assert.assertTrue(((CommandTree) tree).orderTree() != null);
+        OrderSymbol order = (OrderSymbol) ((CommandTree) tree).orderTree().root();
+        Assert.assertEquals(order.order(), new OrderSpecification("a",
+                Direction.ASCENDING));
+    }
+
+    @Test
+    public void testSingleExpressionWithOrderAndPageTokenize() {
+        String ccl = "a = 1 " + ORDER + " a " + SIZE + " 3 " + PAGE + " 1";
+
+        // Build expected queue
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new KeySymbol("a"));
+        expectedTokens.add(new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
+        expectedTokens.add(
+                new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
+        expectedTokens.add(new OrderSymbol(new OrderSpecification("a",
+                Direction.ASCENDING)));
+        expectedTokens.add(new PageSymbol("1", "3"));
+
+        // Generate queue
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        List<Symbol> tokens = parser.tokenize();
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testSingleConjunctionWithOrderAndPagePostFix() {
+        String ccl = "a = 1 and b = 2 " + ORDER + " a " + SIZE + " 3 " + PAGE + " 1";
+
+        // Build expected queue
+        Queue<PostfixNotationSymbol> expectedOrder = new LinkedList<>();
+
+        KeySymbol key = new KeySymbol("a");
+        OperatorSymbol operator = new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
+        ValueSymbol value = new ValueSymbol(
+                PARSER_TRANSFORM_VALUE_FUNCTION.apply("1"));
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator,
+                value);
+        expectedOrder.add(expression);
+
+        key = new KeySymbol("b");
+        operator = new OperatorSymbol(
+                PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("="));
+        value = new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("2"));
+        expression = ExpressionSymbol.create(key, operator, value);
+        expectedOrder.add(expression);
+
+        expectedOrder.add(ConjunctionSymbol.AND);
+        expectedOrder.add(new OrderSymbol(new OrderSpecification("a",
+                Direction.ASCENDING)));
+        expectedOrder.add(new PageSymbol("1", "3"));
+
+        // Generate queue
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        Queue<PostfixNotationSymbol> order = parser.order();
+
+        Assert.assertEquals(expectedOrder, order);
+    }
+
+    @Test
+    public void testSingleExpressionWithOrderAndPageAbstractSyntaxTree() {
+        String ccl = "a = 1 " + ORDER + " a " + SIZE + " 1 " + PAGE + " 3";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+
+        Assert.assertTrue(rootNode.conditionTree() != null);
+        ConditionTree conditionTree = rootNode.conditionTree();
+
+        Assert.assertTrue(conditionTree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) conditionTree.root();
+        Assert.assertEquals("a", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("1", expression.values().get(0).toString());
+
+        // Order Node
+        Assert.assertTrue(((CommandTree) tree).orderTree() != null);
+        OrderSymbol order = (OrderSymbol) ((CommandTree) tree).orderTree().root();
+        Assert.assertEquals(order.order(), new OrderSpecification("a",
+                Direction.ASCENDING));
+
+        // Page Node
+        Assert.assertTrue(((CommandTree) tree).pageTree() != null);
+        PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
+        Assert.assertEquals(2, page.page().offset());
+        Assert.assertEquals(1, page.page().limit());
     }
 
     @Test
@@ -2241,9 +2340,12 @@ public class JavaCCParserLogicTest {
         });
     }
 
-    // String constants
-    static final String PAGE = "page";
-    static final String SIZE = "size";
+    /**
+     * Constants
+     */
+    private static final String PAGE = "page";
+    private static final String SIZE = "size";
+    private static final String ORDER = "order";
 
     /**
      * The canonical function to transform strings to java values in a
