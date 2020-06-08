@@ -168,7 +168,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
         for (ValueTokenSymbol<?> value : values) {
             string += " " + value.toString();
         }
-        if (timestamp != null && timestamp != TimestampSymbol.PRESENT) {
+        if (timestamp != null) {
             string += " " + timestamp.toString();
         }
         return string;
