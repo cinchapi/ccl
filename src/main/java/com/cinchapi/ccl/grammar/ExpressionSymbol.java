@@ -46,7 +46,7 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      */
     public static ExpressionSymbol create(KeyTokenSymbol<?> key,
             OperatorSymbol operator, ValueTokenSymbol<?>... values) {
-        return create(TimestampSymbol.PRESENT, key, operator, values);
+        return create(null, key, operator, values);
     }
 
     /**
@@ -64,7 +64,9 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
             KeyTokenSymbol<?> key, OperatorSymbol operator,
             ValueTokenSymbol<?>... values) {
         ASTExpression token = new ASTExpression(0);
-        token.timestamp(timestamp);
+        if(timestamp != null && timestamp != TimestampSymbol.PRESENT) {
+            token.timestamp(timestamp);
+        }
         token.key(key);
         token.operator(operator);
         for (ValueTokenSymbol<?> value : values) {
