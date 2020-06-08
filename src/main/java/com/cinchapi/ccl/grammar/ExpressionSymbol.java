@@ -46,7 +46,7 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      */
     public static ExpressionSymbol create(KeyTokenSymbol<?> key,
             OperatorSymbol operator, ValueTokenSymbol<?>... values) {
-        return create(null, key, operator, values);
+        return create(TimestampSymbol.PRESENT, key, operator, values);
     }
 
     /**
