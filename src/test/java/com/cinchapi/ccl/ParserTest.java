@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -1066,14 +1065,6 @@ public abstract class ParserTest {
                     tree.conditionTree().accept(this, data);
                     return queue;
                 }
-            }
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public Queue<Symbol> visit(ConditionTree tree, Object... data) {
-                Queue<Symbol> queue = (Queue<Symbol>) data[0];
-                tree.accept(this, data);
-                return queue;
             }
 
             @SuppressWarnings("unchecked")

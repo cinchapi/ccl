@@ -57,11 +57,6 @@ public class VisitorTest {
             }
 
             @Override
-            public Object visit(ConditionTree tree, Object... data) {
-                return data;
-            }
-
-            @Override
             public Object visit(ConjunctionTree tree, Object... data) {
                 Assert.assertTrue(tree instanceof AndTree);
                 return data;
