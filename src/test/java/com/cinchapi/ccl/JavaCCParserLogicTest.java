@@ -1806,8 +1806,9 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
-                Direction.ASCENDING)));
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age", Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1824,8 +1825,9 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
-                Direction.ASCENDING)));
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age", Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1842,8 +1844,9 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
-                Direction.ASCENDING)));
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age", Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1860,8 +1863,9 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
-                Direction.DESCENDING)));
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age", Direction.DESCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1878,8 +1882,9 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
-                Direction.DESCENDING)));
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age", Direction.DESCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1896,9 +1901,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.fromMicros(122L),
-                Direction.ASCENDING)));
+                Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1915,9 +1922,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.fromString("1992-10-02"),
-                Direction.ASCENDING)));
+                Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1934,9 +1943,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.parse("1992-10-02", "yyyy-mm-dd"),
-                Direction.ASCENDING)));
+                Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1953,9 +1964,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.fromMicros(122L),
-                Direction.ASCENDING)));
+                Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1972,9 +1985,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.fromString("1992-10-02"),
-                Direction.ASCENDING)));
+                Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1991,9 +2006,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.parse("1992-10-02", "yyyy-mm-dd"),
-                Direction.ASCENDING)));
+                Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2010,9 +2027,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.fromMicros(122L),
-                Direction.DESCENDING)));
+                Direction.DESCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2029,9 +2048,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.fromString("1992-10-02"),
-                Direction.DESCENDING)));
+                Direction.DESCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2048,9 +2069,11 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age",
                 Timestamp.parse("1992-10-02", "yyyy-mm-dd"),
-                Direction.DESCENDING)));
+                Direction.DESCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2067,10 +2090,10 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
-                Direction.ASCENDING)));
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("salary",
-                Direction.ASCENDING)));
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age", Direction.ASCENDING));
+        order.add(new OrderSpecification("salary", Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2087,10 +2110,10 @@ public class JavaCCParserLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("age",
-                Direction.ASCENDING)));
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("salary",
-                Direction.DESCENDING)));
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("age", Direction.ASCENDING));
+        order.add(new OrderSpecification("salary", Direction.DESCENDING));
+        expectedTokens.add(order);
 
         // Generate list
         Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2098,6 +2121,28 @@ public class JavaCCParserLogicTest {
         List<Symbol> tokens = parser.tokenize();
 
         Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testMultipleKeysWithDirectionalAST() {
+        String input = ORDER + " < age > salary";
+
+        OrderSymbol expectedOrder = new OrderSymbol();
+        expectedOrder.add(new OrderSpecification("age", Direction.ASCENDING));
+        expectedOrder.add(new OrderSpecification("salary", Direction.DESCENDING));
+
+        // Generate tree
+        Parser parser = Parser.create(input, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+
+        // Order Node
+        Assert.assertTrue(((CommandTree) tree).orderTree() != null);
+        OrderSymbol order = (OrderSymbol) ((CommandTree) tree).orderTree().root();
+        Assert.assertEquals(order, expectedOrder);
     }
 
     @Test
@@ -2112,8 +2157,10 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
         expectedTokens.add(
                 new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("a",
-                Direction.ASCENDING)));
+
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("a", Direction.ASCENDING));
+        expectedTokens.add(order);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2147,8 +2194,9 @@ public class JavaCCParserLogicTest {
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
-        expectedOrder.add(new OrderSymbol(new OrderSpecification("a",
-                Direction.ASCENDING)));
+        OrderSymbol orderSymbol = new OrderSymbol();
+        orderSymbol.add(new OrderSpecification("a", Direction.ASCENDING));
+        expectedOrder.add(orderSymbol);
 
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2161,6 +2209,9 @@ public class JavaCCParserLogicTest {
     @Test
     public void testSingleExpressionWithOrderAbstractSyntaxTree() {
         String ccl = "a = 1 " + ORDER + " a";
+
+        OrderSymbol expectedOrder = new OrderSymbol();
+        expectedOrder.add(new OrderSpecification("a", Direction.ASCENDING));
 
         // Generate tree
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2183,8 +2234,7 @@ public class JavaCCParserLogicTest {
         // Order Node
         Assert.assertTrue(((CommandTree) tree).orderTree() != null);
         OrderSymbol order = (OrderSymbol) ((CommandTree) tree).orderTree().root();
-        Assert.assertEquals(order.order(), new OrderSpecification("a",
-                Direction.ASCENDING));
+        Assert.assertEquals(order, expectedOrder);
     }
 
     @Test
@@ -2199,8 +2249,9 @@ public class JavaCCParserLogicTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION.apply("=")));
         expectedTokens.add(
                 new ValueSymbol(PARSER_TRANSFORM_VALUE_FUNCTION.apply("1")));
-        expectedTokens.add(new OrderSymbol(new OrderSpecification("a",
-                Direction.ASCENDING)));
+        OrderSymbol order = new OrderSymbol();
+        order.add(new OrderSpecification("a", Direction.ASCENDING));
+        expectedTokens.add(order);
         expectedTokens.add(new PageSymbol("1", "3"));
 
         // Generate queue
@@ -2235,8 +2286,9 @@ public class JavaCCParserLogicTest {
         expectedOrder.add(expression);
 
         expectedOrder.add(ConjunctionSymbol.AND);
-        expectedOrder.add(new OrderSymbol(new OrderSpecification("a",
-                Direction.ASCENDING)));
+        OrderSymbol orderSymbol = new OrderSymbol();
+        orderSymbol.add(new OrderSpecification("a", Direction.ASCENDING));
+        expectedOrder.add(orderSymbol);
         expectedOrder.add(new PageSymbol("1", "3"));
 
         // Generate queue
@@ -2250,6 +2302,9 @@ public class JavaCCParserLogicTest {
     @Test
     public void testSingleExpressionWithOrderAndPageAbstractSyntaxTree() {
         String ccl = "a = 1 " + ORDER + " a " + SIZE + " 1 " + PAGE + " 3";
+
+        OrderSymbol expectedOrder = new OrderSymbol();
+        expectedOrder.add(new OrderSpecification("a", Direction.ASCENDING));
 
         // Generate tree
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2272,8 +2327,7 @@ public class JavaCCParserLogicTest {
         // Order Node
         Assert.assertTrue(((CommandTree) tree).orderTree() != null);
         OrderSymbol order = (OrderSymbol) ((CommandTree) tree).orderTree().root();
-        Assert.assertEquals(order.order(), new OrderSpecification("a",
-                Direction.ASCENDING));
+        Assert.assertEquals(order, expectedOrder);
 
         // Page Node
         Assert.assertTrue(((CommandTree) tree).pageTree() != null);
