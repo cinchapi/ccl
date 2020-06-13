@@ -19,7 +19,7 @@ import com.cinchapi.common.base.AnyStrings;
 
 /**
  * An unchecked exception that wraps a propagated exception and adds context
- * about the parser state.
+ * about the compiler state.
  * 
  * @author Jeff Nelson
  */
