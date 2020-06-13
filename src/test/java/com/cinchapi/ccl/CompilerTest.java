@@ -18,6 +18,7 @@ package com.cinchapi.ccl;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
@@ -26,6 +27,7 @@ import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
@@ -42,6 +44,7 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.reflect.Reflection;
 import com.cinchapi.concourse.Tag;
 import com.cinchapi.concourse.Timestamp;
@@ -1077,6 +1080,116 @@ public abstract class CompilerTest {
                         TimestampSymbol.PRESENT, DirectionSymbol.ASCENDING),
                 new OrderComponentSymbol(new KeySymbol("email"),
                         TimestampSymbol.PRESENT, DirectionSymbol.DESCENDING));
+        for (int i = 0; i < expectedComponents.size(); ++i) {
+            OrderComponentSymbol expected = expectedComponents.get(i);
+            OrderComponentSymbol actual = symbol.components().get(i);
+            Assert.assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    public void testParseOrderWithSingleKey() {
+        String ccl = "ORDER BY name";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        Assert.assertTrue(ast instanceof OrderTree);
+        OrderTree tree = (OrderTree) ast;
+        OrderSymbol symbol = (OrderSymbol) tree.root();
+        Assert.assertEquals(1, symbol.components().size());
+        List<OrderComponentSymbol> expectedComponents = ImmutableList
+                .of(new OrderComponentSymbol(new KeySymbol("name"),
+                        TimestampSymbol.PRESENT, DirectionSymbol.ASCENDING));
+        for (int i = 0; i < expectedComponents.size(); ++i) {
+            OrderComponentSymbol expected = expectedComponents.get(i);
+            OrderComponentSymbol actual = symbol.components().get(i);
+            Assert.assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    public void testParseOrderWithSingleKeyTimestamp() {
+        String ccl = "ORDER BY name at last week";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        Assert.assertTrue(ast instanceof OrderTree);
+        OrderTree tree = (OrderTree) ast;
+        OrderSymbol symbol = (OrderSymbol) tree.root();
+        Assert.assertEquals(1, symbol.components().size());
+        List<OrderComponentSymbol> expectedComponents = ImmutableList
+                .of(new OrderComponentSymbol(new KeySymbol("name"),
+                        new TimestampSymbol(
+                                NaturalLanguage.parseMicros("last week"),
+                                TimeUnit.DAYS),
+                        DirectionSymbol.ASCENDING));
+        for (int i = 0; i < expectedComponents.size(); ++i) {
+            OrderComponentSymbol expected = expectedComponents.get(i);
+            OrderComponentSymbol actual = symbol.components().get(i);
+            Assert.assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    public void testParseOrderWithSingleKeyDirectionTimestamp() {
+        String ccl = "ORDER BY name DESC at last week";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        Assert.assertTrue(ast instanceof OrderTree);
+        OrderTree tree = (OrderTree) ast;
+        OrderSymbol symbol = (OrderSymbol) tree.root();
+        Assert.assertEquals(1, symbol.components().size());
+        List<OrderComponentSymbol> expectedComponents = ImmutableList
+                .of(new OrderComponentSymbol(new KeySymbol("name"),
+                        new TimestampSymbol(
+                                NaturalLanguage.parseMicros("last week"),
+                                TimeUnit.DAYS),
+                        DirectionSymbol.DESCENDING));
+        for (int i = 0; i < expectedComponents.size(); ++i) {
+            OrderComponentSymbol expected = expectedComponents.get(i);
+            OrderComponentSymbol actual = symbol.components().get(i);
+            Assert.assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    public void testParseOrderWithMultipleKeys() {
+        String ccl = "ORDER BY name age";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        Assert.assertTrue(ast instanceof OrderTree);
+        OrderTree tree = (OrderTree) ast;
+        OrderSymbol symbol = (OrderSymbol) tree.root();
+        Assert.assertEquals(2, symbol.components().size());
+        List<OrderComponentSymbol> expectedComponents = ImmutableList.of(
+                new OrderComponentSymbol(new KeySymbol("name"),
+                        TimestampSymbol.PRESENT, DirectionSymbol.ASCENDING),
+                new OrderComponentSymbol(new KeySymbol("age"),
+                        TimestampSymbol.PRESENT, DirectionSymbol.ASCENDING));
+        for (int i = 0; i < expectedComponents.size(); ++i) {
+            OrderComponentSymbol expected = expectedComponents.get(i);
+            OrderComponentSymbol actual = symbol.components().get(i);
+            Assert.assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    @Ignore //FIXME
+    public void testParseOrderWithMultipleKeysBothTimestamp() {
+        String ccl = "ORDER BY name at 'last week' age at 'a month ago'";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        Assert.assertTrue(ast instanceof OrderTree);
+        OrderTree tree = (OrderTree) ast;
+        OrderSymbol symbol = (OrderSymbol) tree.root();
+        Assert.assertEquals(2, symbol.components().size());
+        List<OrderComponentSymbol> expectedComponents = ImmutableList.of(
+                new OrderComponentSymbol(new KeySymbol("name"),
+                        new TimestampSymbol(
+                                NaturalLanguage.parseMicros("last week"), TimeUnit.DAYS),
+                        DirectionSymbol.ASCENDING),
+                new OrderComponentSymbol(new KeySymbol("age"),
+                        new TimestampSymbol(
+                                NaturalLanguage.parseMicros("a month ago"), TimeUnit.DAYS),
+                        DirectionSymbol.ASCENDING));
         for (int i = 0; i < expectedComponents.size(); ++i) {
             OrderComponentSymbol expected = expectedComponents.get(i);
             OrderComponentSymbol actual = symbol.components().get(i);

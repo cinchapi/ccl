@@ -44,7 +44,7 @@ public class TimestampSymbol implements Symbol {
      * The degree of precision to use for this {@link TimestampSymbol} when
      * determining {@link #equals(Object) equality} and the {@link #hashCode()}.
      */
-    private TimeUnit precision = TimeUnit.MILLISECONDS;
+    private TimeUnit precision;
 
     /**
      * Construct a new instance.
@@ -71,9 +71,10 @@ public class TimestampSymbol implements Symbol {
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof TimestampSymbol) {
-            return TimeUnit.MICROSECONDS.convert(timestamp,
-                    precision) == TimeUnit.MICROSECONDS.convert(
-                            ((TimestampSymbol) obj).timestamp, precision);
+            return precision.convert(timestamp,
+                    TimeUnit.MICROSECONDS) == precision.convert(
+                            ((TimestampSymbol) obj).timestamp,
+                            TimeUnit.MICROSECONDS);
         }
         else {
             return false;
