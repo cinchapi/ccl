@@ -43,7 +43,7 @@ public class CommandTree extends BaseAbstractSyntaxTree {
      */
     public CommandTree(ConditionTree conditionTree, PageTree pageTree,
             OrderTree orderTree) {
-        this.command = CommandSymbol.FIND;
+        this.command = CommandSymbol.IMPLICIT;
         this.conditionTree = conditionTree;
         this.pageTree = pageTree;
         this.orderTree = orderTree;

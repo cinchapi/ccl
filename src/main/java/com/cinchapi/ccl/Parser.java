@@ -15,7 +15,6 @@
  */
 package com.cinchapi.ccl;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -24,33 +23,27 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
-import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.CommandTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
 import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 /**
  * A {@link Parser} is a stateful object that transforms raw CCL strings into
  * organized structures that can be logically evaluated.
+ * 
+ * @deprecated use {@link Compiler} instead
  *
  * @author Jeff Nelson
  */
 @ThreadSafe
 @Immutable
+@Deprecated
 public abstract class Parser {
 
     /**
@@ -61,7 +54,9 @@ public abstract class Parser {
      * @param valueTransformFunction value function
      * @param operatorTransformFunction operator function
      * @return the {@link Parser}
+     * @deprecated use {@link Compiler#create(Function, Function)} instead
      */
+    @Deprecated
     public static Parser create(String ccl,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
@@ -80,7 +75,9 @@ public abstract class Parser {
      *            and determine whether it satisfies an {@link Operator} in
      *            relation to a list of other values
      * @return the {@link Parser}
+     * @deprecated use {@link Compiler#create(Function, Function)} instead
      */
+    @Deprecated
     public static Parser create(String ccl,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction,
@@ -99,7 +96,9 @@ public abstract class Parser {
      * @param valueTransformFunction value function
      * @param operatorTransformFunction operator function
      * @return the {@link Parser}
+     * @deprecated use {@link Compiler#create(Function, Function)} instead
      */
+    @Deprecated
     public static Parser create(String ccl, Multimap<String, Object> data,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction) {
@@ -120,7 +119,9 @@ public abstract class Parser {
      *            and determine whether it satisfies an {@link Operator} in
      *            relation to a list of other values
      * @return the {@link Parser}
+     * @deprecated use {@link Compiler#create(Function, Function)} instead
      */
+    @Deprecated
     public static Parser create(String ccl, Multimap<String, Object> data,
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction,
@@ -130,21 +131,11 @@ public abstract class Parser {
     }
 
     /**
-     * The ccl statement being parsed.
-     */
-    protected final String ccl;
-
-    /**
-     * The dataset used for location resolution.
-     */
-    protected final Multimap<String, Object> data;
-
-    /**
      * An (optional) {@link TriFunction} that takes a value and {@link Operator}
      * as input and returns a boolean that indicates whether
      */
     @Nullable
-    private final LocalEvaluator evaluator;
+    private final TriFunction<Object, Operator, List<Object>, Boolean> evaluator;
 
     /**
      * A boolean that indicates whether this {@link Parser} supports local
@@ -152,20 +143,27 @@ public abstract class Parser {
      */
     private final boolean supportsLocalEvaluation;
 
+    protected final Compiler compiler;
+
+    protected final String ccl;
+    
+    protected final Multimap<String, Object> data;
+
     /**
      * Construct a new instance.
      * 
      * @param ccl
      * @param data
+     * @deprecated use {@link Compiler}
      */
+    @Deprecated
     public Parser(String ccl, Multimap<String, Object> data,
             @Nullable TriFunction<Object, Operator, List<Object>, Boolean> localEvaluationFunction) {
         this.ccl = ccl;
         this.data = data;
-        this.evaluator = localEvaluationFunction != null
-                ? new LocalEvaluator(localEvaluationFunction)
-                : null;
+        this.evaluator = localEvaluationFunction;
         this.supportsLocalEvaluation = localEvaluationFunction != null;
+        this.compiler = compiler(this::transformValue, this::transformOperator);
     }
 
     /**
@@ -174,61 +172,35 @@ public abstract class Parser {
      * 
      * @param tokens
      * @return the {@link Analysis}
+     * @deprecated use {@link Compiler#analyze(ConditionTree)}
      */
+    @Deprecated
     public Analysis analyze() {
-        return new Analysis() {
+        AbstractSyntaxTree ast = compiler.parse(ccl, data);
+        if(ast instanceof ConditionTree) {
+            StatementAnalysis analysis = compiler.analyze((ConditionTree) ast);
+            return new Analysis() {
 
-            @Override
-            public Set<String> keys() {
-                List<Symbol> tokens = tokenize();
-                Set<String> keys = Sets
-                        .newLinkedHashSetWithExpectedSize(tokens.size());
-                tokens.forEach((symbol) -> {
-                    if(symbol instanceof ExpressionSymbol) {
-                        keys.add(((ExpressionSymbol) symbol).raw().key());
-                    }
-                    else if(symbol instanceof KeySymbol) {
-                        keys.add(((KeySymbol) symbol).key());
-                    }
-                });
-                return Collections.unmodifiableSet(keys);
-            }
+                @Override
+                public Set<String> keys() {
+                    return analysis.keys();
+                }
 
-            @Override
-            public Set<String> keys(Operator operator) {
-                List<Symbol> tokens = tokenize();
-                tokens = Parsing.groupExpressions(tokens);
-                Set<String> keys = Sets
-                        .newLinkedHashSetWithExpectedSize(tokens.size());
-                tokens.forEach((symbol) -> {
-                    ExpressionSymbol expression;
-                    if(symbol instanceof ExpressionSymbol
-                            && (expression = (ExpressionSymbol) symbol).raw()
-                                    .operator().equals(operator)) {
-                        keys.add(expression.raw().key());
-                    }
-                });
-                return Collections.unmodifiableSet(keys);
-            }
+                @Override
+                public Set<String> keys(Operator operator) {
+                    return analysis.keys(operator);
+                }
 
-            @Override
-            public Set<Operator> operators() {
-                List<Symbol> tokens = tokenize();
-                Set<Operator> operators = Sets
-                        .newLinkedHashSetWithExpectedSize(tokens.size());
-                tokens.forEach((symbol) -> {
-                    if(symbol instanceof ExpressionSymbol) {
-                        operators.add(
-                                ((ExpressionSymbol) symbol).raw().operator());
-                    }
-                    else if(symbol instanceof OperatorSymbol) {
-                        operators.add(((OperatorSymbol) symbol).operator());
-                    }
-                });
-                return operators;
-            }
+                @Override
+                public Set<Operator> operators() {
+                    return analysis.operators();
+                }
 
-        };
+            };
+        }
+        else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     /**
@@ -247,11 +219,21 @@ public abstract class Parser {
      * @param data the data to test for adherences to the criteria
      * @return {@code true} if the data is described by the criteria that has
      *         been parsed
+     * @deprecated Use
+     *             {@link com.cinchapi.ccl.syntax.ConditionTree#evaluate(Multimap, TriFunction)}
+     *             instead
      */
+    @Deprecated
     public boolean evaluate(Multimap<String, Object> data) {
         Verify.that(supportsLocalEvaluation,
                 "This Parser does not support local evaluation");
-        return parse().accept(evaluator, data);
+        AbstractSyntaxTree ast = compiler.parse(ccl, data);
+        if(ast instanceof ConditionTree) {
+            return compiler.evaluate((ConditionTree) ast, data, evaluator);
+        }
+        else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     /**
@@ -261,7 +243,9 @@ public abstract class Parser {
      * 
      * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}
+     * @deprecated use {@link Compiler#arrange(ConditionTree)} instead
      */
+    @Deprecated
     public abstract Queue<PostfixNotationSymbol> order();
 
     /**
@@ -276,7 +260,10 @@ public abstract class Parser {
      * @param symbols a sequential list of tokens
      * @return an {@link AbstractSyntaxTree} containing the parsed structure
      *         inherent in the symbols
+     * @deprecated Use
+     *             {@link Compiler#parse(String, Multimap)} instead
      */
+    @Deprecated
     public abstract AbstractSyntaxTree parse();
 
     /**
@@ -286,7 +273,9 @@ public abstract class Parser {
      * @param ccl the CCL statement
      * @param data the data to use for binding local variables
      * @return a list of {@link Symbol} tokens
+     * @deprecated use {@link Compiler#tokenize(AbstractSyntaxTree)} instead
      */
+    @Deprecated
     public abstract List<Symbol> tokenize();
 
     @Override
@@ -309,6 +298,14 @@ public abstract class Parser {
      * @return the transformed value
      */
     protected abstract Object transformValue(String token);
+
+    /**
+     * Return a {@link Compiler} for delegation.
+     * 
+     * @return the {@link Compiler}
+     */
+    protected abstract Compiler compiler(Function<String, Object> valueParser,
+            Function<String, Operator> operatorParser);
 
     /**
      * A collection of insights about a CCL statement that is
@@ -342,99 +339,6 @@ public abstract class Parser {
          * @return the included operators
          */
         public Set<Operator> operators();
-    }
-
-    /**
-     * A {@link Visitor} that evaluates whether the criteria that has been
-     * parsed matches a dataset.
-     *
-     * @author Jeff Nelson
-     */
-    private class LocalEvaluator implements Visitor<Boolean> {
-
-        /**
-         * The evaluation function.
-         */
-        private final TriFunction<Object, Operator, List<Object>, Boolean> function;
-
-        /**
-         * Construct a new instance.
-         * 
-         * @param function
-         */
-        public LocalEvaluator(
-                TriFunction<Object, Operator, List<Object>, Boolean> function) {
-            this.function = function;
-        }
-
-        @Override
-        public Boolean visit(CommandTree tree, Object... data) {
-            for(AbstractSyntaxTree child : tree.children()) {
-                if(!child.accept(this, data)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public Boolean visit(ConjunctionTree tree, Object... data) {
-            if(tree.root() == ConjunctionSymbol.AND) {
-                boolean a = false;
-                AbstractSyntaxTree bTree;
-                if(!tree.left().isLeaf() && tree.right().isLeaf()) {
-                    a = tree.right().accept(this, data);
-                    bTree = tree.left();
-                }
-                else {
-                    a = tree.left().accept(this, data);
-                    bTree = tree.right();
-                }
-                return !a ? false : bTree.accept(this, data) && a;
-            }
-            else {
-                return tree.left().accept(this, data)
-                        || tree.right().accept(this, data);
-            }
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public Boolean visit(ExpressionTree tree, Object... data) {
-            Verify.thatArgument(data.length > 0);
-            Verify.thatArgument(data[0] instanceof Multimap);
-            Multimap<String, Object> dataset = (Multimap<String, Object>) data[0];
-            ExpressionSymbol expression = ((ExpressionSymbol) tree.root());
-            String key = expression.raw().key();
-            Operator operator = expression.raw().operator();
-            List<Object> values = expression.raw().values();
-            boolean matches = false;
-            for (Object stored : dataset.get(key)) {
-                if(function.apply(stored, operator, values)) {
-                    matches = true;
-                    break;
-                }
-                else {
-                    continue;
-                }
-            }
-            return matches;
-        }
-
-        @Override
-        public Boolean visit(PageTree tree, Object... data) {
-            // TODO: implement and return true if data[0] fits within the page.
-            // May need more context.
-            return true;
-        }
-
-        @Override
-        public Boolean visit(OrderTree tree, Object... data) {
-            // TODO: implement and return true if data[0] fits within the page.
-            // May need more context.
-            return true;
-        }
-
     }
 
 }

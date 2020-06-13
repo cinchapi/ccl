@@ -36,7 +36,9 @@ import com.google.common.collect.Multimap;
  * {@link ParserTest} that uses the {@link JavaCCParser}
  * 
  * @author Jeff Nelson
+ * @deprecated Replaced by {@link CompilerJavaCCTest}
  */
+@Deprecated
 public class JavaCCParserTest extends AbstractParserTest {
 
     @Override

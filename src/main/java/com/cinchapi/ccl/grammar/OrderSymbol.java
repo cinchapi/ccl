@@ -15,134 +15,45 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.lang.order.Direction;
-import com.cinchapi.ccl.lang.order.OrderClause;
-import com.cinchapi.ccl.lang.order.OrderSpecification;
-import com.cinchapi.concourse.Timestamp;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
 
 /**
- * A {@link Symbol} that represents an {@link com.cinchapi.ccl.lang.order.OrderSpecification}.
+ * A class to abstract away a list of orders as in concourse Order
  */
-public class OrderSymbol implements PostfixNotationSymbol {
-    /**
-     * The content of the symbol.
-     */
-    private OrderClause order;
+public class OrderSymbol implements Symbol {
 
     /**
-     * Construct a new instance.
-     *
-     * @param order
+     * List of order specifications
      */
-    public OrderSymbol(OrderClause order) {
-        this.order = order;
-    }
+    private List<OrderClauseSymbol> clauses;
 
-    /**
-     * Construct a new instance.
-     */
+
     public OrderSymbol() {
-        this.order = new OrderClause();
+        this.clauses = Lists.newArrayList();
     }
 
-    /**
-     * Add an new OrderSpecification
-     *
-     * @param orderSpecification
-     */
-    public void add(OrderSpecification orderSpecification) {
-        this.order.add(orderSpecification);
-    }
-
-    /**
-     * Add an new OrderSpecification
-     *
-     * @param key
-     * @param direction
-     * @param timestampString
-     * @param timestampFormat
-     * @param timestampNumber
-     */
-    public void add(String key, String direction, String timestampString,
-            String timestampFormat, String timestampNumber) {
-        if (direction == null || direction.equalsIgnoreCase("<")
-                || direction.equalsIgnoreCase("ASC")) {
-            if(timestampNumber != null) {
-                long number = Long.valueOf(timestampNumber);
-                this.order.add(new OrderSpecification(key,
-                        Timestamp.fromMicros(number), Direction.ASCENDING));
-            }
-            else if(timestampString != null) {
-                if(timestampFormat != null) {
-                    this.order.add(new OrderSpecification(key,
-                            Timestamp.parse(
-                                    timestampString.replace("\"", ""),
-                                    timestampFormat.replace("\"", "")),
-                            Direction.ASCENDING));
-                }
-                else {
-                    this.order.add(new OrderSpecification(key,
-                            Timestamp.fromString(
-                                    timestampString.replace("\"", "")),
-                            Direction.ASCENDING));
-                }
-            }
-            else {
-                this.order.add(new OrderSpecification(key,
-                        Direction.ASCENDING));
-            }
-        }
-        else {
-            if(timestampNumber != null) {
-                long number = Long.valueOf(timestampNumber);
-                this.order.add(new OrderSpecification(key,
-                        Timestamp.fromMicros(number), Direction.DESCENDING));
-            }
-            else if(timestampString != null) {
-                if(timestampFormat != null) {
-                    this.order.add(new OrderSpecification(key,
-                            Timestamp.parse(timestampString.replace("\"", ""),
-                                    timestampFormat.replace("\"", "")),
-                            Direction.DESCENDING));
-                }
-                else {
-                    this.order.add(new OrderSpecification(key, Timestamp
-                            .fromString(timestampString.replace("\"", "")),
-                            Direction.DESCENDING));
-                }
-            }
-            else {
-                this.order.add(new OrderSpecification(key, Direction.DESCENDING));
-            }
-        }
+    @Override
+    public String toString() {
+        return StringUtils.join(clauses, " ");
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof OrderSymbol) {
-            return order.equals(((OrderSymbol) obj).order);
+            return clauses.equals(((OrderSymbol) obj).clauses);
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return order.hashCode();
+        return clauses.hashCode();
     }
 
-    /**
-     * Return the order represented by this {@link Symbol}.
-     *
-     * @return the order
-     */
-    public OrderClause order() {
-        return order;
-    }
-
-    @Override
-    public String toString() {
-        return order.toString();
+    public void add(OrderClauseSymbol symbol) {
+        clauses.add(symbol);
     }
 }

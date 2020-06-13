@@ -16,7 +16,6 @@
 package com.cinchapi.ccl;
 
 import com.cinchapi.ccl.generated.ASTOrder;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.generated.ASTPage;
 import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.GrammarVisitor;
@@ -546,7 +545,7 @@ public class GrammarTest {
 
     @Test
     public void testKeyWithNumberTimestamp() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " age @ " + String.valueOf(122L);
+        String input = ORDER + " age at " + String.valueOf(122L);
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -556,17 +555,7 @@ public class GrammarTest {
 
     @Test
     public void testKeyWithStringTimestamp() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " age @ \"1992-10-02\"";
-
-        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
-        grammar.generateAST();
-    }
-
-    @Test
-    public void testKeyWithStringAndFormatTimestamp() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+        String input = ORDER + " age at \"1992-10-02\"";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -576,7 +565,7 @@ public class GrammarTest {
 
     @Test
     public void testKeyWithNumberTimestampAscending() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + "  > age @ " + String.valueOf(122L);
+        String input = ORDER + "  > age at " + String.valueOf(122L);
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -586,17 +575,7 @@ public class GrammarTest {
 
     @Test
     public void testKeyWithStringTimestampAscending() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " < age @ \"1992-10-02\"";
-
-        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
-        grammar.generateAST();
-    }
-
-    @Test
-    public void testKeyWithStringAndFormatTimestampAscending() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " < age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+        String input = ORDER + " < age at \"1992-10-02\"";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -606,7 +585,7 @@ public class GrammarTest {
 
     @Test
     public void testKeyWithNumberTimestampDescending() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " > age @ " + String.valueOf(122L);
+        String input = ORDER + " > age at " + String.valueOf(122L);
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -616,17 +595,7 @@ public class GrammarTest {
 
     @Test
     public void testKeyWithStringTimestampDescending() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " > age @ \"1992-10-02\"";
-
-        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
-        grammar.generateAST();
-    }
-
-    @Test
-    public void testKeyWithStringAndFormatTimestampDescending() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " > age @ \"1992-10-02\" | \"yyyy-mm-dd\"";
+        String input = ORDER + " > age at \"1992-10-02\"";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,

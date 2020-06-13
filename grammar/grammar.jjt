@@ -26,6 +26,7 @@ PARSER_BEGIN(Grammar)
 package com.cinchapi.ccl.generated;
 
 import com.cinchapi.ccl.SyntaxException;
+import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
@@ -37,6 +38,7 @@ import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.OrderClauseSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
@@ -45,6 +47,7 @@ import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.concourse.Timestamp;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -162,8 +165,6 @@ TOKEN :
   < ORDER : "order" >
 |
   < PIPE : "|" >
-|
-  < AMPERSAND : "@" >
 |
   < ASC : "ASC" >
 |
@@ -487,7 +488,7 @@ TimestampSymbol Timestamp() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP> (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); })?
   { return null; }
 }
@@ -531,93 +532,74 @@ String Size() :
 void Order() #Order :
 {
     OrderSymbol order = new OrderSymbol();
-
-    String direction = null;
-    String key = null;
-    String timestampString = null;
-    String timestampFormat = null;
-    String timestampNumber = null;
+    OrderClauseSymbol orderClause;
 }
 {
-  <ORDER> ((
-    direction=SymbolicDirection() key=OrderKey()
+  (<ORDER>
+  (orderClause=OrderClause()
+    { order.add(orderClause); })+)
+  { jjtThis.order(order); }
+}
+
+OrderClauseSymbol OrderClause() :
+{
+    KeyTokenSymbol key;
+    TimestampSymbol timestamp = null;
+    DirectionSymbol direction = null;
+}
+{
+  ((
+    direction=SymbolicDirection() key=Key()
   |
-    key=OrderKey() (direction=WordDirection())?
+    key=Key() (direction=WordDirection())?
   )
-  (<AMPERSAND> (timestampNumber=TimestampNumber() | (timestampString=TimestampString() (<PIPE> timestampFormat=TimestampFormat())?)))?
+  timestamp=Timestamp())
   {
-    order.add(key, direction, timestampString, timestampFormat, timestampNumber);
-    key = null;
-    direction = null;
-    timestampString = null;
-    timestampFormat = null;
-    timestampNumber = null;
-  })+
-  {jjtThis.order(order); }
+      if(direction != null) {
+          if(timestamp != null) {
+              return new OrderClauseSymbol(key, timestamp, direction);
+          }
+          else {
+              return new OrderClauseSymbol(key, direction);
+          }
+      }
+      else {
+          if(timestamp != null) {
+              return new OrderClauseSymbol(key, timestamp,
+                  DirectionSymbol.ASCENDING);
+          }
+          else {
+              return new OrderClauseSymbol(key,
+                  DirectionSymbol.ASCENDING);
+          }
+      }
+  }
 }
 
-String SymbolicDirection() :
+DirectionSymbol SymbolicDirection() :
 {
    Token direction;
 }
 {
   (
-     (direction=<OPEN_ANGLE_BRACKET> | direction=<CLOSE_ANGLE_BRACKET>)
-     { return direction.image; }
+      direction=<OPEN_ANGLE_BRACKET>
+      { return DirectionSymbol.ASCENDING; }
+    |
+      direction=<CLOSE_ANGLE_BRACKET>
+      { return DirectionSymbol.DESCENDING; }
   )
 }
 
-String WordDirection() :
+DirectionSymbol WordDirection() :
 {
    Token direction;
 }
 {
   (
-     (direction=<ASC> | direction=<DESC>)
-     { return direction.image; }
-  )
-}
-
-String OrderKey() :
-{
-   Token key;
-}
-{
-  (
-     (key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
-     { return key.image; }
-  )
-}
-
-String TimestampString() :
-{
-   Token timestamp;
-}
-{
-  (
-     timestamp=<QUOTED_STRING>
-     { return timestamp.image; }
-  )
-}
-
-String TimestampFormat() :
-{
-   Token format;
-}
-{
-  (
-     format=<QUOTED_STRING>
-     { return format.image; }
-  )
-}
-
-String TimestampNumber() :
-{
-   Token timestamp;
-}
-{
-  (
-     timestamp=<NUMERIC>
-     { return timestamp.image; }
+      direction=<ASC>
+      { return DirectionSymbol.ASCENDING; }
+    |
+      direction=<DESC>
+      { return DirectionSymbol.DESCENDING; }
   )
 }

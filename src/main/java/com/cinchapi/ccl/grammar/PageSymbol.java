@@ -20,7 +20,7 @@ import com.cinchapi.ccl.type.Page;
 /**
  * A {@link Symbol} that represents a page.
  */
-public class PageSymbol implements PostfixNotationSymbol {
+public class PageSymbol implements Symbol {
     /**
      * The content of the {@link Symbol}.
      */

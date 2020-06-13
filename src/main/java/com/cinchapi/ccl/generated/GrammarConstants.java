@@ -65,45 +65,43 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int PIPE = 29;
   /** RegularExpression Id. */
-  int AMPERSAND = 30;
+  int ASC = 30;
   /** RegularExpression Id. */
-  int ASC = 31;
+  int DESC = 31;
   /** RegularExpression Id. */
-  int DESC = 32;
+  int QUOTED_STRING = 32;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 33;
+  int DOUBLE_QUOTED_STRING = 33;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 34;
+  int SINGLE_QUOTED_STRING = 34;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 35;
+  int COMMA_SEPARATED_SIGNED_INTEGER = 35;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_INTEGER = 36;
+  int COMMA_SEPARATED_SIGNED_DECIMAL = 36;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_DECIMAL = 37;
+  int COMMA_SEPARATED_ALPHANUMERIC = 37;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_ALPHANUMERIC = 38;
+  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 38;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 39;
+  int NUMERIC = 39;
   /** RegularExpression Id. */
-  int NUMERIC = 40;
+  int SIGNED_INTEGER = 40;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 41;
+  int SIGNED_DECIMAL = 41;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 42;
+  int ALPHANUMERIC = 42;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 43;
+  int PERIOD_SEPARATED_STRING = 43;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 44;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 44;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 45;
+  int NON_ALPHANUMERIC = 45;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 46;
+  int LETTER = 46;
   /** RegularExpression Id. */
-  int LETTER = 47;
+  int DIGIT = 47;
   /** RegularExpression Id. */
-  int DIGIT = 48;
-  /** RegularExpression Id. */
-  int PERIOD = 49;
+  int PERIOD = 48;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -140,7 +138,6 @@ public interface GrammarConstants {
     "\"size\"",
     "\"order\"",
     "\"|\"",
-    "\"@\"",
     "\"ASC\"",
     "\"DESC\"",
     "<QUOTED_STRING>",
