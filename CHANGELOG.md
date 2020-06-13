@@ -1,18 +1,6 @@
 # Changelog
 
 #### Version 3.0.0 (TBD)
-##### Expanded Grammar
-* This grammar has been expanded and renamed from _Concourse Criteria Language_ to **Concourse Command Language**. In addition to supporting the parsing of `Condition` statements, this grammar now supports parsing the following additional constructs:
-  * Page
-
-###### Page Statements
-A Page can be parsed from the following forms:
-  * `SIZE n` = the first page with `n` items
-  * `PAGE n` = the `n`th page with the default number of items
-  * `PAGE m SIZE n` = the `m`th page with `n` items
-
-A Page Statement can be included with a Condition Statement to paginate a result set.
-
 ##### Function Statements
 In version `3.0.0` we added support for **function statements**.
 
@@ -57,10 +45,33 @@ In an effort to avoid any ambiguity, we've adopted the following conventions:
 | `function(key, ccl)`     | NO            | NO             | YES              |
 | `key \| function`             | YES           | YES            | NO               |
 
+##### Expanded Grammar
+* This grammar has been expanded and renamed from _Concourse Criteria Language_ to **Concourse Command Language**. In addition to supporting the parsing of `Condition` statements, this grammar now supports parsing the following additional statements:
+  * Page
+  * Order
+
+###### Page Statements
+A Page statement can be parsed from the following forms:
+  * `SIZE n` = the first page with `n` items
+  * `PAGE n` = the `n`th page with the default number of items
+  * `PAGE m SIZE n` = the `m`th page with `n` items
+
+###### Order Statements
+An Order statement can be parsed from the following forms:
+  * `ORDER BY {key}` = sort by a single key
+  * `ORDER BY {key1} {key2} ... {keyn}` = sort by multiple keys
+  * `ORDER BY {key} {direction}` = sort by a single key with `direction`
+  * `ORDER BY {key1} {direction} {key2} ... {key3} {direction}` = sort by multiple keys, each with an independent and optional `direction`
+  * `ORDER BY {key} at {timestamp}` = sort by a single key at `timestamp`
+  * `ORDER BY {key1} at {timestamp} {key2} ... {keyn} at {timestamp}` = sort by multiple keys, each with an independent and optional `timestamp`
+  * `ORDER BY {key} {direction} at {timestamp}` = sort by a single key at `timestamp` with `direction
+  * `ORDER BY {key1} {direction} at {timestamp} {key2} ... {keyn} {direction} at {timestamp}` = sort by multiple keys, each with an independent and optional `timestamp` and `direction`
+
 ##### API Breaks
 * The `Expression` symbol has been deprecated and renamed `ExpressionSymbol` for clarity.
-* The deprecated `ConcourseParser` has been removed. We will no longer distinguish the current parser as `v2` since it is the only one.
+* The deprecated `ConcourseParser` has been removed.
 * Renamed the `com.cinchapi.ccl.v2.generated` package to `com.cinchapi.ccl.generated`.
+* The `Parser` construct has been deprecated in favor of a `Compiler`. Compilers are superior to Parsers because they provide a superset of functonality and are stateless.
 
 #### Bug Fixes
 * Fixed a bug that caused erroneous parsing errors in a CCL statement containing the `REGEX`, `NREGEX`, `LIKE`, or `NOT_LIKE` operators followed by a string value with a parenthesis (e.g. a regex grouping character).
