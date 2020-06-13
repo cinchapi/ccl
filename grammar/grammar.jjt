@@ -503,7 +503,7 @@ void Page() #Page :
   |
     size=Size() (number=Number())?
   )
-  { jjtThis.page(new PageSymbol(number, size)); }
+  { jjtThis.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
 }
 
 String Number() :

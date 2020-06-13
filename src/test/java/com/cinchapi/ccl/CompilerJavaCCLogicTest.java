@@ -1449,7 +1449,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(String.valueOf(3), null));
+        expectedTokens.add(new PageSymbol(3, null));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1467,8 +1467,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens
-                .add(new PageSymbol(String.valueOf(3), String.valueOf(1)));
+        expectedTokens.add(new PageSymbol(3, 1));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1486,7 +1485,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(null, String.valueOf(3)));
+        expectedTokens.add(new PageSymbol(null, 3));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1505,7 +1504,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         expectedTokens
-                .add(new PageSymbol(String.valueOf(3), String.valueOf(1)));
+                .add(new PageSymbol(3, 1));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1529,8 +1528,8 @@ public class CompilerJavaCCLogicTest {
         Assert.assertTrue(tree instanceof PageTree);
 
         PageSymbol page = (PageSymbol) tree.root();
-        Assert.assertEquals(2, page.page().offset());
-        Assert.assertEquals(1, page.page().limit());
+        Assert.assertEquals(2, page.offset());
+        Assert.assertEquals(1, page.limit());
     }
 
     @Test
@@ -1545,7 +1544,7 @@ public class CompilerJavaCCLogicTest {
                 COMPILER_PARSE_OPERATOR_FUNCTION.apply("=")));
         expectedTokens
                 .add(new ValueSymbol(COMPILER_PARSE_VALUE_FUNCTION.apply("1")));
-        expectedTokens.add(new PageSymbol("1", "3"));
+        expectedTokens.add(new PageSymbol(1, 3));
 
         // Generate queue
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1581,8 +1580,8 @@ public class CompilerJavaCCLogicTest {
         // Page Node
         Assert.assertTrue(((CommandTree) tree).pageTree() != null);
         PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
-        Assert.assertEquals(2, page.page().offset());
-        Assert.assertEquals(1, page.page().limit());
+        Assert.assertEquals(2, page.offset());
+        Assert.assertEquals(1, page.limit());
     }
 
     @Test
@@ -2003,8 +2002,8 @@ public class CompilerJavaCCLogicTest {
         // Page Node
         Assert.assertTrue(((CommandTree) tree).pageTree() != null);
         PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
-        Assert.assertEquals(2, page.page().offset());
-        Assert.assertEquals(1, page.page().limit());
+        Assert.assertEquals(2, page.offset());
+        Assert.assertEquals(1, page.limit());
     }
 
     @Test
