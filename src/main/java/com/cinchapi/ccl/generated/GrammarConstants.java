@@ -29,69 +29,79 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int BINARY_OPERATOR = 11;
   /** RegularExpression Id. */
-  int EQUALS = 12;
+  int OPEN_ANGLE_BRACKET = 12;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 13;
+  int CLOSE_ANGLE_BRACKET = 13;
   /** RegularExpression Id. */
-  int GREATER_THAN = 14;
+  int EQUALS = 14;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 15;
+  int NOT_EQUALS = 15;
   /** RegularExpression Id. */
-  int LESS_THAN = 16;
+  int GREATER_THAN = 16;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 17;
+  int GREATER_THAN_OR_EQUALS = 17;
   /** RegularExpression Id. */
-  int LINKS_TO = 18;
+  int LESS_THAN = 18;
   /** RegularExpression Id. */
-  int REGEX = 19;
+  int LESS_THAN_OR_EQUALS = 19;
   /** RegularExpression Id. */
-  int NOT_REGEX = 20;
+  int LINKS_TO = 20;
   /** RegularExpression Id. */
-  int LIKE = 21;
+  int REGEX = 21;
   /** RegularExpression Id. */
-  int NOT_LIKE = 22;
+  int NOT_REGEX = 22;
   /** RegularExpression Id. */
-  int BETWEEN = 23;
+  int LIKE = 23;
   /** RegularExpression Id. */
-  int PAGE = 24;
+  int NOT_LIKE = 24;
   /** RegularExpression Id. */
-  int SIZE = 25;
+  int BETWEEN = 25;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 26;
+  int PAGE = 26;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 27;
+  int SIZE = 27;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 28;
+  int ORDER = 28;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_INTEGER = 29;
+  int ASC = 29;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_DECIMAL = 30;
+  int DESC = 30;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_ALPHANUMERIC = 31;
+  int PIPE = 31;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 32;
+  int QUOTED_STRING = 32;
   /** RegularExpression Id. */
-  int PIPE = 33;
+  int DOUBLE_QUOTED_STRING = 33;
   /** RegularExpression Id. */
-  int NUMERIC = 34;
+  int SINGLE_QUOTED_STRING = 34;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 35;
+  int COMMA_SEPARATED_SIGNED_INTEGER = 35;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 36;
+  int COMMA_SEPARATED_SIGNED_DECIMAL = 36;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 37;
+  int COMMA_SEPARATED_ALPHANUMERIC = 37;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 38;
+  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 38;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 39;
+  int NUMERIC = 39;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 40;
+  int SIGNED_INTEGER = 40;
   /** RegularExpression Id. */
-  int LETTER = 41;
+  int SIGNED_DECIMAL = 41;
   /** RegularExpression Id. */
-  int DIGIT = 42;
+  int ALPHANUMERIC = 42;
   /** RegularExpression Id. */
-  int PERIOD = 43;
+  int PERIOD_SEPARATED_STRING = 43;
+  /** RegularExpression Id. */
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 44;
+  /** RegularExpression Id. */
+  int NON_ALPHANUMERIC = 45;
+  /** RegularExpression Id. */
+  int LETTER = 46;
+  /** RegularExpression Id. */
+  int DIGIT = 47;
+  /** RegularExpression Id. */
+  int PERIOD = 48;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -110,6 +120,8 @@ public interface GrammarConstants {
     "<DISJUNCTION>",
     "<UNARY_OPERATOR>",
     "<BINARY_OPERATOR>",
+    "\"<\"",
+    "\">\"",
     "<EQUALS>",
     "<NOT_EQUALS>",
     "<GREATER_THAN>",
@@ -124,6 +136,10 @@ public interface GrammarConstants {
     "<BETWEEN>",
     "\"page\"",
     "\"size\"",
+    "\"order by\"",
+    "\"asc\"",
+    "\"desc\"",
+    "\"|\"",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
     "<SINGLE_QUOTED_STRING>",
@@ -131,7 +147,6 @@ public interface GrammarConstants {
     "<COMMA_SEPARATED_SIGNED_DECIMAL>",
     "<COMMA_SEPARATED_ALPHANUMERIC>",
     "<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>",
-    "\"|\"",
     "<NUMERIC>",
     "<SIGNED_INTEGER>",
     "<SIGNED_DECIMAL>",

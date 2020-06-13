@@ -38,6 +38,11 @@ abstract class ExplicitBinaryFunction<S> extends Function {
         super(name, key, source);
     }
 
+    /**
+     * Return the "source" where the function is applied.
+     * 
+     * @return the source
+     */
     @SuppressWarnings("unchecked")
     public final S source() {
         return (S) args[1];

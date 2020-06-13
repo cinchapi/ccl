@@ -15,7 +15,10 @@
  */
 package com.cinchapi.ccl.grammar;
 
+import java.util.concurrent.TimeUnit;
+
 import com.cinchapi.common.base.AnyStrings;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.Longs;
 
 /**
@@ -38,18 +41,39 @@ public class TimestampSymbol implements Symbol {
     private final long timestamp;
 
     /**
+     * The degree of precision to use for this {@link TimestampSymbol} when
+     * determining {@link #equals(Object) equality} and the {@link #hashCode()}.
+     */
+    private TimeUnit precision = TimeUnit.MILLISECONDS;
+
+    /**
      * Construct a new instance.
      * 
      * @param timestamp
      */
     public TimestampSymbol(long timestamp) {
+        this(timestamp, TimeUnit.MICROSECONDS);
+    }
+
+    /**
+     * DO NOT CALL
+     * Construct a new instance.
+     * 
+     * @param timestamp
+     * @param precision
+     */
+    @VisibleForTesting
+    public TimestampSymbol(long timestamp, TimeUnit precision) {
         this.timestamp = timestamp;
+        this.precision = precision;
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof TimestampSymbol) {
-            return timestamp == ((TimestampSymbol) obj).timestamp;
+            return TimeUnit.MICROSECONDS.convert(timestamp,
+                    precision) == TimeUnit.MICROSECONDS.convert(
+                            ((TimestampSymbol) obj).timestamp, precision);
         }
         else {
             return false;
@@ -58,9 +82,10 @@ public class TimestampSymbol implements Symbol {
 
     @Override
     public int hashCode() {
-        return Longs.hashCode(timestamp);
+        return Longs
+                .hashCode(TimeUnit.MICROSECONDS.convert(timestamp, precision));
     }
-    
+
     /**
      * Return the timestamp (in microseconds) associated with this
      * {@link Symbol}.
@@ -70,7 +95,7 @@ public class TimestampSymbol implements Symbol {
     public long timestamp() {
         return timestamp;
     }
-    
+
     @Override
     public String toString() {
         return AnyStrings.format("at {}", timestamp);

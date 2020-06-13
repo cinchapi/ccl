@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.generated.ASTOrder;
 import com.cinchapi.ccl.generated.ASTPage;
 import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.GrammarVisitor;
@@ -22,6 +23,7 @@ import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.generated.ASTAnd;
@@ -491,9 +493,162 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    // String constants
-    static final String PAGE = "page";
-    static final String SIZE = "size";
+    @Test
+    public void testKey() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " age";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyAscendingSymbol() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " < age";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyAscendingWord() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " age ASC";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyDescendingSymbol() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " > age";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyDescendingWord() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " age DESC";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyWithNumberTimestamp() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " age at " + String.valueOf(122L);
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyWithStringTimestamp() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " age at \"1992-10-02\"";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyWithNumberTimestampAscending() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + "  > age at " + String.valueOf(122L);
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyWithStringTimestampAscending() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " < age at \"1992-10-02\"";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyWithNumberTimestampDescending() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " > age at " + String.valueOf(122L);
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyWithStringTimestampDescending() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " > age at \"1992-10-02\"";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testMultipleKeys() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " age salary";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testMultipleKeysWithDirectional() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " < age > salary";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validUnaryOperatorWithOrder() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 1 " + ORDER + " a";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validUnaryOperatorWithOrderAndPage() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a = 1 " + ORDER + " a " + SIZE+ " 3 " + PAGE + " 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    /**
+     * Constants
+     */
+    private static final String PAGE = "page";
+    private static final String SIZE = "size";
+    private static final String ORDER = "ORDER BY";
 
     /**
      * The canonical function to transform strings to java values in a
@@ -539,6 +694,10 @@ public class GrammarTest {
         @Override
         public Object visit(ASTExpression node, Object data) {
             return new ExpressionTree(node);
+        }
+
+        @Override public Object visit(ASTOrder node, Object data) {
+            return new OrderTree(node.order());
         }
 
         @Override

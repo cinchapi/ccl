@@ -26,6 +26,7 @@ PARSER_BEGIN(Grammar)
 package com.cinchapi.ccl.generated;
 
 import com.cinchapi.ccl.SyntaxException;
+import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.type.function.KeyCclFunction;
@@ -37,9 +38,11 @@ import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
+import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -123,15 +126,19 @@ TOKEN [IGNORE_CASE]:
 |
   < BINARY_OPERATOR: <BETWEEN> >
 |
+  < OPEN_ANGLE_BRACKET : "<" >
+|
+  < CLOSE_ANGLE_BRACKET : ">" >
+|
   < #EQUALS: "=" | "==" | "eq" | "equals" >
 |
   < #NOT_EQUALS: "!=" | "ne" | "not_equals" >
 |
-  < #GREATER_THAN: ">" | "gt" | "greater_than">
+  < #GREATER_THAN: "gt" | "greater_than">
 |
   < #GREATER_THAN_OR_EQUALS: ">=" | "gte" | "greater_than_or_equals" >
 |
-  < #LESS_THAN: "<" | "lt" | "less_than">
+  < #LESS_THAN: "lt" | "less_than">
 |
   < #LESS_THAN_OR_EQUALS: "<=" | "lte" | "less_than_or_equals" >
 |
@@ -146,13 +153,21 @@ TOKEN [IGNORE_CASE]:
   < NOT_LIKE: "nlike" | "not_like" >
 |
   < #BETWEEN: "><" | "bw" | "between" >
+|
+  < PAGE : "page" >
+|
+  < SIZE : "size" >
+|
+  < ORDER : "order by" >
+|
+  < ASC : "asc" >
+|
+  < DESC : "desc" >
 }
 
 TOKEN :
 {
-  < PAGE : "page" >
-|
-  < SIZE : "size" >
+  < PIPE : "|" >
 |
   < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
 |
@@ -167,8 +182,6 @@ TOKEN :
   < COMMA_SEPARATED_ALPHANUMERIC : <ALPHANUMERIC> ",">
 |
   < COMMA_SEPARATED_PERIOD_SEPARATED_STRING : <PERIOD_SEPARATED_STRING> ",">
-|
-  < PIPE : "|" >
 |
   < NUMERIC: (<DIGIT>)+ >
 |
@@ -194,9 +207,11 @@ TOKEN :
 ASTStart StartCommandLine() #Start : {}
 {
    (
-     (<WHERE>)? DisjunctionExpression() (Page())? "\n"
+     (<WHERE>)? DisjunctionExpression() (Order())? (Page())? "\n"
    |
      Page() "\n"
+   |
+     Order() "\n"
    )
    { return jjtThis; }
 }
@@ -204,9 +219,11 @@ ASTStart StartCommandLine() #Start : {}
 ASTStart generateAST() #Start : {}
 {
    (
-     (<WHERE>)? DisjunctionExpression() (Page())? <EOF>
+     (<WHERE>)? DisjunctionExpression() (Order())? (Page())? <EOF>
    |
      Page() <EOF>
+   |
+     Order() <EOF>
    )
    { return jjtThis; }
 }
@@ -453,7 +470,7 @@ OperatorSymbol UnaryOperator() :
   Token operator;
 }
 {
-  operator=<UNARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
+  (operator=<UNARY_OPERATOR> | operator=<OPEN_ANGLE_BRACKET> | operator=<CLOSE_ANGLE_BRACKET> ) { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 OperatorSymbol BinaryOperator() :
@@ -470,7 +487,7 @@ TimestampSymbol Timestamp() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> ((word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP> (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); })?
   { return null; }
 }
@@ -486,7 +503,7 @@ void Page() #Page :
   |
     size=Size() (number=Number())?
   )
-  { jjtThis.page(new PageSymbol(number, size)); }
+  { jjtThis.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
 }
 
 String Number() :
@@ -508,5 +525,80 @@ String Size() :
   (
      (<SIZE> size=<NUMERIC>)
      { return size.image; }
+  )
+}
+
+void Order() #Order :
+{
+    OrderSymbol order = new OrderSymbol();
+    OrderComponentSymbol orderComponent;
+}
+{
+  (<ORDER>
+  (orderComponent=OrderClause()
+    { order.add(orderComponent); })+)
+  { jjtThis.order(order); }
+}
+
+OrderComponentSymbol OrderClause() :
+{
+    KeyTokenSymbol key;
+    TimestampSymbol timestamp = null;
+    DirectionSymbol direction = null;
+}
+{
+  ((
+    direction=SymbolicDirection() key=Key()
+  |
+    key=Key() (direction=WordDirection())?
+  )
+  timestamp=Timestamp())
+  {
+      if(direction != null) {
+          if(timestamp != null) {
+              return new OrderComponentSymbol(key, timestamp, direction);
+          }
+          else {
+              return new OrderComponentSymbol(key, direction);
+          }
+      }
+      else {
+          if(timestamp != null) {
+              return new OrderComponentSymbol(key, timestamp,
+                  DirectionSymbol.ASCENDING);
+          }
+          else {
+              return new OrderComponentSymbol(key,
+                  DirectionSymbol.ASCENDING);
+          }
+      }
+  }
+}
+
+DirectionSymbol SymbolicDirection() :
+{
+   Token direction;
+}
+{
+  (
+      direction=<OPEN_ANGLE_BRACKET>
+      { return DirectionSymbol.ASCENDING; }
+    |
+      direction=<CLOSE_ANGLE_BRACKET>
+      { return DirectionSymbol.DESCENDING; }
+  )
+}
+
+DirectionSymbol WordDirection() :
+{
+   Token direction;
+}
+{
+  (
+      direction=<ASC>
+      { return DirectionSymbol.ASCENDING; }
+    |
+      direction=<DESC>
+      { return DirectionSymbol.DESCENDING; }
   )
 }

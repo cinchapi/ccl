@@ -19,38 +19,21 @@ import java.util.function.Function;
 
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.concourse.util.Convert;
-import com.google.common.collect.Multimap;
 
 /**
- * Abstract implementation of {@link ParserTest}.
+ * Abstract implementation of {@link CompilerTest}.
  * 
  * @author Jeff Nelson
- * 
- * @deprecated Replaced by {@link AbstractCompilerTest}
  */
-@Deprecated
-public abstract class AbstractParserTest extends ParserTest {
+public abstract class AbstractCompilerTest extends CompilerTest {
 
     @Override
-    protected final Parser createParser(String ccl) {
-        return createParser(ccl, (value) -> Convert.stringToJava(value),
+    protected final Compiler createCompiler() {
+        return createCompiler((value) -> Convert.stringToJava(value),
                 (operator) -> Convert.stringToOperator(operator));
     }
-
-    @Override
-    protected final Parser createParser(String ccl,
-            Multimap<String, Object> data) {
-        return createParser(ccl, data, (value) -> Convert.stringToJava(value),
-                (operator) -> Convert.stringToOperator(operator));
-    }
-
-    protected abstract Parser createParser(String ccl,
+    
+    protected abstract Compiler createCompiler(
             Function<String, Object> valueTransformFunction,
             Function<String, Operator> operatorTransformFunction);
-
-    protected abstract Parser createParser(String ccl,
-            Multimap<String, Object> data,
-            Function<String, Object> valueTransformFunction,
-            Function<String, Operator> operatorTransformFunction);
-
 }

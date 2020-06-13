@@ -37,7 +37,8 @@ public class VisitorTest {
         OperatorSymbol operator = new OperatorSymbol(Operator.EQUALS);
         ValueTokenSymbol<Object> value = new ValueSymbol("value");
 
-        ExpressionSymbol expression = ExpressionSymbol.create(key, operator, value);
+        ExpressionSymbol expression = ExpressionSymbol.create(key, operator,
+                value);
         ExpressionTree leftTree = new ExpressionTree(expression);
 
         key = new KeySymbol("key");
@@ -64,17 +65,22 @@ public class VisitorTest {
 
             @Override
             public Object visit(ExpressionTree tree, Object... data) {
-                Assert.assertTrue(((ExpressionSymbol) tree.root()).key().toString()
-                        .equals("key"));
+                Assert.assertTrue(((ExpressionSymbol) tree.root()).key()
+                        .toString().equals("key"));
                 Assert.assertTrue(((ExpressionSymbol) tree.root()).operator()
                         .toString().equals("="));
-                Assert.assertTrue(((ExpressionSymbol) tree.root()).values().get(0)
-                        .toString().equals("value"));
+                Assert.assertTrue(((ExpressionSymbol) tree.root()).values()
+                        .get(0).toString().equals("value"));
                 return data;
             }
 
             @Override
             public Object visit(PageTree tree, Object... data) {
+                return data;
+            }
+
+            @Override
+            public Object visit(OrderTree tree, Object... data) {
                 return data;
             }
 

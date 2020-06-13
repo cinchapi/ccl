@@ -15,25 +15,18 @@
  */
 package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.type.Page;
+import javax.annotation.Nullable;
 
 /**
  * A {@link Symbol} that represents a page.
  */
-public class PageSymbol implements PostfixNotationSymbol {
-    /**
-     * The content of the {@link Symbol}.
-     */
-    private Page page;
+public class PageSymbol implements Symbol {
 
-    /**
-     * Construct a new instance.
-     *
-     * @param
-     */
-    public PageSymbol(Page page) {
-        this.page = page;
-    }
+    public static Integer DEFAULT_PAGE_NUMBER = 1;
+    public static Integer DEFAULT_PAGE_SIZE = 20;
+
+    private final int number;
+    private final int size;
 
     /**
      * Construct a new instance.
@@ -41,29 +34,62 @@ public class PageSymbol implements PostfixNotationSymbol {
      * @param number
      * @param size
      */
-    public PageSymbol(String number, String size) {
-        this(Page.create(number != null ? Integer.parseInt(number) : 1,
-                size != null ? Integer.parseInt(size) : 1));
+    public PageSymbol(@Nullable Integer number, @Nullable Integer size) {
+        this.number = number != null ? number : DEFAULT_PAGE_NUMBER;
+        this.size = size != null ? size : DEFAULT_PAGE_SIZE;
     }
 
     /**
-     * Return the Page that this symbol expresses.
-     *
-     * @return the page
+     * Return the page number.
+     * 
+     * @return the page number
      */
-    public Page page() {
-        return page;
+    public int number() {
+        return number;
+    }
+
+    /**
+     * Return the upper limit on the number of items to include on the page
+     * 
+     * @return the page size
+     */
+    public int size() {
+        return size;
+    }
+
+    /**
+     * Return the number of items to skip before adding items to the page.
+     * 
+     * @return the offset
+     */
+    public int offset() {
+        return size * (number - 1);
+    }
+
+    /**
+     * Alias for {@link #offset()}.
+     */
+    public int skip() {
+        return offset();
+    }
+
+    /**
+     * Alias for {@link #size()}
+     */
+    public int limit() {
+        return size();
     }
 
     @Override
     public String toString() {
-        return "offset " + page.offset() + " limit " + page.limit();
+        return "number " + number + " size " + size;
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof PageSymbol) {
-            return page.equals(((PageSymbol) obj).page);
+            return number == ((PageSymbol) obj).number
+                    && size == ((PageSymbol) obj).size;
         }
         else {
             return false;

@@ -16,10 +16,12 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that represents a "command".
+ * A {link Symbol} that represents data set sorting directions.
  *
  * @author Jeff Nelson
  */
-public enum CommandSymbol implements Symbol {
-    IMPLICIT
+public enum DirectionSymbol implements Symbol {
+
+    ASCENDING, DESCENDING;
+
 }
