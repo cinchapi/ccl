@@ -390,30 +390,4 @@ public abstract class Compiler {
         return tree.accept(visitor, new LinkedList<>());
     }
 
-    /**
-     * A {@link Visitor} that can only visit possible subtree types of a
-     * {@link ConditionTree}.
-     *
-     *
-     * @author Jeff Nelson
-     */
-    private abstract class ConditionTreeVisitor<T> implements Visitor<T> {
-
-        @Override
-        public final T visit(CommandTree tree, Object... data) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public final T visit(OrderTree tree, Object... data) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public final T visit(PageTree tree, Object... data) {
-            throw new UnsupportedOperationException();
-        }
-
-    }
-
 }
