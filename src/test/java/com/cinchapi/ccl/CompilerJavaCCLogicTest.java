@@ -21,7 +21,7 @@ import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.OrderClauseSymbol;
+import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
@@ -1609,7 +1609,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 DirectionSymbol.ASCENDING));
         expectedTokens.add(order);
 
@@ -1630,7 +1630,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 DirectionSymbol.ASCENDING));
         expectedTokens.add(order);
 
@@ -1645,13 +1645,13 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testOrderKeyAscendingWord() {
-        String input = ORDER + " age ASC";
+        String input = ORDER + " age asc";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 DirectionSymbol.ASCENDING));
         expectedTokens.add(order);
 
@@ -1672,7 +1672,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 DirectionSymbol.DESCENDING));
         expectedTokens.add(order);
 
@@ -1687,13 +1687,13 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testOrderKeyDescendingWord() {
-        String input = ORDER + " age DESC";
+        String input = ORDER + " age desc";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 DirectionSymbol.DESCENDING));
         expectedTokens.add(order);
 
@@ -1714,7 +1714,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 new TimestampSymbol(122L), DirectionSymbol.ASCENDING));
         expectedTokens.add(order);
 
@@ -1735,7 +1735,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 new TimestampSymbol(NaturalLanguage.parseMicros("1992-10-02"),
                         TimeUnit.DAYS),
                 DirectionSymbol.ASCENDING));
@@ -1758,7 +1758,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 new TimestampSymbol(122L), DirectionSymbol.ASCENDING));
         expectedTokens.add(order);
 
@@ -1779,7 +1779,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 new TimestampSymbol(NaturalLanguage.parseMicros("1992-10-02"),
                         TimeUnit.DAYS),
                 DirectionSymbol.ASCENDING));
@@ -1802,7 +1802,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 new TimestampSymbol(122L), DirectionSymbol.DESCENDING));
         expectedTokens.add(order);
 
@@ -1823,7 +1823,7 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 new TimestampSymbol(NaturalLanguage.parseMicros("1992-10-02"),
                         TimeUnit.DAYS),
                 DirectionSymbol.DESCENDING));
@@ -1846,9 +1846,9 @@ public class CompilerJavaCCLogicTest {
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 DirectionSymbol.ASCENDING));
-        order.add(new OrderClauseSymbol(new KeySymbol("salary"),
+        order.add(new OrderComponentSymbol(new KeySymbol("salary"),
                 DirectionSymbol.ASCENDING));
         expectedTokens.add(order);
 
@@ -1863,15 +1863,15 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testOrderMultipleKeysWithDirectional() {
-        String input = ORDER + " < age > salary";
+        String input = ORDER + " age asc salary desc";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("age"),
+        order.add(new OrderComponentSymbol(new KeySymbol("age"),
                 DirectionSymbol.ASCENDING));
-        order.add(new OrderClauseSymbol(new KeySymbol("salary"),
+        order.add(new OrderComponentSymbol(new KeySymbol("salary"),
                 DirectionSymbol.DESCENDING));
         expectedTokens.add(order);
 
@@ -1889,9 +1889,9 @@ public class CompilerJavaCCLogicTest {
         String input = ORDER + " < age > salary";
 
         OrderSymbol expectedOrder = new OrderSymbol();
-        expectedOrder.add(new OrderClauseSymbol(new KeySymbol("age"),
+        expectedOrder.add(new OrderComponentSymbol(new KeySymbol("age"),
                 DirectionSymbol.ASCENDING));
-        expectedOrder.add(new OrderClauseSymbol(new KeySymbol("salary"),
+        expectedOrder.add(new OrderComponentSymbol(new KeySymbol("salary"),
                 DirectionSymbol.DESCENDING));
 
         // Generate tree
@@ -1921,7 +1921,7 @@ public class CompilerJavaCCLogicTest {
                 .add(new ValueSymbol(COMPILER_PARSE_VALUE_FUNCTION.apply("1")));
 
         OrderSymbol order = new OrderSymbol();
-        order.add(new OrderClauseSymbol(new KeySymbol("a"),
+        order.add(new OrderComponentSymbol(new KeySymbol("a"),
                 DirectionSymbol.ASCENDING));
         expectedTokens.add(order);
 
@@ -1939,7 +1939,7 @@ public class CompilerJavaCCLogicTest {
         String ccl = "a = 1 " + ORDER + " a";
 
         OrderSymbol expectedOrder = new OrderSymbol();
-        expectedOrder.add(new OrderClauseSymbol(new KeySymbol("a"),
+        expectedOrder.add(new OrderComponentSymbol(new KeySymbol("a"),
                 DirectionSymbol.ASCENDING));
 
         // Generate tree
@@ -1972,7 +1972,7 @@ public class CompilerJavaCCLogicTest {
         String ccl = "a = 1 " + ORDER + " a " + SIZE + " 1 " + PAGE + " 3";
 
         OrderSymbol expectedOrder = new OrderSymbol();
-        expectedOrder.add(new OrderClauseSymbol(new KeySymbol("a"),
+        expectedOrder.add(new OrderComponentSymbol(new KeySymbol("a"),
                 DirectionSymbol.ASCENDING));
 
         // Generate tree
@@ -2071,7 +2071,7 @@ public class CompilerJavaCCLogicTest {
      */
     private static final String PAGE = "page";
     private static final String SIZE = "size";
-    private static final String ORDER = "order";
+    private static final String ORDER = "order by";
 
     /**
      * The canonical function to transform strings to java values in a

@@ -17,20 +17,20 @@ package com.cinchapi.ccl.grammar;
 
 import java.util.Objects;
 
-public class OrderClauseSymbol implements Symbol {
+public class OrderComponentSymbol implements Symbol {
 
     private KeyTokenSymbol<?> key;
     private TimestampSymbol timestamp;
     private DirectionSymbol direction;
 
-    public OrderClauseSymbol(KeyTokenSymbol<?> key, TimestampSymbol timestamp,
+    public OrderComponentSymbol(KeyTokenSymbol<?> key, TimestampSymbol timestamp,
             DirectionSymbol direction) {
         this.key = key;
         this.timestamp = timestamp;
         this.direction = direction;
     }
 
-    public OrderClauseSymbol(KeyTokenSymbol<?> key, DirectionSymbol direction) {
+    public OrderComponentSymbol(KeyTokenSymbol<?> key, DirectionSymbol direction) {
         this.key = key;
         this.timestamp = TimestampSymbol.PRESENT;
         this.direction = direction;
@@ -56,12 +56,12 @@ public class OrderClauseSymbol implements Symbol {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof OrderClauseSymbol) {
-            return Objects.equals(key, ((OrderClauseSymbol) obj).key)
+        if(obj instanceof OrderComponentSymbol) {
+            return Objects.equals(key, ((OrderComponentSymbol) obj).key)
                     && Objects.equals(timestamp,
-                            ((OrderClauseSymbol) obj).timestamp)
+                            ((OrderComponentSymbol) obj).timestamp)
                     && Objects.equals(direction,
-                            ((OrderClauseSymbol) obj).direction);
+                            ((OrderComponentSymbol) obj).direction);
         }
         return false;
     }

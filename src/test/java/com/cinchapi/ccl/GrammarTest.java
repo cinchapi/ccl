@@ -648,7 +648,7 @@ public class GrammarTest {
      */
     private static final String PAGE = "page";
     private static final String SIZE = "size";
-    private static final String ORDER = "order";
+    private static final String ORDER = "ORDER BY";
 
     /**
      * The canonical function to transform strings to java values in a

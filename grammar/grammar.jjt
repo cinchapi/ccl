@@ -38,7 +38,7 @@ import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.OrderClauseSymbol;
+import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
@@ -153,21 +153,21 @@ TOKEN [IGNORE_CASE]:
   < NOT_LIKE: "nlike" | "not_like" >
 |
   < #BETWEEN: "><" | "bw" | "between" >
-}
-
-TOKEN :
-{
+|
   < PAGE : "page" >
 |
   < SIZE : "size" >
 |
-  < ORDER : "order" >
+  < ORDER : "order by" >
 |
+  < ASC : "asc" >
+|
+  < DESC : "desc" >
+}
+
+TOKEN :
+{
   < PIPE : "|" >
-|
-  < ASC : "ASC" >
-|
-  < DESC : "DESC" >
 |
   < QUOTED_STRING : <DOUBLE_QUOTED_STRING> | <SINGLE_QUOTED_STRING> >
 |
@@ -531,16 +531,16 @@ String Size() :
 void Order() #Order :
 {
     OrderSymbol order = new OrderSymbol();
-    OrderClauseSymbol orderClause;
+    OrderComponentSymbol orderComponent;
 }
 {
   (<ORDER>
-  (orderClause=OrderClause()
-    { order.add(orderClause); })+)
+  (orderComponent=OrderClause()
+    { order.add(orderComponent); })+)
   { jjtThis.order(order); }
 }
 
-OrderClauseSymbol OrderClause() :
+OrderComponentSymbol OrderClause() :
 {
     KeyTokenSymbol key;
     TimestampSymbol timestamp = null;
@@ -556,19 +556,19 @@ OrderClauseSymbol OrderClause() :
   {
       if(direction != null) {
           if(timestamp != null) {
-              return new OrderClauseSymbol(key, timestamp, direction);
+              return new OrderComponentSymbol(key, timestamp, direction);
           }
           else {
-              return new OrderClauseSymbol(key, direction);
+              return new OrderComponentSymbol(key, direction);
           }
       }
       else {
           if(timestamp != null) {
-              return new OrderClauseSymbol(key, timestamp,
+              return new OrderComponentSymbol(key, timestamp,
                   DirectionSymbol.ASCENDING);
           }
           else {
-              return new OrderClauseSymbol(key,
+              return new OrderComponentSymbol(key,
                   DirectionSymbol.ASCENDING);
           }
       }

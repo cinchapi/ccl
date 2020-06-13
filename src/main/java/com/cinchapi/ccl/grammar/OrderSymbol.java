@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.grammar;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
@@ -28,32 +29,36 @@ public class OrderSymbol implements Symbol {
     /**
      * List of order specifications
      */
-    private List<OrderClauseSymbol> clauses;
+    private List<OrderComponentSymbol> components;
 
 
     public OrderSymbol() {
-        this.clauses = Lists.newArrayList();
+        this.components = Lists.newArrayList();
     }
 
     @Override
     public String toString() {
-        return StringUtils.join(clauses, " ");
+        return StringUtils.join(components, " ");
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof OrderSymbol) {
-            return clauses.equals(((OrderSymbol) obj).clauses);
+            return components.equals(((OrderSymbol) obj).components);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return clauses.hashCode();
+        return components.hashCode();
     }
 
-    public void add(OrderClauseSymbol symbol) {
-        clauses.add(symbol);
+    public void add(OrderComponentSymbol symbol) {
+        components.add(symbol);
+    }
+    
+    public List<OrderComponentSymbol> components(){
+        return ImmutableList.copyOf(components);
     }
 }

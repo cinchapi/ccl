@@ -63,11 +63,11 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int ORDER = 28;
   /** RegularExpression Id. */
-  int PIPE = 29;
+  int ASC = 29;
   /** RegularExpression Id. */
-  int ASC = 30;
+  int DESC = 30;
   /** RegularExpression Id. */
-  int DESC = 31;
+  int PIPE = 31;
   /** RegularExpression Id. */
   int QUOTED_STRING = 32;
   /** RegularExpression Id. */
@@ -136,10 +136,10 @@ public interface GrammarConstants {
     "<BETWEEN>",
     "\"page\"",
     "\"size\"",
-    "\"order\"",
+    "\"order by\"",
+    "\"asc\"",
+    "\"desc\"",
     "\"|\"",
-    "\"ASC\"",
-    "\"DESC\"",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
     "<SINGLE_QUOTED_STRING>",

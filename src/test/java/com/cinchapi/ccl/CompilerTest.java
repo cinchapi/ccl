@@ -29,13 +29,17 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.OrderComponentSymbol;
+import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.common.reflect.Reflection;
@@ -45,6 +49,7 @@ import com.cinchapi.concourse.lang.Criteria;
 import com.cinchapi.concourse.thrift.Operator;
 import com.cinchapi.concourse.time.Time;
 import com.cinchapi.concourse.util.Random;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
@@ -1054,6 +1059,29 @@ public abstract class CompilerTest {
             }
         }
         Assert.assertEquals(2, count);
+    }
+
+    @Test
+    public void testParseOrderMultipleKeysWithIndependentDirection() {
+        String ccl = "ORDER BY name ASC age email desc";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        Assert.assertTrue(ast instanceof OrderTree);
+        OrderTree tree = (OrderTree) ast;
+        OrderSymbol symbol = (OrderSymbol) tree.root();
+        Assert.assertEquals(3, symbol.components().size());
+        List<OrderComponentSymbol> expectedComponents = ImmutableList.of(
+                new OrderComponentSymbol(new KeySymbol("name"),
+                        TimestampSymbol.PRESENT, DirectionSymbol.ASCENDING),
+                new OrderComponentSymbol(new KeySymbol("age"),
+                        TimestampSymbol.PRESENT, DirectionSymbol.ASCENDING),
+                new OrderComponentSymbol(new KeySymbol("email"),
+                        TimestampSymbol.PRESENT, DirectionSymbol.DESCENDING));
+        for (int i = 0; i < expectedComponents.size(); ++i) {
+            OrderComponentSymbol expected = expectedComponents.get(i);
+            OrderComponentSymbol actual = symbol.components().get(i);
+            Assert.assertEquals(expected, actual);
+        }
     }
 
     protected abstract Compiler createCompiler();

@@ -15,7 +15,7 @@ import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.OrderClauseSymbol;
+import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
@@ -1243,13 +1243,13 @@ if (jjtc000) {
     ASTOrder jjtn000 = new ASTOrder(JJTORDER);
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);OrderSymbol order = new OrderSymbol();
-    OrderClauseSymbol orderClause;
+    OrderComponentSymbol orderComponent;
     try {
       jj_consume_token(ORDER);
       label_8:
       while (true) {
-        orderClause = OrderClause();
-order.add(orderClause);
+        orderComponent = OrderClause();
+order.add(orderComponent);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case RESERVED_IDENTIFIER:
         case OPEN_ANGLE_BRACKET:
@@ -1291,7 +1291,7 @@ if (jjtc000) {
     }
 }
 
-  final public OrderClauseSymbol OrderClause() throws ParseException {KeyTokenSymbol key;
+  final public OrderComponentSymbol OrderClause() throws ParseException {KeyTokenSymbol key;
     TimestampSymbol timestamp = null;
     DirectionSymbol direction = null;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -1328,19 +1328,19 @@ if (jjtc000) {
     timestamp = Timestamp();
 if(direction != null) {
           if(timestamp != null) {
-              {if ("" != null) return new OrderClauseSymbol(key, timestamp, direction);}
+              {if ("" != null) return new OrderComponentSymbol(key, timestamp, direction);}
           }
           else {
-              {if ("" != null) return new OrderClauseSymbol(key, direction);}
+              {if ("" != null) return new OrderComponentSymbol(key, direction);}
           }
       }
       else {
           if(timestamp != null) {
-              {if ("" != null) return new OrderClauseSymbol(key, timestamp,
+              {if ("" != null) return new OrderComponentSymbol(key, timestamp,
                   DirectionSymbol.ASCENDING);}
           }
           else {
-              {if ("" != null) return new OrderClauseSymbol(key,
+              {if ("" != null) return new OrderComponentSymbol(key,
                   DirectionSymbol.ASCENDING);}
           }
       }
@@ -1699,7 +1699,7 @@ if(direction != null) {
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40,0x10000000,0xc000000,0x1c0000c8,0x40,0x10000000,0xc000000,0x1c0000c8,0x200,0x100,0x88,0x1f03c00,0x0,0x80,0x80,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18,0x18,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1e00000,0x3400,0x0,0x20,0x8000000,0x4000000,0xc000000,0x3080,0xc0000000,0x3080,0x3000,0xc0000000,};
+	   jj_la1_0 = new int[] {0x40,0x10000000,0xc000000,0x1c0000c8,0x40,0x10000000,0xc000000,0x1c0000c8,0x200,0x100,0x88,0x1f03c00,0x0,0x80,0x80,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18,0x18,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1e00000,0x3400,0x0,0x20,0x8000000,0x4000000,0xc000000,0x3080,0x60000000,0x3080,0x3000,0x60000000,};
 	}
 	private static void jj_la1_init_1() {
 	   jj_la1_1 = new int[] {0x0,0x0,0x0,0xf80,0x0,0x0,0x0,0xf80,0x0,0x0,0xf80,0x0,0xf80,0x780,0xf80,0xf00,0x78,0x8,0x180,0x78,0x78,0x1f80,0x1f81,0xc1f80,0xc1f81,0x700,0x78,0x8,0x180,0x78,0x78,0x1f80,0x1f81,0x0,0x0,0x1781,0x0,0x0,0x0,0x0,0xf80,0x0,0xf80,0x0,0x0,};
