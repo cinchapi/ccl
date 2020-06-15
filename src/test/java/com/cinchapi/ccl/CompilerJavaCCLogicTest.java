@@ -1840,7 +1840,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testOrderMultipleKeys() {
-        String input = ORDER + " age salary";
+        String input = ORDER + " age, salary";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1863,7 +1863,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testOrderMultipleKeysWithDirectional() {
-        String input = ORDER + " age asc salary desc";
+        String input = ORDER + " age asc, salary desc";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1886,7 +1886,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testOrderMultipleKeysWithDirectionalAST() {
-        String input = ORDER + " < age > salary";
+        String input = ORDER + " < age, > salary";
 
         OrderSymbol expectedOrder = new OrderSymbol();
         expectedOrder.add(new OrderComponentSymbol(new KeySymbol("age"),

@@ -1066,7 +1066,7 @@ public abstract class CompilerTest {
 
     @Test
     public void testParseOrderMultipleKeysWithIndependentDirection() {
-        String ccl = "ORDER BY name ASC age email desc";
+        String ccl = "ORDER BY name ASC, age, email desc";
         Compiler compiler = createCompiler();
         AbstractSyntaxTree ast = compiler.parse(ccl);
         Assert.assertTrue(ast instanceof OrderTree);
@@ -1152,7 +1152,7 @@ public abstract class CompilerTest {
 
     @Test
     public void testParseOrderWithMultipleKeys() {
-        String ccl = "ORDER BY name age";
+        String ccl = "ORDER BY name, age";
         Compiler compiler = createCompiler();
         AbstractSyntaxTree ast = compiler.parse(ccl);
         Assert.assertTrue(ast instanceof OrderTree);
@@ -1174,7 +1174,7 @@ public abstract class CompilerTest {
     @Test
     @Ignore //FIXME
     public void testParseOrderWithMultipleKeysBothTimestamp() {
-        String ccl = "ORDER BY name at 'last week' age at 'a month ago'";
+        String ccl = "ORDER BY name at 'last week', age at 'a month ago'";
         Compiler compiler = createCompiler();
         AbstractSyntaxTree ast = compiler.parse(ccl);
         Assert.assertTrue(ast instanceof OrderTree);

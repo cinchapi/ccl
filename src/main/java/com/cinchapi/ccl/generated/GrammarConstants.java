@@ -75,33 +75,27 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int SINGLE_QUOTED_STRING = 34;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_INTEGER = 35;
+  int NUMERIC = 35;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_SIGNED_DECIMAL = 36;
+  int COMMA = 36;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_ALPHANUMERIC = 37;
+  int SIGNED_INTEGER = 37;
   /** RegularExpression Id. */
-  int COMMA_SEPARATED_PERIOD_SEPARATED_STRING = 38;
+  int SIGNED_DECIMAL = 38;
   /** RegularExpression Id. */
-  int NUMERIC = 39;
+  int ALPHANUMERIC = 39;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 40;
+  int PERIOD_SEPARATED_STRING = 40;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 41;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 41;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 42;
+  int NON_ALPHANUMERIC = 42;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 43;
+  int LETTER = 43;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 44;
+  int DIGIT = 44;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 45;
-  /** RegularExpression Id. */
-  int LETTER = 46;
-  /** RegularExpression Id. */
-  int DIGIT = 47;
-  /** RegularExpression Id. */
-  int PERIOD = 48;
+  int PERIOD = 45;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -143,11 +137,8 @@ public interface GrammarConstants {
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
     "<SINGLE_QUOTED_STRING>",
-    "<COMMA_SEPARATED_SIGNED_INTEGER>",
-    "<COMMA_SEPARATED_SIGNED_DECIMAL>",
-    "<COMMA_SEPARATED_ALPHANUMERIC>",
-    "<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>",
     "<NUMERIC>",
+    "\",\"",
     "<SIGNED_INTEGER>",
     "<SIGNED_DECIMAL>",
     "<ALPHANUMERIC>",

@@ -605,7 +605,7 @@ public class GrammarTest {
 
     @Test
     public void testMultipleKeys() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " age salary";
+        String input = ORDER + " age, salary";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -615,7 +615,7 @@ public class GrammarTest {
 
     @Test
     public void testMultipleKeysWithDirectional() throws UnsupportedEncodingException, ParseException {
-        String input = ORDER + " < age > salary";
+        String input = ORDER + " < age, > salary";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
