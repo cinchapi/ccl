@@ -175,15 +175,9 @@ TOKEN :
 |
   < SINGLE_QUOTED_STRING : ("'" ("\\" ~[] | ~["'", "\\"])+ "'") | ("‘" ("\\" ~[] | ~["’", "\\"])+ "’") | ("`" ("\\" ~[] | ~["`", "\\"])+ "`") >
 |
-  < COMMA_SEPARATED_SIGNED_INTEGER : <SIGNED_INTEGER> ",">
-|
-  < COMMA_SEPARATED_SIGNED_DECIMAL : <SIGNED_DECIMAL> ",">
-|
-  < COMMA_SEPARATED_ALPHANUMERIC : <ALPHANUMERIC> ",">
-|
-  < COMMA_SEPARATED_PERIOD_SEPARATED_STRING : <PERIOD_SEPARATED_STRING> ",">
-|
   < NUMERIC: (<DIGIT>)+ >
+|
+  < COMMA : "," >
 |
   < SIGNED_INTEGER : (("-" | "+")? (<DIGIT>)+) >
 |
@@ -195,7 +189,7 @@ TOKEN :
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~["_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
+  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
@@ -316,20 +310,19 @@ ValueTokenSymbol UnaryValue() :
      LOOKAHEAD(3)
 
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
+     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image));}
    |
-     LOOKAHEAD(2)
+     LOOKAHEAD(3)
 
-     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>)
-     (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
-     (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
+     (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })+ <CLOSE_PARENTHESES>
+     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records));}
    |
-     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>) ccl=generateSubAST() <CLOSE_PARENTHESES>
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
         AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image, tree));}
    )
 |
   ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
@@ -377,7 +370,7 @@ ValueTokenSymbol RegexValue() :
   String value = "";
 }
 {
-    (LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=") { value += word.image; })+
+    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=") { value += word.image; })+
     { return new ValueSymbol(transformValue(value)); }
   |
     (word=<QUOTED_STRING>)
@@ -401,20 +394,19 @@ ValueTokenSymbol BinaryValue() :
      LOOKAHEAD(3)
 
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>) <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image.substring(0, key.image.length())));}
+     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image));}
    |
-     LOOKAHEAD(2)
+     LOOKAHEAD(3)
 
-     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>)
-     (word=<COMMA_SEPARATED_SIGNED_INTEGER> { records.add(word.image.substring(0, word.image.length()-1)); })*
-     (word=<SIGNED_INTEGER> | word=<NUMERIC>) { records.add(word.image);} <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image.substring(0, key.image.length()-1), records));}
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
+     (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })+ <CLOSE_PARENTHESES>
+     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records));}
    |
-     (key=<COMMA_SEPARATED_SIGNED_INTEGER> | key=<COMMA_SEPARATED_SIGNED_DECIMAL> | key=<COMMA_SEPARATED_ALPHANUMERIC> | key=<COMMA_SEPARATED_PERIOD_SEPARATED_STRING>) ccl=generateSubAST() <CLOSE_PARENTHESES>
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST() <CLOSE_PARENTHESES>
      {
         AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
 
-        return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image.substring(0, key.image.length()-1), tree));}
+        return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image, tree));}
    )
 |
   (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>)
@@ -536,7 +528,9 @@ void Order() #Order :
 {
   (<ORDER>
   (orderComponent=OrderClause()
-    { order.add(orderComponent); })+)
+      { order.add(orderComponent); }
+    (<COMMA> orderComponent=OrderClause()
+      { order.add(orderComponent); })*))
   { jjtThis.order(order); }
 }
 
