@@ -18,12 +18,11 @@ package com.cinchapi.ccl.grammar;
 import com.cinchapi.ccl.type.Operator;
 
 /**
- * A {@link Symbol} that contains an {@link Operator}.
+ * A {@link Symbol} that represents an {@link Operator}.
  *
  * @author Jeff Nelson
  */
-public final class OperatorSymbol extends BaseSymbol implements
-        PostfixNotationSymbol {
+public class OperatorSymbol implements PostfixNotationSymbol {
 
     /**
      * The content of the symbol.
@@ -39,6 +38,21 @@ public final class OperatorSymbol extends BaseSymbol implements
         this.operator = operator;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof OperatorSymbol) {
+            return operator.equals(((OperatorSymbol) obj).operator);
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return operator.hashCode();
+    }
+
     /**
      * Return the operator represented by this {@link Symbol}.
      * 
@@ -47,7 +61,7 @@ public final class OperatorSymbol extends BaseSymbol implements
     public Operator operator() {
         return operator;
     }
-
+    
     @Override
     public String toString() {
         return operator.symbol();

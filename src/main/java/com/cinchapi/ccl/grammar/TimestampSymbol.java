@@ -15,18 +15,22 @@
  */
 package com.cinchapi.ccl.grammar;
 
+import java.util.concurrent.TimeUnit;
+
 import com.cinchapi.common.base.AnyStrings;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.primitives.Longs;
 
 /**
- * A {@link Symbol} containing a timestamp (in microseconds) phrase.
+ * A {@link Symbol} representing a timestamp (in microseconds) phrase.
  *
  * @author Jeff Nelson
  */
-public final class TimestampSymbol extends BaseSymbol {
+public class TimestampSymbol implements Symbol {
 
     /**
-     * A {@link TimestampSymbol} that can be included in a {@link Expression} to
-     * indicate that the expression is not temporal.
+     * A {@link TimestampSymbol} that can be included in a
+     * {@link ExpressionSymbol} to indicate that the expression is not temporal.
      */
     // default timestamp value of 0 indicates this is a present state query
     public static final TimestampSymbol PRESENT = new TimestampSymbol(0);
@@ -37,12 +41,50 @@ public final class TimestampSymbol extends BaseSymbol {
     private final long timestamp;
 
     /**
+     * The degree of precision to use for this {@link TimestampSymbol} when
+     * determining {@link #equals(Object) equality} and the {@link #hashCode()}.
+     */
+    private TimeUnit precision;
+
+    /**
      * Construct a new instance.
      * 
      * @param timestamp
      */
     public TimestampSymbol(long timestamp) {
+        this(timestamp, TimeUnit.MICROSECONDS);
+    }
+
+    /**
+     * DO NOT CALL
+     * Construct a new instance.
+     * 
+     * @param timestamp
+     * @param precision
+     */
+    @VisibleForTesting
+    public TimestampSymbol(long timestamp, TimeUnit precision) {
         this.timestamp = timestamp;
+        this.precision = precision;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof TimestampSymbol) {
+            return precision.convert(timestamp,
+                    TimeUnit.MICROSECONDS) == precision.convert(
+                            ((TimestampSymbol) obj).timestamp,
+                            TimeUnit.MICROSECONDS);
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Longs
+                .hashCode(TimeUnit.MICROSECONDS.convert(timestamp, precision));
     }
 
     /**

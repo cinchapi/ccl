@@ -26,11 +26,11 @@ public final class AndTree extends ConjunctionTree {
 
     /**
      * Construct a new instance.
-     * 
+     *
      * @param left
      * @param right
      */
-    public AndTree(AbstractSyntaxTree left, AbstractSyntaxTree right) {
+    public AndTree(ConditionTree left, ConditionTree right) {
         super(ConjunctionSymbol.AND, left, right);
     }
 

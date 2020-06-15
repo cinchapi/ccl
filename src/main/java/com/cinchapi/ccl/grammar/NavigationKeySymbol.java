@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that contains a navigation key.
+ * A {@link KeyTokenSymbol} that represents a navigation key.
  */
-public class NavigationKeySymbol extends KeySymbol {
+public class NavigationKeySymbol extends KeyTokenSymbol<String> {
 
     /**
      * Construct a new instance.
      *
-     * @param keys
+     * @param key
      */
     public NavigationKeySymbol(String key) {
         super(key);

@@ -20,11 +20,19 @@ import com.cinchapi.common.base.Array;
 import com.cinchapi.common.reflect.Reflection;
 
 /**
- * A {@link Symbol} that contains a value.;
+ * A {@link Symbol} that represents a scalar value;
  *
  * @author Jeff Nelson
  */
-public final class ValueSymbol extends BaseSymbol {
+public class ValueSymbol extends ValueTokenSymbol<Object> {
+
+    /**
+     * A list of characters that, when contained within a string or string-like
+     * value, necessitate the need for the value to be quoted in the
+     * {@link #escape(Object)} function.
+     */
+    private static Character[] STRING_CHARACTERS_THAT_MUST_BE_QUOTED = Array
+            .containing('=', ' '); // CON-672, CCL-21
 
     /**
      * A list of characters that, when contained within a string or string-like
@@ -81,31 +89,17 @@ public final class ValueSymbol extends BaseSymbol {
     }
 
     /**
-     * The content of the {@link Symbol}.
-     */
-    private final Object value;
-
-    /**
      * Construct a new instance.
-     * 
+     *
      * @param value
      */
     public ValueSymbol(Object value) {
-        this.value = value;
+        super(value);
     }
 
     @Override
     public String toString() {
         return escape(value).toString();
-    }
-
-    /**
-     * Return the value associated with this {@link Symbol}.
-     * 
-     * @return the value
-     */
-    public Object value() {
-        return value;
     }
 
 }

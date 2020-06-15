@@ -25,7 +25,10 @@ import com.google.common.collect.Multimap;
  * Abstract implementation of {@link ParserTest}.
  * 
  * @author Jeff Nelson
+ * 
+ * @deprecated Replaced by {@link AbstractCompilerTest}
  */
+@Deprecated
 public abstract class AbstractParserTest extends ParserTest {
 
     @Override

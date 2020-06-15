@@ -19,12 +19,30 @@ package com.cinchapi.ccl.syntax;
  * An implementation of the visitor pattern. This interface should be
  * implemented by any class attempting to visit an {@link AbstractSyntaxTree}.
  * In order to do so, the {@link AbstractSyntaxTree#accept(Visitor, Object)}
- * method must be called with a {@link Visitor} as a paramter.
+ * method must be called with a {@link Visitor} as a parameter.
  */
 public interface Visitor<T> {
-    
+
+    public T visit(CommandTree tree, Object... data);
+
+    public default T visit(ConditionTree tree, Object... data) {
+        if(tree instanceof ConjunctionTree) {
+            return visit((ConjunctionTree) tree, data);
+        }
+        else if(tree instanceof ExpressionTree) {
+            return visit((ExpressionTree) tree, data);
+        }
+        else {
+            throw new UnsupportedOperationException("Unsupported ConditionTree type");
+        }
+    }
+
     public T visit(ConjunctionTree tree, Object... data);
     
     public T visit(ExpressionTree tree, Object... data);
-    
+
+    public T visit(OrderTree tree, Object... data);
+
+    public T visit(PageTree tree, Object... data);
+
 }

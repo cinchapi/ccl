@@ -41,5 +41,4 @@ abstract class BaseAbstractSyntaxTree implements AbstractSyntaxTree {
             return false;
         }
     }
-
 }

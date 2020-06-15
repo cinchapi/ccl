@@ -18,28 +18,26 @@ package com.cinchapi.ccl.syntax;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.cinchapi.ccl.grammar.Expression;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 
 /**
- * An {@link ExpressionTree} is an {@link AbstractSyntaxTree} whose root node is
- * an {@link Expression} and does not have any children.
- *
- * @author Jeff Nelson
+ * An abstraction for an expression node in a {@link AbstractSyntaxTree}
  */
-public class ExpressionTree extends BaseAbstractSyntaxTree {
+public class ExpressionTree extends BaseAbstractSyntaxTree implements
+        ConditionTree {
 
     /**
      * The root.
      */
-    private final Expression expression;
+    private final ExpressionSymbol expression;
 
     /**
      * Construct a new instance.
-     * 
+     *
      * @param expression
      */
-    public ExpressionTree(Expression expression) {
+    public ExpressionTree(ExpressionSymbol expression) {
         this.expression = expression;
     }
 

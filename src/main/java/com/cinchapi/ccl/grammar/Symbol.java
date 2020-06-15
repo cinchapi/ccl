@@ -18,7 +18,7 @@ package com.cinchapi.ccl.grammar;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A {@link Symbol} is a terminal or non-terminal component in a grammar.
+ * A {@link Symbol} is a non-terminal symbol in the grammar.
  *
  * @author Jeff Nelson
  */

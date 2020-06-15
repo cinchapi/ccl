@@ -1,4 +1,4 @@
 # ccl
-API for the Concourse Criteria Language.
+API and Compiler for the Concourse Command Language.
 
 https://tomassetti.me/antlr-mega-tutorial/#java-setup

@@ -62,7 +62,7 @@ public interface AbstractSyntaxTree {
 
     /**
      * Return the {@link Symbol} contained in the "root" node of the tree.
-     * 
+     *
      * @return the root node {@link Symbol}
      */
     public Symbol root();
@@ -87,5 +87,5 @@ public interface AbstractSyntaxTree {
      * @return the data
      */
     public <T> T accept(Visitor<T> visitor, Object... data);
-    
+
 }
