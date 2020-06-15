@@ -31,7 +31,6 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 /** Token Manager. */
-@SuppressWarnings("unused")
 public class GrammarTokenManager implements GrammarConstants {
 
   /** Debug output. */
@@ -1938,8 +1937,10 @@ static final long[] jjtoMore = {
     private final int[] jjrounds = new int[214];
     private final int[] jjstateSet = new int[2 * 214];
     private final StringBuilder jjimage = new StringBuilder();
+    @SuppressWarnings("unused")
     private StringBuilder image = jjimage;
     private int jjimageLen;
+    @SuppressWarnings("unused")
     private int lengthOfMatch;
     protected int curChar;
 }
