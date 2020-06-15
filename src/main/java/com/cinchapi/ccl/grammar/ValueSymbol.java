@@ -35,14 +35,6 @@ public class ValueSymbol extends ValueTokenSymbol<Object> {
             .containing('=', ' '); // CON-672, CCL-21
 
     /**
-     * A list of characters that, when contained within a string or string-like
-     * value, necessitate the need for the value to be quoted in the
-     * {@link #escape(Object)} function.
-     */
-    private static Character[] STRING_CHARACTERS_THAT_MUST_BE_QUOTED = Array
-            .containing('=', ' '); // CON-672, CCL-21
-
-    /**
      * Do any escaping of the {@code value} in order to preserve it during the
      * translation.
      * 

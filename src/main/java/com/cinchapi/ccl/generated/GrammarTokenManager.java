@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 /** Token Manager. */
+@SuppressWarnings("unused")
 public class GrammarTokenManager implements GrammarConstants {
 
   /** Debug output. */
