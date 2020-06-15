@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 3.0.0 (TBD)
+#### Version 3.0.0 (June 15, 2020)
 ##### Function Statements
 In version `3.0.0` we added support for **function statements**.
 
@@ -59,13 +59,13 @@ A Page statement can be parsed from the following forms:
 ###### Order Statements
 An Order statement can be parsed from the following forms:
   * `ORDER BY {key}` = sort by a single key
-  * `ORDER BY {key1} {key2} ... {keyn}` = sort by multiple keys
+  * `ORDER BY {key1}, {key2}, ... {keyn}` = sort by multiple keys
   * `ORDER BY {key} {direction}` = sort by a single key with `direction`
-  * `ORDER BY {key1} {direction} {key2} ... {key3} {direction}` = sort by multiple keys, each with an independent and optional `direction`
+  * `ORDER BY {key1} {direction}, {key2}, ... {key3} {direction}` = sort by multiple keys, each with an independent and optional `direction`
   * `ORDER BY {key} at {timestamp}` = sort by a single key at `timestamp`
-  * `ORDER BY {key1} at {timestamp} {key2} ... {keyn} at {timestamp}` = sort by multiple keys, each with an independent and optional `timestamp`
+  * `ORDER BY {key1} at {timestamp}, {key2}, ... {keyn} at {timestamp}` = sort by multiple keys, each with an independent and optional `timestamp`
   * `ORDER BY {key} {direction} at {timestamp}` = sort by a single key at `timestamp` with `direction
-  * `ORDER BY {key1} {direction} at {timestamp} {key2} ... {keyn} {direction} at {timestamp}` = sort by multiple keys, each with an independent and optional `timestamp` and `direction`
+  * `ORDER BY {key1} {direction} at {timestamp}, {key2}, ... {keyn} {direction} at {timestamp}` = sort by multiple keys, each with an independent and optional `timestamp` and `direction`
 
 ##### API Breaks
 * The `Expression` symbol has been deprecated and renamed `ExpressionSymbol` for clarity.
