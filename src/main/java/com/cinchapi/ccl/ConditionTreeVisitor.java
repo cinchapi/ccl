@@ -17,6 +17,7 @@ package com.cinchapi.ccl;
 
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.Visitor;
@@ -42,6 +43,11 @@ public abstract class ConditionTreeVisitor<T> implements Visitor<T> {
 
     @Override
     public final T visit(PageTree tree, Object... data) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final T visit(FunctionTree tree, Object... data) {
         throw new UnsupportedOperationException();
     }
 

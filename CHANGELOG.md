@@ -1,5 +1,13 @@
 # Changelog
 
+#### Version 3.1.0 (TBD)
+* Added support for parsing standalone `function statements` in a compiler. Now, the following forms will parse into a `FunctionTree` that contains a symbolic representation of the function expressed in the CCL statement:
+* `function(key)` produces a FunctionTree whose root node contains an `IndexFunction`
+* `function(key, record)` produces a FunctionTree whose root node contains a `KeyRecordsFunction`
+* `function(key, record1,record2,...,recordN)` produces a FunctionTree whose root node contains a `KeyRecordsFunction`
+* `function(key, condition)` produces a FunctionTree whose root node contains a `KeyConditionFunction`
+* `key \| function`  produces a FunctionTree whose root node contains an `ImplicitKeyRecordFunction`
+
 #### Version 3.0.0 (June 15, 2020)
 ##### Function Statements
 In version `3.0.0` we added support for **function statements**.

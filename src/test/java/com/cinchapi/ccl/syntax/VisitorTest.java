@@ -84,6 +84,11 @@ public class VisitorTest {
                 return data;
             }
 
+            @Override
+            public Object visit(FunctionTree tree, Object... data) {
+                return data;
+            }
+
         };
         tree.accept(visitor);
     }

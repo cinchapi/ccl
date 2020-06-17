@@ -34,7 +34,7 @@ import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
-import com.cinchapi.ccl.type.function.KeyCclFunction;
+import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
 import com.cinchapi.concourse.Tag;
@@ -1302,7 +1302,7 @@ public class JavaCCParserLogicTest {
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
-        KeyCclFunction function = (KeyCclFunction) expression.values().get(0)
+        KeyConditionFunction function = (KeyConditionFunction) expression.values().get(0)
                 .value();
         Assert.assertTrue(function.source() instanceof ExpressionTree);
         ExpressionTree t = (ExpressionTree) function.source();
@@ -1363,23 +1363,23 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(
                 expression.values().get(0) instanceof FunctionValueSymbol);
         Assert.assertEquals("avg",
-                ((KeyCclFunction) expression.values().get(0).value())
+                ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyCclFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value()).key());
 
-        Assert.assertTrue((((KeyCclFunction) expression.values().get(0).value())
+        Assert.assertTrue((((KeyConditionFunction) expression.values().get(0).value())
                 .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
                                 .toString());
         Assert.assertEquals("<",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).operator()
                                 .toString());
         Assert.assertEquals("30",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).values()
                                 .get(0).toString());
     }
@@ -1404,23 +1404,23 @@ public class JavaCCParserLogicTest {
         Assert.assertTrue(
                 expression.values().get(0) instanceof FunctionValueSymbol);
         Assert.assertEquals("avg",
-                ((KeyCclFunction) expression.values().get(0).value())
+                ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyCclFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value()).key());
 
-        Assert.assertTrue((((KeyCclFunction) expression.values().get(0).value())
+        Assert.assertTrue((((KeyConditionFunction) expression.values().get(0).value())
                 .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
                                 .toString());
         Assert.assertEquals("<",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).operator()
                                 .toString());
         Assert.assertEquals("30",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).values()
                                 .get(0).toString());
     }
@@ -1457,7 +1457,6 @@ public class JavaCCParserLogicTest {
                         .group(Criteria.where().key("major").operator(
                                 com.cinchapi.concourse.thrift.Operator.LIKE)
                                 .value("%accounting and business/management%")));
-        System.out.println(criteria.ccl());
 
         // Generate tree
         Parser parser = Parser.create(criteria.ccl(),
@@ -1488,7 +1487,6 @@ public class JavaCCParserLogicTest {
                                 com.cinchapi.concourse.thrift.Operator.EQUALS)
                                 .value(Tag.create(
                                         "accounting and business/management"))));
-        System.out.println(criteria.ccl());
 
         // Generate tree
         Parser parser = Parser.create(criteria.ccl(),

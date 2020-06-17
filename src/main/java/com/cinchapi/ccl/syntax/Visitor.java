@@ -45,4 +45,5 @@ public interface Visitor<T> {
 
     public T visit(PageTree tree, Object... data);
 
+    public T visit(FunctionTree tree, Object... data);
 }

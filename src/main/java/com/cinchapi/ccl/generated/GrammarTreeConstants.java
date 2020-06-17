@@ -10,6 +10,7 @@ public interface GrammarTreeConstants
   public int JJTEXPRESSION = 4;
   public int JJTPAGE = 5;
   public int JJTORDER = 6;
+  public int JJTFUNCTION = 7;
 
 
   public String[] jjtNodeName = {
@@ -20,6 +21,7 @@ public interface GrammarTreeConstants
     "Expression",
     "Page",
     "Order",
+    "Function",
   };
 }
-/* JavaCC - OriginalChecksum=dc04135829aa4f655f0e244d90e0e388 (do not edit this line) */
+/* JavaCC - OriginalChecksum=29ddeb38cd508025cb43ec1e431bcba8 (do not edit this line) */
