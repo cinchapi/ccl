@@ -2133,6 +2133,31 @@ public class CompilerJavaCCLogicTest {
                 ((List<String>) ((KeyRecordsFunction)
                         symbol.function()).source()).get(0));
     }
+    
+    @Test
+    public void testKeyMultiRecordsFunctionAbstractSyntaxTree() {
+        String ccl = "avg(age, 1,2,3,5,11)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((KeyRecordsFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((KeyRecordsFunction) symbol.function()).key());
+
+        Assert.assertEquals(5, ((List<String>) ((KeyRecordsFunction)
+                symbol.function()).source()).size());
+        Assert.assertEquals("1",
+                ((List<String>) ((KeyRecordsFunction)
+                        symbol.function()).source()).get(0));
+    }
 
     @Test
     public void testReproIX5A() {
