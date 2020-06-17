@@ -7,7 +7,7 @@ import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
-import com.cinchapi.ccl.type.function.KeyCclFunction;
+import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
@@ -22,6 +22,7 @@ import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
@@ -1318,9 +1319,9 @@ records.add(word.image);
         jj_consume_token(COMMA);
         ccl = generateSubAST();
         jj_consume_token(CLOSE_PARENTHESES);
-AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
+ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 
-        {if ("" != null) return new FunctionValueSymbol(new KeyCclFunction(function.image, key.image, tree));}
+        {if ("" != null) return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree));}
         break;
         }
       default:
@@ -1758,12 +1759,6 @@ AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
     return false;
   }
 
-  private boolean jj_3R_25()
- {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
   private boolean jj_3_10()
  {
     Token xsp;
@@ -1779,6 +1774,12 @@ AbstractSyntaxTree tree = (AbstractSyntaxTree) ccl.jjtAccept(visitor, null);
     }
     }
     if (jj_scan_token(CLOSE_PARENTHESES)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_25()
+ {
+    if (jj_3R_28()) return true;
     return false;
   }
 
