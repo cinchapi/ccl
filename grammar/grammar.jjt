@@ -393,7 +393,7 @@ ValueTokenSymbol BinaryValue() :
    (
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC>) <CLOSE_PARENTHESES>
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <CLOSE_PARENTHESES>
      { return new FunctionValueSymbol(new IndexFunction(function.image, key.image));}
    |
      LOOKAHEAD(3)
@@ -438,7 +438,6 @@ ValueTokenSymbol BinaryValue() :
 |
   (word=<QUOTED_STRING>)
   { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
-
 }
 
 OperatorSymbol LinksToOperator() :
