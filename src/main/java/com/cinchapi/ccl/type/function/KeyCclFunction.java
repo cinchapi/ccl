@@ -20,7 +20,7 @@ import com.cinchapi.ccl.syntax.ConditionTree;
 
 /**
  * A function that is applied to a key across the records that match a condition
- * (represented by an {@link ConditionTree}).
+ * (represented by an {@link AbstractSyntaxTree}).
  *
  * @author Jeff Nelson
  * @deprecated use {@link KeyConditionFunction} instead

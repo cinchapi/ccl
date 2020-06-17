@@ -22,7 +22,7 @@ import com.cinchapi.ccl.syntax.ConditionTree;
 
 /**
  * A function that is applied to a key across the records that match a condition
- * (represented by an {@link ConditionTree}).
+ * (represented by a {@link ConditionTree}).
  */
 public class KeyConditionFunction
         extends ExplicitBinaryFunction<ConditionTree> {
@@ -40,23 +40,24 @@ public class KeyConditionFunction
 
     @Override
     protected String _sourceToString() {
-        return ((ConditionTree) args[1]).accept(new ConditionTreeVisitor<String>() {
-            String string = "";
+        return ((ConditionTree) args[1])
+                .accept(new ConditionTreeVisitor<String>() {
+                    String string = "";
 
-            @Override
-            public String visit(ConjunctionTree tree, Object... data) {
-                tree.left().accept(this, data);
-                string += " " + tree.root().toString();
-                tree.right().accept(this, data);
-                return string;
-            }
+                    @Override
+                    public String visit(ConjunctionTree tree, Object... data) {
+                        tree.left().accept(this, data);
+                        string += " " + tree.root().toString();
+                        tree.right().accept(this, data);
+                        return string;
+                    }
 
-            @Override
-            public String visit(ExpressionTree tree, Object... data) {
-                string += " " + tree.root().toString();
-                return string;
-            }
+                    @Override
+                    public String visit(ExpressionTree tree, Object... data) {
+                        string += " " + tree.root().toString();
+                        return string;
+                    }
 
-        });
+                });
     }
 }
