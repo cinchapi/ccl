@@ -21,6 +21,7 @@ import java.util.Queue;
 
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
 
@@ -1087,6 +1088,13 @@ public abstract class ParserTest {
 
             @Override
             public Queue<Symbol> visit(PageTree tree, Object... data) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public Queue<Symbol> visit(FunctionTree tree,
+                    Object... data) {
                 // TODO Auto-generated method stub
                 return null;
             }

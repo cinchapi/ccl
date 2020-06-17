@@ -77,4 +77,25 @@ public abstract class Function {
         return (String) args[0];
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Function) {
+            if(!operation.equals(((Function)obj).operation)) {
+                return false;
+            }
+            else if(args.length != ((Function)obj).args.length) {
+                return false;
+            }
+            else {
+                for (int i = 0; i < args.length; i++) {
+                    if (!args[i].equals(((Function)obj).args[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

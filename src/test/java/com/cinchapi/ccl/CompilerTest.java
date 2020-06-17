@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.CommandTree;
@@ -1341,6 +1342,14 @@ public abstract class CompilerTest {
             @SuppressWarnings("unchecked")
             @Override
             public Queue<Symbol> visit(PageTree tree, Object... data) {
+                Queue<Symbol> queue = (Queue<Symbol>) data[0];
+                queue.add(tree.root());
+                return queue;
+            }
+
+            @Override
+            public Queue<Symbol> visit(FunctionTree tree,
+                    Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
                 queue.add(tree.root());
                 return queue;

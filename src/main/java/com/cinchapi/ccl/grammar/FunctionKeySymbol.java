@@ -22,7 +22,8 @@ import com.cinchapi.ccl.type.Function;
  *
  * @author Jeff Nelson
  */
-public class FunctionKeySymbol extends KeyTokenSymbol<Function> {
+public class FunctionKeySymbol extends KeyTokenSymbol<Function>
+        implements FunctionTokenSymbol {
 
     /**
      * Construct a new instance.
@@ -33,4 +34,8 @@ public class FunctionKeySymbol extends KeyTokenSymbol<Function> {
         super(key);
     }
 
+    @Override
+    public Function function() {
+        return this.key;
+    }
 }

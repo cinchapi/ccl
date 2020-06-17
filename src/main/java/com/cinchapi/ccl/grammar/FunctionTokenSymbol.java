@@ -18,24 +18,9 @@ package com.cinchapi.ccl.grammar;
 import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link ValueTokenSymbol} that represents a {@link Function}.
- *
- * @author Jeff Nelson
+ * A {@link FunctionTokenSymbol} that represents a {@link Function}.
  */
-public class FunctionValueSymbol extends ValueTokenSymbol<Function>
-        implements FunctionTokenSymbol {
+public interface FunctionTokenSymbol extends PostfixNotationSymbol {
 
-    /**
-     * Construct a new instance.
-     * 
-     * @param value
-     */
-    public FunctionValueSymbol(Function value) {
-        super(value);
-    }
-
-    @Override
-    public Function function() {
-        return this.value;
-    }
+    Function function();
 }

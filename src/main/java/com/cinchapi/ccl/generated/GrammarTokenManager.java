@@ -3,6 +3,7 @@
 package com.cinchapi.ccl.generated;
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
+import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.type.function.KeyCclFunction;

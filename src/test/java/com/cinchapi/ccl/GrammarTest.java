@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.generated.ASTFunction;
 import com.cinchapi.ccl.generated.ASTOrder;
 import com.cinchapi.ccl.generated.ASTPage;
 import com.cinchapi.ccl.generated.Grammar;
@@ -22,6 +23,7 @@ import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -703,6 +705,11 @@ public class GrammarTest {
         @Override
         public Object visit(ASTPage node, Object data) {
             return new PageTree(node.page());
+        }
+
+        @Override
+        public Object visit(ASTFunction node, Object data) {
+            return new FunctionTree(node.function());
         }
     };
 
