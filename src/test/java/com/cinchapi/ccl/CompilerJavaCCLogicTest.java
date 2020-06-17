@@ -2071,6 +2071,7 @@ public class CompilerJavaCCLogicTest {
         Assert.assertTrue(tree instanceof FunctionTree);
 
         FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+        Assert.assertEquals(IndexFunction.class, symbol.function().getClass());
         Assert.assertEquals("age", symbol.function().key());
         Assert.assertEquals("avg", symbol.function().operation());
     }

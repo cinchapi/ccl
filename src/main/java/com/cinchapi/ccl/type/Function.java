@@ -22,8 +22,8 @@ import com.cinchapi.common.describe.Empty;
 
 /**
  * A {@link Function} is an operation that is applied to a key in one or more
- * records. Functions take, as input, the associated values and produces an
- * output value.
+ * records. Functions take, as input, the associated values (from the key in the
+ * record) and produces a single output value.
  *
  * @author Jeff Nelson
  */
@@ -79,16 +79,16 @@ public abstract class Function {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Function) {
-            if(!operation.equals(((Function)obj).operation)) {
+        if(obj instanceof Function) {
+            if(!operation.equals(((Function) obj).operation)) {
                 return false;
             }
-            else if(args.length != ((Function)obj).args.length) {
+            else if(args.length != ((Function) obj).args.length) {
                 return false;
             }
             else {
                 for (int i = 0; i < args.length; i++) {
-                    if (!args[i].equals(((Function)obj).args[i])) {
+                    if(!args[i].equals(((Function) obj).args[i])) {
                         return false;
                     }
                 }

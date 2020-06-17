@@ -18,9 +18,14 @@ package com.cinchapi.ccl.grammar;
 import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link FunctionTokenSymbol} that represents a {@link Function}.
+ * A {@link FunctionTokenSymbol} that contains a {@link Function}.
  */
-public interface FunctionTokenSymbol extends PostfixNotationSymbol {
+public interface FunctionTokenSymbol extends Symbol {
 
-    Function function();
+    /**
+     * Return the {@link Function} associated with this symbol.
+     * 
+     * @return the {@link Function}
+     */
+    public Function function();
 }

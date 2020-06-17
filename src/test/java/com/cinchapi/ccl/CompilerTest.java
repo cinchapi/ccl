@@ -1347,6 +1347,7 @@ public abstract class CompilerTest {
                 return queue;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public Queue<Symbol> visit(FunctionTree tree,
                     Object... data) {
