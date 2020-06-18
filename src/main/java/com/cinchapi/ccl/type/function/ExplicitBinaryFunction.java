@@ -25,7 +25,7 @@ import com.cinchapi.common.base.AnyStrings;
  *
  * @author Jeff Nelson
  */
-abstract class ExplicitBinaryFunction<S> extends Function {
+public abstract class ExplicitBinaryFunction<S> extends Function {
 
     /**
      * Construct a new instance.
