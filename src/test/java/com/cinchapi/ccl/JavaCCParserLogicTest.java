@@ -1256,11 +1256,11 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(1, ((List<String>) ((KeyRecordsFunction) expression
+        Assert.assertEquals(1, ((List<Long>) ((KeyRecordsFunction) expression
                 .values().get(0).value()).source()).size());
-        Assert.assertEquals("1",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(0));
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(0));
     }
 
     @Test
@@ -1302,8 +1302,8 @@ public class JavaCCParserLogicTest {
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
-        KeyConditionFunction function = (KeyConditionFunction) expression.values().get(0)
-                .value();
+        KeyConditionFunction function = (KeyConditionFunction) expression
+                .values().get(0).value();
         Assert.assertTrue(function.source() instanceof ExpressionTree);
         ExpressionTree t = (ExpressionTree) function.source();
         ExpressionSymbol root = (ExpressionSymbol) t.root();
@@ -1336,14 +1336,14 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(2, ((List<String>) ((KeyRecordsFunction) expression
+        Assert.assertEquals(2, ((List<Long>) ((KeyRecordsFunction) expression
                 .values().get(0).value()).source()).size());
-        Assert.assertEquals("1",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(0));
-        Assert.assertEquals("2",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(1));
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(0));
+        Assert.assertEquals((long) 2,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(1));
     }
 
     @Test
@@ -1366,10 +1366,12 @@ public class JavaCCParserLogicTest {
                 ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyConditionFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .key());
 
-        Assert.assertTrue((((KeyConditionFunction) expression.values().get(0).value())
-                .source()) instanceof ExpressionTree);
+        Assert.assertTrue(
+                (((KeyConditionFunction) expression.values().get(0).value())
+                        .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
@@ -1407,10 +1409,12 @@ public class JavaCCParserLogicTest {
                 ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyConditionFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .key());
 
-        Assert.assertTrue((((KeyConditionFunction) expression.values().get(0).value())
-                .source()) instanceof ExpressionTree);
+        Assert.assertTrue(
+                (((KeyConditionFunction) expression.values().get(0).value())
+                        .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
