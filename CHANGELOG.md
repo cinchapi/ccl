@@ -7,6 +7,7 @@
 * `function(key, record1,record2,...,recordN)` produces a FunctionTree whose root node contains a `KeyRecordsFunction`
 * `function(key, condition)` produces a FunctionTree whose root node contains a `KeyConditionFunction`
 * `key \| function`  produces a FunctionTree whose root node contains an `ImplicitKeyRecordFunction`
+* Fixed a bug where the paramaterized type of `KeyRecordsFunction` was a `List<String>` instead of a `List<Long>`.
 
 #### Version 3.0.0 (June 15, 2020)
 ##### Function Statements

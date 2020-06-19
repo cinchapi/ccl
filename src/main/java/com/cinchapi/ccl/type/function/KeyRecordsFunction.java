@@ -16,12 +16,12 @@
 package com.cinchapi.ccl.type.function;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A function applied to a key across multiple records.
  */
-public class KeyRecordsFunction
-        extends ExplicitBinaryFunction<List<String>> {
+public class KeyRecordsFunction extends ExplicitBinaryFunction<List<Long>> {
     /**
      * Constructs a new instance
      *
@@ -31,7 +31,9 @@ public class KeyRecordsFunction
      */
     public KeyRecordsFunction(String function, String key,
             List<String> records) {
-        super(function, key, records);
+        super(function, key,
+                records.stream().map(record -> Long.parseLong(record))
+                        .collect(Collectors.toList()));
     }
 
     @Override

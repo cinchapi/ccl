@@ -1275,11 +1275,11 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(1, ((List<String>) ((KeyRecordsFunction) expression
+        Assert.assertEquals(1, ((List<Long>) ((KeyRecordsFunction) expression
                 .values().get(0).value()).source()).size());
-        Assert.assertEquals("1",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(0));
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(0));
     }
 
     @Test
@@ -1327,22 +1327,24 @@ public class CompilerJavaCCLogicTest {
                 ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyConditionFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .key());
 
-        Assert.assertTrue((((KeyConditionFunction) expression.values().get(0).value())
-                .source()) instanceof ExpressionTree);
+        Assert.assertTrue(
+                (((KeyConditionFunction) expression.values().get(0).value())
+                        .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
-                        .toString());
+                                .toString());
         Assert.assertEquals(">",
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).operator()
-                        .toString());
+                                .toString());
         Assert.assertEquals("10",
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).values()
-                        .get(0).toString());
+                                .get(0).toString());
 
         Assert.assertEquals("1000", expression.values().get(1).toString());
     }
@@ -1369,14 +1371,14 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(2, ((List<String>) ((KeyRecordsFunction) expression
+        Assert.assertEquals(2, ((List<Long>) ((KeyRecordsFunction) expression
                 .values().get(0).value()).source()).size());
-        Assert.assertEquals("1",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(0));
-        Assert.assertEquals("2",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(1));
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(0));
+        Assert.assertEquals((long) 2,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(1));
     }
 
     @Test
@@ -1399,10 +1401,12 @@ public class CompilerJavaCCLogicTest {
                 ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyConditionFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .key());
 
-        Assert.assertTrue((((KeyConditionFunction) expression.values().get(0).value())
-                .source()) instanceof ExpressionTree);
+        Assert.assertTrue(
+                (((KeyConditionFunction) expression.values().get(0).value())
+                        .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
@@ -1440,10 +1444,12 @@ public class CompilerJavaCCLogicTest {
                 ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyConditionFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .key());
 
-        Assert.assertTrue((((KeyConditionFunction) expression.values().get(0).value())
-                .source()) instanceof ExpressionTree);
+        Assert.assertTrue(
+                (((KeyConditionFunction) expression.values().get(0).value())
+                        .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
@@ -1519,8 +1525,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens
-                .add(new PageSymbol(3, 1));
+        expectedTokens.add(new PageSymbol(3, 1));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -2097,16 +2102,15 @@ public class CompilerJavaCCLogicTest {
         Assert.assertTrue((((KeyConditionFunction) symbol.function())
                 .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction)
-                        symbol.function()).source()).root()).key().toString());
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).key().toString());
         Assert.assertEquals(">",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction)
-                        symbol.function()).source()).root()).operator()
-                        .toString());
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).operator().toString());
         Assert.assertEquals("3",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction)
-                        symbol.function()).source()).root()).values()
-                        .get(0).toString());
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).values().get(0)
+                                .toString());
     }
 
     @Test
@@ -2127,13 +2131,14 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) symbol.function()).key());
 
-        Assert.assertEquals(1, ((List<String>) ((KeyRecordsFunction)
-                symbol.function()).source()).size());
-        Assert.assertEquals("1",
-                ((List<String>) ((KeyRecordsFunction)
-                        symbol.function()).source()).get(0));
+        Assert.assertEquals(1,
+                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
+                        .size());
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
+                        .source()).get(0));
     }
-    
+
     @Test
     public void testKeyMultiRecordsFunctionAbstractSyntaxTree() {
         String ccl = "avg(age, 1,2,3,5,11)";
@@ -2152,11 +2157,12 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) symbol.function()).key());
 
-        Assert.assertEquals(5, ((List<String>) ((KeyRecordsFunction)
-                symbol.function()).source()).size());
-        Assert.assertEquals("1",
-                ((List<String>) ((KeyRecordsFunction)
-                        symbol.function()).source()).get(0));
+        Assert.assertEquals(5,
+                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
+                        .size());
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
+                        .source()).get(0));
     }
 
     @Test
