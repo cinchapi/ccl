@@ -2166,6 +2166,34 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
+    public void testKeyMultiRecordsFunctionWithTimestampAbstractSyntaxTree() {
+        String ccl = "avg(age, [1,2,3,5,11], in 1992-10-02)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((KeyRecordsFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((KeyRecordsFunction) symbol.function()).key());
+
+        Assert.assertEquals(5,
+                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
+                        .size());
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
+                        .source()).get(0));
+        Assert.assertEquals(new TimestampSymbol(NaturalLanguage.parseMicros("1992-10-02"), TimeUnit.DAYS),
+                ((FunctionValueSymbol) symbol).timestamp());
+    }
+
+    @Test
     public void testReproIX5A() {
         Criteria criteria = Criteria.where()
                 .group(Criteria.where().key("_")

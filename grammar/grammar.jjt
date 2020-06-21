@@ -193,7 +193,7 @@ TOKEN :
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
+  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "="] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
@@ -611,9 +611,18 @@ FunctionValueSymbol ValueFunction() :
    |
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
-     (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })+ <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records));}
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA>
+   (
+        (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image);}
+        (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })* <CLOSE_PARENTHESES>
+        { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records));}
+     |
+        <OPEN_BRACKET>
+        (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image);}
+        (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })*
+        <CLOSE_BRACKET> <COMMA> timestamp=Timestamp() <CLOSE_PARENTHESES>
+        { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records), timestamp);}
+   )
    |
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST() <CLOSE_PARENTHESES>
      {

@@ -25,6 +25,8 @@ import com.cinchapi.ccl.type.Function;
 public class FunctionValueSymbol extends ValueTokenSymbol<Function>
         implements FunctionTokenSymbol {
 
+    private TimestampSymbol timestamp;
+
     /**
      * Construct a new instance.
      * 
@@ -32,10 +34,30 @@ public class FunctionValueSymbol extends ValueTokenSymbol<Function>
      */
     public FunctionValueSymbol(Function value) {
         super(value);
+        this.timestamp = null;
+    }
+
+    /**
+     * Construct a new instance.
+     *
+     * @param value
+     */
+    public FunctionValueSymbol(Function value, TimestampSymbol timestamp) {
+        super(value);
+        this.timestamp = timestamp;
     }
 
     @Override
     public Function function() {
         return this.value;
+    }
+
+    /**
+     * Get the timestamp
+     *
+     * @return the timestamp
+     */
+    public TimestampSymbol timestamp() {
+        return timestamp;
     }
 }
