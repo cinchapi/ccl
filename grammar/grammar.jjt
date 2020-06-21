@@ -612,7 +612,7 @@ FunctionValueSymbol ValueFunction() :
      LOOKAHEAD(3)
 
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA>
-   (
+     (
         (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image);}
         (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })* <CLOSE_PARENTHESES>
         { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records));}
@@ -622,12 +622,21 @@ FunctionValueSymbol ValueFunction() :
         (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })*
         <CLOSE_BRACKET> <COMMA> timestamp=Timestamp() <CLOSE_PARENTHESES>
         { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records), timestamp);}
-   )
+     )
    |
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST() <CLOSE_PARENTHESES>
-     {
-        ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
-
-        return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree));}
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST()
+     (
+        <CLOSE_PARENTHESES>
+        {
+          ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
+          return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree));
+        }
+     |
+        <COMMA> timestamp=Timestamp() <CLOSE_PARENTHESES>
+        {
+          ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
+          return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree), timestamp);
+        }
+     )
    )
 }

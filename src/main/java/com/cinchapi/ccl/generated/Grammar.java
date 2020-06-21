@@ -1428,14 +1428,30 @@ records.add(word.image);
         }
         jj_consume_token(COMMA);
         ccl = generateSubAST();
-        jj_consume_token(CLOSE_PARENTHESES);
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case CLOSE_PARENTHESES:{
+          jj_consume_token(CLOSE_PARENTHESES);
 ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
-
-        {if ("" != null) return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree));}
+          {if ("" != null) return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree));}
+          break;
+          }
+        case COMMA:{
+          jj_consume_token(COMMA);
+          timestamp = Timestamp();
+          jj_consume_token(CLOSE_PARENTHESES);
+ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
+          {if ("" != null) return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree), timestamp);}
+          break;
+          }
+        default:
+          jj_la1[48] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
         break;
         }
       default:
-        jj_la1[48] = jj_gen;
+        jj_la1[49] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -2156,7 +2172,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[49];
+  final private int[] jj_la1 = new int[50];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -2164,10 +2180,10 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x100,0x40000000,0x30000000,0x70000000,0x100,0x40000000,0x30000000,0x70000000,0x800,0x400,0x208,0x80,0x80,0x80,0x80,0x7c0f000,0x200,0x200,0x0,0x0,0x18,0x18,0x0,0x0,0x7800000,0xd000,0x0,0x20000000,0x10000000,0x30000000,0x0,0x80000000,0xc200,0x80,0xc000,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20,0x0,0x0,};
+	   jj_la1_0 = new int[] {0x100,0x40000000,0x30000000,0x70000000,0x100,0x40000000,0x30000000,0x70000000,0x800,0x400,0x208,0x80,0x80,0x80,0x80,0x7c0f000,0x200,0x200,0x0,0x0,0x18,0x18,0x0,0x0,0x7800000,0xd000,0x0,0x20000000,0x10000000,0x30000000,0x0,0x80000000,0xc200,0x80,0xc000,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20,0x0,0x10,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x7a0,0x0,0x0,0x0,0x7a0,0x0,0x0,0x7a0,0x0,0x0,0x0,0x0,0x0,0x3a0,0x7a0,0xfa0,0xfa4,0x60fa0,0x60fa4,0xfa0,0xfa4,0x0,0x0,0xba4,0x0,0x0,0x0,0x40,0x1,0x7a0,0x0,0x0,0x1,0x200,0x7a0,0x780,0x780,0xa0,0x40,0xa0,0xa0,0x40,0xa0,0xa0,0x780,0x780,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x7a0,0x0,0x0,0x0,0x7a0,0x0,0x0,0x7a0,0x0,0x0,0x0,0x0,0x0,0x3a0,0x7a0,0xfa0,0xfa4,0x60fa0,0x60fa4,0xfa0,0xfa4,0x0,0x0,0xba4,0x0,0x0,0x0,0x40,0x1,0x7a0,0x0,0x0,0x1,0x200,0x7a0,0x780,0x780,0xa0,0x40,0xa0,0xa0,0x40,0xa0,0xa0,0x780,0x40,0x780,};
 	}
   final private JJCalls[] jj_2_rtns = new JJCalls[11];
   private boolean jj_rescan = false;
@@ -2184,7 +2200,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 49; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 50; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2200,7 +2216,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 	 jj_ntk = -1;
 	 jjtree.reset();
 	 jj_gen = 0;
-	 for (int i = 0; i < 49; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 50; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2211,7 +2227,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 49; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 50; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2231,7 +2247,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 	 jj_ntk = -1;
 	 jjtree.reset();
 	 jj_gen = 0;
-	 for (int i = 0; i < 49; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 50; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2241,7 +2257,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 49; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 50; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2252,7 +2268,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 	 jj_ntk = -1;
 	 jjtree.reset();
 	 jj_gen = 0;
-	 for (int i = 0; i < 49; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 50; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2383,7 +2399,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 49; i++) {
+	 for (int i = 0; i < 50; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {

@@ -646,7 +646,7 @@ public class GrammarTest {
     }
 
     @Test
-    public void testKeyMultiRecordsFunctionAbstractSyntaxTree() throws UnsupportedEncodingException, ParseException {
+    public void testKeyMultiRecordsFunction() throws UnsupportedEncodingException, ParseException {
         String ccl = "avg(age, 1,2,3,5,11)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
@@ -656,8 +656,18 @@ public class GrammarTest {
     }
 
     @Test
-    public void testKeyMultiRecordsFunctionWithTimestampAbstractSyntaxTree() throws UnsupportedEncodingException, ParseException {
+    public void testKeyMultiRecordsFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
         String ccl = "avg(age, [1,2,3,5,11], at today)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyConditionFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, age > 30, at today)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,

@@ -2114,6 +2114,41 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
+    public void testKeyCclFunctionWithTimestampAbstractSyntaxTree() {
+        String ccl = "avg(age, age > 3, in 1992-10-02)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((KeyConditionFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((KeyConditionFunction) symbol.function()).key());
+
+        Assert.assertTrue((((KeyConditionFunction) symbol.function())
+                .source()) instanceof ExpressionTree);
+        Assert.assertEquals("age",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).key().toString());
+        Assert.assertEquals(">",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).operator().toString());
+        Assert.assertEquals("3",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).values().get(0)
+                        .toString());
+        Assert.assertEquals(new TimestampSymbol(NaturalLanguage
+                        .parseMicros("1992-10-02"), TimeUnit.DAYS),
+                ((FunctionValueSymbol) symbol).timestamp());
+    }
+
+    @Test
     public void testKeyRecordsFunctionAbstractSyntaxTree() {
         String ccl = "avg(age, 1)";
 
@@ -2189,7 +2224,8 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals((long) 1,
                 (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
                         .source()).get(0));
-        Assert.assertEquals(new TimestampSymbol(NaturalLanguage.parseMicros("1992-10-02"), TimeUnit.DAYS),
+        Assert.assertEquals(new TimestampSymbol(NaturalLanguage
+                        .parseMicros("1992-10-02"), TimeUnit.DAYS),
                 ((FunctionValueSymbol) symbol).timestamp());
     }
 
