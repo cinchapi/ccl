@@ -5,6 +5,9 @@ import com.cinchapi.ccl.type.Function;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A function that contains a temporal aspect
+ */
 public abstract class TemporalFunction extends Function {
     /**
      * Indicates that this function has no timestamp.
