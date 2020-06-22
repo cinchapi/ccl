@@ -46,9 +46,9 @@ public class KeyConditionFunction
      * @param timestamp the timestamp
      * @param value the value
      */
-    public KeyConditionFunction(String function, String key, long timestamp,
-            ConditionTree value) {
-        super(function, key, timestamp, value);
+    public KeyConditionFunction(String function, String key,
+            ConditionTree value, long timestamp) {
+        super(function, key, value, timestamp);
     }
 
     @Override

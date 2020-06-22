@@ -15,6 +15,8 @@
  */
 package com.cinchapi.ccl.type;
 
+import java.util.Objects;
+
 import com.cinchapi.common.base.ArrayBuilder;
 import com.cinchapi.common.base.Verify;
 import com.cinchapi.common.collect.Sequences;
@@ -75,6 +77,11 @@ public abstract class Function {
      */
     public final String key() {
         return (String) args[0];
+    }
+      
+    @Override
+    public int hashCode() {
+        return Objects.hash(operation, args);
     }
 
     @Override

@@ -45,7 +45,6 @@ import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
-import com.cinchapi.ccl.util.Compare;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
 import com.cinchapi.concourse.Tag;
@@ -2143,9 +2142,13 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("3",
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
                         .function()).source()).root()).values().get(0)
-                        .toString());
-        Assert.assertTrue(Compare.compareTimestampMicros(NaturalLanguage.parseMicros("1992-10-02"),
-                ((KeyConditionFunction) symbol.function()).timestamp(), TimeUnit.DAYS));
+                                .toString());
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        ((KeyConditionFunction) symbol.function()).timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(NaturalLanguage.parseMicros("1992-10-02"),
+                        TimeUnit.MICROSECONDS));
     }
 
     @Test
@@ -2224,8 +2227,12 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals((long) 1,
                 (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
                         .source()).get(0));
-        Assert.assertTrue(Compare.compareTimestampMicros(NaturalLanguage.parseMicros("1992-10-02"),
-                ((KeyRecordsFunction) symbol.function()).timestamp(), TimeUnit.DAYS));
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        ((KeyRecordsFunction) symbol.function()).timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(NaturalLanguage.parseMicros("1992-10-02"),
+                        TimeUnit.MICROSECONDS));
     }
 
     @Test

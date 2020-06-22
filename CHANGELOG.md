@@ -8,6 +8,7 @@
 * `function(key, condition)` produces a FunctionTree whose root node contains a `KeyConditionFunction`
 * `key \| function`  produces a FunctionTree whose root node contains an `ImplicitKeyRecordFunction`
 * Fixed a bug where the paramaterized type of `KeyRecordsFunction` was a `List<String>` instead of a `List<Long>`.
+* Added support for including an optional timestamp within a function value statement.
 
 #### Version 3.0.0 (June 15, 2020)
 ##### Function Statements

@@ -17,7 +17,6 @@ package com.cinchapi.ccl.type.function;
 
 import java.util.List;
 
-import com.cinchapi.ccl.syntax.ConditionTree;
 import com.google.common.collect.Lists;
 
 /**
@@ -46,9 +45,9 @@ public class KeyRecordsFunction extends ExplicitBinaryFunction<List<Long>> {
      * @param records the records
      * @param timestamp the timestamp
      */
-    public KeyRecordsFunction(String function, String key,
-            long timestamp, List<String> records) {
-        this(function, key, timestamp, records.stream()
+    public KeyRecordsFunction(String function, String key, List<String> records,
+            long timestamp) {
+        this(timestamp, function, key, records.stream()
                 .map(record -> Long.parseLong(record)).toArray(Long[]::new));
     }
 
@@ -70,9 +69,9 @@ public class KeyRecordsFunction extends ExplicitBinaryFunction<List<Long>> {
      * @param key
      * @param records
      */
-    public KeyRecordsFunction(String function, String key, long timestamp,
+    public KeyRecordsFunction(long timestamp, String function, String key,
             Long... records) {
-        super(function, key, timestamp, Lists.newArrayList(records));
+        super(function, key, Lists.newArrayList(records), timestamp);
     }
 
     @Override

@@ -15,8 +15,12 @@
  */
 package com.cinchapi.ccl.type.function;
 
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 import com.cinchapi.ccl.type.Function;
 import com.cinchapi.common.base.AnyStrings;
+import com.cinchapi.concourse.time.Time;
 
 /**
  * A {@link Function} that requires two explicit arguments: a key and a source
@@ -27,7 +31,16 @@ import com.cinchapi.common.base.AnyStrings;
  */
 public abstract class ExplicitBinaryFunction<S> extends Function {
 
+    /**
+     * The selection timestamp associated with this function.
+     */
     private final long timestamp;
+
+    /**
+     * The degree of precision to use for this {@link Function} when
+     * determining {@link #equals(Object) equality} and the {@link #hashCode()}.
+     */
+    private TimeUnit timestampPrecision;
 
     /**
      * Construct a new instance.
@@ -37,8 +50,7 @@ public abstract class ExplicitBinaryFunction<S> extends Function {
      * @param source
      */
     protected ExplicitBinaryFunction(String name, String key, S source) {
-        super(name, key, source);
-        this.timestamp = 0;
+        this(name, key, source, Time.NONE);
     }
 
     /**
@@ -49,10 +61,46 @@ public abstract class ExplicitBinaryFunction<S> extends Function {
      * @param source
      * @param timestamp
      */
-    protected ExplicitBinaryFunction(String name, String key, long timestamp,
-            S source) {
+    protected ExplicitBinaryFunction(String name, String key, S source,
+            long timestamp) {
         super(name, key, source);
         this.timestamp = timestamp;
+        this.timestampPrecision = TimeUnit.MICROSECONDS;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean equals = super.equals(obj);
+        if(timestamp != Time.NONE && equals) {
+            equals = timestampPrecision.convert(timestamp,
+                    TimeUnit.MICROSECONDS) == timestampPrecision.convert(
+                            ((ExplicitBinaryFunction<?>) obj).timestamp,
+                            TimeUnit.MICROSECONDS);
+        }
+        return equals;
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = super.hashCode();
+        if(timestamp != Time.NONE) {
+            return Objects.hash(hashCode, TimeUnit.MICROSECONDS
+                    .convert(timestamp, timestampPrecision));
+        }
+        return hashCode;
+    }
+
+    /**
+     * Set the {@link #timestampPrecision} for this {@link Function} and return
+     * it for chaining.
+     * 
+     * @param timestampPrecision
+     * @return this
+     */
+    public ExplicitBinaryFunction<S> setTimestampPrecision(
+            TimeUnit timestampPrecision) {
+        this.timestampPrecision = timestampPrecision;
+        return this;
     }
 
     /**

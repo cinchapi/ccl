@@ -1390,7 +1390,7 @@ records.add(word.image);
         jj_consume_token(COMMA);
         timestamp = Timestamp();
         jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, timestamp.timestamp(), records));}
+{if ("" != null) return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records, timestamp.timestamp()));}
         break;
         }
       default:
@@ -1440,7 +1440,7 @@ ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
           timestamp = Timestamp();
           jj_consume_token(CLOSE_PARENTHESES);
 ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
-          {if ("" != null) return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, timestamp.timestamp(), tree));}
+          {if ("" != null) return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree, timestamp.timestamp()));}
           break;
           }
         default:
