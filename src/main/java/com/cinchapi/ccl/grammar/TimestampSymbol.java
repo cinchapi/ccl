@@ -58,7 +58,7 @@ public class TimestampSymbol implements Symbol {
     /**
      * DO NOT CALL
      * Construct a new instance.
-     *
+     * 
      * @param timestamp
      * @param precision
      */

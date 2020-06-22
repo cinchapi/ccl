@@ -124,8 +124,11 @@ public abstract class ExplicitBinaryFunction<S> extends Function {
 
     @Override
     public final String toString() {
-        return AnyStrings.format("{}({},{},{})", operation(), key(),
-                _sourceToString(), timestamp);
+        return timestamp != Time.NONE
+                ? AnyStrings.format("{}({},{},{})", operation(), key(),
+                        _sourceToString(), timestamp)
+                : AnyStrings.format("{}({},{})", operation(), key(),
+                        _sourceToString());
     }
 
     /**
