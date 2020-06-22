@@ -45,6 +45,7 @@ import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
+import com.cinchapi.ccl.util.Compare;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
 import com.cinchapi.concourse.Tag;
@@ -2143,9 +2144,8 @@ public class CompilerJavaCCLogicTest {
                 ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
                         .function()).source()).root()).values().get(0)
                         .toString());
-        Assert.assertEquals(new TimestampSymbol(NaturalLanguage
-                        .parseMicros("1992-10-02"), TimeUnit.DAYS),
-                ((FunctionValueSymbol) symbol).timestamp());
+        Assert.assertTrue(Compare.compareTimestampMicros(NaturalLanguage.parseMicros("1992-10-02"),
+                ((KeyConditionFunction) symbol.function()).timestamp(), TimeUnit.DAYS));
     }
 
     @Test
@@ -2224,9 +2224,8 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals((long) 1,
                 (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
                         .source()).get(0));
-        Assert.assertEquals(new TimestampSymbol(NaturalLanguage
-                        .parseMicros("1992-10-02"), TimeUnit.DAYS),
-                ((FunctionValueSymbol) symbol).timestamp());
+        Assert.assertTrue(Compare.compareTimestampMicros(NaturalLanguage.parseMicros("1992-10-02"),
+                ((KeyRecordsFunction) symbol.function()).timestamp(), TimeUnit.DAYS));
     }
 
     @Test

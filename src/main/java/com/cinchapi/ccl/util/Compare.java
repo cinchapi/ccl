@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Cinchapi Inc.
+ * Copyright (c) 2013-2017 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.util;
 
-import com.cinchapi.ccl.type.Function;
+import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link ValueTokenSymbol} that represents a {@link Function}.
- *
- * @author Jeff Nelson
+ * A class to aid with the comparison of timestamps
  */
-public class FunctionValueSymbol extends ValueTokenSymbol<Function>
-        implements FunctionTokenSymbol {
+public final class Compare {
 
     /**
-     * Construct a new instance.
-     * 
-     * @param value
+     * Helper function to compare timestamps
+     *
+     * @param long1
+     * @param long2
+     * @param precision
+     * @return
      */
-    public FunctionValueSymbol(Function value) {
-        super(value);
+    public static boolean compareTimestampMicros(long long1, long long2, TimeUnit precision) {
+        return precision.convert(long1, TimeUnit.MICROSECONDS)
+                == precision.convert(long2, TimeUnit.MICROSECONDS);
     }
-
-    @Override
-    public Function function() {
-        return this.value;
-    }
-
 }

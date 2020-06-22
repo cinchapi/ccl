@@ -38,6 +38,19 @@ public class KeyConditionFunction
         super(function, key, value);
     }
 
+    /**
+     * Constructs a new instance
+     *
+     * @param function the function
+     * @param key the key
+     * @param timestamp the timestamp
+     * @param value the value
+     */
+    public KeyConditionFunction(String function, String key, long timestamp,
+            ConditionTree value) {
+        super(function, key, timestamp, value);
+    }
+
     @Override
     protected String _sourceToString() {
         return ((ConditionTree) args[1])
