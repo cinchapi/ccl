@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.cinchapi.ccl.type.Function;
 import com.cinchapi.common.base.AnyStrings;
-import com.cinchapi.concourse.time.Time;
 
 /**
  * A {@link Function} that requires two explicit arguments: a key and a source
@@ -30,6 +29,12 @@ import com.cinchapi.concourse.time.Time;
  * @author Jeff Nelson
  */
 public abstract class ExplicitBinaryFunction<S> extends Function {
+
+    /**
+     * Indicates that this function has no timestamp.
+     */
+    private static long NO_TIMESTAMP = Long.MAX_VALUE; // matches
+                                                       // com.cinchapi.concourse.time.Time#NONE
 
     /**
      * The selection timestamp associated with this function.
@@ -50,7 +55,7 @@ public abstract class ExplicitBinaryFunction<S> extends Function {
      * @param source
      */
     protected ExplicitBinaryFunction(String name, String key, S source) {
-        this(name, key, source, Time.NONE);
+        this(name, key, source, NO_TIMESTAMP);
     }
 
     /**
@@ -71,7 +76,7 @@ public abstract class ExplicitBinaryFunction<S> extends Function {
     @Override
     public boolean equals(Object obj) {
         boolean equals = super.equals(obj);
-        if(timestamp != Time.NONE && equals) {
+        if(timestamp != NO_TIMESTAMP && equals) {
             equals = timestampPrecision.convert(timestamp,
                     TimeUnit.MICROSECONDS) == timestampPrecision.convert(
                             ((ExplicitBinaryFunction<?>) obj).timestamp,
@@ -83,7 +88,7 @@ public abstract class ExplicitBinaryFunction<S> extends Function {
     @Override
     public int hashCode() {
         int hashCode = super.hashCode();
-        if(timestamp != Time.NONE) {
+        if(timestamp != NO_TIMESTAMP) {
             return Objects.hash(hashCode, TimeUnit.MICROSECONDS
                     .convert(timestamp, timestampPrecision));
         }
@@ -124,7 +129,7 @@ public abstract class ExplicitBinaryFunction<S> extends Function {
 
     @Override
     public final String toString() {
-        return timestamp != Time.NONE
+        return timestamp != NO_TIMESTAMP
                 ? AnyStrings.format("{}({},{},{})", operation(), key(),
                         _sourceToString(), timestamp)
                 : AnyStrings.format("{}({},{})", operation(), key(),
