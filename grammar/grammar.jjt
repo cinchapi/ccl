@@ -606,8 +606,14 @@ FunctionValueSymbol ValueFunction() :
    (
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new IndexFunction(function.image, key.image));}
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
+     (
+         <CLOSE_PARENTHESES>
+         { return new FunctionValueSymbol(new IndexFunction(function.image, key.image));}
+     |
+         <COMMA> timestamp=Timestamp() <CLOSE_PARENTHESES>
+         { return new FunctionValueSymbol(new IndexFunction(function.image, key.image, timestamp.timestamp()));}
+     )
    |
      LOOKAHEAD(3)
 

@@ -2236,6 +2236,32 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
+    public void testIndexFunctionWithTimestampAbstractSyntaxTree() {
+        String ccl = "avg(age, in 1992-10-02)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((IndexFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((IndexFunction) symbol.function()).key());
+
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        ((IndexFunction) symbol.function()).timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(NaturalLanguage.parseMicros("1992-10-02"),
+                        TimeUnit.MICROSECONDS));
+    }
+
+    @Test
     public void testReproIX5A() {
         Criteria criteria = Criteria.where()
                 .group(Criteria.where().key("_")
