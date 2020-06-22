@@ -38,4 +38,5 @@ public class FunctionValueSymbol extends ValueTokenSymbol<Function>
     public Function function() {
         return this.value;
     }
+
 }

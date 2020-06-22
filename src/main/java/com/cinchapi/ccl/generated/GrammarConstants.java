@@ -15,87 +15,91 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int CLOSE_PARENTHESES = 4;
   /** RegularExpression Id. */
-  int TIMESTAMP = 5;
+  int OPEN_BRACKET = 5;
   /** RegularExpression Id. */
-  int WHERE = 6;
+  int CLOSE_BRACKET = 6;
   /** RegularExpression Id. */
-  int RESERVED_IDENTIFIER = 7;
+  int TIMESTAMP = 7;
   /** RegularExpression Id. */
-  int CONJUNCTION = 8;
+  int WHERE = 8;
   /** RegularExpression Id. */
-  int DISJUNCTION = 9;
+  int RESERVED_IDENTIFIER = 9;
   /** RegularExpression Id. */
-  int UNARY_OPERATOR = 10;
+  int CONJUNCTION = 10;
   /** RegularExpression Id. */
-  int BINARY_OPERATOR = 11;
+  int DISJUNCTION = 11;
   /** RegularExpression Id. */
-  int OPEN_ANGLE_BRACKET = 12;
+  int UNARY_OPERATOR = 12;
   /** RegularExpression Id. */
-  int CLOSE_ANGLE_BRACKET = 13;
+  int BINARY_OPERATOR = 13;
   /** RegularExpression Id. */
-  int EQUALS = 14;
+  int OPEN_ANGLE_BRACKET = 14;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 15;
+  int CLOSE_ANGLE_BRACKET = 15;
   /** RegularExpression Id. */
-  int GREATER_THAN = 16;
+  int EQUALS = 16;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 17;
+  int NOT_EQUALS = 17;
   /** RegularExpression Id. */
-  int LESS_THAN = 18;
+  int GREATER_THAN = 18;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 19;
+  int GREATER_THAN_OR_EQUALS = 19;
   /** RegularExpression Id. */
-  int LINKS_TO = 20;
+  int LESS_THAN = 20;
   /** RegularExpression Id. */
-  int REGEX = 21;
+  int LESS_THAN_OR_EQUALS = 21;
   /** RegularExpression Id. */
-  int NOT_REGEX = 22;
+  int LINKS_TO = 22;
   /** RegularExpression Id. */
-  int LIKE = 23;
+  int REGEX = 23;
   /** RegularExpression Id. */
-  int NOT_LIKE = 24;
+  int NOT_REGEX = 24;
   /** RegularExpression Id. */
-  int BETWEEN = 25;
+  int LIKE = 25;
   /** RegularExpression Id. */
-  int PAGE = 26;
+  int NOT_LIKE = 26;
   /** RegularExpression Id. */
-  int SIZE = 27;
+  int BETWEEN = 27;
   /** RegularExpression Id. */
-  int ORDER = 28;
+  int PAGE = 28;
   /** RegularExpression Id. */
-  int ASC = 29;
+  int SIZE = 29;
   /** RegularExpression Id. */
-  int DESC = 30;
+  int ORDER = 30;
   /** RegularExpression Id. */
-  int PIPE = 31;
+  int ASC = 31;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 32;
+  int DESC = 32;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 33;
+  int PIPE = 33;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 34;
+  int QUOTED_STRING = 34;
   /** RegularExpression Id. */
-  int NUMERIC = 35;
+  int DOUBLE_QUOTED_STRING = 35;
   /** RegularExpression Id. */
-  int COMMA = 36;
+  int SINGLE_QUOTED_STRING = 36;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 37;
+  int NUMERIC = 37;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 38;
+  int COMMA = 38;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 39;
+  int SIGNED_INTEGER = 39;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 40;
+  int SIGNED_DECIMAL = 40;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 41;
+  int ALPHANUMERIC = 41;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 42;
+  int PERIOD_SEPARATED_STRING = 42;
   /** RegularExpression Id. */
-  int LETTER = 43;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 43;
   /** RegularExpression Id. */
-  int DIGIT = 44;
+  int NON_ALPHANUMERIC = 44;
   /** RegularExpression Id. */
-  int PERIOD = 45;
+  int LETTER = 45;
+  /** RegularExpression Id. */
+  int DIGIT = 46;
+  /** RegularExpression Id. */
+  int PERIOD = 47;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -107,6 +111,8 @@ public interface GrammarConstants {
     "\"\\t\"",
     "\"(\"",
     "\")\"",
+    "\"[\"",
+    "\"]\"",
     "<TIMESTAMP>",
     "\"where\"",
     "\"$id$\"",

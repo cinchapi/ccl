@@ -111,6 +111,8 @@ SKIP :
 
 TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
+TOKEN : { < OPEN_BRACKET : "[" > }
+TOKEN : { < CLOSE_BRACKET : "]" > }
 TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" > }
 TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
 TOKEN [IGNORE_CASE]: { < RESERVED_IDENTIFIER: "$id$" > }
@@ -191,7 +193,7 @@ TOKEN :
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "="] >
+  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "="] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
@@ -264,13 +266,13 @@ void RelationalExpression() #Expression :
 {
     key=Key()
       (
-        operator=LinksToOperator() value1=LinksToValue() timestamp=Timestamp()
+        operator=LinksToOperator() value1=LinksToValue() (timestamp=Timestamp())?
       |
-        operator=RegexBasedOperator() value1=RegexValue() timestamp=Timestamp()
+        operator=RegexBasedOperator() value1=RegexValue() (timestamp=Timestamp())?
       |
-        operator=UnaryOperator() value1=UnaryValue() timestamp=Timestamp()
+        operator=UnaryOperator() value1=UnaryValue() (timestamp=Timestamp())?
       |
-        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() timestamp=Timestamp()
+        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (timestamp=Timestamp())?
       ) { jjtThis.key(key);
           jjtThis.operator(operator);
           jjtThis.addValue(value1);
@@ -450,9 +452,8 @@ TimestampSymbol Timestamp() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
-  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); })?
-  { return null; }
+  <TIMESTAMP> (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
 void Page() #Page :
@@ -517,7 +518,7 @@ OrderComponentSymbol OrderClause() :
   |
     key=Key() (direction=WordDirection())?
   )
-  timestamp=Timestamp())
+  (timestamp=Timestamp())?)
   {
       if(direction != null) {
           if(timestamp != null) {
@@ -598,6 +599,7 @@ FunctionValueSymbol ValueFunction() :
   Token word;
   List<String> records = Lists.newArrayList();
   ASTStart ccl;
+  TimestampSymbol timestamp = null;
 }
 {
   function=<ALPHANUMERIC> <OPEN_PARENTHESES>
@@ -609,14 +611,32 @@ FunctionValueSymbol ValueFunction() :
    |
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
-     (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })+ <CLOSE_PARENTHESES>
-     { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records));}
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA>
+     (
+        (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image);}
+        (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })* <CLOSE_PARENTHESES>
+        { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records));}
+     |
+        <OPEN_BRACKET>
+        (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image);}
+        (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })*
+        <CLOSE_BRACKET> <COMMA> timestamp=Timestamp() <CLOSE_PARENTHESES>
+        { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records, timestamp.timestamp()));}
+     )
    |
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST() <CLOSE_PARENTHESES>
-     {
-        ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
-
-        return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree));}
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST()
+     (
+        <CLOSE_PARENTHESES>
+        {
+          ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
+          return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree));
+        }
+     |
+        <COMMA> timestamp=Timestamp() <CLOSE_PARENTHESES>
+        {
+          ConditionTree tree = (ConditionTree) ccl.jjtAccept(visitor, null);
+          return new FunctionValueSymbol(new KeyConditionFunction(function.image, key.image, tree, timestamp.timestamp()));
+        }
+     )
    )
 }
