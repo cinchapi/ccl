@@ -17,11 +17,13 @@ package com.cinchapi.ccl.type.function;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 /**
  * A function applied to a key across multiple records.
  */
-public class KeyRecordsFunction
-        extends ExplicitBinaryFunction<List<String>> {
+public class KeyRecordsFunction extends ExplicitBinaryFunction<List<Long>> {
+
     /**
      * Constructs a new instance
      *
@@ -31,7 +33,45 @@ public class KeyRecordsFunction
      */
     public KeyRecordsFunction(String function, String key,
             List<String> records) {
-        super(function, key, records);
+        this(function, key, records.stream()
+                .map(record -> Long.parseLong(record)).toArray(Long[]::new));
+    }
+
+    /**
+     * Constructs a new instance
+     *
+     * @param function the function
+     * @param key the key
+     * @param records the records
+     * @param timestamp the timestamp
+     */
+    public KeyRecordsFunction(String function, String key, List<String> records,
+            long timestamp) {
+        this(timestamp, function, key, records.stream()
+                .map(record -> Long.parseLong(record)).toArray(Long[]::new));
+    }
+
+    /**
+     * Construct a new instance.
+     * 
+     * @param function
+     * @param key
+     * @param records
+     */
+    public KeyRecordsFunction(String function, String key, Long... records) {
+        super(function, key, Lists.newArrayList(records));
+    }
+
+    /**
+     * Construct a new instance.
+     *
+     * @param function
+     * @param key
+     * @param records
+     */
+    public KeyRecordsFunction(long timestamp, String function, String key,
+            Long... records) {
+        super(function, key, Lists.newArrayList(records), timestamp);
     }
 
     @Override

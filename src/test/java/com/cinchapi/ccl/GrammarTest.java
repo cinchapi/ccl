@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl;
 
+import com.cinchapi.ccl.generated.ASTFunction;
 import com.cinchapi.ccl.generated.ASTOrder;
 import com.cinchapi.ccl.generated.ASTPage;
 import com.cinchapi.ccl.generated.Grammar;
@@ -22,6 +23,7 @@ import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -643,6 +645,46 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void testKeyMultiRecordsFunction() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, 1,2,3,5,11)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyMultiRecordsFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, [1,2,3,5,11], at today)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyConditionFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, age > 30, at today)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testIndexFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, at today)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     /**
      * Constants
      */
@@ -703,6 +745,11 @@ public class GrammarTest {
         @Override
         public Object visit(ASTPage node, Object data) {
             return new PageTree(node.page());
+        }
+
+        @Override
+        public Object visit(ASTFunction node, Object data) {
+            return new FunctionTree(node.function());
         }
     };
 

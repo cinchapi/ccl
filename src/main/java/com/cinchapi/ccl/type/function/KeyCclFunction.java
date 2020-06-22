@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2020 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,68 +16,26 @@
 package com.cinchapi.ccl.type.function;
 
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.CommandTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.syntax.ConditionTree;
 
 /**
  * A function that is applied to a key across the records that match a condition
  * (represented by an {@link AbstractSyntaxTree}).
+ *
+ * @author Jeff Nelson
+ * @deprecated use {@link KeyConditionFunction} instead
  */
-public class KeyCclFunction
-        extends ExplicitBinaryFunction<AbstractSyntaxTree> {
+@Deprecated
+public final class KeyCclFunction extends KeyConditionFunction {
+
     /**
-     * Constructs a new instance
-     *
-     * @param function the function
-     * @param key the key
-     * @param value the value
+     * Construct a new instance.
+     * @param function
+     * @param key
+     * @param value
      */
-    public KeyCclFunction(String function, String key,
-            AbstractSyntaxTree value) {
-        super(function, key, value);
+    public KeyCclFunction(String function, String key, AbstractSyntaxTree value) {
+        super(function, key, (ConditionTree) value);
     }
 
-    @Override
-    protected String _sourceToString() {
-        return ((AbstractSyntaxTree) args[1]).accept(new Visitor<String>() {
-            String string = "";
-
-            @Override
-            public String visit(CommandTree tree, Object... data) {
-                tree.conditionTree().accept(this, data);
-                tree.pageTree().accept(this, data);
-                return string;
-            }
-
-            @Override
-            public String visit(ConjunctionTree tree, Object... data) {
-                tree.left().accept(this, data);
-                string += " " + tree.root().toString();
-                tree.right().accept(this, data);
-                return string;
-            }
-
-            @Override
-            public String visit(ExpressionTree tree, Object... data) {
-                string += " " + tree.root().toString();
-                return string;
-            }
-
-            @Override
-            public String visit(OrderTree tree, Object... data) {
-                string += " " + tree.root().toString();
-                return string;
-            }
-
-            @Override
-            public String visit(PageTree tree, Object... data) {
-                string += " " + tree.root().toString();
-                return string;
-            }
-        });
-    }
 }

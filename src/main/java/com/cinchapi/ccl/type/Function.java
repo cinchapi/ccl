@@ -15,6 +15,8 @@
  */
 package com.cinchapi.ccl.type;
 
+import java.util.Objects;
+
 import com.cinchapi.common.base.ArrayBuilder;
 import com.cinchapi.common.base.Verify;
 import com.cinchapi.common.collect.Sequences;
@@ -22,8 +24,8 @@ import com.cinchapi.common.describe.Empty;
 
 /**
  * A {@link Function} is an operation that is applied to a key in one or more
- * records. Functions take, as input, the associated values and produces an
- * output value.
+ * records. Functions take, as input, the associated values (from the key in the
+ * record) and produces a single output value.
  *
  * @author Jeff Nelson
  */
@@ -75,6 +77,32 @@ public abstract class Function {
      */
     public final String key() {
         return (String) args[0];
+    }
+      
+    @Override
+    public int hashCode() {
+        return Objects.hash(operation, args);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Function) {
+            if(!operation.equals(((Function) obj).operation)) {
+                return false;
+            }
+            else if(args.length != ((Function) obj).args.length) {
+                return false;
+            }
+            else {
+                for (int i = 0; i < args.length; i++) {
+                    if(!args[i].equals(((Function) obj).args[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
 }

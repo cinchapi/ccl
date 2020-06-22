@@ -37,6 +37,7 @@ import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -348,6 +349,15 @@ public abstract class Compiler {
                 return symbols;
             }
 
+            @SuppressWarnings("unchecked")
+            @Override
+            public List<Symbol> visit(FunctionTree tree,
+                    Object... data) {
+                List<Symbol> symbols = (List<Symbol>) data[0];
+                symbols.add(tree.root());
+                return symbols;
+            }
+
         };
         return ast.accept(visitor, Lists.newArrayList());
     }
@@ -358,7 +368,7 @@ public abstract class Compiler {
      * {@link ExpressionSymbol}s that are sorted by the proper order of
      * operations.
      * 
-     * @param ast
+     * @param tree
      * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}
      */

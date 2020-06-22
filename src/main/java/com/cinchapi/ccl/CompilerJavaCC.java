@@ -22,6 +22,7 @@ import java.util.function.Function;
 
 import com.cinchapi.ccl.generated.ASTAnd;
 import com.cinchapi.ccl.generated.ASTExpression;
+import com.cinchapi.ccl.generated.ASTFunction;
 import com.cinchapi.ccl.generated.ASTOr;
 import com.cinchapi.ccl.generated.ASTOrder;
 import com.cinchapi.ccl.generated.ASTPage;
@@ -34,6 +35,7 @@ import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
@@ -78,6 +80,7 @@ class CompilerJavaCC extends Compiler {
                     ConditionTree conditionTree = null;
                     PageTree pageTree = null;
                     OrderTree orderTree = null;
+                    FunctionTree functionTree = null;
 
                     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
                         Object child = node.jjtGetChild(i).jjtAccept(this,
@@ -88,21 +91,28 @@ class CompilerJavaCC extends Compiler {
                         else if(child instanceof OrderTree) {
                             orderTree = (OrderTree) child;
                         }
+                        else if(child instanceof FunctionTree) {
+                            functionTree = (FunctionTree) child;
+                        }
                         else {
                             conditionTree = (ConditionTree) child;
                         }
                     }
                     if(conditionTree != null && pageTree == null
-                            && orderTree == null) {
+                            && orderTree == null && functionTree == null) {
                         return conditionTree;
                     }
                     else if(pageTree != null && conditionTree == null
-                            && orderTree == null) {
+                            && orderTree == null && functionTree == null) {
                         return pageTree;
                     }
                     else if(orderTree != null && conditionTree == null
-                            && pageTree == null) {
+                            && pageTree == null && functionTree == null) {
                         return orderTree;
+                    }
+                    else if(functionTree != null && conditionTree == null
+                            && pageTree == null && orderTree == null) {
+                        return functionTree;
                     }
                     else {
                         // If the statement has multiple elements, it is
@@ -144,6 +154,11 @@ class CompilerJavaCC extends Compiler {
                 @Override
                 public Object visit(ASTPage node, Object data) {
                     return new PageTree(node.page());
+                }
+
+                @Override
+                public Object visit(ASTFunction node, Object data) {
+                    return new FunctionTree(node.function());
                 }
             };
 

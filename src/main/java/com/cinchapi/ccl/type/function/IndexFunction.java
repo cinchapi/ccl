@@ -15,27 +15,38 @@
  */
 package com.cinchapi.ccl.type.function;
 
-import com.cinchapi.ccl.type.Function;
 import com.cinchapi.common.base.AnyStrings;
 
 /**
  * Represents an implicit function, i.e. a function implicitly applied to the
  * entire index
  */
-public class IndexFunction extends Function {
+public class IndexFunction extends TemporalFunction {
 
     /**
      * Creates a new instances
      *
-     * @param function the function
+     * @param name the function name
      * @param key the key
      */
     public IndexFunction(String name, String key) {
         super(name, key);
     }
 
+    /**
+     * Creates a new instances
+     *
+     * @param name the function name
+     * @param key the key
+     */
+    public IndexFunction(String name, String key, long timestamp) {
+        super(timestamp, name, key);
+    }
+
     @Override
     public String toString() {
-        return AnyStrings.format("{}({})", operation(), key());
+        return timestamp != TemporalFunction.NO_TIMESTAMP
+                ? AnyStrings.format("{}({},{})", operation(), key(), timestamp)
+                : AnyStrings.format("{}({})", operation(), key());
     }
 }

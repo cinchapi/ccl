@@ -19,6 +19,7 @@ import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
+import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
 import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
@@ -35,13 +36,14 @@ import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
-import com.cinchapi.ccl.type.function.KeyCclFunction;
+import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
@@ -1273,11 +1275,11 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(1, ((List<String>) ((KeyRecordsFunction) expression
+        Assert.assertEquals(1, ((List<Long>) ((KeyRecordsFunction) expression
                 .values().get(0).value()).source()).size());
-        Assert.assertEquals("1",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(0));
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(0));
     }
 
     @Test
@@ -1319,14 +1321,30 @@ public class CompilerJavaCCLogicTest {
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertEquals("age", expression.key().toString());
         Assert.assertEquals("><", expression.operator().toString());
-        KeyCclFunction function = (KeyCclFunction) expression.values().get(0)
-                .value();
-        Assert.assertTrue(function.source() instanceof ExpressionTree);
-        ExpressionTree t = (ExpressionTree) function.source();
-        ExpressionSymbol root = (ExpressionSymbol) t.root();
-        Assert.assertEquals("age", root.key().key());
-        Assert.assertEquals(">", root.operator().operator().symbol());
-        Assert.assertEquals(10, root.values().get(0).value());
+        Assert.assertTrue(
+                expression.values().get(0) instanceof FunctionValueSymbol);
+        Assert.assertEquals("avg",
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .operation());
+        Assert.assertEquals("age",
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .key());
+
+        Assert.assertTrue(
+                (((KeyConditionFunction) expression.values().get(0).value())
+                        .source()) instanceof ExpressionTree);
+        Assert.assertEquals("age",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
+                        .values().get(0).value()).source()).root()).key()
+                                .toString());
+        Assert.assertEquals(">",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
+                        .values().get(0).value()).source()).root()).operator()
+                                .toString());
+        Assert.assertEquals("10",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
+                        .values().get(0).value()).source()).root()).values()
+                                .get(0).toString());
 
         Assert.assertEquals("1000", expression.values().get(1).toString());
     }
@@ -1353,14 +1371,14 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(2, ((List<String>) ((KeyRecordsFunction) expression
+        Assert.assertEquals(2, ((List<Long>) ((KeyRecordsFunction) expression
                 .values().get(0).value()).source()).size());
-        Assert.assertEquals("1",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(0));
-        Assert.assertEquals("2",
-                ((List<String>) ((KeyRecordsFunction) expression.values().get(0)
-                        .value()).source()).get(1));
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(0));
+        Assert.assertEquals((long) 2,
+                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
+                        .get(0).value()).source()).get(1));
     }
 
     @Test
@@ -1380,23 +1398,25 @@ public class CompilerJavaCCLogicTest {
         Assert.assertTrue(
                 expression.values().get(0) instanceof FunctionValueSymbol);
         Assert.assertEquals("avg",
-                ((KeyCclFunction) expression.values().get(0).value())
+                ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyCclFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .key());
 
-        Assert.assertTrue((((KeyCclFunction) expression.values().get(0).value())
-                .source()) instanceof ExpressionTree);
+        Assert.assertTrue(
+                (((KeyConditionFunction) expression.values().get(0).value())
+                        .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
                                 .toString());
         Assert.assertEquals("<",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).operator()
                                 .toString());
         Assert.assertEquals("30",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).values()
                                 .get(0).toString());
     }
@@ -1421,23 +1441,25 @@ public class CompilerJavaCCLogicTest {
         Assert.assertTrue(
                 expression.values().get(0) instanceof FunctionValueSymbol);
         Assert.assertEquals("avg",
-                ((KeyCclFunction) expression.values().get(0).value())
+                ((KeyConditionFunction) expression.values().get(0).value())
                         .operation());
         Assert.assertEquals("age",
-                ((KeyCclFunction) expression.values().get(0).value()).key());
+                ((KeyConditionFunction) expression.values().get(0).value())
+                        .key());
 
-        Assert.assertTrue((((KeyCclFunction) expression.values().get(0).value())
-                .source()) instanceof ExpressionTree);
+        Assert.assertTrue(
+                (((KeyConditionFunction) expression.values().get(0).value())
+                        .source()) instanceof ExpressionTree);
         Assert.assertEquals("age",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).key()
                                 .toString());
         Assert.assertEquals("<",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).operator()
                                 .toString());
         Assert.assertEquals("30",
-                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyCclFunction) expression
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) expression
                         .values().get(0).value()).source()).root()).values()
                                 .get(0).toString());
     }
@@ -1503,8 +1525,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens
-                .add(new PageSymbol(3, 1));
+        expectedTokens.add(new PageSymbol(3, 1));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -2004,6 +2025,240 @@ public class CompilerJavaCCLogicTest {
         PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
         Assert.assertEquals(2, page.offset());
         Assert.assertEquals(1, page.limit());
+    }
+
+    @Test
+    public void testImplicitKeyRecordFunctionTokenize() {
+        String ccl = "age | avg";
+
+        // Build expected queue
+        List<Object> expectedTokens = Lists.newArrayList();
+
+        expectedTokens.add(new FunctionKeySymbol(
+                new ImplicitKeyRecordFunction("avg", "age")));
+
+        // Generate queue
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        List<Symbol> tokens = compiler.tokenize(ast);
+
+        Assert.assertEquals(expectedTokens, tokens);
+    }
+
+    @Test
+    public void testImplicitKeyRecordFunctionAbstractSyntaxTree() {
+        String ccl = "age | avg";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+        Assert.assertEquals("age", symbol.function().key());
+        Assert.assertEquals("avg", symbol.function().operation());
+    }
+
+    @Test
+    public void testIndexFunctionAbstractSyntaxTree() {
+        String ccl = "avg(age)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+        Assert.assertEquals(IndexFunction.class, symbol.function().getClass());
+        Assert.assertEquals("age", symbol.function().key());
+        Assert.assertEquals("avg", symbol.function().operation());
+    }
+
+    @Test
+    public void testKeyCclFunctionAbstractSyntaxTree() {
+        String ccl = "avg(age, age > 3)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((KeyConditionFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((KeyConditionFunction) symbol.function()).key());
+
+        Assert.assertTrue((((KeyConditionFunction) symbol.function())
+                .source()) instanceof ExpressionTree);
+        Assert.assertEquals("age",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).key().toString());
+        Assert.assertEquals(">",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).operator().toString());
+        Assert.assertEquals("3",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).values().get(0)
+                                .toString());
+    }
+
+    @Test
+    public void testKeyCclFunctionWithTimestampAbstractSyntaxTree() {
+        String ccl = "avg(age, age > 3, in 1992-10-02)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((KeyConditionFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((KeyConditionFunction) symbol.function()).key());
+
+        Assert.assertTrue((((KeyConditionFunction) symbol.function())
+                .source()) instanceof ExpressionTree);
+        Assert.assertEquals("age",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).key().toString());
+        Assert.assertEquals(">",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).operator().toString());
+        Assert.assertEquals("3",
+                ((ExpressionSymbol) ((AbstractSyntaxTree) ((KeyConditionFunction) symbol
+                        .function()).source()).root()).values().get(0)
+                                .toString());
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        ((KeyConditionFunction) symbol.function()).timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(NaturalLanguage.parseMicros("1992-10-02"),
+                        TimeUnit.MICROSECONDS));
+    }
+
+    @Test
+    public void testKeyRecordsFunctionAbstractSyntaxTree() {
+        String ccl = "avg(age, 1)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((KeyRecordsFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((KeyRecordsFunction) symbol.function()).key());
+
+        Assert.assertEquals(1,
+                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
+                        .size());
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
+                        .source()).get(0));
+    }
+
+    @Test
+    public void testKeyMultiRecordsFunctionAbstractSyntaxTree() {
+        String ccl = "avg(age, 1,2,3,5,11)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((KeyRecordsFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((KeyRecordsFunction) symbol.function()).key());
+
+        Assert.assertEquals(5,
+                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
+                        .size());
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
+                        .source()).get(0));
+    }
+
+    @Test
+    public void testKeyMultiRecordsFunctionWithTimestampAbstractSyntaxTree() {
+        String ccl = "avg(age, [1,2,3,5,11], in 1992-10-02)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((KeyRecordsFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((KeyRecordsFunction) symbol.function()).key());
+
+        Assert.assertEquals(5,
+                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
+                        .size());
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
+                        .source()).get(0));
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        ((KeyRecordsFunction) symbol.function()).timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(NaturalLanguage.parseMicros("1992-10-02"),
+                        TimeUnit.MICROSECONDS));
+    }
+
+    @Test
+    public void testIndexFunctionWithTimestampAbstractSyntaxTree() {
+        String ccl = "avg(age, in 1992-10-02)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof FunctionTree);
+        FunctionTokenSymbol symbol = (FunctionTokenSymbol) tree.root();
+
+        Assert.assertEquals("avg",
+                ((IndexFunction) symbol.function()).operation());
+        Assert.assertEquals("age",
+                ((IndexFunction) symbol.function()).key());
+
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        ((IndexFunction) symbol.function()).timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(NaturalLanguage.parseMicros("1992-10-02"),
+                        TimeUnit.MICROSECONDS));
     }
 
     @Test

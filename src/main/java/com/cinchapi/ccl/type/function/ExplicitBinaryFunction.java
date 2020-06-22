@@ -25,17 +25,30 @@ import com.cinchapi.common.base.AnyStrings;
  *
  * @author Jeff Nelson
  */
-abstract class ExplicitBinaryFunction<S> extends Function {
+public abstract class ExplicitBinaryFunction<S> extends TemporalFunction {
 
     /**
      * Construct a new instance.
      * 
      * @param name
-     * @param arg
-     * @param args
+     * @param key
+     * @param source
      */
     protected ExplicitBinaryFunction(String name, String key, S source) {
         super(name, key, source);
+    }
+
+    /**
+     * Construct a new instance.
+     *
+     * @param name
+     * @param key
+     * @param source
+     * @param timestamp
+     */
+    protected ExplicitBinaryFunction(String name, String key, S source,
+            long timestamp) {
+        super(timestamp, name, key, source);
     }
 
     /**
@@ -50,8 +63,11 @@ abstract class ExplicitBinaryFunction<S> extends Function {
 
     @Override
     public final String toString() {
-        return AnyStrings.format("{}({},{})", operation(), key(),
-                _sourceToString());
+        return timestamp != TemporalFunction.NO_TIMESTAMP
+                ? AnyStrings.format("{}({},{},{})", operation(), key(),
+                        _sourceToString(), timestamp)
+                : AnyStrings.format("{}({},{})", operation(), key(),
+                        _sourceToString());
     }
 
     /**
