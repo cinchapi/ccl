@@ -5,12 +5,18 @@ import com.cinchapi.ccl.type.Function;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A {@link Function} that can take a timestamp as a parameter.
+ *
+ * @author Javier Lores
+ */
 public abstract class TemporalFunction extends Function {
+
     /**
      * Indicates that this function has no timestamp.
      */
     protected static long NO_TIMESTAMP = Long.MAX_VALUE; // matches
-                                                       // com.cinchapi.concourse.time.Time#NONE
+                                                         // com.cinchapi.concourse.time.Time#NONE
 
     /**
      * The selection timestamp associated with this function.
@@ -42,7 +48,8 @@ public abstract class TemporalFunction extends Function {
      * @param key
      * @param args
      */
-    protected TemporalFunction(long timestamp, String operation, String key, Object... args) {
+    protected TemporalFunction(long timestamp, String operation, String key,
+            Object... args) {
         super(operation, key, args);
         this.timestamp = timestamp;
         this.timestampPrecision = TimeUnit.MICROSECONDS;
@@ -57,15 +64,14 @@ public abstract class TemporalFunction extends Function {
         return timestamp;
     }
 
-
     @Override
     public boolean equals(Object obj) {
         boolean equals = super.equals(obj);
         if(timestamp != NO_TIMESTAMP && equals) {
             equals = timestampPrecision.convert(timestamp,
                     TimeUnit.MICROSECONDS) == timestampPrecision.convert(
-                    ((TemporalFunction) obj).timestamp,
-                    TimeUnit.MICROSECONDS);
+                            ((TemporalFunction) obj).timestamp,
+                            TimeUnit.MICROSECONDS);
         }
         return equals;
     }
@@ -87,8 +93,7 @@ public abstract class TemporalFunction extends Function {
      * @param timestampPrecision
      * @return this
      */
-    public TemporalFunction setTimestampPrecision(
-            TimeUnit timestampPrecision) {
+    public TemporalFunction setTimestampPrecision(TimeUnit timestampPrecision) {
         this.timestampPrecision = timestampPrecision;
         return this;
     }
