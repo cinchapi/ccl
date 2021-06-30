@@ -68,7 +68,7 @@ publishing {
     }
   }
   publications {
-    BintrayPublication(MavenPublication) {
+    maven(MavenPublication) {
       from components.java
       artifact sourcesJar
       artifact javadocJar
