@@ -3,7 +3,6 @@ plugins {
   id 'eclipse'
   id 'maven'
   id 'maven-publish'
-  id "com.jfrog.bintray" version "1.7.3"
   id 'signing'
 }
 
@@ -56,32 +55,26 @@ artifacts {
 }
 
 publishing {
+  repositories {
+    maven {
+      name = 'cloudsmith'
+      def releasesRepoUrl = "https://api-g.cloudsmith.io/maven/cinchapi/maven/"
+      def snapshotsRepoUrl = "https://api-g.cloudsmith.io/maven/cinchapi/maven-snapshots/"
+      url = mavenVersion.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+      credentials {
+        username = System.getenv('CLOUDSMITH_API_USER')
+        password = System.getenv('CLOUDSMITH_API_KEY')
+      }
+    }
+  }
   publications {
-    BintrayPublication(MavenPublication) {
+    maven(MavenPublication) {
       from components.java
       artifact sourcesJar
       artifact javadocJar
       groupId group
       artifactId project.name
       version mavenVersion
-    }
-  }
-}
-
-bintray {
-  user = System.getenv('BINTRAY_USER')
-  key = System.getenv('BINTRAY_KEY')
-  publications = ['BintrayPublication']
-  override = true
-  pkg {
-    repo = mavenVersion.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+){0,1}$') ? 'maven' : 'maven-snapshots'
-    name = project.name
-    publish = true
-    userOrg = 'cinchapi'
-    override = true
-    version {
-      name = mavenVersion
-      released = new Date()
     }
   }
 }
@@ -142,14 +135,15 @@ test {
 repositories {
   mavenCentral()
   maven {
-    url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    url "https://dl.cloudsmith.io/public/cinchapi/maven/maven/"
+
   }
   maven {
-    url  'http://cinchapi.bintray.com/maven'
+    url 'https://oss.sonatype.org/content/repositories/snapshots/'
   }
 }
 
-ext.concourseVersion = '0.10.2'
+ext.concourseVersion = '0.10.6'
 
 dependencies {
   compile 'com.google.code.findbugs:jsr305:2.0.1'
