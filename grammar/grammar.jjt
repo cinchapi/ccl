@@ -376,15 +376,47 @@ ValueTokenSymbol RegexValue() :
 
 ValueTokenSymbol SearchValue() :
 {
+  FunctionValueSymbol function;
+  Token key;
   Token word;
   String value = "";
+  List<String> records = Lists.newArrayList();
+  ASTStart ccl;
 }
 {
-    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=") { value += word.image; })+
-    { return new ValueSymbol(transformValue(value)); }
-  |
-    (word=<QUOTED_STRING>)
-    { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+  LOOKAHEAD(2)
+
+  (function=ValueFunction())
+  { return function; }
+|
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  {
+    if(value.charAt(0) == '$') {
+        String var = value.substring(1);
+        try {
+            value = Iterables.getOnlyElement(data.get(var)).toString();
+        }
+        catch (IllegalArgumentException e) {
+            String err = "Unable to resolve variable {} because multiple values exist locally: {}";
+            throw new SyntaxException(AnyStrings.format(err, value, data.get(var)));
+        }
+        catch (NoSuchElementException e) {
+            String err = "Unable to resolve variable {} because no values exist locally";
+            throw new SyntaxException(AnyStrings.format(err, value));
+        }
+    }
+    else if(value.length() > 2 && value.charAt(0) == '\\'
+            && value.charAt(1) == '$') {
+        value = value.substring(1);
+    }
+    else {
+        value = value.replace("\\@", "@");
+    }
+    return new ValueSymbol(transformValue(value));
+  }
+|
+  (word=<QUOTED_STRING>)
+  { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 }
 
 ValueTokenSymbol BinaryValue() :
