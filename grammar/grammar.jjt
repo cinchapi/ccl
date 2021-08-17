@@ -167,6 +167,10 @@ TOKEN [IGNORE_CASE]:
   < ASC : "asc" >
 |
   < DESC : "desc" >
+|
+  < SEARCH_MATCH : "search_match" | "~" >
+|
+  < SEARCH_EXCLUDE : "search_exclude" | "!~" >
 }
 
 TOKEN :
@@ -270,6 +274,8 @@ void RelationalExpression() #Expression :
       |
         operator=RegexBasedOperator() value1=RegexValue() (timestamp=Timestamp())?
       |
+        operator=SearchOperator() value1=SearchValue() (timestamp=Timestamp())?
+      |
         operator=UnaryOperator() value1=UnaryValue() (timestamp=Timestamp())?
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (timestamp=Timestamp())?
@@ -368,6 +374,19 @@ ValueTokenSymbol RegexValue() :
     { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 }
 
+ValueTokenSymbol SearchValue() :
+{
+  Token word;
+  String value = "";
+}
+{
+    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=") { value += word.image; })+
+    { return new ValueSymbol(transformValue(value)); }
+  |
+    (word=<QUOTED_STRING>)
+    { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+}
+
 ValueTokenSymbol BinaryValue() :
 {
   FunctionValueSymbol function;
@@ -444,6 +463,14 @@ OperatorSymbol BinaryOperator() :
 }
 {
   operator=<BINARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
+}
+
+OperatorSymbol SearchOperator() :
+{
+  Token operator;
+}
+{
+  (operator=<SEARCH_MATCH> | operator=<SEARCH_EXCLUDE>) { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 TimestampSymbol Timestamp() :
