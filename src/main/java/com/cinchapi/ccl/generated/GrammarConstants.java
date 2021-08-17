@@ -71,35 +71,39 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int DESC = 32;
   /** RegularExpression Id. */
-  int PIPE = 33;
+  int SEARCH_MATCH = 33;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 34;
+  int SEARCH_EXCLUDE = 34;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 35;
+  int PIPE = 35;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 36;
+  int QUOTED_STRING = 36;
   /** RegularExpression Id. */
-  int NUMERIC = 37;
+  int DOUBLE_QUOTED_STRING = 37;
   /** RegularExpression Id. */
-  int COMMA = 38;
+  int SINGLE_QUOTED_STRING = 38;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 39;
+  int NUMERIC = 39;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 40;
+  int COMMA = 40;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 41;
+  int SIGNED_INTEGER = 41;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 42;
+  int SIGNED_DECIMAL = 42;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 43;
+  int ALPHANUMERIC = 43;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 44;
+  int PERIOD_SEPARATED_STRING = 44;
   /** RegularExpression Id. */
-  int LETTER = 45;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 45;
   /** RegularExpression Id. */
-  int DIGIT = 46;
+  int NON_ALPHANUMERIC = 46;
   /** RegularExpression Id. */
-  int PERIOD = 47;
+  int LETTER = 47;
+  /** RegularExpression Id. */
+  int DIGIT = 48;
+  /** RegularExpression Id. */
+  int PERIOD = 49;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -139,6 +143,8 @@ public interface GrammarConstants {
     "\"order by\"",
     "\"asc\"",
     "\"desc\"",
+    "<SEARCH_MATCH>",
+    "<SEARCH_EXCLUDE>",
     "\"|\"",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",
