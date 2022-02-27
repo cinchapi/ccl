@@ -1291,6 +1291,16 @@ public abstract class CompilerTest {
             Assert.assertEquals(expected, actual);
         }
     }
+    
+    @Test
+    public void testParseLikeValueWithWhitespace() {
+        String ccl = "school like %North Carolina%";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        ExpressionTree expression = (ExpressionTree) ast;
+        ExpressionSymbol symbol = (ExpressionSymbol) expression.root();
+        Assert.assertEquals("%North Carolina%", symbol.values().iterator().next());
+    }
 
     protected abstract Compiler createCompiler();
 
