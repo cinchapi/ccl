@@ -1299,7 +1299,7 @@ public abstract class CompilerTest {
         AbstractSyntaxTree ast = compiler.parse(ccl);
         ExpressionTree expression = (ExpressionTree) ast;
         ExpressionSymbol symbol = (ExpressionSymbol) expression.root();
-        Assert.assertEquals("%North Carolina%", symbol.values().iterator().next());
+        Assert.assertEquals("\"%North Carolina%\"", symbol.values().iterator().next().toString());
     }
 
     protected abstract Compiler createCompiler();
