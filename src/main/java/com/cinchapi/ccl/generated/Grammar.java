@@ -712,7 +712,7 @@ if(value.charAt(0) == '$') {
           jj_consume_token(-1);
           throw new ParseException();
         }
-value += word.image;
+value += (value.equals("")) ? word.image : " " + word.image;
         if (jj_2_6(3)) {
           ;
         } else {
