@@ -19,7 +19,6 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.concourse.Timestamp;
 
 /**

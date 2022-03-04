@@ -15,8 +15,6 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.JavaCCParser;
-import com.cinchapi.ccl.Parser;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
@@ -143,8 +141,8 @@ public class JavaCCParserLogicTest {
         // Generate queue
         Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION);
-        List<Symbol> tokens = parser.tokenize();
 
+        List<Symbol> tokens = parser.tokenize();
         Assert.assertEquals(expectedTokens, tokens);
     }
 

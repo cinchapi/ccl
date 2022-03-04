@@ -139,32 +139,28 @@ repositories {
   }
   maven {
     url "https://dl.cloudsmith.io/public/cinchapi/open-source/maven/"
-
   }
   maven {
     url "https://dl.cloudsmith.io/public/cinchapi/open-source-snapshots/maven/"
-
   }
   maven {
     url "https://dl.cloudsmith.io/public/cinchapi/platform/maven/"
-
   }
   maven {
     url "https://dl.cloudsmith.io/public/cinchapi/platform-snapshots/maven/"
-
   }
   maven {
     url "https://dl.cloudsmith.io/public/cinchapi/enterprise/maven/"
     credentials {
-      username System.getenv('CLOUDSMITH_API_USER')
-      password System.getenv('CLOUDSMITH_API_KEY')
+      username = System.getenv('CLOUDSMITH_API_USER')
+      password = System.getenv('CLOUDSMITH_API_KEY')
     }
   }
   maven {
     url "https://dl.cloudsmith.io/public/cinchapi/enterprise-snapshots/maven/"
     credentials {
-      username System.getenv('CLOUDSMITH_API_USER')
-      password System.getenv('CLOUDSMITH_API_KEY')
+      username = System.getenv('CLOUDSMITH_API_USER')
+      password = System.getenv('CLOUDSMITH_API_KEY')
     }
   }
 }
@@ -182,7 +178,7 @@ dependencies {
 
   testCompile 'junit:junit:4.11'
   testCompile (group: 'com.cinchapi', name: 'concourse-driver-java', version: concourseVersion) {
-  	exclude group: 'com.cinchapi', module: 'ccl'
+      exclude group: 'com.cinchapi', module: 'ccl'
   }
 }
 
