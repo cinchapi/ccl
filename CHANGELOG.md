@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 3.1.1 (TBD)
+#### Version 3.1.1 (March 4, 2022)
 * Fixed a regression that caused Conditions with `LIKE` `REGEX`, `NOT_LIKE` and `NOT_REGEX` operators followed by a whitespace containing value to be incorrectly parsed.
 
 #### Version 3.1.0 (June 22, 2020)
