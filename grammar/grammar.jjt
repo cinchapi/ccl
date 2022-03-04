@@ -361,7 +361,18 @@ ValueTokenSymbol RegexValue() :
   String value = "";
 }
 {
-    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=") { value += word.image; })+
+    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="(" | word=")" | word="_" | word="=")
+    {
+        if (value.equals("") |
+            value.endsWith("(") | word.image.equals(")") |
+            value.endsWith("=") | word.image.equals("=") |
+            value.endsWith("_") | word.image.equals("_")) {
+            value += word.image;
+        }
+        else {
+            value += " " + word.image;
+        }
+    })+
     { return new ValueSymbol(transformValue(value)); }
   |
     (word=<QUOTED_STRING>)

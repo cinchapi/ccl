@@ -1,5 +1,8 @@
 # Changelog
 
+#### Version 3.1.1 (TBD)
+* Fixed a regression that caused Conditions with `LIKE` `REGEX`, `NOT_LIKE` and `NOT_REGEX` operators followed by a whitespace containing value to be incorrectly parsed.
+
 #### Version 3.1.0 (June 22, 2020)
 * Added support for parsing standalone `function statements` in a compiler. Now, the following forms will parse into a `FunctionTree` that contains a symbolic representation of the function expressed in the CCL statement:
 * `function(key)` produces a FunctionTree whose root node contains an `IndexFunction`
@@ -30,7 +33,7 @@ An expression, generally takes the form:
 <key> <operator> <values>
 ```
 
-So, in the context of a database query like `select(<key1>, "<key2> <operator> <value>")`, `key2` and `key1` are both keys, but they have different roles in the operation. In this scenario, `key2` isn't returned to the caller, but is part of the *evaluation* expression. So, we call `key2` an **evaluation key**. On the other hand, `key1` doesn't play a role in *evaluation*, but is an *artifact* of the operation. So, we call this a **operation key**. As you can imahine, in more complex examples, a key can play both roles. 
+So, in the context of a database query like `select(<key1>, "<key2> <operator> <value>")`, `key2` and `key1` are both keys, but they have different roles in the operation. In this scenario, `key2` isn't returned to the caller, but is part of the *evaluation* expression. So, we call `key2` an **evaluation key**. On the other hand, `key1` doesn't play a role in *evaluation*, but is an *artifact* of the operation. So, we call this a **operation key**. As you can imagine, in more complex examples, a key can play both roles. 
 
 Similar to an **evaluation key**, a value that is part of an expression plays the role of **evaluation value**.
 
