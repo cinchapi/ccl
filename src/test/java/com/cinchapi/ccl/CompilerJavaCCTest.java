@@ -25,6 +25,7 @@ import org.junit.Test;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.type.Operator;
@@ -109,6 +110,23 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         Multimap<String, Object> d = ImmutableMultimap.of("a", 1, "c", 4, "a",
                 -1);
         Assert.assertFalse(compiler.evaluate(tree, d, evaluator));
+    }
+    
+    
+    @Test
+    public void testRegressionV3_1_1A1() {
+        String ccl = "(_ = com.cinchapi.runway.RunwayTest$Adult) AND (email LIKE %email.com%)";
+        Compiler compiler = createCompiler();
+        compiler.parse(ccl);
+        Assert.assertTrue(true); // lack of Exception means the test passes
+    }
+    
+    @Test
+    public void testRegressionV3_1_1A2() {
+        String ccl = "( _ = com.cinchapi.runway.RunwayTest$Adult ) AND ( email LIKE %email.com% )";
+        Compiler compiler = createCompiler();
+        compiler.parse(ccl);
+        Assert.assertTrue(true); // lack of Exception means the test passes
     }
 
     @Override
