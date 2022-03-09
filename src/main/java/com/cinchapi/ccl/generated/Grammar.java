@@ -712,7 +712,7 @@ if (value.equals("") |
         }
       }
       jj_consume_token(CLOSE_PARENTHESES);
-{if ("" != null) return new ValueSymbol(transformValue(value));}
+{if ("" != null) return new ValueSymbol(transformValue("(" + value + ")"));}
       break;
       }
     case NUMERIC:

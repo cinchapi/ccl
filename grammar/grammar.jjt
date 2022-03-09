@@ -374,7 +374,7 @@ ValueTokenSymbol RegexValue() :
             value += " " + word.image;
         }
     })+ <CLOSE_PARENTHESES>
-    { return new ValueSymbol(transformValue(value)); }
+    { return new ValueSymbol(transformValue("(" + value + ")")); }
   |
     (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="_" | word="=")
     {
