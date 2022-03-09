@@ -2250,8 +2250,7 @@ public class CompilerJavaCCLogicTest {
 
         Assert.assertEquals("avg",
                 ((IndexFunction) symbol.function()).operation());
-        Assert.assertEquals("age",
-                ((IndexFunction) symbol.function()).key());
+        Assert.assertEquals("age", ((IndexFunction) symbol.function()).key());
 
         Assert.assertEquals(
                 TimeUnit.DAYS.convert(
@@ -2319,6 +2318,15 @@ public class CompilerJavaCCLogicTest {
                         ((ValueSymbol) token).value().getClass());
             }
         });
+    }
+
+    @Test
+    public void testRegressionV3_1_1A() {
+        String ccl = "(a = b) or c = d and (email like email.com)";
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        compiler.parse(ccl);
+        Assert.assertTrue(true); // lack of Exception means the test passes
     }
 
     /**

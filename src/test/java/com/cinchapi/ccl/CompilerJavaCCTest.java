@@ -110,6 +110,30 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
                 -1);
         Assert.assertFalse(compiler.evaluate(tree, d, evaluator));
     }
+    
+    @Test
+    public void testRegressionV3_1_1A1() {
+        String ccl = "(_ = com.cinchapi.runway.RunwayTest$Adult) AND (email LIKE %email.com%)";
+        Compiler compiler = createCompiler();
+        compiler.parse(ccl);
+        Assert.assertTrue(true); // lack of Exception means the test passes
+    }
+    
+    @Test
+    public void testRegressionV3_1_1A2() {
+        String ccl = "( _ = com.cinchapi.runway.RunwayTest$Adult ) AND ( email LIKE %email.com% )";
+        Compiler compiler = createCompiler();
+        compiler.parse(ccl);
+        Assert.assertTrue(true); // lack of Exception means the test passes
+    }
+
+    @Test
+    public void testRegressionV3_1_1A3() {
+        String ccl = "( _ = com.cinchapi.runway.RunwayTest$Adult ) AND ( a regex b )";
+        Compiler compiler = createCompiler();
+        compiler.parse(ccl);
+        Assert.assertTrue(true); // lack of Exception means the test passes
+    }
 
     @Override
     protected Compiler createCompiler(
