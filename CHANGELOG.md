@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 3.1.2 (TBD)
+#### Version 3.1.2 (March 9, 2022)
 * Fixed a regression that caused parenthetical expressions within a `Condition` containing `LIKE` `REGEX`, `NOT_LIKE` and `NOT_REGEX` operators (e.g., `a = b and (email regex email.com)`) to mistakenly throw a `SyntaxException` when being parsed by a `Compiler`.
 
 #### Version 3.1.1 (March 4, 2022)
