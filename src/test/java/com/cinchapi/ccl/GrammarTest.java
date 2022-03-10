@@ -374,6 +374,15 @@ public class GrammarTest {
     }
 
     @Test
+    public void validLikeWithSecondParenthesizedExpression() throws UnsupportedEncodingException, ParseException {
+        String ccl = "(a = b) and (name like (?i:%jeff%))";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
     public void validLike() throws UnsupportedEncodingException, ParseException {
         String ccl = "name like (?i:%jeff%)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
