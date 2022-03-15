@@ -11,95 +11,103 @@ public interface GrammarConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int OPEN_PARENTHESES = 3;
+  int ESCAPED_OPEN_PARENTHESES = 3;
   /** RegularExpression Id. */
-  int CLOSE_PARENTHESES = 4;
+  int ESCAPED_CLOSE_PARENTHESES = 4;
   /** RegularExpression Id. */
-  int OPEN_BRACKET = 5;
+  int ESCAPED_LOCAL_RESOLUTION = 5;
   /** RegularExpression Id. */
-  int CLOSE_BRACKET = 6;
+  int ESCAPED_LINK = 6;
   /** RegularExpression Id. */
-  int TIMESTAMP = 7;
+  int OPEN_PARENTHESES = 7;
   /** RegularExpression Id. */
-  int WHERE = 8;
+  int CLOSE_PARENTHESES = 8;
   /** RegularExpression Id. */
-  int RESERVED_IDENTIFIER = 9;
+  int OPEN_BRACKET = 9;
   /** RegularExpression Id. */
-  int CONJUNCTION = 10;
+  int CLOSE_BRACKET = 10;
   /** RegularExpression Id. */
-  int DISJUNCTION = 11;
+  int TIMESTAMP = 11;
   /** RegularExpression Id. */
-  int UNARY_OPERATOR = 12;
+  int WHERE = 12;
   /** RegularExpression Id. */
-  int BINARY_OPERATOR = 13;
+  int RESERVED_IDENTIFIER = 13;
   /** RegularExpression Id. */
-  int OPEN_ANGLE_BRACKET = 14;
+  int CONJUNCTION = 14;
   /** RegularExpression Id. */
-  int CLOSE_ANGLE_BRACKET = 15;
+  int DISJUNCTION = 15;
   /** RegularExpression Id. */
-  int EQUALS = 16;
+  int UNARY_OPERATOR = 16;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 17;
+  int BINARY_OPERATOR = 17;
   /** RegularExpression Id. */
-  int GREATER_THAN = 18;
+  int OPEN_ANGLE_BRACKET = 18;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 19;
+  int CLOSE_ANGLE_BRACKET = 19;
   /** RegularExpression Id. */
-  int LESS_THAN = 20;
+  int EQUALS = 20;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 21;
+  int NOT_EQUALS = 21;
   /** RegularExpression Id. */
-  int LINKS_TO = 22;
+  int GREATER_THAN = 22;
   /** RegularExpression Id. */
-  int REGEX = 23;
+  int GREATER_THAN_OR_EQUALS = 23;
   /** RegularExpression Id. */
-  int NOT_REGEX = 24;
+  int LESS_THAN = 24;
   /** RegularExpression Id. */
-  int LIKE = 25;
+  int LESS_THAN_OR_EQUALS = 25;
   /** RegularExpression Id. */
-  int NOT_LIKE = 26;
+  int LINKS_TO = 26;
   /** RegularExpression Id. */
-  int BETWEEN = 27;
+  int REGEX = 27;
   /** RegularExpression Id. */
-  int PAGE = 28;
+  int NOT_REGEX = 28;
   /** RegularExpression Id. */
-  int SIZE = 29;
+  int LIKE = 29;
   /** RegularExpression Id. */
-  int ORDER = 30;
+  int NOT_LIKE = 30;
   /** RegularExpression Id. */
-  int ASC = 31;
+  int BETWEEN = 31;
   /** RegularExpression Id. */
-  int DESC = 32;
+  int PAGE = 32;
   /** RegularExpression Id. */
-  int PIPE = 33;
+  int SIZE = 33;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 34;
+  int ORDER = 34;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 35;
+  int ASC = 35;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 36;
+  int DESC = 36;
   /** RegularExpression Id. */
-  int NUMERIC = 37;
+  int PIPE = 37;
   /** RegularExpression Id. */
-  int COMMA = 38;
+  int QUOTED_STRING = 38;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 39;
+  int DOUBLE_QUOTED_STRING = 39;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 40;
+  int SINGLE_QUOTED_STRING = 40;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 41;
+  int NUMERIC = 41;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 42;
+  int COMMA = 42;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 43;
+  int SIGNED_INTEGER = 43;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 44;
+  int SIGNED_DECIMAL = 44;
   /** RegularExpression Id. */
-  int LETTER = 45;
+  int ALPHANUMERIC = 45;
   /** RegularExpression Id. */
-  int DIGIT = 46;
+  int PERIOD_SEPARATED_STRING = 46;
   /** RegularExpression Id. */
-  int PERIOD = 47;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 47;
+  /** RegularExpression Id. */
+  int NON_ALPHANUMERIC = 48;
+  /** RegularExpression Id. */
+  int LETTER = 49;
+  /** RegularExpression Id. */
+  int DIGIT = 50;
+  /** RegularExpression Id. */
+  int PERIOD = 51;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -109,6 +117,10 @@ public interface GrammarConstants {
     "<EOF>",
     "\" \"",
     "\"\\t\"",
+    "\"\\\\(\"",
+    "\"\\\\)\"",
+    "\"\\\\$\"",
+    "\"\\\\@\"",
     "\"(\"",
     "\")\"",
     "\"[\"",
@@ -156,7 +168,6 @@ public interface GrammarConstants {
     "\".\"",
     "\"\\n\"",
     "\"_\"",
-    "\"=\"",
   };
 
 }

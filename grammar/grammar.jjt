@@ -109,6 +109,10 @@ SKIP :
   "\t"
 }
 
+TOKEN : { < ESCAPED_OPEN_PARENTHESES : "\\(" > }
+TOKEN : { < ESCAPED_CLOSE_PARENTHESES : "\\)" > }
+TOKEN : { < ESCAPED_LOCAL_RESOLUTION : "\\$" > }
+TOKEN : { < ESCAPED_LINK : "\\@" > }
 TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN : { < OPEN_BRACKET : "[" > }
@@ -116,6 +120,7 @@ TOKEN : { < CLOSE_BRACKET : "]" > }
 TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" > }
 TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
 TOKEN [IGNORE_CASE]: { < RESERVED_IDENTIFIER: "$id$" > }
+
 
 TOKEN [IGNORE_CASE]:
 {
@@ -193,7 +198,7 @@ TOKEN :
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "="] >
+  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "=", "\\"] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
@@ -252,7 +257,9 @@ void ConjunctionExpression() : {}
 
 void UnaryExpression() : {}
 {
-   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpression()
+   <OPEN_PARENTHESES> DisjunctionExpression() <CLOSE_PARENTHESES>
+ |
+   RelationalExpression()
 }
 
 void RelationalExpression() #Expression :
@@ -304,6 +311,7 @@ KeyTokenSymbol Key() :
 ValueTokenSymbol UnaryValue() :
 {
   FunctionValueSymbol function;
+  Token escape = null;
   Token key;
   Token word;
   String value = "";
@@ -316,8 +324,10 @@ ValueTokenSymbol UnaryValue() :
   (function=ValueFunction())
   { return function; }
 |
-  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  (LOOKAHEAD(2) (escape=<ESCAPED_LINK> | escape=<ESCAPED_LOCAL_RESOLUTION>))? ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ESCAPED_LOCAL_RESOLUTION> | word=<ESCAPED_LINK>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   {
+    value = escape != null ? escape.image + value : value;
+
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
         try {
@@ -359,24 +369,28 @@ ValueTokenSymbol RegexValue() :
 {
   Token word;
   String value = "";
-
 }
 {
-    <OPEN_PARENTHESES> (LOOKAHEAD(4) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="_" | word="=")
-    {
-        if (value.equals("") |
-            value.endsWith("(") | word.image.equals(")") |
-            value.endsWith("=") | word.image.equals("=") |
-            value.endsWith("_") | word.image.equals("_")) {
-            value += word.image;
-        }
-        else {
-            value += " " + word.image;
-        }
-    })+ <CLOSE_PARENTHESES>
-    { return new ValueSymbol(transformValue("(" + value + ")")); }
+    (word=<QUOTED_STRING>)
+    { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
   |
-    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="_" | word="=")
+    value=RegexBaseValue()
+    { return new ValueSymbol(transformValue(value)); }
+}
+
+String RegexBaseValue() :
+{
+  Token word;
+  String base = "";
+  String baseOp = "";
+  String value = "";
+}
+{
+    (LOOKAHEAD(3) <OPEN_PARENTHESES> base=RegexBaseValue() <CLOSE_PARENTHESES> (LOOKAHEAD(3)baseOp=RegexBaseValue())?
+    {  value += "(" + base + ")" + baseOp; })+
+    {  return value; }
+  |
+    (LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<UNARY_OPERATOR> | word="_" | word = "," | word=<OPEN_BRACKET> | word=<CLOSE_BRACKET> | word=<ESCAPED_OPEN_PARENTHESES> | word=<ESCAPED_CLOSE_PARENTHESES>)
     {
         if (value.equals("") |
             value.endsWith("(") | word.image.equals(")") |
@@ -388,15 +402,13 @@ ValueTokenSymbol RegexValue() :
             value += " " + word.image;
         }
     })+
-    { return new ValueSymbol(transformValue(value)); }
-  |
-    (word=<QUOTED_STRING>)
-    { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+    { return value; }
 }
 
 ValueTokenSymbol BinaryValue() :
 {
   FunctionValueSymbol function;
+  Token escape = null;
   Token key;
   Token word;
   String value = "";
@@ -409,9 +421,10 @@ ValueTokenSymbol BinaryValue() :
   (function=ValueFunction())
   { return function; }
 |
-  (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>)
+  (escape=<ESCAPED_LINK> | escape=<ESCAPED_LOCAL_RESOLUTION>)? (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>)
   {
-    value = word.image;
+    value = escape != null ? escape.image + word.image : word.image;
+
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
         try {
