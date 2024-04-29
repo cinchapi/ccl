@@ -168,9 +168,9 @@ TOKEN [IGNORE_CASE]:
 |
   < DESC : "desc" >
 |
-  < SEARCH_MATCH : "search_match" | "~" >
+  < SEARCH_MATCH : "search_match" | "contains" | "~" >
 |
-  < SEARCH_EXCLUDE : "search_exclude" | "!~" >
+  < SEARCH_EXCLUDE : "search_exclude" | "not_contains" | "!~" >
 }
 
 TOKEN :

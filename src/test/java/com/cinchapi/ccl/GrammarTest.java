@@ -392,6 +392,15 @@ public class GrammarTest {
     }
 
     @Test
+    public void validSearchMatchContains() throws UnsupportedEncodingException, ParseException {
+        String ccl = "major contains 'business administration'";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
     public void validSearchMatchOp() throws UnsupportedEncodingException, ParseException {
         String ccl = "major ~ 'business administration'";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
@@ -400,10 +409,18 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-
     @Test
     public void validSearchExcludeWord() throws UnsupportedEncodingException, ParseException {
         String ccl = "name search_exclude jeff at last week";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validSearchExcludeNotContains() throws UnsupportedEncodingException, ParseException {
+        String ccl = "major not_contains 'business administration'";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
