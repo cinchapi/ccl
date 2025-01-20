@@ -19,25 +19,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.FunctionTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.condition.ConjunctionTree;
+import com.cinchapi.ccl.syntax.condition.ExpressionTree;
+import com.cinchapi.ccl.syntax.condition.FunctionTree;
+import com.cinchapi.ccl.syntax.condition.OrderTree;
+import com.cinchapi.ccl.syntax.condition.PageTree;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.condition.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.CommandTree;
+import com.cinchapi.ccl.syntax.condition.QueryTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.common.reflect.Reflection;
 import com.cinchapi.concourse.Tag;
@@ -1075,7 +1075,7 @@ public abstract class ParserTest {
             }
 
             @Override
-            public Queue<Symbol> visit(CommandTree tree, Object... data) {
+            public Queue<Symbol> visit(QueryTree tree, Object... data) {
                 // TODO Auto-generated method stub
                 return null;
             }

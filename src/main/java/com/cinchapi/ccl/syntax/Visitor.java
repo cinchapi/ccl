@@ -15,6 +15,8 @@
  */
 package com.cinchapi.ccl.syntax;
 
+import com.cinchapi.ccl.syntax.condition.*;
+
 /**
  * An implementation of the visitor pattern. This interface should be
  * implemented by any class attempting to visit an {@link AbstractSyntaxTree}.
@@ -23,7 +25,7 @@ package com.cinchapi.ccl.syntax;
  */
 public interface Visitor<T> {
 
-    public T visit(CommandTree tree, Object... data);
+    public T visit(QueryTree tree, Object... data);
 
     public default T visit(ConditionTree tree, Object... data) {
         if(tree instanceof ConjunctionTree) {

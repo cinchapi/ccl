@@ -13,9 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.syntax.condition;
+
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 
 /**
- * An abstraction for a condition node in a {@link AbstractSyntaxTree}
+ * An {@link AbstractSyntaxTree} that represents a logical AND.
+ * 
+ * @author Jeff Nelson
  */
-public interface ConditionTree extends AbstractSyntaxTree {/* marker */}
+public final class AndTree extends ConjunctionTree {
+
+    /**
+     * Construct a new instance.
+     *
+     * @param left
+     * @param right
+     */
+    public AndTree(ConditionTree left, ConditionTree right) {
+        super(ConjunctionSymbol.AND, left, right);
+    }
+
+}

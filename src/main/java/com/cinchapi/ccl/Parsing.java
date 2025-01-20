@@ -23,9 +23,9 @@ import java.util.ListIterator;
 import java.util.Queue;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
-import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.condition.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;

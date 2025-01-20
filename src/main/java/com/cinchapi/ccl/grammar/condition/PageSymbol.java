@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.grammar.condition;
+
+import com.cinchapi.ccl.grammar.Symbol;
 
 import javax.annotation.Nullable;
 

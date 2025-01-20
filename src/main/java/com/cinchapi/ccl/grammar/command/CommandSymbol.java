@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Cinchapi Inc.
+ * Copyright (c) 2013-2017 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.grammar.command;
 
-import com.cinchapi.ccl.type.Function;
+import com.cinchapi.ccl.grammar.Symbol;
 
 /**
- * A {@link KeyTokenSymbol} that represents a {@link Function}.
- *
- * @author Jeff Nelson
+ * A {@link Symbol} that represents a command operation.
  */
-public class FunctionKeySymbol extends KeyTokenSymbol<Function>
-        implements FunctionTokenSymbol {
-
+public interface CommandSymbol extends Symbol {
     /**
-     * Construct a new instance.
-     * 
-     * @param key
+     * Return the type of command.
      */
-    public FunctionKeySymbol(Function key) {
-        super(key);
-    }
-
-    @Override
-    public Function function() {
-        return this.key;
-    }
+    String type();
 }

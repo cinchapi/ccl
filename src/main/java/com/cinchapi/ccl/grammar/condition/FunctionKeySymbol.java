@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.grammar.condition;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.type.Function;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
- * 
+ * A {@link KeyTokenSymbol} that represents a {@link Function}.
+ *
  * @author Jeff Nelson
  */
-public final class OrTree extends ConjunctionTree {
+public class FunctionKeySymbol extends KeyTokenSymbol<Function>
+        implements FunctionTokenSymbol {
 
     /**
      * Construct a new instance.
-     *
-     * @param left
-     * @param right
+     * 
+     * @param key
      */
-    public OrTree(ConditionTree left, ConditionTree right) {
-        super(ConjunctionSymbol.OR, left, right);
+    public FunctionKeySymbol(Function key) {
+        super(key);
     }
 
+    @Override
+    public Function function() {
+        return this.key;
+    }
 }

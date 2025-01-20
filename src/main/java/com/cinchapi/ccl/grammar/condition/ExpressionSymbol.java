@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.grammar.condition;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.cinchapi.ccl.generated.ASTExpression;
+import com.cinchapi.ccl.grammar.*;
 import com.cinchapi.ccl.type.Operator;
 
 /**
@@ -45,7 +46,7 @@ public interface ExpressionSymbol extends PostfixNotationSymbol {
      * @return a new {@link ExpressionSymbol}
      */
     public static ExpressionSymbol create(KeyTokenSymbol<?> key,
-            OperatorSymbol operator, ValueTokenSymbol<?>... values) {
+                                          OperatorSymbol operator, ValueTokenSymbol<?>... values) {
         return create(null, key, operator, values);
     }
 

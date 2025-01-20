@@ -16,9 +16,9 @@
 package com.cinchapi.ccl.type.function;
 
 import com.cinchapi.ccl.ConditionTreeVisitor;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
+import com.cinchapi.ccl.syntax.condition.ConjunctionTree;
+import com.cinchapi.ccl.syntax.condition.ExpressionTree;
+import com.cinchapi.ccl.syntax.condition.ConditionTree;
 
 /**
  * A function that is applied to a key across the records that match a condition

@@ -31,14 +31,14 @@ import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.generated.GrammarVisitor;
 import com.cinchapi.ccl.generated.SimpleNode;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.CommandTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.FunctionTree;
-import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.condition.AndTree;
+import com.cinchapi.ccl.syntax.condition.QueryTree;
+import com.cinchapi.ccl.syntax.condition.ConditionTree;
+import com.cinchapi.ccl.syntax.condition.ExpressionTree;
+import com.cinchapi.ccl.syntax.condition.FunctionTree;
+import com.cinchapi.ccl.syntax.condition.OrTree;
+import com.cinchapi.ccl.syntax.condition.OrderTree;
+import com.cinchapi.ccl.syntax.condition.PageTree;
 import com.cinchapi.ccl.type.Operator;
 import com.google.common.collect.Multimap;
 
@@ -117,7 +117,7 @@ class CompilerJavaCC extends Compiler {
                     else {
                         // If the statement has multiple elements, it is
                         // implicitly a command.
-                        return new CommandTree(conditionTree, pageTree,
+                        return new QueryTree(conditionTree, pageTree,
                                 orderTree);
                     }
 

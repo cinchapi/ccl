@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Cinchapi Inc.
+ * Copyright (c) 2013-2017 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.syntax.condition;
 
-import com.cinchapi.ccl.type.Function;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 
 /**
- * A {@link ValueTokenSymbol} that represents a {@link Function}.
- *
- * @author Jeff Nelson
+ * An abstraction for a condition node in a {@link AbstractSyntaxTree}
  */
-public class FunctionValueSymbol extends ValueTokenSymbol<Function>
-        implements FunctionTokenSymbol {
-
-    /**
-     * Construct a new instance.
-     * 
-     * @param value
-     */
-    public FunctionValueSymbol(Function value) {
-        super(value);
-    }
-
-    @Override
-    public Function function() {
-        return this.value;
-    }
-
-}
+public interface ConditionTree extends AbstractSyntaxTree {/* marker */}

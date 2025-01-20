@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020 Cinchapi Inc.
+ * Copyright (c) 2013-2017 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar;
+package com.cinchapi.ccl.syntax.condition;
+
+import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 
 /**
- * A {@link Symbol} that represents a "command".
- *
+ * An {@link AbstractSyntaxTree} that represents a logical OR.
+ * 
  * @author Jeff Nelson
  */
-public enum CommandSymbol implements Symbol {
-    IMPLICIT
+public final class OrTree extends ConjunctionTree {
+
+    /**
+     * Construct a new instance.
+     *
+     * @param left
+     * @param right
+     */
+    public OrTree(ConditionTree left, ConditionTree right) {
+        super(ConjunctionSymbol.OR, left, right);
+    }
+
 }

@@ -16,7 +16,7 @@
 package com.cinchapi.ccl.type.function;
 
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
+import com.cinchapi.ccl.syntax.condition.ConditionTree;
 
 /**
  * A function that is applied to a key across the records that match a condition

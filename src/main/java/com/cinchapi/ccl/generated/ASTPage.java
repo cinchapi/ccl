@@ -15,7 +15,7 @@
  */
 package com.cinchapi.ccl.generated;
 
-import com.cinchapi.ccl.grammar.PageSymbol;
+import com.cinchapi.ccl.grammar.condition.PageSymbol;
 
 /**
  * A node that representation a Page

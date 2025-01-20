@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
+package com.cinchapi.ccl.syntax.condition;
 
-import com.cinchapi.ccl.grammar.CommandSymbol;
+import com.cinchapi.ccl.grammar.QuerySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.Visitor;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
@@ -28,9 +31,9 @@ import javax.annotation.Nullable;
  * An abstraction for the overall {@link AbstractSyntaxTree} returned when
  * parsing a command.
  */
-public class CommandTree extends BaseAbstractSyntaxTree {
+public class QueryTree extends BaseAbstractSyntaxTree {
 
-    private CommandSymbol command;
+    private QuerySymbol query;
     private ConditionTree conditionTree;
     private PageTree pageTree;
     private OrderTree orderTree;
@@ -41,9 +44,9 @@ public class CommandTree extends BaseAbstractSyntaxTree {
      * @param conditionTree
      * @param pageTree
      */
-    public CommandTree(ConditionTree conditionTree, PageTree pageTree,
-            OrderTree orderTree) {
-        this.command = CommandSymbol.IMPLICIT;
+    public QueryTree(ConditionTree conditionTree, PageTree pageTree,
+                     OrderTree orderTree) {
+        this.query = QuerySymbol.IMPLICIT;
         this.conditionTree = conditionTree;
         this.pageTree = pageTree;
         this.orderTree = orderTree;
@@ -99,7 +102,7 @@ public class CommandTree extends BaseAbstractSyntaxTree {
 
     @Override
     public Symbol root() {
-        return command;
+        return query;
     }
 
     @Override

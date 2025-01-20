@@ -13,30 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax;
-
-import com.cinchapi.ccl.grammar.OrderSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
+package com.cinchapi.ccl.syntax.condition;
 
 import java.util.Collection;
 import java.util.Collections;
 
+import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.Visitor;
+
 /**
- * An abstraction for an order node in a {@link AbstractSyntaxTree}
+ * An abstraction for an expression node in a {@link AbstractSyntaxTree}
  */
-public class OrderTree extends BaseAbstractSyntaxTree {
+public class ExpressionTree extends BaseAbstractSyntaxTree implements
+        ConditionTree {
+
     /**
      * The root.
      */
-    private final OrderSymbol order;
+    private final ExpressionSymbol expression;
 
     /**
      * Construct a new instance.
      *
-     * @param order
+     * @param expression
      */
-    public OrderTree(OrderSymbol order) {
-        this.order = order;
+    public ExpressionTree(ExpressionSymbol expression) {
+        this.expression = expression;
     }
 
     @Override
@@ -46,11 +51,12 @@ public class OrderTree extends BaseAbstractSyntaxTree {
 
     @Override
     public Symbol root() {
-        return order;
+        return expression;
     }
 
     @Override
     public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
     }
+
 }

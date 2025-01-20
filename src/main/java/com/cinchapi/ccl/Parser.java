@@ -23,11 +23,11 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
+import com.cinchapi.ccl.syntax.condition.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
 import com.cinchapi.common.function.TriFunction;
@@ -220,7 +220,7 @@ public abstract class Parser {
      * @return {@code true} if the data is described by the criteria that has
      *         been parsed
      * @deprecated Use
-     *             {@link com.cinchapi.ccl.syntax.ConditionTree#evaluate(Multimap, TriFunction)}
+     *             {@link ConditionTree#evaluate(Multimap, TriFunction)}
      *             instead
      */
     @Deprecated

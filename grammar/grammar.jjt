@@ -27,25 +27,25 @@ package com.cinchapi.ccl.generated;
 
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
-import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
+import com.cinchapi.ccl.grammar.condition.FunctionTokenSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
-import com.cinchapi.ccl.grammar.FunctionKeySymbol;
-import com.cinchapi.ccl.grammar.FunctionValueSymbol;
+import com.cinchapi.ccl.grammar.condition.FunctionKeySymbol;
+import com.cinchapi.ccl.grammar.condition.FunctionValueSymbol;
 import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
-import com.cinchapi.ccl.grammar.OperatorSymbol;
-import com.cinchapi.ccl.grammar.OrderComponentSymbol;
+import com.cinchapi.ccl.grammar.condition.OperatorSymbol;
+import com.cinchapi.ccl.grammar.condition.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
-import com.cinchapi.ccl.grammar.PageSymbol;
-import com.cinchapi.ccl.grammar.OrderSymbol;
+import com.cinchapi.ccl.grammar.condition.PageSymbol;
+import com.cinchapi.ccl.grammar.condition.OrderSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
+import com.cinchapi.ccl.syntax.condition.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
@@ -108,6 +108,53 @@ SKIP :
 |
   "\t"
 }
+
+TOKEN [IGNORE_CASE]:
+{
+  // Data modification commands
+  < ADD: "add" >
+| < SET: "set" >
+| < REMOVE: "remove" >
+| < CLEAR: "clear" >
+| < VERIFY_AND_SWAP: "verifyAndSwap" | "verify_and_swap" >
+| < VERIFY_OR_SET: "verifyOrSet" | "verify_or_set" >
+
+  // Record operations
+| < INSERT: "insert" >
+
+  // Link operations
+| < LINK: "link" >
+| < UNLINK: "unlink" >
+
+  // Query operations
+| < SELECT: "select" >
+| < FETCH: "fetch" >
+| < GET: "get" >
+| < DESCRIBE: "describe" >
+| < AUDIT: "audit" >
+| < VERIFY: "verify" >
+| < SEARCH: "search" >
+
+  // Transaction operations
+| < STAGE: "stage" >
+| < COMMIT: "commit" >
+| < ABORT: "abort" >
+
+  // Other tokens needed for command syntax
+| < REVERT: "revert" >
+| < IN: "in" >
+| < INTO: "into" >
+| < FROM: "from" >
+| < TO: "to" >
+| < AS: "as" >
+| < FOR: "for" >
+| < WITH: "with" >
+| < AS_OF: "as of" >
+| < OPEN_BRACE : "{" >
+| < CLOSE_BRACE : "}" >
+| < COLON : ":" >
+}
+
 
 TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
@@ -205,6 +252,9 @@ TOKEN :
 ASTStart StartCommandLine() #Start : {}
 {
    ( LOOKAHEAD(4)
+     Command() "\n"
+   |
+     LOOKAHEAD(3)
      (<WHERE>)? DisjunctionExpression() (Order())? (Page())? "\n"
    |
      Page() "\n"
@@ -219,6 +269,9 @@ ASTStart StartCommandLine() #Start : {}
 ASTStart generateAST() #Start : {}
 {
    ( LOOKAHEAD(4)
+     Command() <EOF>
+   |
+     LOOKAHEAD(3)
      (<WHERE>)? DisjunctionExpression() (Order())? (Page())? <EOF>
    |
      Page() <EOF>
@@ -671,4 +724,516 @@ FunctionValueSymbol ValueFunction() :
         }
      )
    )
+}
+
+void Command() : {}
+{
+      DataModificationOperations()
+    |
+      RecordOperations()
+    |
+      LinkOperations()
+    |
+      QueryOperations()
+    |
+      TransactionOperations()
+    |
+      RevertCommand()
+}
+
+void DataModificationOperations() : {}
+{
+    AddCommand()
+  |
+    SetCommand()
+  |
+    RemoveCommand()
+  |
+    ClearCommand()
+  |
+    VerifyAndSwapCommand()
+  |
+    VerifyOrSetCommand()
+}
+
+void AddCommand() #Command :
+{
+    KeyTokenSymbol key;
+    ValueTokenSymbol value;
+    Token record;
+}
+{
+    <ADD> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
+    {
+        jjtThis.command(new AddSymbol(key, value, Long.parseLong(record.image)));
+    }
+}
+
+void SetCommand() #Command :
+{
+    KeyTokenSymbol key;
+    ValueTokenSymbol value;
+    Token record;
+}
+{
+    <SET> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
+    {
+        jjtThis.command(new SetSymbol(key, value, Long.parseLong(record.image)));
+    }
+}
+
+void RemoveCommand() #Command :
+{
+    KeyTokenSymbol key;
+    ValueTokenSymbol value = null;
+    Token record;
+}
+{
+    <REMOVE> key=Key() (<AS> value=UnaryValue())? (<FROM> | <IN>) record=<NUMERIC>
+    {
+        jjtThis.command(new RemoveSymbol(key, value, Long.parseLong(record.image)));
+    }
+}
+
+void ClearCommand() #Command :
+{
+    KeyTokenSymbol key = null;
+    Token record;
+    Collection<KeySymbol> keys = null;
+    Collection records = null;
+}
+{
+    <CLEAR>
+    (
+        LOOKAHEAD(3)
+        key=Key() <FROM> record=<NUMERIC>
+        {
+            jjtThis.command(new ClearSymbol(key, Long.parseLong(record.image)));
+        }
+      |
+        LOOKAHEAD(3)
+        key=Key() <FROM> records=RecordCollection()
+        {
+            jjtThis.command(new ClearSymbol(key, records));
+        }
+      |
+        LOOKAHEAD(3)
+        keys=KeyCollection() <FROM> record=<NUMERIC>
+        {
+            jjtThis.command(new ClearSymbol(keys, Long.parseLong(record.image)));
+        }
+      |
+        keys=KeyCollection() <FROM> records=RecordCollection()
+        {
+            jjtThis.command(new ClearSymbol(keys, records));
+        }
+    )
+}
+
+void VerifyAndSwapCommand() #Command :
+{
+    KeyTokenSymbol key;
+    ValueTokenSymbol expected;
+    ValueTokenSymbol replacement;
+    Token record;
+}
+{
+    <VERIFY_AND_SWAP> key=Key() <AS> expected=UnaryValue() <IN> record=<NUMERIC>
+    <WITH> replacement=UnaryValue()
+    {
+        jjtThis.command(new VerifyAndSwapSymbol(key, expected, replacement, Long.parseLong(record.image)));
+    }
+}
+
+void VerifyOrSetCommand() #Command :
+{
+    KeyTokenSymbol key;
+    ValueTokenSymbol value;
+    Token record;
+}
+{
+    <VERIFY_OR_SET> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
+    {
+        jjtThis.command(new VerifyOrSetSymbol(key, value, Long.parseLong(record.image)));
+    }
+}
+
+void RecordOperations() : {}
+{
+    InsertCommand()
+}
+
+void InsertCommand() #Command :
+{
+    String json;
+    Token record = null;
+    Collection records = null;
+}
+{
+    <INSERT> json=JsonObject()
+    (
+        (<IN> | <INTO>)
+        (
+            record=<NUMERIC>
+            {
+                jjtThis.command(new InsertSymbol(json, Long.parseLong(record.image)));
+            }
+          |
+            records=RecordCollection()
+            {
+                jjtThis.command(new InsertSymbol(json, records));
+            }
+        )
+    )?
+    {
+        if(record == null && records == null) {
+            jjtThis.command(new InsertSymbol(json));
+        }
+    }
+}
+
+void LinkOperations() : {}
+{
+    LinkCommand()
+  |
+    UnlinkCommand()
+}
+
+void LinkCommand() #Command :
+{
+    KeyTokenSymbol key;
+    Token source;
+    Token destination;
+    Collection destinations = null;
+}
+{
+    <LINK> key=Key() <FROM> source=<NUMERIC> <TO>
+    (
+        destination=<NUMERIC>
+        {
+            Collection dest = new ArrayList();
+            dest.add(Long.parseLong(destination.image));
+            jjtThis.command(new LinkSymbol(key, Long.parseLong(source.image), dest));
+        }
+      |
+        destinations=RecordCollection()
+        {
+            jjtThis.command(new LinkSymbol(key, Long.parseLong(source.image), destinations));
+        }
+    )
+}
+
+void UnlinkCommand() #Command :
+{
+    KeyTokenSymbol key;
+    Token source;
+    Token destination;
+    Collection destinations = null;
+}
+{
+    <UNLINK> key=Key() <FROM> source=<NUMERIC> <TO>
+    (
+        destination=<NUMERIC>
+        {
+            Collection dest = new ArrayList();
+            dest.add(Long.parseLong(destination.image));
+            jjtThis.command(new UnlinkSymbol(key, Long.parseLong(source.image), dest));
+        }
+      |
+        destinations=RecordCollection()
+        {
+            jjtThis.command(new UnlinkSymbol(key, Long.parseLong(source.image), destinations));
+        }
+    )
+}
+
+void QueryOperations() : {}
+{
+    SelectCommand()
+  |
+    FetchCommand()
+  |
+    GetCommand()
+  |
+    DescribeCommand()
+  |
+    AuditCommand()
+  |
+    VerifyCommand()
+  |
+    SearchCommand()
+}
+
+void SelectCommand() #Command :
+{
+    KeyTokenSymbol key;
+    Token record;
+    TimestampSymbol timestamp = null;
+}
+{
+    <SELECT> key=Key() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+    {
+        jjtThis.command(new SelectSymbol(key, Long.parseLong(record.image), timestamp));
+    }
+}
+
+void FetchCommand() #Command :
+{
+    KeyTokenSymbol key;
+    Collection<KeySymbol> keys = null;
+    Token record;
+    Collection records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <FETCH>
+    (
+        LOOKAHEAD(3)
+        key=Key() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new FetchSymbol(key, Long.parseLong(record.image), timestamp));
+        }
+      |
+        LOOKAHEAD(3)
+        key=Key() <FROM> records=RecordCollection() (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new FetchSymbol(key, records, timestamp));
+        }
+      |
+        LOOKAHEAD(3)
+        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new FetchSymbol(keys, Long.parseLong(record.image), timestamp));
+        }
+      |
+        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new FetchSymbol(keys, records, timestamp));
+        }
+    )
+}
+
+void GetCommand() #Command :
+{
+    KeyTokenSymbol key;
+    Collection<KeySymbol> keys = null;
+    Token record;
+    Collection records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <GET>
+    (
+        LOOKAHEAD(3)
+        key=Key() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new GetSymbol(key, Long.parseLong(record.image), timestamp));
+        }
+      |
+        LOOKAHEAD(3)
+        key=Key() <FROM> records=RecordCollection() (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new GetSymbol(key, records, timestamp));
+        }
+      |
+        LOOKAHEAD(3)
+        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new GetSymbol(keys, Long.parseLong(record.image), timestamp));
+        }
+      |
+        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new GetSymbol(keys, records, timestamp));
+        }
+    )
+}
+
+void DescribeCommand() #Command :
+{
+    Token record;
+    Collection records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <DESCRIBE>
+    (
+        LOOKAHEAD(2)
+        record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new DescribeSymbol(Long.parseLong(record.image), timestamp));
+        }
+      |
+        records=RecordCollection() (timestamp=AsOfTimestamp())?
+        {
+            jjtThis.command(new DescribeSymbol(records, timestamp));
+        }
+    )
+}
+
+void AuditCommand() #Command :
+{
+    KeyTokenSymbol key = null;
+    Token record;
+}
+{
+    <AUDIT>
+    (
+        LOOKAHEAD(2)
+        key=Key() <FROM> record=<NUMERIC>
+        {
+            jjtThis.command(new AuditSymbol(key, Long.parseLong(record.image)));
+        }
+      |
+        record=<NUMERIC>
+        {
+            jjtThis.command(new AuditSymbol(null, Long.parseLong(record.image)));
+        }
+    )
+}
+
+void VerifyCommand() #Command :
+{
+    KeyTokenSymbol key;
+    ValueTokenSymbol value;
+    Token record;
+    TimestampSymbol timestamp = null;
+}
+{
+    <VERIFY> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
+    (timestamp=AsOfTimestamp())?
+    {
+        jjtThis.command(new VerifySymbol(key, value, Long.parseLong(record.image), timestamp));
+    }
+}
+
+void SearchCommand() #Command :
+{
+    KeyTokenSymbol key;
+    Token query;
+}
+{
+    <SEARCH> key=Key() <FOR> query=<QUOTED_STRING>
+    {
+        jjtThis.command(new SearchSymbol(key, query.image));
+    }
+}
+
+void TransactionOperations() : {}
+{
+    StageCommand()
+  |
+    CommitCommand()
+  |
+    AbortCommand()
+}
+
+void StageCommand() #Command : {}
+{
+    <STAGE>
+    {
+        jjtThis.command(StageSymbol.INSTANCE);
+    }
+}
+
+void CommitCommand() #Command : {}
+{
+    <COMMIT>
+    {
+        jjtThis.command(CommitSymbol.INSTANCE);
+    }
+}
+
+void AbortCommand() #Command : {}
+{
+    <ABORT>
+    {
+        jjtThis.command(AbortSymbol.INSTANCE);
+    }
+}
+
+void RevertCommand() #Command :
+{
+    KeyTokenSymbol key = null;
+    Token record = null;
+    Collection<KeySymbol> keys = null;
+    Collection records = null;
+    TimestampSymbol timestamp;
+}
+{
+    <REVERT>
+    (
+        LOOKAHEAD(3)
+        key=Key() <IN> record=<NUMERIC>
+        {
+            jjtThis.setType("REVERT");
+            jjtThis.setKey(key);
+            jjtThis.setRecord(Long.parseLong(record.image));
+        }
+      |
+        LOOKAHEAD(3)
+        key=Key() <IN> records=RecordCollection()
+        {
+            jjtThis.command(new RevertSymbol(key, records, timestamp));
+        }
+      |
+        LOOKAHEAD(3)
+        keys=KeyCollection() <IN> record=<NUMERIC>
+        {
+            jjtThis.command(new RevertSymbol(keys, Long.parseLong(record.image), timestamp));
+        }
+      |
+        keys=KeyCollection() <IN> records=RecordCollection()
+        {
+            jjtThis.command(new RevertSymbol(keys, records, timestamp));
+        }
+    )
+    <TO> timestamp=Timestamp()
+    { jjtThis.setTimestamp(timestamp); }
+}
+
+// Utility parsing rules
+Collection RecordCollection() :
+{
+    Token record;
+    Collection records = new ArrayList();
+}
+{
+    <OPEN_BRACKET>
+        record=<NUMERIC> { records.add(Long.parseLong(record.image)); }
+        (<COMMA> record=<NUMERIC> { records.add(Long.parseLong(record.image)); })*
+    <CLOSE_BRACKET>
+    { return records; }
+}
+
+Collection KeyCollection() :
+{
+    KeyTokenSymbol key;
+    Collection keys = new ArrayList();
+}
+{
+    <OPEN_BRACKET>
+        key=Key() { keys.add(key.toString()); }
+        (<COMMA> key=Key() { keys.add(key.toString()); })*
+    <CLOSE_BRACKET>
+    { return keys; }
+}
+
+String JsonObject() :
+{
+    Token content;
+}
+{
+    content=<QUOTED_STRING>
+    { return content.image; }
+}
+
+TimestampSymbol AsOfTimestamp() :
+{
+    Token word;
+    String timestamp = "";
+}
+{
+    <AS_OF> (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+    { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }

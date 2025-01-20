@@ -15,12 +15,8 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.syntax.CommandTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
-import com.cinchapi.ccl.syntax.FunctionTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.syntax.*;
+import com.cinchapi.ccl.syntax.condition.*;
 
 /**
  * A {@link Visitor} that can only visit possible subtree types of a
@@ -32,7 +28,7 @@ import com.cinchapi.ccl.syntax.Visitor;
 public abstract class ConditionTreeVisitor<T> implements Visitor<T> {
 
     @Override
-    public final T visit(CommandTree tree, Object... data) {
+    public final T visit(QueryTree tree, Object... data) {
         throw new UnsupportedOperationException();
     }
 

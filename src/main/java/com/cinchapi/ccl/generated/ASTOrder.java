@@ -15,7 +15,7 @@
  */
 package com.cinchapi.ccl.generated;
 
-import com.cinchapi.ccl.grammar.OrderSymbol;
+import com.cinchapi.ccl.grammar.condition.OrderSymbol;
 
 /**
  * A node that representation a CCL Order
