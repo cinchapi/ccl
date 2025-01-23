@@ -1,6 +1,6 @@
-package com.cinchapi.ccl.syntax.condition;
+package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.condition.FunctionTokenSymbol;
+import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;

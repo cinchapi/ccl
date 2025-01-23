@@ -22,18 +22,16 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.cinchapi.ccl.grammar.QuerySymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.condition.OperatorSymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.syntax.*;
-import com.cinchapi.ccl.syntax.condition.*;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
 import com.cinchapi.common.function.TriFunction;
@@ -268,9 +266,9 @@ public abstract class Compiler {
 
             @SuppressWarnings("unchecked")
             @Override
-            public List<Symbol> visit(QueryTree tree, Object... data) {
+            public List<Symbol> visit(CommandTree tree, Object... data) {
                 List<Symbol> symbols = (List<Symbol>) data[0];
-                if(tree.root() != QuerySymbol.IMPLICIT) {
+                if(tree.root() != CommandSymbol.IMPLICIT) {
                     symbols.add(tree.root());
                 }
                 for (AbstractSyntaxTree child : tree.children()) {

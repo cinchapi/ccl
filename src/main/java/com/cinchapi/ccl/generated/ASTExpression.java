@@ -15,8 +15,8 @@
  */
 package com.cinchapi.ccl.generated;
 
-import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.condition.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;

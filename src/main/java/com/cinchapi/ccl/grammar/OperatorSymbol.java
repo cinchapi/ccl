@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.condition;
+package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.type.Operator;
 
 /**

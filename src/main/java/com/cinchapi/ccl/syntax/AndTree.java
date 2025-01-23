@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax.condition;
+package com.cinchapi.ccl.syntax;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 
 /**
- * An {@link AbstractSyntaxTree} that represents a logical OR.
+ * An {@link AbstractSyntaxTree} that represents a logical AND.
  * 
  * @author Jeff Nelson
  */
-public final class OrTree extends ConjunctionTree {
+public final class AndTree extends ConjunctionTree {
 
     /**
      * Construct a new instance.
@@ -31,8 +30,8 @@ public final class OrTree extends ConjunctionTree {
      * @param left
      * @param right
      */
-    public OrTree(ConditionTree left, ConditionTree right) {
-        super(ConjunctionSymbol.OR, left, right);
+    public AndTree(ConditionTree left, ConditionTree right) {
+        super(ConjunctionSymbol.AND, left, right);
     }
 
 }

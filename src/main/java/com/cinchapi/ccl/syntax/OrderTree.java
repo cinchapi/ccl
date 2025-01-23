@@ -13,72 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax.condition;
+package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.ConjunctionSymbol;
+import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.Visitor;
-import com.google.common.collect.Lists;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
- * An abstraction for a conjunction node in an {@link AbstractSyntaxTree}
+ * An abstraction for an order node in a {@link AbstractSyntaxTree}
  */
-public class ConjunctionTree extends BaseAbstractSyntaxTree implements
-        ConditionTree {
-
-    private final ConjunctionSymbol conjunction;
-    private final ConditionTree left;
-    private final ConditionTree right;
+public class OrderTree extends BaseAbstractSyntaxTree {
+    /**
+     * The root.
+     */
+    private final OrderSymbol order;
 
     /**
      * Construct a new instance.
      *
-     * @param conjunction
-     * @param left
-     * @param right
+     * @param order
      */
-    public ConjunctionTree(ConjunctionSymbol conjunction, ConditionTree left,
-            ConditionTree right) {
-        this.conjunction = conjunction;
-        this.left = left;
-        this.right = right;
+    public OrderTree(OrderSymbol order) {
+        this.order = order;
     }
 
     @Override
     public Collection<AbstractSyntaxTree> children() {
-        return Lists.newArrayList(left, right);
-    }
-
-    /**
-     * Return the left child of this {@link ConjunctionTree}.
-     *
-     * @return the left child
-     */
-    public ConditionTree left() {
-        return left;
-    }
-
-    /**
-     * Return the right child of this {@link ConjunctionTree}.
-     *
-     * @return the right child
-     */
-    public ConditionTree right() {
-        return right;
+        return Collections.emptyList();
     }
 
     @Override
     public Symbol root() {
-        return conjunction;
+        return order;
     }
 
     @Override
     public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
     }
-
 }

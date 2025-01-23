@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Cinchapi Inc.
+ * Copyright (c) 2013-2017 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.condition;
+package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.type.Function;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 
 /**
- * A {@link FunctionTokenSymbol} that contains a {@link Function}.
+ * An abstraction for a condition node in a {@link AbstractSyntaxTree}
  */
-public interface FunctionTokenSymbol extends Symbol {
-
-    /**
-     * Return the {@link Function} associated with this symbol.
-     * 
-     * @return the {@link Function}
-     */
-    public Function function();
-}
+public interface ConditionTree extends AbstractSyntaxTree {/* marker */}

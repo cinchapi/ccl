@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax.condition;
+package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.condition.OrderSymbol;
+import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
@@ -25,21 +25,22 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * An abstraction for an order node in a {@link AbstractSyntaxTree}
+ * An abstraction for a page node in a {@link AbstractSyntaxTree}
  */
-public class OrderTree extends BaseAbstractSyntaxTree {
+public class PageTree extends BaseAbstractSyntaxTree {
+
     /**
      * The root.
      */
-    private final OrderSymbol order;
+    private final PageSymbol page;
 
     /**
      * Construct a new instance.
      *
-     * @param order
+     * @param page
      */
-    public OrderTree(OrderSymbol order) {
-        this.order = order;
+    public PageTree(PageSymbol page) {
+        this.page = page;
     }
 
     @Override
@@ -49,7 +50,7 @@ public class OrderTree extends BaseAbstractSyntaxTree {
 
     @Override
     public Symbol root() {
-        return order;
+        return page;
     }
 
     @Override

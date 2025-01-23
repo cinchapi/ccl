@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2019 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax.condition;
+package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.type.Function;
 
 /**
- * An abstraction for a condition node in a {@link AbstractSyntaxTree}
+ * A {@link KeyTokenSymbol} that represents a {@link Function}.
+ *
+ * @author Jeff Nelson
  */
-public interface ConditionTree extends AbstractSyntaxTree {/* marker */}
+public class FunctionKeySymbol extends KeyTokenSymbol<Function>
+        implements FunctionTokenSymbol {
+
+    /**
+     * Construct a new instance.
+     * 
+     * @param key
+     */
+    public FunctionKeySymbol(Function key) {
+        super(key);
+    }
+
+    @Override
+    public Function function() {
+        return this.key;
+    }
+}

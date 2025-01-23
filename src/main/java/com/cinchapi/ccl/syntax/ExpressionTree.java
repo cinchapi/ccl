@@ -13,34 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax.condition;
-
-import com.cinchapi.ccl.grammar.condition.PageSymbol;
-import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.Visitor;
+package com.cinchapi.ccl.syntax;
 
 import java.util.Collection;
 import java.util.Collections;
 
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
+
 /**
- * An abstraction for a page node in a {@link AbstractSyntaxTree}
+ * An abstraction for an expression node in a {@link AbstractSyntaxTree}
  */
-public class PageTree extends BaseAbstractSyntaxTree {
+public class ExpressionTree extends BaseAbstractSyntaxTree implements
+        ConditionTree {
 
     /**
      * The root.
      */
-    private final PageSymbol page;
+    private final ExpressionSymbol expression;
 
     /**
      * Construct a new instance.
      *
-     * @param page
+     * @param expression
      */
-    public PageTree(PageSymbol page) {
-        this.page = page;
+    public ExpressionTree(ExpressionSymbol expression) {
+        this.expression = expression;
     }
 
     @Override
@@ -50,11 +48,12 @@ public class PageTree extends BaseAbstractSyntaxTree {
 
     @Override
     public Symbol root() {
-        return page;
+        return expression;
     }
 
     @Override
     public <T> T accept(Visitor<T> visitor, Object... data) {
         return visitor.visit(this, data);
     }
+
 }

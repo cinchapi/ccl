@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.condition;
+package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.Symbol;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;

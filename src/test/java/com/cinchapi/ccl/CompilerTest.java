@@ -20,22 +20,22 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import com.cinchapi.ccl.syntax.condition.ConjunctionTree;
-import com.cinchapi.ccl.syntax.condition.ExpressionTree;
-import com.cinchapi.ccl.syntax.condition.FunctionTree;
-import com.cinchapi.ccl.syntax.condition.OrderTree;
-import com.cinchapi.ccl.syntax.condition.PageTree;
-import com.cinchapi.ccl.syntax.condition.QueryTree;
-import com.cinchapi.ccl.syntax.condition.ConditionTree;
+import com.cinchapi.ccl.syntax.ConjunctionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.FunctionTree;
+import com.cinchapi.ccl.syntax.OrderTree;
+import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.CommandTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
-import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.condition.OperatorSymbol;
-import com.cinchapi.ccl.grammar.condition.OrderComponentSymbol;
-import com.cinchapi.ccl.grammar.condition.OrderSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.OrderComponentSymbol;
+import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
@@ -1310,7 +1310,7 @@ public abstract class CompilerTest {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Queue<Symbol> visit(QueryTree tree, Object... data) {
+            public Queue<Symbol> visit(CommandTree tree, Object... data) {
                 Queue<Symbol> queue = (Queue<Symbol>) data[0];
                 if(tree.children().size() == 2) {
                     tree.conditionTree().accept(this, data);

@@ -17,14 +17,14 @@ package com.cinchapi.ccl;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
-import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.condition.FunctionKeySymbol;
-import com.cinchapi.ccl.grammar.condition.FunctionTokenSymbol;
-import com.cinchapi.ccl.grammar.condition.FunctionValueSymbol;
-import com.cinchapi.ccl.grammar.condition.OperatorSymbol;
-import com.cinchapi.ccl.grammar.condition.OrderComponentSymbol;
-import com.cinchapi.ccl.grammar.condition.OrderSymbol;
-import com.cinchapi.ccl.grammar.condition.PageSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.FunctionKeySymbol;
+import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
+import com.cinchapi.ccl.grammar.FunctionValueSymbol;
+import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.OrderComponentSymbol;
+import com.cinchapi.ccl.grammar.OrderSymbol;
+import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
@@ -32,7 +32,6 @@ import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.syntax.*;
-import com.cinchapi.ccl.syntax.condition.*;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.type.function.KeyConditionFunction;
@@ -1578,8 +1577,8 @@ public class CompilerJavaCCLogicTest {
         AbstractSyntaxTree tree = compiler.parse(ccl);
 
         // Root node
-        Assert.assertTrue(tree instanceof QueryTree);
-        QueryTree rootNode = (QueryTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1591,8 +1590,8 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("1", expression.values().get(0).toString());
 
         // Page Node
-        Assert.assertTrue(((QueryTree) tree).pageTree() != null);
-        PageSymbol page = (PageSymbol) ((QueryTree) tree).pageTree().root();
+        Assert.assertTrue(((CommandTree) tree).pageTree() != null);
+        PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
         Assert.assertEquals(2, page.offset());
         Assert.assertEquals(1, page.limit());
     }
@@ -1961,8 +1960,8 @@ public class CompilerJavaCCLogicTest {
         AbstractSyntaxTree tree = compiler.parse(ccl);
 
         // Root node
-        Assert.assertTrue(tree instanceof QueryTree);
-        QueryTree rootNode = (QueryTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -1974,8 +1973,8 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("1", expression.values().get(0).toString());
 
         // Order Node
-        Assert.assertTrue(((QueryTree) tree).orderTree() != null);
-        OrderSymbol order = (OrderSymbol) ((QueryTree) tree).orderTree()
+        Assert.assertTrue(((CommandTree) tree).orderTree() != null);
+        OrderSymbol order = (OrderSymbol) ((CommandTree) tree).orderTree()
                 .root();
         Assert.assertEquals(order, expectedOrder);
     }
@@ -1994,8 +1993,8 @@ public class CompilerJavaCCLogicTest {
         AbstractSyntaxTree tree = compiler.parse(ccl);
 
         // Root node
-        Assert.assertTrue(tree instanceof QueryTree);
-        QueryTree rootNode = (QueryTree) tree;
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
 
         Assert.assertTrue(rootNode.conditionTree() != null);
         ConditionTree conditionTree = rootNode.conditionTree();
@@ -2007,14 +2006,14 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("1", expression.values().get(0).toString());
 
         // Order Node
-        Assert.assertTrue(((QueryTree) tree).orderTree() != null);
-        OrderSymbol order = (OrderSymbol) ((QueryTree) tree).orderTree()
+        Assert.assertTrue(((CommandTree) tree).orderTree() != null);
+        OrderSymbol order = (OrderSymbol) ((CommandTree) tree).orderTree()
                 .root();
         Assert.assertEquals(order, expectedOrder);
 
         // Page Node
-        Assert.assertTrue(((QueryTree) tree).pageTree() != null);
-        PageSymbol page = (PageSymbol) ((QueryTree) tree).pageTree().root();
+        Assert.assertTrue(((CommandTree) tree).pageTree() != null);
+        PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
         Assert.assertEquals(2, page.offset());
         Assert.assertEquals(1, page.limit());
     }

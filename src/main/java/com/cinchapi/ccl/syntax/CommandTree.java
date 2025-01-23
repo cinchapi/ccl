@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.syntax.condition;
+package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.grammar.QuerySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.grammar.command.CommandSymbol;
+import com.cinchapi.ccl.grammar.command.ImplicitSymbol;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
@@ -31,9 +29,9 @@ import javax.annotation.Nullable;
  * An abstraction for the overall {@link AbstractSyntaxTree} returned when
  * parsing a command.
  */
-public class QueryTree extends BaseAbstractSyntaxTree {
+public class CommandTree extends BaseAbstractSyntaxTree {
 
-    private QuerySymbol query;
+    private CommandSymbol command;
     private ConditionTree conditionTree;
     private PageTree pageTree;
     private OrderTree orderTree;
@@ -41,12 +39,29 @@ public class QueryTree extends BaseAbstractSyntaxTree {
     /**
      * Construct a new instance.
      *
+     * @param command
      * @param conditionTree
      * @param pageTree
+     * @param orderTree
      */
-    public QueryTree(ConditionTree conditionTree, PageTree pageTree,
-                     OrderTree orderTree) {
-        this.query = QuerySymbol.IMPLICIT;
+    public CommandTree(CommandSymbol command, ConditionTree conditionTree, PageTree pageTree,
+                       OrderTree orderTree) {
+        this.command = command;
+        this.conditionTree = conditionTree;
+        this.pageTree = pageTree;
+        this.orderTree = orderTree;
+    }
+
+    /**
+     * Construct a new instance.
+     *
+     * @param conditionTree
+     * @param pageTree
+     * @param orderTree
+     */
+    public CommandTree(ConditionTree conditionTree, PageTree pageTree,
+                       OrderTree orderTree) {
+        this.command = ImplicitSymbol.INSTANCE;
         this.conditionTree = conditionTree;
         this.pageTree = pageTree;
         this.orderTree = orderTree;
@@ -55,7 +70,7 @@ public class QueryTree extends BaseAbstractSyntaxTree {
     /**
      * Return a {@link ConditonTree tree} for the parsed command's condition, if
      * it exists.
-     * 
+     *
      * @return the {@link ConditionTree}
      */
     @Nullable
@@ -66,7 +81,7 @@ public class QueryTree extends BaseAbstractSyntaxTree {
     /**
      * Return a {@link PageTree tree} for the parsed command's page, if it
      * exists.
-     * 
+     *
      * @return the {@link PageTree}
      */
     @Nullable
@@ -102,7 +117,7 @@ public class QueryTree extends BaseAbstractSyntaxTree {
 
     @Override
     public Symbol root() {
-        return query;
+        return command;
     }
 
     @Override

@@ -13,31 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.condition;
+package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link ValueTokenSymbol} that represents a {@link Function}.
- *
- * @author Jeff Nelson
+ * A {@link FunctionTokenSymbol} that contains a {@link Function}.
  */
-public class FunctionValueSymbol extends ValueTokenSymbol<Function>
-        implements FunctionTokenSymbol {
+public interface FunctionTokenSymbol extends Symbol {
 
     /**
-     * Construct a new instance.
+     * Return the {@link Function} associated with this symbol.
      * 
-     * @param value
+     * @return the {@link Function}
      */
-    public FunctionValueSymbol(Function value) {
-        super(value);
-    }
-
-    @Override
-    public Function function() {
-        return this.value;
-    }
-
+    public Function function();
 }

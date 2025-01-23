@@ -15,7 +15,7 @@
  */
 package com.cinchapi.ccl.generated;
 
-import com.cinchapi.ccl.grammar.condition.FunctionTokenSymbol;
+import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
 
 /**
  * A node that representation a CCL function

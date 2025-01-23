@@ -17,7 +17,7 @@ package com.cinchapi.ccl;
 
 import com.cinchapi.ccl.generated.Grammar;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.condition.ConditionTree;
+import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;

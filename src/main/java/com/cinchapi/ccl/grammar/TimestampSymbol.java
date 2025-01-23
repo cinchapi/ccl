@@ -17,7 +17,6 @@ package com.cinchapi.ccl.grammar;
 
 import java.util.concurrent.TimeUnit;
 
-import com.cinchapi.ccl.grammar.condition.ExpressionSymbol;
 import com.cinchapi.common.base.AnyStrings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.Longs;

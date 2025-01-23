@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cinchapi.ccl.grammar.condition;
+package com.cinchapi.ccl.grammar;
 
-import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.type.Function;
 
 /**
- * A {@link KeyTokenSymbol} that represents a {@link Function}.
+ * A {@link ValueTokenSymbol} that represents a {@link Function}.
  *
  * @author Jeff Nelson
  */
-public class FunctionKeySymbol extends KeyTokenSymbol<Function>
+public class FunctionValueSymbol extends ValueTokenSymbol<Function>
         implements FunctionTokenSymbol {
 
     /**
      * Construct a new instance.
      * 
-     * @param key
+     * @param value
      */
-    public FunctionKeySymbol(Function key) {
-        super(key);
+    public FunctionValueSymbol(Function value) {
+        super(value);
     }
 
     @Override
     public Function function() {
-        return this.key;
+        return this.value;
     }
+
 }
