@@ -9,16 +9,15 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
-import com.cinchapi.ccl.grammar.command.CommandSymbol;
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 
 /**
  * A {@link CommandSymbol} that represents an ADD command.
  */
 public class AddSymbol implements CommandSymbol {
-    private final KeySymbol key;
-    private final ValueSymbol value;
+    private final KeyTokenSymbol<?> key;
+    private final ValueTokenSymbol<?> value;
     private final long record;
 
     /**
@@ -28,7 +27,7 @@ public class AddSymbol implements CommandSymbol {
      * @param value the value to add
      * @param record the record identifier
      */
-    public AddSymbol(KeySymbol key, ValueSymbol value, long record) {
+    public AddSymbol(KeyTokenSymbol<?> key, ValueTokenSymbol<?> value, long record) {
         this.key = key;
         this.value = value;
         this.record = record;
@@ -42,14 +41,14 @@ public class AddSymbol implements CommandSymbol {
     /**
      * Return the key to add.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
     /**
      * Return the value to add.
      */
-    public ValueSymbol value() {
+    public ValueTokenSymbol<?> value() {
         return value;
     }
 

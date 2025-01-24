@@ -11,46 +11,46 @@ package com.cinchapi.ccl.grammar.command;
 
 import java.util.Collection;
 import javax.annotation.Nullable;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a CLEAR command.
  */
 public class ClearSymbol implements CommandSymbol {
-    private final KeySymbol key;
-    private final Collection<KeySymbol> keys;
+    private final KeyTokenSymbol<?> key;
+    private final Collection<KeyTokenSymbol<?>> keys;
     private final long record;
     private final Collection<Long> records;
 
     /**
      * Construct a new instance for single key and record.
      */
-    public ClearSymbol(KeySymbol key, long record) {
+    public ClearSymbol(KeyTokenSymbol<?> key, long record) {
         this(key, null, record, null);
     }
 
     /**
      * Construct a new instance for multiple keys and single record.
      */
-    public ClearSymbol(Collection<KeySymbol> keys, long record) {
+    public ClearSymbol(Collection<KeyTokenSymbol<?>> keys, long record) {
         this(null, keys, record, null);
     }
 
     /**
      * Construct a new instance for single key and multiple records.
      */
-    public ClearSymbol(KeySymbol key, Collection<Long> records) {
+    public ClearSymbol(KeyTokenSymbol<?> key, Collection<Long> records) {
         this(key, null, -1, records);
     }
 
     /**
      * Construct a new instance for multiple keys and records.
      */
-    public ClearSymbol(Collection<KeySymbol> keys, Collection<Long> records) {
+    public ClearSymbol(Collection<KeyTokenSymbol<?>> keys, Collection<Long> records) {
         this(null, keys, -1, records);
     }
 
-    private ClearSymbol(@Nullable KeySymbol key, @Nullable Collection<KeySymbol> keys,
+    private ClearSymbol(@Nullable KeyTokenSymbol<?> key, @Nullable Collection<KeyTokenSymbol<?>> keys,
                         long record, @Nullable Collection<Long> records) {
         this.key = key;
         this.keys = keys;
@@ -67,7 +67,7 @@ public class ClearSymbol implements CommandSymbol {
      * Return the key to clear, if operating on a single key.
      */
     @Nullable
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
@@ -75,7 +75,7 @@ public class ClearSymbol implements CommandSymbol {
      * Return the keys to clear, if operating on multiple keys.
      */
     @Nullable
-    public Collection<KeySymbol> keys() {
+    public Collection<KeyTokenSymbol<?>> keys() {
         return keys;
     }
 

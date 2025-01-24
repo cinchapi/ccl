@@ -9,13 +9,13 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a SEARCH command.
  */
 public class SearchSymbol implements CommandSymbol {
-    private final KeySymbol key;
+    private final KeyTokenSymbol<?> key;
     private final String query;
 
     /**
@@ -24,7 +24,7 @@ public class SearchSymbol implements CommandSymbol {
      * @param key the key to search
      * @param query the search query
      */
-    public SearchSymbol(KeySymbol key, String query) {
+    public SearchSymbol(KeyTokenSymbol<?> key, String query) {
         this.key = key;
         this.query = query;
     }
@@ -37,7 +37,7 @@ public class SearchSymbol implements CommandSymbol {
     /**
      * Return the key to search.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 

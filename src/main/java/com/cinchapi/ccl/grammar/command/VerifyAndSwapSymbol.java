@@ -9,16 +9,16 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a VERIFY AND SWAP command.
  */
 public class VerifyAndSwapSymbol implements CommandSymbol {
-    private final KeySymbol key;
-    private final ValueSymbol expected;
-    private final ValueSymbol replacement;
+    private final KeyTokenSymbol<?> key;
+    private final ValueTokenSymbol<?> expected;
+    private final ValueTokenSymbol<?> replacement;
     private final long record;
 
     /**
@@ -29,8 +29,8 @@ public class VerifyAndSwapSymbol implements CommandSymbol {
      * @param replacement the replacement value
      * @param record the record identifier
      */
-    public VerifyAndSwapSymbol(KeySymbol key, ValueSymbol expected,
-                               ValueSymbol replacement, long record) {
+    public VerifyAndSwapSymbol(KeyTokenSymbol<?> key, ValueTokenSymbol<?> expected,
+                               ValueTokenSymbol<?> replacement, long record) {
         this.key = key;
         this.expected = expected;
         this.replacement = replacement;
@@ -45,21 +45,21 @@ public class VerifyAndSwapSymbol implements CommandSymbol {
     /**
      * Return the key to verify and swap.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
     /**
      * Return the expected value.
      */
-    public ValueSymbol expected() {
+    public ValueTokenSymbol<?> expected() {
         return expected;
     }
 
     /**
      * Return the replacement value.
      */
-    public ValueSymbol replacement() {
+    public ValueTokenSymbol<?> replacement() {
         return replacement;
     }
 

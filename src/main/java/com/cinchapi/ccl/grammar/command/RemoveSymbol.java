@@ -10,15 +10,15 @@
 package com.cinchapi.ccl.grammar.command;
 
 import javax.annotation.Nullable;
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a REMOVE command.
  */
 public class RemoveSymbol implements CommandSymbol {
-    private final KeySymbol key;
-    private final ValueSymbol value;
+    private final KeyTokenSymbol<?> key;
+    private final ValueTokenSymbol<?> value;
     private final long record;
 
     /**
@@ -28,7 +28,7 @@ public class RemoveSymbol implements CommandSymbol {
      * @param value the value to remove, if specified
      * @param record the record identifier
      */
-    public RemoveSymbol(KeySymbol key, @Nullable ValueSymbol value, long record) {
+    public RemoveSymbol(KeyTokenSymbol<?> key, @Nullable ValueTokenSymbol<?> value, long record) {
         this.key = key;
         this.value = value;
         this.record = record;
@@ -42,7 +42,7 @@ public class RemoveSymbol implements CommandSymbol {
     /**
      * Return the key to remove.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
@@ -50,7 +50,7 @@ public class RemoveSymbol implements CommandSymbol {
      * Return the value to remove, if specified.
      */
     @Nullable
-    public ValueSymbol value() {
+    public ValueTokenSymbol<?> value() {
         return value;
     }
 

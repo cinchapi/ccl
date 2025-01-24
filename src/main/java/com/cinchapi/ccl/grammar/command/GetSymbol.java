@@ -11,15 +11,15 @@ package com.cinchapi.ccl.grammar.command;
 
 import java.util.Collection;
 import javax.annotation.Nullable;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a GET command.
  */
 public class GetSymbol implements CommandSymbol {
-    private final KeySymbol key;
-    private final Collection<KeySymbol> keys;
+    private final KeyTokenSymbol<?> key;
+    private final Collection<KeyTokenSymbol<?>> keys;
     private final long record;
     private final Collection<Long> records;
     private final TimestampSymbol timestamp;
@@ -27,33 +27,33 @@ public class GetSymbol implements CommandSymbol {
     /**
      * Construct a new instance for single key and record.
      */
-    public GetSymbol(KeySymbol key, long record, @Nullable TimestampSymbol timestamp) {
+    public GetSymbol(KeyTokenSymbol<?> key, long record, @Nullable TimestampSymbol timestamp) {
         this(key, null, record, null, timestamp);
     }
 
     /**
      * Construct a new instance for multiple keys and single record.
      */
-    public GetSymbol(Collection<KeySymbol> keys, long record, @Nullable TimestampSymbol timestamp) {
+    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, long record, @Nullable TimestampSymbol timestamp) {
         this(null, keys, record, null, timestamp);
     }
 
     /**
      * Construct a new instance for single key and multiple records.
      */
-    public GetSymbol(KeySymbol key, Collection<Long> records, @Nullable TimestampSymbol timestamp) {
+    public GetSymbol(KeyTokenSymbol<?> key, Collection<Long> records, @Nullable TimestampSymbol timestamp) {
         this(key, null, -1, records, timestamp);
     }
 
     /**
      * Construct a new instance for multiple keys and records.
      */
-    public GetSymbol(Collection<KeySymbol> keys, Collection<Long> records,
+    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, Collection<Long> records,
                      @Nullable TimestampSymbol timestamp) {
         this(null, keys, -1, records, timestamp);
     }
 
-    private GetSymbol(@Nullable KeySymbol key, @Nullable Collection<KeySymbol> keys,
+    private GetSymbol(@Nullable KeyTokenSymbol<?> key, @Nullable Collection<KeyTokenSymbol<?>> keys,
                       long record, @Nullable Collection<Long> records, @Nullable TimestampSymbol timestamp) {
         this.key = key;
         this.keys = keys;
@@ -71,7 +71,7 @@ public class GetSymbol implements CommandSymbol {
      * Return the key to get, if operating on a single key.
      */
     @Nullable
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
@@ -79,7 +79,7 @@ public class GetSymbol implements CommandSymbol {
      * Return the keys to get, if operating on multiple keys.
      */
     @Nullable
-    public Collection<KeySymbol> keys() {
+    public Collection<KeyTokenSymbol<?>> keys() {
         return keys;
     }
 

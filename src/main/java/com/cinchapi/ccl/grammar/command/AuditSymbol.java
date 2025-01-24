@@ -9,14 +9,15 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+
 import javax.annotation.Nullable;
-import com.cinchapi.ccl.grammar.KeySymbol;
 
 /**
  * A {@link CommandSymbol} that represents an AUDIT command.
  */
 public class AuditSymbol implements CommandSymbol {
-    private final KeySymbol key;
+    private final KeyTokenSymbol<?> key;
     private final long record;
 
     /**
@@ -25,7 +26,7 @@ public class AuditSymbol implements CommandSymbol {
      * @param key optional key to audit, if null audits entire record
      * @param record the record identifier
      */
-    public AuditSymbol(@Nullable KeySymbol key, long record) {
+    public AuditSymbol(@Nullable KeyTokenSymbol<?> key, long record) {
         this.key = key;
         this.record = record;
     }
@@ -39,7 +40,7 @@ public class AuditSymbol implements CommandSymbol {
      * Return the key to audit, if specified.
      */
     @Nullable
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 

@@ -10,8 +10,8 @@
 package com.cinchapi.ccl.grammar.command;
 
 import javax.annotation.Nullable;
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.type.Operator;
 
@@ -19,10 +19,10 @@ import com.cinchapi.ccl.type.Operator;
  * A {@link CommandSymbol} that represents a FIND command.
  */
 public class FindSymbol implements CommandSymbol {
-    private final KeySymbol key;
+    private final KeyTokenSymbol<?> key;
     private final Operator operator;
-    private final ValueSymbol value;
-    private final ValueSymbol value2;
+    private final ValueTokenSymbol<?> value;
+    private final ValueTokenSymbol<?> value2;
     private final TimestampSymbol timestamp;
 
     /**
@@ -33,7 +33,7 @@ public class FindSymbol implements CommandSymbol {
      * @param value the value to compare
      * @param timestamp optional timestamp for historical search
      */
-    public FindSymbol(KeySymbol key, Operator operator, ValueSymbol value,
+    public FindSymbol(KeyTokenSymbol<?> key, Operator operator, ValueTokenSymbol<?> value,
                       @Nullable TimestampSymbol timestamp) {
         this(key, operator, value, null, timestamp);
     }
@@ -47,8 +47,8 @@ public class FindSymbol implements CommandSymbol {
      * @param value2 the second value to compare
      * @param timestamp optional timestamp for historical search
      */
-    public FindSymbol(KeySymbol key, Operator operator, ValueSymbol value,
-                      @Nullable ValueSymbol value2, @Nullable TimestampSymbol timestamp) {
+    public FindSymbol(KeyTokenSymbol<?> key, Operator operator, ValueTokenSymbol<?> value,
+                      @Nullable ValueTokenSymbol<?> value2, @Nullable TimestampSymbol timestamp) {
         this.key = key;
         this.operator = operator;
         this.value = value;
@@ -64,7 +64,7 @@ public class FindSymbol implements CommandSymbol {
     /**
      * Return the key to find.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
@@ -78,7 +78,7 @@ public class FindSymbol implements CommandSymbol {
     /**
      * Return the value to compare.
      */
-    public ValueSymbol value() {
+    public ValueTokenSymbol<?> value() {
         return value;
     }
 
@@ -86,7 +86,7 @@ public class FindSymbol implements CommandSymbol {
      * Return the second value for binary operations.
      */
     @Nullable
-    public ValueSymbol value2() {
+    public ValueTokenSymbol<?> value2() {
         return value2;
     }
 

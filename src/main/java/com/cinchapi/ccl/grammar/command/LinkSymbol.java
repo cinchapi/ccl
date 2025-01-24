@@ -10,13 +10,13 @@
 package com.cinchapi.ccl.grammar.command;
 
 import java.util.Collection;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a LINK command.
  */
 public class LinkSymbol implements CommandSymbol {
-    private final KeySymbol key;
+    private final KeyTokenSymbol<?> key;
     private final long source;
     private final Collection<Long> destinations;
 
@@ -27,7 +27,7 @@ public class LinkSymbol implements CommandSymbol {
      * @param source the source record
      * @param destinations the destination records
      */
-    public LinkSymbol(KeySymbol key, long source, Collection<Long> destinations) {
+    public LinkSymbol(KeyTokenSymbol<?> key, long source, Collection<Long> destinations) {
         this.key = key;
         this.source = source;
         this.destinations = destinations;
@@ -41,7 +41,7 @@ public class LinkSymbol implements CommandSymbol {
     /**
      * Return the key to link.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 

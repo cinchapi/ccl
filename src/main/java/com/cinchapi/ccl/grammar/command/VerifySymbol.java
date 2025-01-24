@@ -10,16 +10,16 @@
 package com.cinchapi.ccl.grammar.command;
 
 import javax.annotation.Nullable;
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a VERIFY command.
  */
 public class VerifySymbol implements CommandSymbol {
-    private final KeySymbol key;
-    private final ValueSymbol value;
+    private final KeyTokenSymbol<?> key;
+    private final ValueTokenSymbol<?> value;
     private final long record;
     private final TimestampSymbol timestamp;
 
@@ -31,7 +31,7 @@ public class VerifySymbol implements CommandSymbol {
      * @param record the record identifier
      * @param timestamp optional timestamp for historical verification
      */
-    public VerifySymbol(KeySymbol key, ValueSymbol value, long record,
+    public VerifySymbol(KeyTokenSymbol<?> key, ValueTokenSymbol<?> value, long record,
                         @Nullable TimestampSymbol timestamp) {
         this.key = key;
         this.value = value;
@@ -47,14 +47,14 @@ public class VerifySymbol implements CommandSymbol {
     /**
      * Return the key to verify.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
     /**
      * Return the value to verify.
      */
-    public ValueSymbol value() {
+    public ValueTokenSymbol<?> value() {
         return value;
     }
 

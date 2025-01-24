@@ -9,15 +9,15 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
-import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a VERIFY OR SET command.
  */
 public class VerifyOrSetSymbol implements CommandSymbol {
-    private final KeySymbol key;
-    private final ValueSymbol value;
+    private final KeyTokenSymbol<?> key;
+    private final ValueTokenSymbol<?> value;
     private final long record;
 
     /**
@@ -27,7 +27,7 @@ public class VerifyOrSetSymbol implements CommandSymbol {
      * @param value the value to verify or set
      * @param record the record identifier
      */
-    public VerifyOrSetSymbol(KeySymbol key, ValueSymbol value, long record) {
+    public VerifyOrSetSymbol(KeyTokenSymbol<?> key, ValueTokenSymbol<?> value, long record) {
         this.key = key;
         this.value = value;
         this.record = record;
@@ -41,14 +41,14 @@ public class VerifyOrSetSymbol implements CommandSymbol {
     /**
      * Return the key to verify or set.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
     /**
      * Return the value to verify or set.
      */
-    public ValueSymbol value() {
+    public ValueTokenSymbol<?> value() {
         return value;
     }
 

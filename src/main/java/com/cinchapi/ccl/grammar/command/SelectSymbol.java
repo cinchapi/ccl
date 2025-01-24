@@ -9,7 +9,7 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 
 import javax.annotation.Nullable;
@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  * A {@link CommandSymbol} that represents a SELECT command.
  */
 public class SelectSymbol implements CommandSymbol {
-    private final KeySymbol key;
+    private final KeyTokenSymbol<?> key;
     private final long record;
     private final TimestampSymbol timestamp;
 
@@ -29,7 +29,7 @@ public class SelectSymbol implements CommandSymbol {
      * @param record the record identifier
      * @param timestamp optional timestamp for historical queries
      */
-    public SelectSymbol(KeySymbol key, long record, @Nullable TimestampSymbol timestamp) {
+    public SelectSymbol(KeyTokenSymbol<?> key, long record, @Nullable TimestampSymbol timestamp) {
         this.key = key;
         this.record = record;
         this.timestamp = timestamp;
@@ -43,7 +43,7 @@ public class SelectSymbol implements CommandSymbol {
     /**
      * Return the key to select.
      */
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 

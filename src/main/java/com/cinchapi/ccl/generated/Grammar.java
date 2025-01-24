@@ -7,6 +7,7 @@ import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
+import com.cinchapi.ccl.grammar.command.*;
 import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
@@ -21,6 +22,7 @@ import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
@@ -29,6 +31,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
@@ -1659,8 +1663,8 @@ if (jjtc000) {
   final public void SetCommand() throws ParseException {/*@bgen(jjtree) Command */
     ASTCommand jjtn000 = new ASTCommand(JJTCOMMAND);
     boolean jjtc000 = true;
-    jjtree.openNodeScope(jjtn000);KeyTokenSymbol key;
-    ValueTokenSymbol value;
+    jjtree.openNodeScope(jjtn000);KeySymbol key;
+    ValueSymbol value;
     Token record;
     try {
       jj_consume_token(SET);
@@ -1756,7 +1760,7 @@ if (jjtc000) {
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);KeyTokenSymbol key = null;
     Token record;
-    Collection<KeySymbol> keys = null;
+    Collection<KeyTokenymbol> keys = null;
     Collection records = null;
     try {
       jj_consume_token(CLEAR);
@@ -2666,8 +2670,8 @@ if (jjtc000) {
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);KeyTokenSymbol key = null;
     Token record = null;
-    Collection<KeySymbol> keys = null;
-    Collection records = null;
+    Collection<KeyTokenSymbol> keys = null;
+    Collection<Long> records = null;
     TimestampSymbol timestamp;
     try {
       jj_consume_token(REVERT);
@@ -2675,18 +2679,28 @@ if (jjtc000) {
         key = Key();
         jj_consume_token(IN);
         record = jj_consume_token(NUMERIC);
-jjtn000.setType("REVERT");
-            jjtn000.setKey(key);
-            jjtn000.setRecord(Long.parseLong(record.image));
+        jj_consume_token(TO);
+        timestamp = Timestamp();
+jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+jjtn000.command(new RevertSymbol(key, Long.parseLong(record.image), timestamp));
       } else if (jj_2_27(3)) {
         key = Key();
         jj_consume_token(IN);
         records = RecordCollection();
+        jj_consume_token(TO);
+        timestamp = Timestamp();
+jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
 jjtn000.command(new RevertSymbol(key, records, timestamp));
       } else if (jj_2_28(3)) {
         keys = KeyCollection();
         jj_consume_token(IN);
         record = jj_consume_token(NUMERIC);
+        jj_consume_token(TO);
+        timestamp = Timestamp();
+jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
 jjtn000.command(new RevertSymbol(keys, Long.parseLong(record.image), timestamp));
       } else {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -2694,6 +2708,10 @@ jjtn000.command(new RevertSymbol(keys, Long.parseLong(record.image), timestamp))
           keys = KeyCollection();
           jj_consume_token(IN);
           records = RecordCollection();
+          jj_consume_token(TO);
+          timestamp = Timestamp();
+jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
 jjtn000.command(new RevertSymbol(keys, records, timestamp));
           break;
           }
@@ -2703,11 +2721,6 @@ jjtn000.command(new RevertSymbol(keys, records, timestamp));
           throw new ParseException();
         }
       }
-      jj_consume_token(TO);
-      timestamp = Timestamp();
-jjtree.closeNodeScope(jjtn000, true);
-      jjtc000 = false;
-jjtn000.setTimestamp(timestamp);
     } catch (Throwable jjte000) {
 if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -3062,18 +3075,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     try { return (!jj_3_29()); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(28, xla); }
-  }
-
-  private boolean jj_3R_65()
- {
-    if (jj_3R_86()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_49()
- {
-    if (jj_3R_71()) return true;
-    return false;
   }
 
   private boolean jj_3_6()
@@ -3718,6 +3719,12 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     return false;
   }
 
+  private boolean jj_3R_38()
+ {
+    if (jj_3R_50()) return true;
+    return false;
+  }
+
   private boolean jj_3_29()
  {
     Token xsp;
@@ -3738,12 +3745,6 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     }
     }
     }
-    return false;
-  }
-
-  private boolean jj_3R_38()
- {
-    if (jj_3R_50()) return true;
     return false;
   }
 
@@ -3848,16 +3849,16 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     return false;
   }
 
-  private boolean jj_3R_72()
- {
-    if (jj_scan_token(QUOTED_STRING)) return true;
-    return false;
-  }
-
   private boolean jj_3_3()
  {
     if (jj_3R_13()) return true;
     if (jj_scan_token(0)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_72()
+ {
+    if (jj_scan_token(QUOTED_STRING)) return true;
     return false;
   }
 
@@ -4200,16 +4201,16 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     return false;
   }
 
-  private boolean jj_3_26()
+  private boolean jj_3R_103()
  {
-    if (jj_3R_21()) return true;
-    if (jj_scan_token(IN)) return true;
     if (jj_scan_token(NUMERIC)) return true;
     return false;
   }
 
-  private boolean jj_3R_103()
+  private boolean jj_3_26()
  {
+    if (jj_3R_21()) return true;
+    if (jj_scan_token(IN)) return true;
     if (jj_scan_token(NUMERIC)) return true;
     return false;
   }
@@ -4342,6 +4343,18 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
   private boolean jj_3R_84()
  {
     if (jj_scan_token(COMMIT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_65()
+ {
+    if (jj_3R_86()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_49()
+ {
+    if (jj_3R_71()) return true;
     return false;
   }
 

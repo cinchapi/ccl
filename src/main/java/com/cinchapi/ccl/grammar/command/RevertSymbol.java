@@ -11,15 +11,15 @@ package com.cinchapi.ccl.grammar.command;
 
 import java.util.Collection;
 import javax.annotation.Nullable;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a REVERT command.
  */
 public class RevertSymbol implements CommandSymbol {
-    private final KeySymbol key;
-    private final Collection<KeySymbol> keys;
+    private final KeyTokenSymbol<?> key;
+    private final Collection<KeyTokenSymbol<?>> keys;
     private final long record;
     private final Collection<Long> records;
     private final TimestampSymbol timestamp;
@@ -31,7 +31,7 @@ public class RevertSymbol implements CommandSymbol {
      * @param record the record identifier
      * @param timestamp the timestamp to revert to
      */
-    public RevertSymbol(KeySymbol key, long record, TimestampSymbol timestamp) {
+    public RevertSymbol(KeyTokenSymbol<?> key, long record, TimestampSymbol timestamp) {
         this(key, null, record, null, timestamp);
     }
 
@@ -42,7 +42,7 @@ public class RevertSymbol implements CommandSymbol {
      * @param record the record identifier
      * @param timestamp the timestamp to revert to
      */
-    public RevertSymbol(Collection<KeySymbol> keys, long record, TimestampSymbol timestamp) {
+    public RevertSymbol(Collection<KeyTokenSymbol<?>> keys, long record, TimestampSymbol timestamp) {
         this(null, keys, record, null, timestamp);
     }
 
@@ -53,7 +53,7 @@ public class RevertSymbol implements CommandSymbol {
      * @param records the record identifiers
      * @param timestamp the timestamp to revert to
      */
-    public RevertSymbol(KeySymbol key, Collection<Long> records, TimestampSymbol timestamp) {
+    public RevertSymbol(KeyTokenSymbol<?> key, Collection<Long> records, TimestampSymbol timestamp) {
         this(key, null, -1, records, timestamp);
     }
 
@@ -64,12 +64,12 @@ public class RevertSymbol implements CommandSymbol {
      * @param records the record identifiers
      * @param timestamp the timestamp to revert to
      */
-    public RevertSymbol(Collection<KeySymbol> keys, Collection<Long> records,
+    public RevertSymbol(Collection<KeyTokenSymbol<?>> keys, Collection<Long> records,
                         TimestampSymbol timestamp) {
         this(null, keys, -1, records, timestamp);
     }
 
-    private RevertSymbol(@Nullable KeySymbol key, @Nullable Collection<KeySymbol> keys,
+    private RevertSymbol(@Nullable KeyTokenSymbol<?> key, @Nullable Collection<KeyTokenSymbol<?>> keys,
                          long record, @Nullable Collection<Long> records, TimestampSymbol timestamp) {
         this.key = key;
         this.keys = keys;
@@ -87,7 +87,7 @@ public class RevertSymbol implements CommandSymbol {
      * Return the key to revert, if operating on a single key.
      */
     @Nullable
-    public KeySymbol key() {
+    public KeyTokenSymbol<?> key() {
         return key;
     }
 
@@ -95,7 +95,7 @@ public class RevertSymbol implements CommandSymbol {
      * Return the keys to revert, if operating on multiple keys.
      */
     @Nullable
-    public Collection<KeySymbol> keys() {
+    public Collection<KeyTokenSymbol<?>> keys() {
         return keys;
     }
 
