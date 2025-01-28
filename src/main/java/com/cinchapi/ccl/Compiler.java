@@ -31,6 +31,7 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
+import com.cinchapi.ccl.grammar.command.ImplicitSymbol;
 import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
@@ -268,7 +269,7 @@ public abstract class Compiler {
             @Override
             public List<Symbol> visit(CommandTree tree, Object... data) {
                 List<Symbol> symbols = (List<Symbol>) data[0];
-                if(tree.root() != CommandSymbol.IMPLICIT) {
+                if(!(tree.root() instanceof ImplicitSymbol)) {
                     symbols.add(tree.root());
                 }
                 for (AbstractSyntaxTree child : tree.children()) {

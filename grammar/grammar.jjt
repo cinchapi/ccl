@@ -152,7 +152,6 @@ TOKEN [IGNORE_CASE]:
 | < AS: "as" >
 | < FOR: "for" >
 | < WITH: "with" >
-| < AS_OF: "as of" >
 | < OPEN_BRACE : "{" >
 | < CLOSE_BRACE : "}" >
 | < COLON : ":" >
@@ -163,7 +162,7 @@ TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN : { < OPEN_BRACKET : "[" > }
 TOKEN : { < CLOSE_BRACKET : "]" > }
-TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" > }
+TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" | "as of" > }
 TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
 TOKEN [IGNORE_CASE]: { < RESERVED_IDENTIFIER: "$id$" > }
 
@@ -761,8 +760,8 @@ void DataModificationOperations() : {}
 
 void AddCommand() #Command :
 {
-    KeyTokenSymbol key;
-    ValueTokenSymbol value;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
     Token record;
 }
 {
@@ -774,8 +773,8 @@ void AddCommand() #Command :
 
 void SetCommand() #Command :
 {
-    KeyTokenSymbol key;
-    ValueTokenSymbol value;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
     Token record;
 }
 {
@@ -787,8 +786,8 @@ void SetCommand() #Command :
 
 void RemoveCommand() #Command :
 {
-    KeyTokenSymbol key;
-    ValueTokenSymbol value = null;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value = null;
     Token record;
 }
 {
@@ -800,9 +799,9 @@ void RemoveCommand() #Command :
 
 void ClearCommand() #Command :
 {
-    KeyTokenSymbol key = null;
+    KeyTokenSymbol<?> key = null;
     Token record;
-    Collection<KeyTokenSymbol> keys = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
     Collection records = null;
 }
 {
@@ -835,9 +834,9 @@ void ClearCommand() #Command :
 
 void VerifyAndSwapCommand() #Command :
 {
-    KeyTokenSymbol key;
-    ValueTokenSymbol expected;
-    ValueTokenSymbol replacement;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> expected;
+    ValueTokenSymbol<?> replacement;
     Token record;
 }
 {
@@ -850,8 +849,8 @@ void VerifyAndSwapCommand() #Command :
 
 void VerifyOrSetCommand() #Command :
 {
-    KeyTokenSymbol key;
-    ValueTokenSymbol value;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
     Token record;
 }
 {
@@ -904,7 +903,7 @@ void LinkOperations() : {}
 
 void LinkCommand() #Command :
 {
-    KeyTokenSymbol key;
+    KeyTokenSymbol<?> key;
     Token source;
     Token destination;
     Collection destinations = null;
@@ -928,7 +927,7 @@ void LinkCommand() #Command :
 
 void UnlinkCommand() #Command :
 {
-    KeyTokenSymbol key;
+    KeyTokenSymbol<?> key;
     Token source;
     Token destination;
     Collection destinations = null;
@@ -969,12 +968,12 @@ void QueryOperations() : {}
 
 void SelectCommand() #Command :
 {
-    KeyTokenSymbol key;
+    KeyTokenSymbol<?> key;
     Token record;
     TimestampSymbol timestamp = null;
 }
 {
-    <SELECT> key=Key() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+    <SELECT> key=Key() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
     {
         jjtThis.command(new SelectSymbol(key, Long.parseLong(record.image), timestamp));
     }
@@ -982,8 +981,8 @@ void SelectCommand() #Command :
 
 void FetchCommand() #Command :
 {
-    KeyTokenSymbol key;
-    Collection<KeySymbol> keys = null;
+    KeyTokenSymbol<?> key;
+    Collection<KeyTokenSymbol<?>> keys = null;
     Token record;
     Collection records = null;
     TimestampSymbol timestamp = null;
@@ -992,24 +991,24 @@ void FetchCommand() #Command :
     <FETCH>
     (
         LOOKAHEAD(3)
-        key=Key() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        key=Key() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
         {
             jjtThis.command(new FetchSymbol(key, Long.parseLong(record.image), timestamp));
         }
       |
         LOOKAHEAD(3)
-        key=Key() <FROM> records=RecordCollection() (timestamp=AsOfTimestamp())?
+        key=Key() <FROM> records=RecordCollection() (timestamp=Timestamp())?
         {
             jjtThis.command(new FetchSymbol(key, records, timestamp));
         }
       |
         LOOKAHEAD(3)
-        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
         {
             jjtThis.command(new FetchSymbol(keys, Long.parseLong(record.image), timestamp));
         }
       |
-        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=AsOfTimestamp())?
+        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=Timestamp())?
         {
             jjtThis.command(new FetchSymbol(keys, records, timestamp));
         }
@@ -1018,8 +1017,8 @@ void FetchCommand() #Command :
 
 void GetCommand() #Command :
 {
-    KeyTokenSymbol key;
-    Collection<KeySymbol> keys = null;
+    KeyTokenSymbol<?> key;
+    Collection<KeyTokenSymbol<?>> keys = null;
     Token record;
     Collection records = null;
     TimestampSymbol timestamp = null;
@@ -1028,24 +1027,24 @@ void GetCommand() #Command :
     <GET>
     (
         LOOKAHEAD(3)
-        key=Key() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        key=Key() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
         {
             jjtThis.command(new GetSymbol(key, Long.parseLong(record.image), timestamp));
         }
       |
         LOOKAHEAD(3)
-        key=Key() <FROM> records=RecordCollection() (timestamp=AsOfTimestamp())?
+        key=Key() <FROM> records=RecordCollection() (timestamp=Timestamp())?
         {
             jjtThis.command(new GetSymbol(key, records, timestamp));
         }
       |
         LOOKAHEAD(3)
-        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
         {
             jjtThis.command(new GetSymbol(keys, Long.parseLong(record.image), timestamp));
         }
       |
-        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=AsOfTimestamp())?
+        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=Timestamp())?
         {
             jjtThis.command(new GetSymbol(keys, records, timestamp));
         }
@@ -1062,12 +1061,12 @@ void DescribeCommand() #Command :
     <DESCRIBE>
     (
         LOOKAHEAD(2)
-        record=<NUMERIC> (timestamp=AsOfTimestamp())?
+        record=<NUMERIC> (timestamp=Timestamp())?
         {
             jjtThis.command(new DescribeSymbol(Long.parseLong(record.image), timestamp));
         }
       |
-        records=RecordCollection() (timestamp=AsOfTimestamp())?
+        records=RecordCollection() (timestamp=Timestamp())?
         {
             jjtThis.command(new DescribeSymbol(records, timestamp));
         }
@@ -1076,7 +1075,7 @@ void DescribeCommand() #Command :
 
 void AuditCommand() #Command :
 {
-    KeyTokenSymbol key = null;
+    KeyTokenSymbol<?> key = null;
     Token record;
 }
 {
@@ -1097,14 +1096,14 @@ void AuditCommand() #Command :
 
 void VerifyCommand() #Command :
 {
-    KeyTokenSymbol key;
-    ValueTokenSymbol value;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
     Token record;
     TimestampSymbol timestamp = null;
 }
 {
     <VERIFY> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
-    (timestamp=AsOfTimestamp())?
+    (timestamp=Timestamp())?
     {
         jjtThis.command(new VerifySymbol(key, value, Long.parseLong(record.image), timestamp));
     }
@@ -1112,7 +1111,7 @@ void VerifyCommand() #Command :
 
 void SearchCommand() #Command :
 {
-    KeyTokenSymbol key;
+    KeyTokenSymbol<?> key;
     Token query;
 }
 {
@@ -1156,9 +1155,9 @@ void AbortCommand() #Command : {}
 }
 
 void RevertCommand() #Command : {
-    KeyTokenSymbol key = null;
+    KeyTokenSymbol<?> key = null;
     Token record = null;
-    Collection<KeyTokenSymbol> keys = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
     Collection<Long> records = null;
     TimestampSymbol timestamp;
 }
@@ -1167,27 +1166,27 @@ void RevertCommand() #Command : {
     (
         LOOKAHEAD(3)
         key=Key() <IN> record=<NUMERIC>
-        <TO> timestamp=Timestamp()
+        timestamp=Timestamp()
         {
             jjtThis.command(new RevertSymbol(key, Long.parseLong(record.image), timestamp));
         }
       |
         LOOKAHEAD(3)
         key=Key() <IN> records=RecordCollection()
-        <TO> timestamp=Timestamp()
+        timestamp=Timestamp()
         {
             jjtThis.command(new RevertSymbol(key, records, timestamp));
         }
       |
         LOOKAHEAD(3)
         keys=KeyCollection() <IN> record=<NUMERIC>
-        <TO> timestamp=Timestamp()
+        timestamp=Timestamp()
         {
             jjtThis.command(new RevertSymbol(keys, Long.parseLong(record.image), timestamp));
         }
       |
         keys=KeyCollection() <IN> records=RecordCollection()
-        <TO> timestamp=Timestamp()
+        timestamp=Timestamp()
         {
             jjtThis.command(new RevertSymbol(keys, records, timestamp));
         }
@@ -1228,14 +1227,4 @@ String JsonObject() :
 {
     content=<QUOTED_STRING>
     { return content.image; }
-}
-
-TimestampSymbol AsOfTimestamp() :
-{
-    Token word;
-    String timestamp = "";
-}
-{
-    <AS_OF> (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
-    { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }

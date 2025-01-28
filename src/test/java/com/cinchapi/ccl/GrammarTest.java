@@ -15,30 +15,13 @@
  */
 package com.cinchapi.ccl;
 
-import com.cinchapi.ccl.generated.ASTFunction;
-import com.cinchapi.ccl.generated.ASTOrder;
-import com.cinchapi.ccl.generated.ASTPage;
-import com.cinchapi.ccl.generated.Grammar;
-import com.cinchapi.ccl.generated.GrammarVisitor;
-import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.FunctionTree;
-import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.generated.*;
+import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.ccl.generated.ASTAnd;
-import com.cinchapi.ccl.generated.ASTExpression;
-import com.cinchapi.ccl.generated.ASTOr;
-import com.cinchapi.ccl.generated.ASTStart;
-import com.cinchapi.ccl.generated.SimpleNode;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.junit.Test;
-
-import com.cinchapi.ccl.generated.ParseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -694,6 +677,222 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void testAddCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "add name as \"John Doe\" in 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testSetCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "set age as 25 in 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testRemoveCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "remove name from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testClearCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "clear [name, age] from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testInsertCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "insert \"{'name':'John'}\" into 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testVerifyAndSwapCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "verifyAndSwap name as \"John\" in 1 with \"Jane\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testVerifyOrSetCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "verifyOrSet name as \"John\" in 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testLinkCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "link friends from 1 to [2,3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testUnlinkCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "unlink friends from 1 to [2,3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testSelectCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "select age from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testSelectCommandWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "select age from 1 as of \"yesterday\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testFetchCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "fetch [name, age] from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testGetCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "get age from [1,2,3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testDescribeCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "describe 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testDescribeCommandWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "describe 1 as of \"yesterday\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testAuditCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "audit name from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testSearchCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "search name for \"John\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testStageCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "stage";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testCommitCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "commit";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testAbortCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "abort";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testRevertCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "revert name in 1 as of yesterday";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidAddCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "add name in 1"; // Missing "as" keyword
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidInsertCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "insert into 1"; // Missing JSON data
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidLinkCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "link friends from 1"; // Missing destination
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     /**
      * Constants
      */
@@ -759,6 +958,11 @@ public class GrammarTest {
         @Override
         public Object visit(ASTFunction node, Object data) {
             return new FunctionTree(node.function());
+        }
+
+        @Override
+        public Object visit(ASTCommand node, Object data) {
+            return new CommandTree(node.command(), null, null, null);
         }
     };
 

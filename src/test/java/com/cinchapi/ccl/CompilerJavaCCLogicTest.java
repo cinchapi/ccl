@@ -31,6 +31,7 @@ import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.command.*;
 import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
@@ -2249,6 +2250,307 @@ public class CompilerJavaCCLogicTest {
                         TimeUnit.MICROSECONDS),
                 TimeUnit.DAYS.convert(NaturalLanguage.parseMicros("1992-10-02"),
                         TimeUnit.MICROSECONDS));
+    }
+
+    @Test
+    public void testAddCommand() {
+        String ccl = "add name as \"John Doe\" in 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        AddSymbol command = (AddSymbol) rootNode.root();
+
+        Assert.assertEquals("ADD", command.type());
+        Assert.assertEquals("name", command.key().toString());
+        Assert.assertEquals("\"John Doe\"", command.value().toString());
+        Assert.assertEquals(1L, command.record());
+    }
+
+    @Test
+    public void testSetCommand() {
+        String ccl = "set age as 25 in 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        SetSymbol command = (SetSymbol) rootNode.root();
+
+        Assert.assertEquals("SET", command.type());
+        Assert.assertEquals("age", command.key().toString());
+        Assert.assertEquals("25", command.value().toString());
+        Assert.assertEquals(1L, command.record());
+    }
+
+    @Test
+    public void testRemoveCommand() {
+        String ccl = "remove name from 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        RemoveSymbol command = (RemoveSymbol) rootNode.root();
+
+        Assert.assertEquals("REMOVE", command.type());
+        Assert.assertEquals("name", command.key().toString());
+        Assert.assertNull(command.value());
+        Assert.assertEquals(1L, command.record());
+    }
+
+    @Test
+    public void testRemoveValueCommand() {
+        String ccl = "remove name as \"John Doe\" from 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        RemoveSymbol command = (RemoveSymbol) rootNode.root();
+
+        Assert.assertEquals("REMOVE", command.type());
+        Assert.assertEquals("name", command.key().toString());
+        Assert.assertEquals("\"John Doe\"", command.value().toString());
+        Assert.assertEquals(1L, command.record());
+    }
+
+    @Test
+    public void testClearCommand() {
+        String ccl = "clear name from 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        ClearSymbol command = (ClearSymbol) rootNode.root();
+
+        Assert.assertEquals("CLEAR", command.type());
+        Assert.assertEquals("name", command.key().toString());
+        Assert.assertEquals(1L, command.record());
+    }
+
+    @Test
+    public void testClearMultipleKeysCommand() {
+        String ccl = "clear [name, age] from 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        ClearSymbol command = (ClearSymbol) rootNode.root();
+
+        Assert.assertEquals("CLEAR", command.type());
+        Assert.assertNull(command.key());
+        Assert.assertEquals(2, command.keys().size());
+        Assert.assertEquals(1L, command.record());
+    }
+
+    @Test
+    public void testVerifyAndSwapCommand() {
+        String ccl = "verifyAndSwap name as John in 1 with Jane";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        VerifyAndSwapSymbol command = (VerifyAndSwapSymbol) rootNode.root();
+
+        Assert.assertEquals("VERIFY_AND_SWAP", command.type());
+        Assert.assertEquals("name", command.key().toString());
+        Assert.assertEquals("John", command.expected().toString());
+        Assert.assertEquals("Jane", command.replacement().toString());
+        Assert.assertEquals(1L, command.record());
+    }
+
+    @Test
+    public void testVerifyOrSetCommand() {
+        String ccl = "verifyOrSet name as John in 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        VerifyOrSetSymbol command = (VerifyOrSetSymbol) rootNode.root();
+
+        Assert.assertEquals("VERIFY_OR_SET", command.type());
+        Assert.assertEquals("name", command.key().toString());
+        Assert.assertEquals("John", command.value().toString());
+        Assert.assertEquals(1L, command.record());
+    }
+
+    @Test
+    public void testInsertCommand() {
+        String ccl = "insert \"{'name':'John'}\" in 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        InsertSymbol command = (InsertSymbol) rootNode.root();
+
+        Assert.assertEquals("INSERT", command.type());
+        Assert.assertEquals("\"{'name':'John'}\"", command.json());
+        Assert.assertEquals(1L, (long)command.record());
+    }
+
+    @Test
+    public void testLinkCommand() {
+        String ccl = "link friends from 1 to 2";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        LinkSymbol command = (LinkSymbol) rootNode.root();
+
+        Assert.assertEquals("LINK", command.type());
+        Assert.assertEquals("friends", command.key().toString());
+        Assert.assertEquals(1L, command.source());
+        Assert.assertEquals(1, command.destinations().size());
+        Assert.assertTrue(command.destinations().contains(2L));
+    }
+
+    @Test
+    public void testUnlinkCommand() {
+        String ccl = "unlink friends from 1 to [2,3]";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        UnlinkSymbol command = (UnlinkSymbol) rootNode.root();
+
+        Assert.assertEquals("UNLINK", command.type());
+        Assert.assertEquals("friends", command.key().toString());
+        Assert.assertEquals(1L, command.source());
+        Assert.assertEquals(2, command.destinations().size());
+        Assert.assertTrue(command.destinations().contains(2L));
+        Assert.assertTrue(command.destinations().contains(3L));
+    }
+
+    @Test
+    public void testSelectCommand() {
+        String ccl = "select age from 1";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        SelectSymbol command = (SelectSymbol) rootNode.root();
+
+        Assert.assertEquals("SELECT", command.type());
+        Assert.assertEquals("age", command.key().toString());
+        Assert.assertEquals(1L, command.record());
+        Assert.assertNull(command.timestamp());
+    }
+
+    @Test
+    public void testSelectCommandWithTimestamp() {
+        String ccl = "select age from 1 as of \"yesterday\"";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        SelectSymbol command = (SelectSymbol) rootNode.root();
+
+        Assert.assertEquals("SELECT", command.type());
+        Assert.assertEquals("age", command.key().toString());
+        Assert.assertEquals(1L, command.record());
+        Assert.assertNotNull(command.timestamp());
+    }
+
+    @Test
+    public void testRevertCommand() {
+        String ccl = "revert name in 1 as of yesterday";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        RevertSymbol command = (RevertSymbol) rootNode.root();
+
+        Assert.assertEquals("REVERT", command.type());
+        Assert.assertEquals("name", command.key().toString());
+        Assert.assertEquals(1L, command.record());
+        Assert.assertNotNull(command.timestamp());
+    }
+
+    @Test
+    public void testSearchCommand() {
+        String ccl = "search name for \"John\"";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+        SearchSymbol command = (SearchSymbol) rootNode.root();
+
+        Assert.assertEquals("SEARCH", command.type());
+        Assert.assertEquals("name", command.key().toString());
+        Assert.assertEquals("\"John\"", command.query());
     }
 
     @Test
