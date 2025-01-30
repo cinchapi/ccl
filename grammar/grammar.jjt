@@ -19,7 +19,6 @@ options {
     VISITOR=true;
     NODE_DEFAULT_VOID=true;
     STATIC=false;
-    DEBUG_LOOKAHEAD=true;
 }
 
 PARSER_BEGIN(Grammar)
@@ -254,10 +253,10 @@ TOKEN :
 
 ASTStart StartCommandLine() #Start : {}
 {
-   ( LOOKAHEAD(4)
+   (
      Command() "\n"
    |
-     LOOKAHEAD(3)
+     LOOKAHEAD(4)
      (<WHERE>)? DisjunctionExpression() (Order())? (Page())? "\n"
    |
      Page() "\n"
@@ -271,10 +270,10 @@ ASTStart StartCommandLine() #Start : {}
 
 ASTStart generateAST() #Start : {}
 {
-   ( LOOKAHEAD(4)
+   (
      Command() <EOF>
    |
-     LOOKAHEAD(3)
+     LOOKAHEAD(4)
      (<WHERE>)? DisjunctionExpression() (Order())? (Page())? <EOF>
    |
      Page() <EOF>
