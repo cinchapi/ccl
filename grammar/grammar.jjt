@@ -19,6 +19,7 @@ options {
     VISITOR=true;
     NODE_DEFAULT_VOID=true;
     STATIC=false;
+    DEBUG_LOOKAHEAD=true;
 }
 
 PARSER_BEGIN(Grammar)
@@ -162,7 +163,7 @@ TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN : { < OPEN_BRACKET : "[" > }
 TOKEN : { < CLOSE_BRACKET : "]" > }
-TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" | "as of" > }
+TOKEN [IGNORE_CASE]: {< TIMESTAMP: "at" | "on" | "during" | "as of" > }
 TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
 TOKEN [IGNORE_CASE]: { < RESERVED_IDENTIFIER: "$id$" > }
 
@@ -533,7 +534,7 @@ TimestampSymbol Timestamp() :
   String timestamp = "";
 }
 {
-  <TIMESTAMP> (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP> | <IN>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
@@ -594,6 +595,7 @@ OrderComponentSymbol OrderClause() :
     DirectionSymbol direction = null;
 }
 {
+
   ((
     direction=SymbolicDirection() key=Key()
   |

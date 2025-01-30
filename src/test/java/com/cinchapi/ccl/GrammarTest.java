@@ -668,8 +668,68 @@ public class GrammarTest {
     }
 
     @Test
-    public void testIndexFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
+    public void testIndexFunctionWithTimestamp2() throws UnsupportedEncodingException, ParseException {
         String ccl = "avg(age, at today)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testOrderByTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "order by > age in 1992-10-02";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyMultiRecordsFunctionWithTimestamp2() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, [1,2,3,5,11], in 1992-10-02)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testImplicitKeyRecordFunction() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age | avg";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testKeyCclFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, age > 3, in 1992-10-02)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testImplicitKeyRecordFunctionTokenize() throws UnsupportedEncodingException, ParseException {
+        String ccl = "age | avg";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testIndexFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, in 1992-10-02)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
