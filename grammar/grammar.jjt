@@ -149,6 +149,7 @@ TOKEN [IGNORE_CASE]:
 | < INTO: "into" >
 | < FROM: "from" >
 | < TO: "to" >
+| < AS_OF: "as of" >
 | < AS: "as" >
 | < FOR: "for" >
 | < WITH: "with" >
@@ -162,7 +163,7 @@ TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN : { < OPEN_BRACKET : "[" > }
 TOKEN : { < CLOSE_BRACKET : "]" > }
-TOKEN [IGNORE_CASE]: {< TIMESTAMP: "at" | "on" | "during" | "as of" > }
+TOKEN [IGNORE_CASE]: {< TIMESTAMP: "at" | "on" | "during" > }
 TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
 TOKEN [IGNORE_CASE]: { < RESERVED_IDENTIFIER: "$id$" > }
 
@@ -534,6 +535,16 @@ TimestampSymbol Timestamp() :
 }
 {
   (<TIMESTAMP> | <IN>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+}
+
+TimestampSymbol TimestampReadingCommand() :
+{
+  Token word;
+  String timestamp = "";
+}
+{
+  (<TIMESTAMP> | <IN> | <AS_OF>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
@@ -974,7 +985,7 @@ void SelectCommand() #Command :
     TimestampSymbol timestamp = null;
 }
 {
-    <SELECT> key=Key() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
+    <SELECT> key=Key() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
     {
         jjtThis.command(new SelectSymbol(key, Long.parseLong(record.image), timestamp));
     }
@@ -992,24 +1003,24 @@ void FetchCommand() #Command :
     <FETCH>
     (
         LOOKAHEAD(3)
-        key=Key() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
+        key=Key() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new FetchSymbol(key, Long.parseLong(record.image), timestamp));
         }
       |
         LOOKAHEAD(3)
-        key=Key() <FROM> records=RecordCollection() (timestamp=Timestamp())?
+        key=Key() <FROM> records=RecordCollection() (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new FetchSymbol(key, records, timestamp));
         }
       |
         LOOKAHEAD(3)
-        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
+        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new FetchSymbol(keys, Long.parseLong(record.image), timestamp));
         }
       |
-        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=Timestamp())?
+        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new FetchSymbol(keys, records, timestamp));
         }
@@ -1028,24 +1039,24 @@ void GetCommand() #Command :
     <GET>
     (
         LOOKAHEAD(3)
-        key=Key() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
+        key=Key() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new GetSymbol(key, Long.parseLong(record.image), timestamp));
         }
       |
         LOOKAHEAD(3)
-        key=Key() <FROM> records=RecordCollection() (timestamp=Timestamp())?
+        key=Key() <FROM> records=RecordCollection() (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new GetSymbol(key, records, timestamp));
         }
       |
         LOOKAHEAD(3)
-        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=Timestamp())?
+        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new GetSymbol(keys, Long.parseLong(record.image), timestamp));
         }
       |
-        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=Timestamp())?
+        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new GetSymbol(keys, records, timestamp));
         }
@@ -1062,12 +1073,12 @@ void DescribeCommand() #Command :
     <DESCRIBE>
     (
         LOOKAHEAD(2)
-        record=<NUMERIC> (timestamp=Timestamp())?
+        record=<NUMERIC> (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new DescribeSymbol(Long.parseLong(record.image), timestamp));
         }
       |
-        records=RecordCollection() (timestamp=Timestamp())?
+        records=RecordCollection() (timestamp=TimestampReadingCommand())?
         {
             jjtThis.command(new DescribeSymbol(records, timestamp));
         }
@@ -1104,7 +1115,7 @@ void VerifyCommand() #Command :
 }
 {
     <VERIFY> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
-    (timestamp=Timestamp())?
+    (timestamp=TimestampReadingCommand())?
     {
         jjtThis.command(new VerifySymbol(key, value, Long.parseLong(record.image), timestamp));
     }
@@ -1167,27 +1178,27 @@ void RevertCommand() #Command : {
     (
         LOOKAHEAD(3)
         key=Key() <IN> record=<NUMERIC>
-        timestamp=Timestamp()
+        timestamp=TimestampReadingCommand()
         {
             jjtThis.command(new RevertSymbol(key, Long.parseLong(record.image), timestamp));
         }
       |
         LOOKAHEAD(3)
         key=Key() <IN> records=RecordCollection()
-        timestamp=Timestamp()
+        timestamp=TimestampReadingCommand()
         {
             jjtThis.command(new RevertSymbol(key, records, timestamp));
         }
       |
         LOOKAHEAD(3)
         keys=KeyCollection() <IN> record=<NUMERIC>
-        timestamp=Timestamp()
+        timestamp=TimestampReadingCommand()
         {
             jjtThis.command(new RevertSymbol(keys, Long.parseLong(record.image), timestamp));
         }
       |
         keys=KeyCollection() <IN> records=RecordCollection()
-        timestamp=Timestamp()
+        timestamp=TimestampReadingCommand()
         {
             jjtThis.command(new RevertSymbol(keys, records, timestamp));
         }

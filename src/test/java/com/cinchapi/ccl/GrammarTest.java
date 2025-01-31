@@ -577,6 +577,16 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test(expected = ParseException.class)
+    public void testKeyWithStringTimestampAscendingException() throws UnsupportedEncodingException, ParseException {
+        String input = ORDER + " < age as of \"1992-10-02\"";
+
+        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     @Test
     public void testKeyWithNumberTimestampDescending() throws UnsupportedEncodingException, ParseException {
         String input = ORDER + " > age at " + String.valueOf(122L);
