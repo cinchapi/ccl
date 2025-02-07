@@ -25,36 +25,48 @@ public class GetSymbol implements CommandSymbol {
     private final TimestampSymbol timestamp;
 
     /**
-     * Construct a new instance for single key and record.
+     * Construct a new instance for keys with optional where clause and timestamp.
      */
-    public GetSymbol(KeyTokenSymbol<?> key, long record, @Nullable TimestampSymbol timestamp) {
-        this(key, null, record, null, timestamp);
+    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, TimestampSymbol timestamp) {
+        this(null, keys, -1, null, timestamp);
     }
 
     /**
-     * Construct a new instance for multiple keys and single record.
+     * Construct a new instance for single key and record.
      */
-    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, long record, @Nullable TimestampSymbol timestamp) {
-        this(null, keys, record, null, timestamp);
+    public GetSymbol(KeyTokenSymbol<?> key, long record, TimestampSymbol timestamp) {
+        this(key, null, record, null, timestamp);
     }
 
     /**
      * Construct a new instance for single key and multiple records.
      */
-    public GetSymbol(KeyTokenSymbol<?> key, Collection<Long> records, @Nullable TimestampSymbol timestamp) {
+    public GetSymbol(KeyTokenSymbol<?> key, Collection<Long> records, TimestampSymbol timestamp) {
         this(key, null, -1, records, timestamp);
+    }
+
+    /**
+     * Construct a new instance for multiple keys and single record.
+     */
+    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, long record, TimestampSymbol timestamp) {
+        this(null, keys, record, null, timestamp);
     }
 
     /**
      * Construct a new instance for multiple keys and records.
      */
-    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, Collection<Long> records,
-                     @Nullable TimestampSymbol timestamp) {
+    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, Collection<Long> records, TimestampSymbol timestamp) {
         this(null, keys, -1, records, timestamp);
     }
 
-    private GetSymbol(@Nullable KeyTokenSymbol<?> key, @Nullable Collection<KeyTokenSymbol<?>> keys,
-                      long record, @Nullable Collection<Long> records, @Nullable TimestampSymbol timestamp) {
+    /**
+     * Comprehensive constructor to handle all variations.
+     */
+    private GetSymbol(KeyTokenSymbol<?> key,
+                      Collection<KeyTokenSymbol<?>> keys,
+                      long record,
+                      Collection<Long> records,
+                      TimestampSymbol timestamp) {
         this.key = key;
         this.keys = keys;
         this.record = record;
@@ -67,40 +79,25 @@ public class GetSymbol implements CommandSymbol {
         return "GET";
     }
 
-    /**
-     * Return the key to get, if operating on a single key.
-     */
     @Nullable
     public KeyTokenSymbol<?> key() {
         return key;
     }
 
-    /**
-     * Return the keys to get, if operating on multiple keys.
-     */
     @Nullable
     public Collection<KeyTokenSymbol<?>> keys() {
         return keys;
     }
 
-    /**
-     * Return the record identifier, if operating on a single record.
-     */
     public long record() {
         return record;
     }
 
-    /**
-     * Return the record identifiers, if operating on multiple records.
-     */
     @Nullable
     public Collection<Long> records() {
         return records;
     }
 
-    /**
-     * Return the timestamp for historical get.
-     */
     @Nullable
     public TimestampSymbol timestamp() {
         return timestamp;

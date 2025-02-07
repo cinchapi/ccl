@@ -37,7 +37,7 @@ public class DescribeSymbol implements CommandSymbol {
 
     private DescribeSymbol(long record, @Nullable Collection<Long> records,
                            @Nullable TimestampSymbol timestamp) {
-        this.record = record;
+        this.record = record == -1 ? 0 : record;
         this.records = records;
         this.timestamp = timestamp;
     }

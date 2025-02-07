@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
  * parsing a command.
  */
 public class CommandTree extends BaseAbstractSyntaxTree {
-
     private CommandSymbol command;
     private ConditionTree conditionTree;
     private PageTree pageTree;

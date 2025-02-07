@@ -13,6 +13,8 @@ import javax.annotation.Nullable;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 
+import java.util.Collection;
+
 /**
  * A {@link CommandSymbol} that represents a REMOVE command.
  */
@@ -20,9 +22,11 @@ public class RemoveSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final ValueTokenSymbol<?> value;
     private final long record;
+    private final Collection<Long> records;
+    private final boolean isMultiRecord;
 
     /**
-     * Construct a new instance.
+     * Construct a new instance for single record removal.
      *
      * @param key the key to remove
      * @param value the value to remove, if specified
@@ -32,6 +36,23 @@ public class RemoveSymbol implements CommandSymbol {
         this.key = key;
         this.value = value;
         this.record = record;
+        this.records = null;
+        this.isMultiRecord = false;
+    }
+
+    /**
+     * Construct a new instance for multiple record removal.
+     *
+     * @param key the key to remove
+     * @param value the value to remove, if specified
+     * @param records a collection of record identifiers
+     */
+    public RemoveSymbol(KeyTokenSymbol<?> key, @Nullable ValueTokenSymbol<?> value, Collection<Long> records) {
+        this.key = key;
+        this.value = value;
+        this.record = -1;
+        this.records = records;
+        this.isMultiRecord = true;
     }
 
     @Override
@@ -41,6 +62,8 @@ public class RemoveSymbol implements CommandSymbol {
 
     /**
      * Return the key to remove.
+     *
+     * @return the key symbol
      */
     public KeyTokenSymbol<?> key() {
         return key;
@@ -48,6 +71,8 @@ public class RemoveSymbol implements CommandSymbol {
 
     /**
      * Return the value to remove, if specified.
+     *
+     * @return the value symbol or null if not specified
      */
     @Nullable
     public ValueTokenSymbol<?> value() {
@@ -55,9 +80,31 @@ public class RemoveSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the record identifier.
+     * Return the record identifier for single record operations.
+     * Returns -1 if this is a multi-record operation.
+     *
+     * @return the record id
      */
     public long record() {
         return record;
+    }
+
+    /**
+     * Return the collection of record identifiers for multi-record operations.
+     * Returns null if this is a single record operation.
+     *
+     * @return the collection of record ids
+     */
+    public Collection<Long> records() {
+        return records;
+    }
+
+    /**
+     * Indicates whether this is a multi-record operation.
+     *
+     * @return true if operating on multiple records, false otherwise
+     */
+    public boolean isMultiRecord() {
+        return isMultiRecord;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Cinchapi Inc.
+ * Copyright (c) 2013-2024 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -9,6 +9,8 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
+import java.util.Collection;
+import javax.annotation.Nullable;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 
@@ -18,10 +20,24 @@ import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 public class AddSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final ValueTokenSymbol<?> value;
-    private final long record;
+    private final Long record;
+    private final Collection<Long> records;
 
     /**
-     * Construct a new instance.
+     * Construct a new instance for adding to a new record.
+     *
+     * @param key the key to add
+     * @param value the value to add
+     */
+    public AddSymbol(KeyTokenSymbol<?> key, ValueTokenSymbol<?> value) {
+        this.key = key;
+        this.value = value;
+        this.record = null;
+        this.records = null;
+    }
+
+    /**
+     * Construct a new instance for adding to a specific record.
      *
      * @param key the key to add
      * @param value the value to add
@@ -31,6 +47,21 @@ public class AddSymbol implements CommandSymbol {
         this.key = key;
         this.value = value;
         this.record = record;
+        this.records = null;
+    }
+
+    /**
+     * Construct a new instance for adding to multiple records.
+     *
+     * @param key the key to add
+     * @param value the value to add
+     * @param records collection of record identifiers
+     */
+    public AddSymbol(KeyTokenSymbol<?> key, ValueTokenSymbol<?> value, Collection<Long> records) {
+        this.key = key;
+        this.value = value;
+        this.record = null;
+        this.records = records;
     }
 
     @Override
@@ -53,9 +84,20 @@ public class AddSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the record identifier.
+     * Return the record identifier if adding to a single record.
+     * Returns null if adding to a new record or multiple records.
      */
-    public long record() {
+    @Nullable
+    public Long record() {
         return record;
+    }
+
+    /**
+     * Return the collection of record identifiers if adding to multiple records.
+     * Returns null if adding to a new record or single record.
+     */
+    @Nullable
+    public Collection<Long> records() {
+        return records;
     }
 }

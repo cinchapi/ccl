@@ -45,6 +45,7 @@ import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
@@ -100,6 +101,17 @@ public class Grammar {
     public Object transformValue(String token) {
         return valueTransformFunction.apply(token);
     }
+
+    private boolean isValidJson(String json) {
+        // Basic JSON validation
+        int braceCount = 0;
+        for(char c : json.toCharArray()) {
+            if(c == '{') braceCount++;
+            if(c == '}') braceCount--;
+            if(braceCount < 0) return false;
+        }
+        return braceCount == 0;
+    }
 }
 
 PARSER_END(Grammar)
@@ -112,8 +124,8 @@ SKIP :
   "\t"
 }
 
-TOKEN [IGNORE_CASE]:
-{
+// Token definitions
+TOKEN [IGNORE_CASE] : {
   // Data modification commands
   < ADD: "add" >
 | < SET: "set" >
@@ -131,20 +143,31 @@ TOKEN [IGNORE_CASE]:
 
   // Query operations
 | < SELECT: "select" >
-| < FETCH: "fetch" >
 | < GET: "get" >
+| < FIND: "find" >
 | < DESCRIBE: "describe" >
-| < AUDIT: "audit" >
 | < VERIFY: "verify" >
 | < SEARCH: "search" >
+| < BROWSE: "browse" >
+| < CHRONOLOGIZE: "chronologize" >
+| < DIFF: "diff" >
+| < INVENTORY: "inventory" >
+| < JSONIFY: "jsonify" >
+| < NAVIGATE: "navigate" >
+| < RECONCILE: "reconcile" >
+| < REVIEW: "review" >
+| < TRACE: "trace" >
+| < CALCULATE: "calculate" >
 
   // Transaction operations
 | < STAGE: "stage" >
 | < COMMIT: "commit" >
 | < ABORT: "abort" >
 
-  // Other tokens needed for command syntax
+  // Revert operation
 | < REVERT: "revert" >
+
+  // Other keywords
 | < IN: "in" >
 | < INTO: "into" >
 | < FROM: "from" >
@@ -322,13 +345,13 @@ void RelationalExpression() #Expression :
 {
     key=Key()
       (
-        operator=LinksToOperator() value1=LinksToValue() (timestamp=Timestamp())?
+        operator=LinksToOperator() value1=LinksToValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=RegexBasedOperator() value1=RegexValue() (timestamp=Timestamp())?
+        operator=RegexBasedOperator() value1=RegexValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=UnaryOperator() value1=UnaryValue() (timestamp=Timestamp())?
+        operator=UnaryOperator() value1=UnaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (timestamp=Timestamp())?
+        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       ) { jjtThis.key(key);
           jjtThis.operator(operator);
           jjtThis.addValue(value1);
@@ -538,7 +561,7 @@ TimestampSymbol Timestamp() :
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
-TimestampSymbol TimestampReadingCommand() :
+TimestampSymbol TimestampReadCommand() :
 {
   Token word;
   String timestamp = "";
@@ -740,112 +763,128 @@ FunctionValueSymbol ValueFunction() :
    )
 }
 
-void Command() : {}
+void Command() #Command : {
+    CommandSymbol cmd;
+}
 {
-      DataModificationOperations()
-    |
-      RecordOperations()
-    |
-      LinkOperations()
-    |
-      QueryOperations()
-    |
-      TransactionOperations()
-    |
-      RevertCommand()
+    (
+        cmd = DataModificationOperations()
+      |
+        cmd = RecordOperations()
+      |
+        cmd = LinkOperations()
+      |
+        cmd = QueryOperations()
+      |
+        cmd = TransactionOperations()
+      |
+        cmd = RevertCommand()
+    )
+    { jjtThis.command(cmd); }
 }
 
-void DataModificationOperations() : {}
+CommandSymbol DataModificationOperations() : {
+    CommandSymbol cmd;
+}
 {
-    AddCommand()
-  |
-    SetCommand()
-  |
-    RemoveCommand()
-  |
-    ClearCommand()
-  |
-    VerifyAndSwapCommand()
-  |
-    VerifyOrSetCommand()
+    (
+        cmd = AddCommand()
+      |
+        cmd = SetCommand()
+      |
+        cmd = RemoveCommand()
+      |
+        cmd = ClearCommand()
+      |
+        cmd = VerifyAndSwapCommand()
+      |
+        cmd = VerifyOrSetCommand()
+    )
+    { return cmd; }
 }
 
-void AddCommand() #Command :
-{
+CommandSymbol AddCommand() : {
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value;
-    Token record;
+    Token record = null;
+    Collection records = null;
 }
 {
-    <ADD> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
-    {
-        jjtThis.command(new AddSymbol(key, value, Long.parseLong(record.image)));
-    }
+    <ADD> key=Key() <AS> value=UnaryValue()
+    (
+        (<IN>
+        (
+            record=<NUMERIC>
+            { return new AddSymbol(key, value, Long.parseLong(record.image)); }
+          |
+            records=RecordCollection()
+            { return new AddSymbol(key, value, records); }
+        ))?
+    )
+    { return new AddSymbol(key, value); }
 }
 
-void SetCommand() #Command :
-{
+CommandSymbol SetCommand() : {
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value;
     Token record;
 }
 {
     <SET> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
-    {
-        jjtThis.command(new SetSymbol(key, value, Long.parseLong(record.image)));
-    }
+    { return new SetSymbol(key, value, Long.parseLong(record.image)); }
 }
 
-void RemoveCommand() #Command :
-{
+CommandSymbol RemoveCommand() : {
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value = null;
     Token record;
+    Collection records = null;
 }
 {
-    <REMOVE> key=Key() (<AS> value=UnaryValue())? (<FROM> | <IN>) record=<NUMERIC>
-    {
-        jjtThis.command(new RemoveSymbol(key, value, Long.parseLong(record.image)));
-    }
+    <REMOVE> key=Key() (<AS> value=UnaryValue())? (<FROM> | <IN>)
+    (
+        record=<NUMERIC> { return new RemoveSymbol(key, value, Long.parseLong(record.image)); }
+      |
+        records=RecordCollection() { return new RemoveSymbol(key, value, records); }
+    )
 }
 
-void ClearCommand() #Command :
-{
+CommandSymbol ClearCommand() : {
     KeyTokenSymbol<?> key = null;
-    Token record;
     Collection<KeyTokenSymbol<?>> keys = null;
+    Token record = null;
     Collection records = null;
 }
 {
     <CLEAR>
     (
+        LOOKAHEAD(2)
+        record=<NUMERIC>
+        { return new ClearSymbol((KeyTokenSymbol<?>)null, Long.parseLong(record.image)); }
+      |
+        LOOKAHEAD(3)
+        records=RecordCollection()
+        { return new ClearSymbol((KeyTokenSymbol<?>)null, records); }
+      |
         LOOKAHEAD(3)
         key=Key() <FROM> record=<NUMERIC>
-        {
-            jjtThis.command(new ClearSymbol(key, Long.parseLong(record.image)));
-        }
+        { return new ClearSymbol(key, Long.parseLong(record.image)); }
       |
         LOOKAHEAD(3)
         key=Key() <FROM> records=RecordCollection()
-        {
-            jjtThis.command(new ClearSymbol(key, records));
-        }
+        { return new ClearSymbol(key, records); }
       |
-        LOOKAHEAD(3)
+        LOOKAHEAD(7)
         keys=KeyCollection() <FROM> record=<NUMERIC>
-        {
-            jjtThis.command(new ClearSymbol(keys, Long.parseLong(record.image)));
-        }
+        { return new ClearSymbol(keys, Long.parseLong(record.image)); }
       |
+        LOOKAHEAD(7)
         keys=KeyCollection() <FROM> records=RecordCollection()
-        {
-            jjtThis.command(new ClearSymbol(keys, records));
-        }
+        { return new ClearSymbol(keys, records); }
     )
 }
 
-void VerifyAndSwapCommand() #Command :
-{
+CommandSymbol VerifyAndSwapCommand() : {
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> expected;
     ValueTokenSymbol<?> replacement;
@@ -854,67 +893,66 @@ void VerifyAndSwapCommand() #Command :
 {
     <VERIFY_AND_SWAP> key=Key() <AS> expected=UnaryValue() <IN> record=<NUMERIC>
     <WITH> replacement=UnaryValue()
-    {
-        jjtThis.command(new VerifyAndSwapSymbol(key, expected, replacement, Long.parseLong(record.image)));
-    }
+    { return new VerifyAndSwapSymbol(key, expected, replacement, Long.parseLong(record.image)); }
 }
 
-void VerifyOrSetCommand() #Command :
-{
+CommandSymbol VerifyOrSetCommand() : {
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value;
     Token record;
 }
 {
     <VERIFY_OR_SET> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
-    {
-        jjtThis.command(new VerifyOrSetSymbol(key, value, Long.parseLong(record.image)));
-    }
+    { return new VerifyOrSetSymbol(key, value, Long.parseLong(record.image)); }
 }
 
-void RecordOperations() : {}
+CommandSymbol RecordOperations() : {
+    CommandSymbol cmd;
+}
 {
-    InsertCommand()
+    cmd = InsertCommand()
+    { return cmd; }
 }
 
-void InsertCommand() #Command :
-{
+CommandSymbol InsertCommand() : {
     String json;
     Token record = null;
     Collection records = null;
 }
 {
     <INSERT> json=JsonObject()
+    {
+        // Basic JSON validation
+        if(!isValidJson(json)) {
+            throw new ParseException("Malformed JSON");
+        }
+    }
     (
         (<IN> | <INTO>)
         (
             record=<NUMERIC>
-            {
-                jjtThis.command(new InsertSymbol(json, Long.parseLong(record.image)));
-            }
+            { return new InsertSymbol(json, Long.parseLong(record.image)); }
           |
             records=RecordCollection()
-            {
-                jjtThis.command(new InsertSymbol(json, records));
-            }
+            { return new InsertSymbol(json, records); }
         )
     )?
-    {
-        if(record == null && records == null) {
-            jjtThis.command(new InsertSymbol(json));
-        }
-    }
+    { return new InsertSymbol(json); }
 }
 
-void LinkOperations() : {}
+CommandSymbol LinkOperations() : {
+    CommandSymbol cmd;
+}
 {
-    LinkCommand()
-  |
-    UnlinkCommand()
+    (
+        cmd = LinkCommand()
+      |
+        cmd = UnlinkCommand()
+    )
+    { return cmd; }
 }
 
-void LinkCommand() #Command :
-{
+CommandSymbol LinkCommand() : {
     KeyTokenSymbol<?> key;
     Token source;
     Token destination;
@@ -927,18 +965,15 @@ void LinkCommand() #Command :
         {
             Collection dest = new ArrayList();
             dest.add(Long.parseLong(destination.image));
-            jjtThis.command(new LinkSymbol(key, Long.parseLong(source.image), dest));
+            return new LinkSymbol(key, Long.parseLong(source.image), dest);
         }
       |
         destinations=RecordCollection()
-        {
-            jjtThis.command(new LinkSymbol(key, Long.parseLong(source.image), destinations));
-        }
+        { return new LinkSymbol(key, Long.parseLong(source.image), destinations); }
     )
 }
 
-void UnlinkCommand() #Command :
-{
+CommandSymbol UnlinkCommand() : {
     KeyTokenSymbol<?> key;
     Token source;
     Token destination;
@@ -951,121 +986,138 @@ void UnlinkCommand() #Command :
         {
             Collection dest = new ArrayList();
             dest.add(Long.parseLong(destination.image));
-            jjtThis.command(new UnlinkSymbol(key, Long.parseLong(source.image), dest));
+            return new UnlinkSymbol(key, Long.parseLong(source.image), dest);
         }
       |
         destinations=RecordCollection()
-        {
-            jjtThis.command(new UnlinkSymbol(key, Long.parseLong(source.image), destinations));
-        }
+        { return new UnlinkSymbol(key, Long.parseLong(source.image), destinations); }
     )
 }
 
-void QueryOperations() : {}
-{
-    SelectCommand()
-  |
-    FetchCommand()
-  |
-    GetCommand()
-  |
-    DescribeCommand()
-  |
-    AuditCommand()
-  |
-    VerifyCommand()
-  |
-    SearchCommand()
-}
-
-void SelectCommand() #Command :
-{
-    KeyTokenSymbol<?> key;
-    Token record;
-    TimestampSymbol timestamp = null;
+CommandSymbol QueryOperations() : {
+    CommandSymbol cmd;
 }
 {
-    <SELECT> key=Key() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
-    {
-        jjtThis.command(new SelectSymbol(key, Long.parseLong(record.image), timestamp));
-    }
-}
-
-void FetchCommand() #Command :
-{
-    KeyTokenSymbol<?> key;
-    Collection<KeyTokenSymbol<?>> keys = null;
-    Token record;
-    Collection records = null;
-    TimestampSymbol timestamp = null;
-}
-{
-    <FETCH>
     (
-        LOOKAHEAD(3)
-        key=Key() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
+        cmd = SelectCommand()
+      |
+        cmd = GetCommand()
+      |
+        cmd = FindCommand()
+      |
+        cmd = DescribeCommand()
+      |
+        cmd = VerifyCommand()
+      |
+        cmd = SearchCommand()
+      |
+        cmd = BrowseCommand()
+      |
+        cmd = ChronologizeCommand()
+      |
+        cmd = DiffCommand()
+      |
+        cmd = InventoryCommand()
+      |
+        cmd = JsonifyCommand()
+      |
+        cmd = NavigateCommand()
+      |
+        cmd = ReconcileCommand()
+      |
+        cmd = ReviewCommand()
+      |
+        cmd = TraceCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol SelectCommand() : {
+    Collection<KeyTokenSymbol<?>> keys = null;
+    KeyTokenSymbol<?> key = null;
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <SELECT>
+    (
+        LOOKAHEAD(2)
+        keys=KeyCollection()
+      |
+        key=Key() {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
+    )
+    (
+        LOOKAHEAD(2)
+        <FROM> record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
         {
-            jjtThis.command(new FetchSymbol(key, Long.parseLong(record.image), timestamp));
+            return new SelectSymbol(keys, Long.parseLong(record.image), timestamp);
         }
       |
-        LOOKAHEAD(3)
-        key=Key() <FROM> records=RecordCollection() (timestamp=TimestampReadingCommand())?
+        LOOKAHEAD(2)
+        <FROM> records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
         {
-            jjtThis.command(new FetchSymbol(key, records, timestamp));
+            return new SelectSymbol(keys, records, timestamp);
         }
       |
-        LOOKAHEAD(3)
-        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
+        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
         {
-            jjtThis.command(new FetchSymbol(keys, Long.parseLong(record.image), timestamp));
-        }
-      |
-        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=TimestampReadingCommand())?
-        {
-            jjtThis.command(new FetchSymbol(keys, records, timestamp));
+            return new SelectSymbol(keys, timestamp);
         }
     )
 }
 
-void GetCommand() #Command :
-{
-    KeyTokenSymbol<?> key;
+CommandSymbol GetCommand() : {
+    KeyTokenSymbol<?> key = null;
     Collection<KeyTokenSymbol<?>> keys = null;
-    Token record;
+    Token record = null;
     Collection records = null;
     TimestampSymbol timestamp = null;
 }
 {
     <GET>
     (
-        LOOKAHEAD(3)
-        key=Key() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
-        {
-            jjtThis.command(new GetSymbol(key, Long.parseLong(record.image), timestamp));
-        }
+        LOOKAHEAD(7)
+        keys=KeyCollection() <WHERE> (DisjunctionExpression())? (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        { return new GetSymbol(keys, timestamp); }
       |
         LOOKAHEAD(3)
-        key=Key() <FROM> records=RecordCollection() (timestamp=TimestampReadingCommand())?
-        {
-            jjtThis.command(new GetSymbol(key, records, timestamp));
-        }
+        key=Key() <FROM> record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        { return new GetSymbol(key, Long.parseLong(record.image), timestamp); }
       |
         LOOKAHEAD(3)
-        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=TimestampReadingCommand())?
-        {
-            jjtThis.command(new GetSymbol(keys, Long.parseLong(record.image), timestamp));
-        }
+        key=Key() <FROM> records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        { return new GetSymbol(key, records, timestamp); }
       |
-        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=TimestampReadingCommand())?
-        {
-            jjtThis.command(new GetSymbol(keys, records, timestamp));
-        }
+        LOOKAHEAD(7)
+        keys=KeyCollection() <FROM> record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        { return new GetSymbol(keys, Long.parseLong(record.image), timestamp); }
+      |
+        LOOKAHEAD(3)
+        keys=KeyCollection() <FROM> records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        { return new GetSymbol(keys, records, timestamp); }
     )
 }
 
-void DescribeCommand() #Command :
+CommandSymbol FindCommand() : {
+    TimestampSymbol timestamp = null;
+}
 {
-    Token record;
+    <FIND>
+    DisjunctionExpression()
+    (timestamp=TimestampReadCommand())?
+    (Order())?
+    (Page())?
+    {
+        return new FindSymbol(timestamp);
+    }
+}
+
+CommandSymbol DescribeCommand() : {
+    Token record = null;
     Collection records = null;
     TimestampSymbol timestamp = null;
 }
@@ -1073,41 +1125,17 @@ void DescribeCommand() #Command :
     <DESCRIBE>
     (
         LOOKAHEAD(2)
-        record=<NUMERIC> (timestamp=TimestampReadingCommand())?
-        {
-            jjtThis.command(new DescribeSymbol(Long.parseLong(record.image), timestamp));
-        }
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        { return new DescribeSymbol(Long.parseLong(record.image), timestamp); }
       |
-        records=RecordCollection() (timestamp=TimestampReadingCommand())?
-        {
-            jjtThis.command(new DescribeSymbol(records, timestamp));
-        }
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        { return new DescribeSymbol(records, timestamp); }
+      |
+        { return new DescribeSymbol(-1, null); }
     )
 }
 
-void AuditCommand() #Command :
-{
-    KeyTokenSymbol<?> key = null;
-    Token record;
-}
-{
-    <AUDIT>
-    (
-        LOOKAHEAD(2)
-        key=Key() <FROM> record=<NUMERIC>
-        {
-            jjtThis.command(new AuditSymbol(key, Long.parseLong(record.image)));
-        }
-      |
-        record=<NUMERIC>
-        {
-            jjtThis.command(new AuditSymbol(null, Long.parseLong(record.image)));
-        }
-    )
-}
-
-void VerifyCommand() #Command :
-{
+CommandSymbol VerifyCommand() : {
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value;
     Token record;
@@ -1115,58 +1143,203 @@ void VerifyCommand() #Command :
 }
 {
     <VERIFY> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
-    (timestamp=TimestampReadingCommand())?
-    {
-        jjtThis.command(new VerifySymbol(key, value, Long.parseLong(record.image), timestamp));
-    }
+    (timestamp=TimestampReadCommand())?
+    { return new VerifySymbol(key, value, Long.parseLong(record.image), timestamp); }
 }
 
-void SearchCommand() #Command :
-{
+CommandSymbol SearchCommand() : {
     KeyTokenSymbol<?> key;
     Token query;
 }
 {
     <SEARCH> key=Key() <FOR> query=<QUOTED_STRING>
-    {
-        jjtThis.command(new SearchSymbol(key, query.image));
-    }
+    { return new SearchSymbol(key, query.image); }
 }
 
-void TransactionOperations() : {}
+CommandSymbol BrowseCommand() : {
+    Collection<KeyTokenSymbol<?>> keys;
+    TimestampSymbol timestamp = null;
+}
 {
-    StageCommand()
-  |
-    CommitCommand()
-  |
-    AbortCommand()
+    <BROWSE> keys=KeyCollection() (timestamp=TimestampReadCommand())?
+    { return new BrowseSymbol(keys, timestamp); }
 }
 
-void StageCommand() #Command : {}
+CommandSymbol ChronologizeCommand() : {
+    KeyTokenSymbol<?> key;
+    Token record;
+    TimestampSymbol start = null;
+    TimestampSymbol end = null;
+}
+{
+    <CHRONOLOGIZE> key=Key() <IN> record=<NUMERIC>
+    (
+        (start=TimestampReadCommand())
+        (end=TimestampReadCommand())?
+    )?
+    { return new ChronologizeSymbol(key, Long.parseLong(record.image), start, end); }
+}
+
+CommandSymbol DiffCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Token record = null;
+    TimestampSymbol start;
+    TimestampSymbol end = null;
+}
+{
+    <DIFF>
+    (
+        LOOKAHEAD(2)
+        key=Key() <IN>
+    )?
+    (
+        LOOKAHEAD(3)
+        record=<NUMERIC> start=TimestampReadCommand() (end=TimestampReadCommand())?
+        { return new DiffSymbol(key, Long.parseLong(record.image), start, end); }
+      |
+        key=Key()
+        (
+            LOOKAHEAD(3)
+            start=TimestampReadCommand() end=TimestampReadCommand()
+            { return new DiffSymbol(key, -1, start, end); }
+          |
+            start=TimestampReadCommand()
+            { return new DiffSymbol(key, -1, start, null); }
+        )
+    )
+}
+
+CommandSymbol InventoryCommand() : {}
+{
+    <INVENTORY>
+    { return InventorySymbol.INSTANCE; }
+}
+
+CommandSymbol JsonifyCommand() : {
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+    boolean identifier = false;
+}
+{
+    <JSONIFY>
+    (
+        LOOKAHEAD(2)
+        record=<NUMERIC>
+        { return new JsonifySymbol(Long.parseLong(record.image), identifier); }
+      |
+        records=RecordCollection()
+        { return new JsonifySymbol(records, identifier); }
+    )
+    (<WITH> <RESERVED_IDENTIFIER> { identifier = true; })?
+    (timestamp=TimestampReadCommand())?
+}
+
+CommandSymbol NavigateCommand() : {
+    Collection<KeyTokenSymbol<?>> keys;
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <NAVIGATE> keys=KeyCollection()
+    (
+        (<WHERE> DisjunctionExpression())
+        { return new NavigateSymbol(keys, (String)null, timestamp); }
+      |
+        <FROM>
+        (
+            record=<NUMERIC> (timestamp=TimestampReadCommand())?
+            { return new NavigateSymbol(keys, Long.parseLong(record.image), timestamp); }
+          |
+            records=RecordCollection() (timestamp=TimestampReadCommand())?
+            { return new NavigateSymbol(keys, records, timestamp); }
+        )
+    )?
+}
+
+CommandSymbol ReconcileCommand() : {
+    KeyTokenSymbol<?> key;
+    Token record;
+    Collection<ValueTokenSymbol<?>> values;
+}
+{
+    <RECONCILE> key=Key() <IN> record=<NUMERIC> <WITH> values=ValueCollection()
+    { return new ReconcileSymbol(key, Long.parseLong(record.image), values); }
+}
+
+CommandSymbol ReviewCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Token record;
+    TimestampSymbol start = null;
+    TimestampSymbol end = null;
+}
+{
+    <REVIEW>
+    (
+        LOOKAHEAD(2)
+        key=Key() <IN>
+    )?
+    record=<NUMERIC>
+    (
+        (start=TimestampReadCommand())
+        (end=TimestampReadCommand())?
+    )?
+    { return new ReviewSymbol(key, Long.parseLong(record.image), start, end); }
+}
+
+CommandSymbol TraceCommand() : {
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <TRACE>
+    (
+        LOOKAHEAD(2)
+        record=<NUMERIC>
+        { return new TraceSymbol(Long.parseLong(record.image), timestamp); }
+      |
+        records=RecordCollection()
+        { return new TraceSymbol(records, timestamp); }
+    )
+    (timestamp=TimestampReadCommand())?
+}
+
+// Transaction Operations
+CommandSymbol TransactionOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = StageCommand()
+      |
+        cmd = CommitCommand()
+      |
+        cmd = AbortCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol StageCommand() : {}
 {
     <STAGE>
-    {
-        jjtThis.command(StageSymbol.INSTANCE);
-    }
+    { return StageSymbol.INSTANCE; }
 }
 
-void CommitCommand() #Command : {}
+CommandSymbol CommitCommand() : {}
 {
     <COMMIT>
-    {
-        jjtThis.command(CommitSymbol.INSTANCE);
-    }
+    { return CommitSymbol.INSTANCE; }
 }
 
-void AbortCommand() #Command : {}
+CommandSymbol AbortCommand() : {}
 {
     <ABORT>
-    {
-        jjtThis.command(AbortSymbol.INSTANCE);
-    }
+    { return AbortSymbol.INSTANCE; }
 }
 
-void RevertCommand() #Command : {
+CommandSymbol RevertCommand() : {
     KeyTokenSymbol<?> key = null;
     Token record = null;
     Collection<KeyTokenSymbol<?>> keys = null;
@@ -1178,34 +1351,38 @@ void RevertCommand() #Command : {
     (
         LOOKAHEAD(3)
         key=Key() <IN> record=<NUMERIC>
-        timestamp=TimestampReadingCommand()
-        {
-            jjtThis.command(new RevertSymbol(key, Long.parseLong(record.image), timestamp));
-        }
+        timestamp=TimestampReadCommand()
+        { return new RevertSymbol(key, Long.parseLong(record.image), timestamp); }
       |
         LOOKAHEAD(3)
         key=Key() <IN> records=RecordCollection()
-        timestamp=TimestampReadingCommand()
-        {
-            jjtThis.command(new RevertSymbol(key, records, timestamp));
-        }
+        timestamp=TimestampReadCommand()
+        { return new RevertSymbol(key, records, timestamp); }
       |
-        LOOKAHEAD(3)
+        LOOKAHEAD(7)
         keys=KeyCollection() <IN> record=<NUMERIC>
-        timestamp=TimestampReadingCommand()
-        {
-            jjtThis.command(new RevertSymbol(keys, Long.parseLong(record.image), timestamp));
-        }
+        timestamp=TimestampReadCommand()
+        { return new RevertSymbol(keys, Long.parseLong(record.image), timestamp); }
       |
         keys=KeyCollection() <IN> records=RecordCollection()
-        timestamp=TimestampReadingCommand()
-        {
-            jjtThis.command(new RevertSymbol(keys, records, timestamp));
-        }
+        timestamp=TimestampReadCommand()
+        { return new RevertSymbol(keys, records, timestamp); }
     )
 }
 
 // Utility parsing rules
+Collection<ValueTokenSymbol<?>> ValueCollection() : {
+    ValueTokenSymbol<?> value;
+    Collection<ValueTokenSymbol<?>> values = Lists.newArrayList();
+}
+{
+    <OPEN_BRACKET>
+        value=UnaryValue() { values.add(value); }
+        (<COMMA> value=UnaryValue() { values.add(value); })*
+    <CLOSE_BRACKET>
+    { return values; }
+}
+
 Collection RecordCollection() :
 {
     Token record;
