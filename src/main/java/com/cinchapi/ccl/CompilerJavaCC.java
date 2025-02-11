@@ -23,6 +23,7 @@ import java.util.function.Function;
 import com.cinchapi.ccl.generated.*;
 import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.concourse.lang.sort.Order;
 import com.google.common.collect.Multimap;
 
 /**
@@ -154,7 +155,24 @@ class CompilerJavaCC extends Compiler {
 
                 @Override
                 public Object visit(ASTCommand node, Object data) {
-                    return new CommandTree(node.command(), null, null, null);
+                    ConditionTree conditionTree = null;
+                    OrderTree orderTree = null;
+                    PageTree pageTree = null;
+
+                    for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+                        Object child = node.jjtGetChild(i).jjtAccept(this, data);
+                        if (child instanceof ConditionTree) {
+                            conditionTree = (ConditionTree) child;
+                        }
+                        else if (child instanceof PageTree) {
+                            pageTree = (PageTree) child;
+                        }
+                        else if (child instanceof OrderTree) {
+                            orderTree = (OrderTree) child;
+                        }
+                    }
+
+                    return new CommandTree(node.command(), conditionTree, pageTree, orderTree);
                 }
             };
 

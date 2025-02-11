@@ -479,7 +479,7 @@ public class GrammarTest {
 
     @Test
     public void validUnaryOperatorWithPage() throws UnsupportedEncodingException, ParseException {
-        String ccl = "a = 1 page 1 size 3";
+        String ccl = "a = 1 " + PAGE + " 1 " + SIZE + " 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -689,7 +689,7 @@ public class GrammarTest {
 
     @Test
     public void testOrderByTimestamp() throws UnsupportedEncodingException, ParseException {
-        String ccl = "order by > age in 1992-10-02";
+        String ccl = "" + ORDER + " > age in 1992-10-02";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1200,7 +1200,7 @@ public class GrammarTest {
 
     @Test
     public void testFindWithOrder() throws UnsupportedEncodingException, ParseException {
-        String ccl = "find name = \"John\" order by age";
+        String ccl = "find name = \"John\" " + ORDER + " age";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1209,7 +1209,7 @@ public class GrammarTest {
 
     @Test
     public void testFindWithOrderAndPage() throws UnsupportedEncodingException, ParseException {
-        String ccl = "find name = \"John\" order by age page 1 size 10";
+        String ccl = "find name = \"John\" " + ORDER + " age " + PAGE + " 1 " + SIZE + " 10";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1254,7 +1254,7 @@ public class GrammarTest {
 
     @Test
     public void testFindWithMultipleOrderCriteria() throws UnsupportedEncodingException, ParseException {
-        String ccl = "find age > 25 order by name ASC, age DESC";
+        String ccl = "find age > 25 " + ORDER + " name ASC, age DESC";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1335,7 +1335,7 @@ public class GrammarTest {
 
     @Test
     public void testGetWithCriteriaAndOrder() throws UnsupportedEncodingException, ParseException {
-        String ccl = "get [name, age] where age > 25 order by age DESC";
+        String ccl = "get [name, age] where age > 25 " + ORDER + " age DESC";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1344,7 +1344,7 @@ public class GrammarTest {
 
     @Test
     public void testGetWithCriteriaAndPagination() throws UnsupportedEncodingException, ParseException {
-        String ccl = "get [name, age] where age > 25 page 1 size 10";
+        String ccl = "get [name, age] where age > 25 " + PAGE + " 1 " + SIZE + " 10";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1362,7 +1362,7 @@ public class GrammarTest {
 
     @Test
     public void testGetWithTimestampAndOrder() throws UnsupportedEncodingException, ParseException {
-        String ccl = "get [name, age] where age > 25 at \"2024-01-01\" order by age ASC";
+        String ccl = "get [name, age] where age > 25 at \"2024-01-01\" " + ORDER + " age ASC";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1632,7 +1632,7 @@ public class GrammarTest {
 
     @Test
     public void testSelectWithTimestampAndOrder() throws UnsupportedEncodingException, ParseException {
-        String ccl = "select [name, age] where age > 25 at \"2024-01-01\" order by age DESC";
+        String ccl = "select [name, age] where age > 25 at \"2024-01-01\" " + ORDER + " age DESC";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1755,6 +1755,106 @@ public class GrammarTest {
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
+
+    @Test
+    public void testTraceBasicSingleRecord() throws UnsupportedEncodingException, ParseException {
+        String ccl = "trace 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testTraceMultipleRecords() throws UnsupportedEncodingException, ParseException {
+        String ccl = "trace [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testTraceSingleRecordWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "trace 1 at \"2024-01-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testTraceMultipleRecordsWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "trace [1, 2, 3] at \"2024-01-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testTraceWithNaturalLanguageTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "trace 1 at \"two weeks ago\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidTraceNoRecord() throws UnsupportedEncodingException, ParseException {
+        String ccl = "trace";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidTraceMalformedRecordList() throws UnsupportedEncodingException, ParseException {
+        String ccl = "trace [1,,2]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testFindOrAddBasic() throws UnsupportedEncodingException, ParseException {
+        String ccl = "findOrAdd name as \"John\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testFindOrAddNumericValue() throws UnsupportedEncodingException, ParseException {
+        String ccl = "findOrAdd age as 25";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testFindOrInsertWithCriteria() throws UnsupportedEncodingException, ParseException {
+        String ccl = "findOrInsert age > 25 \"{'name': 'John', 'age': 30}\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testFindOrInsertWithComplexCriteria() throws UnsupportedEncodingException, ParseException {
+        String ccl = "findOrInsert (age > 25 and city = \"NYC\") \"{'name': 'John', 'age': 30, 'city': 'NYC'}\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     /**
      * Constants
      */

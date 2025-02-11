@@ -2347,69 +2347,8 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
-    public void testReproIX5A() {
-        Criteria criteria = Criteria.where()
-                .group(Criteria.where().key("_")
-                        .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
-                        .value("org.internx.model.data.user.Student"))
-                .and()
-                .group(Criteria.where()
-                        .group(Criteria.where().key("group").operator(
-                                com.cinchapi.concourse.thrift.Operator.LIKE)
-                                .value("%Accounting And Business/management%"))
-                        .or()
-                        .group(Criteria.where().key("major").operator(
-                                com.cinchapi.concourse.thrift.Operator.LIKE)
-                                .value("%accounting and business/management%")));
-
-        // Generate tree
-        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
-                COMPILER_PARSE_OPERATOR_FUNCTION);
-        AbstractSyntaxTree ast = compiler.parse(criteria.ccl());
-        List<Symbol> tokens = compiler.tokenize(ast);
-        tokens.forEach(token -> {
-            if(token instanceof ValueSymbol) {
-                Assert.assertEquals(String.class,
-                        ((ValueSymbol) token).value().getClass());
-            }
-        });
-    }
-
-    @Test
-    public void testFindWithOrderAndPage() {
-        String ccl = "find age > 25 order by name ASC, age DESC page 1 size 10";
-
-        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
-                COMPILER_PARSE_OPERATOR_FUNCTION);
-        AbstractSyntaxTree tree = compiler.parse(ccl);
-
-        // Validate Condition Tree
-        Assert.assertTrue(tree instanceof CommandTree);
-        CommandTree commandTree = (CommandTree) tree;
-
-        // Validate Condition
-        ExpressionSymbol expression = (ExpressionSymbol) commandTree.conditionTree().root();
-        Assert.assertEquals("age", expression.key().toString());
-        Assert.assertEquals(">", expression.operator().toString());
-        Assert.assertEquals("25", expression.values().get(0).toString());
-
-        // Validate Order
-        OrderSymbol order = (OrderSymbol) commandTree.orderTree().root();
-        Assert.assertEquals(2, order.components().size());
-        Assert.assertEquals("name", order.components().get(0).key().toString());
-        Assert.assertEquals(DirectionSymbol.ASCENDING, order.components().get(0).direction());
-        Assert.assertEquals("age", order.components().get(1).key().toString());
-        Assert.assertEquals(DirectionSymbol.DESCENDING, order.components().get(1).direction());
-
-        // Validate Page
-        PageSymbol page = (PageSymbol) commandTree.pageTree().root();
-        Assert.assertEquals(1, page.offset());
-        Assert.assertEquals(10, page.limit());
-    }
-
-    @Test
     public void testGetWithOrderTimestampAndPage() {
-        String ccl = "get [name, age] where salary > 50000 order by age at \"2024-01-01\" page 2 size 5";
+        String ccl = "get [name, age] where salary > 50000 " + ORDER + " age at \"2024-01-01\" " + PAGE + " 2 " + SIZE + " 5";
 
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
                 COMPILER_PARSE_OPERATOR_FUNCTION);
@@ -2446,8 +2385,69 @@ public class CompilerJavaCCLogicTest {
 
         // Validate Page
         PageSymbol page = (PageSymbol) commandTree.pageTree().root();
-        Assert.assertEquals(2, page.offset());
+        Assert.assertEquals(5, page.offset());
         Assert.assertEquals(5, page.limit());
+    }
+
+    @Test
+    public void testFindWithOrderAndPage() {
+        String ccl = "find age > 25 " + ORDER + " name ASC, age DESC " + SIZE + " 10 " + PAGE + " 1";
+
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Validate Condition Tree
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree commandTree = (CommandTree) tree;
+
+        // Validate Condition
+        ExpressionSymbol expression = (ExpressionSymbol) commandTree.conditionTree().root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertEquals("25", expression.values().get(0).toString());
+
+        // Validate Order
+        OrderSymbol order = (OrderSymbol) commandTree.orderTree().root();
+        Assert.assertEquals(2, order.components().size());
+        Assert.assertEquals("name", order.components().get(0).key().toString());
+        Assert.assertEquals(DirectionSymbol.ASCENDING, order.components().get(0).direction());
+        Assert.assertEquals("age", order.components().get(1).key().toString());
+        Assert.assertEquals(DirectionSymbol.DESCENDING, order.components().get(1).direction());
+
+        // Validate Page
+        PageSymbol page = (PageSymbol) commandTree.pageTree().root();
+        Assert.assertEquals(0, page.offset());
+        Assert.assertEquals(10, page.limit());
+    }
+
+    @Test
+    public void testReproIX5A() {
+        Criteria criteria = Criteria.where()
+                .group(Criteria.where().key("_")
+                        .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                        .value("org.internx.model.data.user.Student"))
+                .and()
+                .group(Criteria.where()
+                        .group(Criteria.where().key("group").operator(
+                                com.cinchapi.concourse.thrift.Operator.LIKE)
+                                .value("%Accounting And Business/management%"))
+                        .or()
+                        .group(Criteria.where().key("major").operator(
+                                com.cinchapi.concourse.thrift.Operator.LIKE)
+                                .value("%accounting and business/management%")));
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree ast = compiler.parse(criteria.ccl());
+        List<Symbol> tokens = compiler.tokenize(ast);
+        tokens.forEach(token -> {
+            if(token instanceof ValueSymbol) {
+                Assert.assertEquals(String.class,
+                        ((ValueSymbol) token).value().getClass());
+            }
+        });
     }
 
     @Test

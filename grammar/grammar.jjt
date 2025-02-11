@@ -145,6 +145,8 @@ TOKEN [IGNORE_CASE] : {
 | < SELECT: "select" >
 | < GET: "get" >
 | < FIND: "find" >
+| < FIND_OR_ADD: "findOrAdd" >
+| < FIND_OR_INSERT: "findOrInsert" >
 | < DESCRIBE: "describe" >
 | < VERIFY: "verify" >
 | < SEARCH: "search" >
@@ -1005,6 +1007,10 @@ CommandSymbol QueryOperations() : {
       |
         cmd = FindCommand()
       |
+        cmd = FindOrAddCommand()
+      |
+        cmd = FindOrInsertCommand()
+      |
         cmd = DescribeCommand()
       |
         cmd = VerifyCommand()
@@ -1114,6 +1120,27 @@ CommandSymbol FindCommand() : {
     {
         return new FindSymbol(timestamp);
     }
+}
+
+CommandSymbol FindOrAddCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+}
+{
+    <FIND_OR_ADD> key=Key() <AS> value=UnaryValue()
+    { return new FindOrAddSymbol(key, value); }
+}
+
+CommandSymbol FindOrInsertCommand() : {
+    Token json = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <FIND_OR_INSERT>
+    DisjunctionExpression()
+    (timestamp=TimestampReadCommand())?
+    json=<QUOTED_STRING>
+    { return new FindOrInsertSymbol(json.image, timestamp); }
 }
 
 CommandSymbol DescribeCommand() : {
@@ -1297,13 +1324,12 @@ CommandSymbol TraceCommand() : {
     <TRACE>
     (
         LOOKAHEAD(2)
-        record=<NUMERIC>
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
         { return new TraceSymbol(Long.parseLong(record.image), timestamp); }
       |
-        records=RecordCollection()
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
         { return new TraceSymbol(records, timestamp); }
     )
-    (timestamp=TimestampReadCommand())?
 }
 
 // Transaction Operations
