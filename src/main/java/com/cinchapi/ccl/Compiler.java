@@ -22,7 +22,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.cinchapi.ccl.grammar.CommandSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
@@ -32,16 +31,8 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.CommandTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.FunctionTree;
-import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.grammar.command.ImplicitSymbol;
+import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
 import com.cinchapi.common.function.TriFunction;
@@ -278,7 +269,7 @@ public abstract class Compiler {
             @Override
             public List<Symbol> visit(CommandTree tree, Object... data) {
                 List<Symbol> symbols = (List<Symbol>) data[0];
-                if(tree.root() != CommandSymbol.IMPLICIT) {
+                if(!(tree.root() instanceof ImplicitSymbol)) {
                     symbols.add(tree.root());
                 }
                 for (AbstractSyntaxTree child : tree.children()) {
@@ -352,7 +343,7 @@ public abstract class Compiler {
             @SuppressWarnings("unchecked")
             @Override
             public List<Symbol> visit(FunctionTree tree,
-                    Object... data) {
+                                      Object... data) {
                 List<Symbol> symbols = (List<Symbol>) data[0];
                 symbols.add(tree.root());
                 return symbols;

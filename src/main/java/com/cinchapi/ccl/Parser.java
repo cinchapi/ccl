@@ -220,7 +220,7 @@ public abstract class Parser {
      * @return {@code true} if the data is described by the criteria that has
      *         been parsed
      * @deprecated Use
-     *             {@link com.cinchapi.ccl.syntax.ConditionTree#evaluate(Multimap, TriFunction)}
+     *             {@link ConditionTree#evaluate(Multimap, TriFunction)}
      *             instead
      */
     @Deprecated

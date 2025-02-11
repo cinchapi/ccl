@@ -23,7 +23,7 @@ import java.util.Objects;
  *
  * @author Jeff Nelson
  */
-abstract class BaseAbstractSyntaxTree implements AbstractSyntaxTree {
+public abstract class BaseAbstractSyntaxTree implements AbstractSyntaxTree {
 
     @Override
     public int hashCode() {

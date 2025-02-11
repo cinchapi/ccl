@@ -31,16 +31,8 @@ import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.FunctionTree;
-import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.syntax.CommandTree;
+import com.cinchapi.ccl.grammar.command.*;
+import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.type.function.KeyConditionFunction;
@@ -2258,6 +2250,175 @@ public class CompilerJavaCCLogicTest {
                         TimeUnit.MICROSECONDS),
                 TimeUnit.DAYS.convert(NaturalLanguage.parseMicros("1992-10-02"),
                         TimeUnit.MICROSECONDS));
+    }
+
+    @Test
+    public void testLinkCommand() {
+        String ccl = "link friends from 1 to 2";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+
+        LinkSymbol linkSymbol = (LinkSymbol) rootNode.root();
+        Assert.assertEquals("friends", linkSymbol.key().toString());
+        Assert.assertEquals(1L, linkSymbol.source());
+        Assert.assertTrue(linkSymbol.destinations().contains(2L));
+    }
+
+    @Test
+    public void testVerifyOrSetCommandTokenize() {
+        String ccl = "verifyOrSet name as \"John Doe\" in 1";
+
+        // Generate queue
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+
+        // Verify the command symbol
+        CommandTree commandTree = (CommandTree) ast;
+        VerifyOrSetSymbol verifyOrSetSymbol = (VerifyOrSetSymbol) commandTree.root();
+
+        Assert.assertEquals("name", verifyOrSetSymbol.key().toString());
+        Assert.assertEquals("\"John Doe\"", verifyOrSetSymbol.value().toString());
+        Assert.assertEquals(1L, verifyOrSetSymbol.record());
+        Assert.assertEquals("VERIFY_OR_SET", verifyOrSetSymbol.type());
+    }
+
+    @Test
+    public void testChronologizeCommand() {
+        String ccl = "chronologize location in 5 at \"2024-01-01\" at \"2024-02-01\"";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree rootNode = (CommandTree) tree;
+
+        ChronologizeSymbol chronologizeSymbol = (ChronologizeSymbol) rootNode.root();
+        Assert.assertEquals("location", chronologizeSymbol.key().toString());
+        Assert.assertEquals(5L, chronologizeSymbol.record());
+
+        // Validate timestamps
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        chronologizeSymbol.start().timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(
+                        NaturalLanguage.parseMicros("2024-01-01"),
+                        TimeUnit.MICROSECONDS)
+        );
+
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        chronologizeSymbol.end().timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(
+                        NaturalLanguage.parseMicros("2024-02-01"),
+                        TimeUnit.MICROSECONDS)
+        );
+    }
+
+    @Test
+    public void testSearchCommandTokenize() {
+        String ccl = "search email for \"john@example.com\"";
+
+        // Generate queue
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree ast = compiler.parse(ccl);
+        List<Symbol> tokens = compiler.tokenize(ast);
+
+        // Verify the command symbol
+        CommandTree commandTree = (CommandTree) ast;
+        SearchSymbol searchSymbol = (SearchSymbol) commandTree.root();
+
+        Assert.assertEquals("email", searchSymbol.key().toString());
+        Assert.assertEquals("\"john@example.com\"", searchSymbol.query());
+        Assert.assertEquals("SEARCH", searchSymbol.type());
+    }
+
+    @Test
+    public void testGetWithOrderTimestampAndPage() {
+        String ccl = "get [name, age] where salary > 50000 " + ORDER + " age at \"2024-01-01\" " + PAGE + " 2 " + SIZE + " 5";
+
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Validate Condition Tree
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree commandTree = (CommandTree) tree;
+
+        // Validate Keys
+        GetSymbol getSymbol = (GetSymbol) commandTree.root();
+        Assert.assertEquals(2, getSymbol.keys().size());
+
+        // Validate Condition
+        ExpressionSymbol expression = (ExpressionSymbol) commandTree.conditionTree().root();
+        Assert.assertEquals("salary", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertEquals("50000", expression.values().get(0).toString());
+
+        // Validate Order
+        OrderSymbol order = (OrderSymbol) commandTree.orderTree().root();
+        Assert.assertEquals(1, order.components().size());
+        Assert.assertEquals("age", order.components().get(0).key().toString());
+
+        // Validate Timestamp
+        Assert.assertEquals(
+                TimeUnit.DAYS.convert(
+                        order.components().get(0).timestamp().timestamp(),
+                        TimeUnit.MICROSECONDS),
+                TimeUnit.DAYS.convert(
+                        NaturalLanguage.parseMicros("2024-01-01"),
+                        TimeUnit.MICROSECONDS)
+        );
+
+        // Validate Page
+        PageSymbol page = (PageSymbol) commandTree.pageTree().root();
+        Assert.assertEquals(5, page.offset());
+        Assert.assertEquals(5, page.limit());
+    }
+
+    @Test
+    public void testFindWithOrderAndPage() {
+        String ccl = "find age > 25 " + ORDER + " name ASC, age DESC " + SIZE + " 10 " + PAGE + " 1";
+
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Validate Condition Tree
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree commandTree = (CommandTree) tree;
+
+        // Validate Condition
+        ExpressionSymbol expression = (ExpressionSymbol) commandTree.conditionTree().root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertEquals("25", expression.values().get(0).toString());
+
+        // Validate Order
+        OrderSymbol order = (OrderSymbol) commandTree.orderTree().root();
+        Assert.assertEquals(2, order.components().size());
+        Assert.assertEquals("name", order.components().get(0).key().toString());
+        Assert.assertEquals(DirectionSymbol.ASCENDING, order.components().get(0).direction());
+        Assert.assertEquals("age", order.components().get(1).key().toString());
+        Assert.assertEquals(DirectionSymbol.DESCENDING, order.components().get(1).direction());
+
+        // Validate Page
+        PageSymbol page = (PageSymbol) commandTree.pageTree().root();
+        Assert.assertEquals(0, page.offset());
+        Assert.assertEquals(10, page.limit());
     }
 
     @Test

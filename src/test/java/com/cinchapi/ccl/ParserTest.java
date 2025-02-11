@@ -19,11 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import com.cinchapi.ccl.syntax.ConjunctionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.FunctionTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.*;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,9 +32,6 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.CommandTree;
-import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.common.reflect.Reflection;
 import com.cinchapi.concourse.Tag;
 import com.cinchapi.concourse.Timestamp;

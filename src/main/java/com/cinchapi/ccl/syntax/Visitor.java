@@ -22,9 +22,6 @@ package com.cinchapi.ccl.syntax;
  * method must be called with a {@link Visitor} as a parameter.
  */
 public interface Visitor<T> {
-
-    public T visit(CommandTree tree, Object... data);
-
     public default T visit(ConditionTree tree, Object... data) {
         if(tree instanceof ConjunctionTree) {
             return visit((ConjunctionTree) tree, data);
@@ -46,4 +43,6 @@ public interface Visitor<T> {
     public T visit(PageTree tree, Object... data);
 
     public T visit(FunctionTree tree, Object... data);
+
+    public T visit(CommandTree tree, Object... data);
 }

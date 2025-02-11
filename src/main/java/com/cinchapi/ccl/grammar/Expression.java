@@ -48,7 +48,7 @@ public class Expression implements ExpressionSymbol {
      */
     @Deprecated
     public Expression(KeySymbol key, OperatorSymbol operator,
-            ValueSymbol... values) {
+                      ValueSymbol... values) {
         this.delegate = ExpressionSymbol.create(null, key, operator, values);
     }
 

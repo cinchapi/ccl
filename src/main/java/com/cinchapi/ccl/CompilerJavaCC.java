@@ -20,26 +20,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
-import com.cinchapi.ccl.generated.ASTAnd;
-import com.cinchapi.ccl.generated.ASTExpression;
-import com.cinchapi.ccl.generated.ASTFunction;
-import com.cinchapi.ccl.generated.ASTOr;
-import com.cinchapi.ccl.generated.ASTOrder;
-import com.cinchapi.ccl.generated.ASTPage;
-import com.cinchapi.ccl.generated.ASTStart;
-import com.cinchapi.ccl.generated.Grammar;
-import com.cinchapi.ccl.generated.GrammarVisitor;
-import com.cinchapi.ccl.generated.SimpleNode;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.AndTree;
-import com.cinchapi.ccl.syntax.CommandTree;
-import com.cinchapi.ccl.syntax.ConditionTree;
-import com.cinchapi.ccl.syntax.ExpressionTree;
-import com.cinchapi.ccl.syntax.FunctionTree;
-import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.OrderTree;
-import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.generated.*;
+import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.concourse.lang.sort.Order;
 import com.google.common.collect.Multimap;
 
 /**
@@ -81,6 +65,7 @@ class CompilerJavaCC extends Compiler {
                     PageTree pageTree = null;
                     OrderTree orderTree = null;
                     FunctionTree functionTree = null;
+                    CommandTree commandTree = null;
 
                     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
                         Object child = node.jjtGetChild(i).jjtAccept(this,
@@ -94,25 +79,32 @@ class CompilerJavaCC extends Compiler {
                         else if(child instanceof FunctionTree) {
                             functionTree = (FunctionTree) child;
                         }
+                        else if(child instanceof CommandTree) {
+                            commandTree = (CommandTree) child;
+                        }
                         else {
                             conditionTree = (ConditionTree) child;
                         }
                     }
                     if(conditionTree != null && pageTree == null
-                            && orderTree == null && functionTree == null) {
+                            && orderTree == null && functionTree == null && commandTree == null) {
                         return conditionTree;
                     }
                     else if(pageTree != null && conditionTree == null
-                            && orderTree == null && functionTree == null) {
+                            && orderTree == null && functionTree == null && commandTree == null) {
                         return pageTree;
                     }
                     else if(orderTree != null && conditionTree == null
-                            && pageTree == null && functionTree == null) {
+                            && pageTree == null && functionTree == null && commandTree == null) {
                         return orderTree;
                     }
                     else if(functionTree != null && conditionTree == null
-                            && pageTree == null && orderTree == null) {
+                            && pageTree == null && orderTree == null && commandTree == null) {
                         return functionTree;
+                    }
+                    else if(functionTree == null && conditionTree == null
+                            && pageTree == null && orderTree == null && commandTree != null) {
+                        return commandTree;
                     }
                     else {
                         // If the statement has multiple elements, it is
@@ -159,6 +151,28 @@ class CompilerJavaCC extends Compiler {
                 @Override
                 public Object visit(ASTFunction node, Object data) {
                     return new FunctionTree(node.function());
+                }
+
+                @Override
+                public Object visit(ASTCommand node, Object data) {
+                    ConditionTree conditionTree = null;
+                    OrderTree orderTree = null;
+                    PageTree pageTree = null;
+
+                    for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+                        Object child = node.jjtGetChild(i).jjtAccept(this, data);
+                        if (child instanceof ConditionTree) {
+                            conditionTree = (ConditionTree) child;
+                        }
+                        else if (child instanceof PageTree) {
+                            pageTree = (PageTree) child;
+                        }
+                        else if (child instanceof OrderTree) {
+                            orderTree = (OrderTree) child;
+                        }
+                    }
+
+                    return new CommandTree(node.command(), conditionTree, pageTree, orderTree);
                 }
             };
 
