@@ -418,8 +418,8 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    @Test
-    public void validSearchExcludeWord() throws UnsupportedEncodingException, ParseException {
+    @Test (expected = ParseException.class)
+    public void invalidSearchExcludeWord() throws UnsupportedEncodingException, ParseException {
         String ccl = "name search_exclude jeff at last week";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -436,8 +436,8 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    @Test
-    public void validSearchExcludeOP() throws UnsupportedEncodingException, ParseException {
+    @Test (expected = ParseException.class)
+    public void invalidSearchExcludeOP() throws UnsupportedEncodingException, ParseException {
         String ccl = "name !~ jeff at last week";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,

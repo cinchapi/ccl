@@ -268,23 +268,39 @@ void RelationalExpression() #Expression :
     TimestampSymbol timestamp = null;
 }
 {
-    key=Key()
+    (
+      LOOKAHEAD(2)
+      key=SearchKey() operator=SearchOperator() value1=SearchValue()
+    |
+      key=Key()
       (
         operator=LinksToOperator() value1=LinksToValue() (timestamp=Timestamp())?
       |
         operator=RegexBasedOperator() value1=RegexValue() (timestamp=Timestamp())?
       |
-        operator=SearchOperator() value1=SearchValue() (timestamp=Timestamp())?
-      |
         operator=UnaryOperator() value1=UnaryValue() (timestamp=Timestamp())?
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (timestamp=Timestamp())?
-      ) { jjtThis.key(key);
-          jjtThis.operator(operator);
-          jjtThis.addValue(value1);
-          if(value2 != null) jjtThis.addValue(value2);
-          if(timestamp != null) jjtThis.timestamp(timestamp);
-        }
+      )
+    )
+    {
+      jjtThis.key(key);
+      jjtThis.operator(operator);
+      jjtThis.addValue(value1);
+      if(value2 != null) jjtThis.addValue(value2);
+      if(timestamp != null) jjtThis.timestamp(timestamp);
+    }
+}
+
+KeyTokenSymbol SearchKey() :
+{
+  Token key;
+}
+{
+  (
+    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
+    { return new KeySymbol(key.image); }
+  )
 }
 
 KeyTokenSymbol Key() :
