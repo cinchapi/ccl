@@ -410,17 +410,17 @@ public class GrammarTest {
     }
 
     @Test
-    public void validSearchMatchOp() throws UnsupportedEncodingException, ParseException {
-        String ccl = "major ~ 'business administration'";
+    public void validSearchExcludeWord() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name search_exclude jeff";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
     }
 
-    @Test (expected = ParseException.class)
-    public void invalidSearchExcludeWord() throws UnsupportedEncodingException, ParseException {
-        String ccl = "name search_exclude jeff at last week";
+    @Test
+    public void validSearchMatchOp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "major ~ 'business administration'";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -437,8 +437,26 @@ public class GrammarTest {
     }
 
     @Test (expected = ParseException.class)
+    public void validSearchExcludeOP() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name !~ jeff";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test (expected = ParseException.class)
     public void invalidSearchExcludeOP() throws UnsupportedEncodingException, ParseException {
         String ccl = "name !~ jeff at last week";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test (expected = ParseException.class)
+    public void invalidSearchExcludeWord() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name search_exclude jeff at last week";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
