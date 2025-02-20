@@ -436,7 +436,7 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    @Test (expected = ParseException.class)
+    @Test
     public void validSearchExcludeOP() throws UnsupportedEncodingException, ParseException {
         String ccl = "name !~ jeff";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
