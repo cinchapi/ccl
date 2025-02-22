@@ -4,6 +4,7 @@
 * Added support for the new `CONTAINS` and `NOT_CONTAINS` search operators introduced in Concourse version 0.12.0. These operators can be used directly in CCL statements with the following keywords:  
   * **CONTAINS**: `contains`, `search`, `search_match`, `~`  
   * **NOT_CONTAINS**: `not_contains`, `search_exclude`, `ncontains`, `~!`  
+* [GH-47](https://github.com/cinchapi/ccl/issues/47): Fixed a bug that caused navigation or function keys to not be included in a Compiler's analysis of a ConditionTree.
 
 #### Version 3.1.2 (March 9, 2022)
 * Fixed a regression that caused parenthetical expressions within a `Condition` containing `LIKE` `REGEX`, `NOT_LIKE` and `NOT_REGEX` operators (e.g., `a = b and (email regex email.com)`) to mistakenly throw a `SyntaxException` when being parsed by a `Compiler`.
