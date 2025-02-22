@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 3.2.0 (TBD)
+#### Version 3.2.0 (February 22, 2025)
 * Added support for the new `CONTAINS` and `NOT_CONTAINS` search operators introduced in Concourse version 0.12.0. These operators can be used directly in CCL statements with the following keywords:  
   * **CONTAINS**: `contains`, `search`, `search_match`, `~`  
   * **NOT_CONTAINS**: `not_contains`, `search_exclude`, `ncontains`, `~!`  
