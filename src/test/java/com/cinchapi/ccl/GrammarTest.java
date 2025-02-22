@@ -391,6 +391,78 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void validSearchMatchWord() throws UnsupportedEncodingException, ParseException {
+        String ccl = "major search_match 'business administration'";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validSearchMatchContains() throws UnsupportedEncodingException, ParseException {
+        String ccl = "major contains 'business administration'";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validSearchExcludeWord() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name search_exclude jeff";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validSearchMatchOp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "major ~ 'business administration'";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validSearchExcludeNotContains() throws UnsupportedEncodingException, ParseException {
+        String ccl = "major not_contains 'business administration'";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validSearchExcludeOP() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name !~ jeff";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test (expected = ParseException.class)
+    public void invalidSearchExcludeOP() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name !~ jeff at last week";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test (expected = ParseException.class)
+    public void invalidSearchExcludeWord() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name search_exclude jeff at last week";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     @Test (expected = ParseException.class)
     public void missingKeyExpression() throws UnsupportedEncodingException, ParseException {
         String ccl = "= 1";
@@ -712,7 +784,8 @@ public class GrammarTest {
      * The canonical function to transform strings to operators in a
      * {@link Parser}.
      */
-    public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert.stringToOperator(operator);
+    public final Function<String, Operator> PARSER_TRANSFORM_OPERATOR_FUNCTION = operator -> Convert
+            .stringToOperator(operator);
 
     public final GrammarVisitor visitor = new GrammarVisitor() {
         @Override

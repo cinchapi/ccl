@@ -167,6 +167,10 @@ TOKEN [IGNORE_CASE]:
   < ASC : "asc" >
 |
   < DESC : "desc" >
+|
+  < SEARCH_MATCH : "search_match" | "contains" | "~" >
+|
+  < SEARCH_EXCLUDE : "search_exclude" | "not_contains" | "!~" >
 }
 
 TOKEN :
@@ -264,7 +268,11 @@ void RelationalExpression() #Expression :
     TimestampSymbol timestamp = null;
 }
 {
-    key=Key()
+    (
+      LOOKAHEAD(2)
+      key=SearchKey() operator=SearchOperator() value1=SearchValue()
+    |
+      key=Key()
       (
         operator=LinksToOperator() value1=LinksToValue() (timestamp=Timestamp())?
       |
@@ -273,12 +281,26 @@ void RelationalExpression() #Expression :
         operator=UnaryOperator() value1=UnaryValue() (timestamp=Timestamp())?
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (timestamp=Timestamp())?
-      ) { jjtThis.key(key);
-          jjtThis.operator(operator);
-          jjtThis.addValue(value1);
-          if(value2 != null) jjtThis.addValue(value2);
-          if(timestamp != null) jjtThis.timestamp(timestamp);
-        }
+      )
+    )
+    {
+      jjtThis.key(key);
+      jjtThis.operator(operator);
+      jjtThis.addValue(value1);
+      if(value2 != null) jjtThis.addValue(value2);
+      if(timestamp != null) jjtThis.timestamp(timestamp);
+    }
+}
+
+KeyTokenSymbol SearchKey() :
+{
+  Token key;
+}
+{
+  (
+    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
+    { return new KeySymbol(key.image); }
+  )
 }
 
 KeyTokenSymbol Key() :
@@ -394,6 +416,51 @@ ValueTokenSymbol RegexValue() :
     { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
 }
 
+ValueTokenSymbol SearchValue() :
+{
+  FunctionValueSymbol function;
+  Token key;
+  Token word;
+  String value = "";
+  List<String> records = Lists.newArrayList();
+  ASTStart ccl;
+}
+{
+  LOOKAHEAD(2)
+
+  (function=ValueFunction())
+  { return function; }
+|
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  {
+    if(value.charAt(0) == '$') {
+        String var = value.substring(1);
+        try {
+            value = Iterables.getOnlyElement(data.get(var)).toString();
+        }
+        catch (IllegalArgumentException e) {
+            String err = "Unable to resolve variable {} because multiple values exist locally: {}";
+            throw new SyntaxException(AnyStrings.format(err, value, data.get(var)));
+        }
+        catch (NoSuchElementException e) {
+            String err = "Unable to resolve variable {} because no values exist locally";
+            throw new SyntaxException(AnyStrings.format(err, value));
+        }
+    }
+    else if(value.length() > 2 && value.charAt(0) == '\\'
+            && value.charAt(1) == '$') {
+        value = value.substring(1);
+    }
+    else {
+        value = value.replace("\\@", "@");
+    }
+    return new ValueSymbol(transformValue(value));
+  }
+|
+  (word=<QUOTED_STRING>)
+  { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
+}
+
 ValueTokenSymbol BinaryValue() :
 {
   FunctionValueSymbol function;
@@ -470,6 +537,14 @@ OperatorSymbol BinaryOperator() :
 }
 {
   operator=<BINARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
+}
+
+OperatorSymbol SearchOperator() :
+{
+  Token operator;
+}
+{
+  (operator=<SEARCH_MATCH> | operator=<SEARCH_EXCLUDE>) { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 TimestampSymbol Timestamp() :
