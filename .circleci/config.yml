@@ -142,7 +142,7 @@ jobs:
           name: Build and Publish
           command: |
             cd ~/$CIRCLE_PROJECT_REPONAME
-            ./gradlew build publish closeAndReleaseSonatypeStagingRepository --no-daemon
+            ./gradlew assemble publish closeAndReleaseSonatypeStagingRepository --no-daemon
       - run:
           name: Save artifacts
           command: |
