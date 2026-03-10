@@ -300,6 +300,9 @@ KeyTokenSymbol SearchKey() :
   (
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
     { return new KeySymbol(key.image); }
+  |
+    (key=<PERIOD_SEPARATED_STRING>)
+    { return new NavigationKeySymbol(key.image); }
   )
 }
 

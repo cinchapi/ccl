@@ -165,7 +165,7 @@ repositories {
   }
 }
 
-ext.concourseVersion = '0.12.0-SNAPSHOT'
+ext.concourseVersion = '0.12.0'
 
 dependencies {
   compile 'com.google.code.findbugs:jsr305:2.0.1'
