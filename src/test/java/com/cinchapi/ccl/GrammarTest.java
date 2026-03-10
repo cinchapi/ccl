@@ -392,6 +392,33 @@ public class GrammarTest {
     }
 
     @Test
+    public void validNavigationKeyWithContainsOperator() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a.b contains 'foo'";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validLongNavigationKeyWithContainsOperator() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a.b.c.d contains 'foo'";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validNavigationKeyWithNotContainsOperator() throws UnsupportedEncodingException, ParseException {
+        String ccl = "a.b not_contains 'foo'";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
     public void validSearchMatchWord() throws UnsupportedEncodingException, ParseException {
         String ccl = "major search_match 'business administration'";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
