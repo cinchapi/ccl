@@ -1,9 +1,12 @@
 # Changelog
 
+#### Version 3.2.1 (March 9, 2026)
+* Fixed a bug that caused the `CONTAINS` and `NOT_CONTAINS` search operators to fail when used with navigation keys (e.g., `mother.children contains 'foo'`).
+
 #### Version 3.2.0 (February 22, 2025)
-* Added support for the new `CONTAINS` and `NOT_CONTAINS` search operators introduced in Concourse version 0.12.0. These operators can be used directly in CCL statements with the following keywords:  
-  * **CONTAINS**: `contains`, `search`, `search_match`, `~`  
-  * **NOT_CONTAINS**: `not_contains`, `search_exclude`, `ncontains`, `~!`  
+* Added support for the new `CONTAINS` and `NOT_CONTAINS` search operators introduced in Concourse version 0.12.0. These operators can be used directly in CCL statements with the following keywords:
+  * **CONTAINS**: `contains`, `search`, `search_match`, `~`
+  * **NOT_CONTAINS**: `not_contains`, `search_exclude`, `ncontains`, `~!`
 * [GH-47](https://github.com/cinchapi/ccl/issues/47): Fixed a bug that caused navigation or function keys to not be included in a Compiler's analysis of a ConditionTree.
 
 #### Version 3.1.2 (March 9, 2022)
@@ -42,16 +45,16 @@ An expression, generally takes the form:
 <key> <operator> <values>
 ```
 
-So, in the context of a database query like `select(<key1>, "<key2> <operator> <value>")`, `key2` and `key1` are both keys, but they have different roles in the operation. In this scenario, `key2` isn't returned to the caller, but is part of the *evaluation* expression. So, we call `key2` an **evaluation key**. On the other hand, `key1` doesn't play a role in *evaluation*, but is an *artifact* of the operation. So, we call this a **operation key**. As you can imagine, in more complex examples, a key can play both roles. 
+So, in the context of a database query like `select(<key1>, "<key2> <operator> <value>")`, `key2` and `key1` are both keys, but they have different roles in the operation. In this scenario, `key2` isn't returned to the caller, but is part of the *evaluation* expression. So, we call `key2` an **evaluation key**. On the other hand, `key1` doesn't play a role in *evaluation*, but is an *artifact* of the operation. So, we call this a **operation key**. As you can imagine, in more complex examples, a key can play both roles.
 
 Similar to an **evaluation key**, a value that is part of an expression plays the role of **evaluation value**.
 
 ##### Functions in CCL
 The roles **evaluation key** and **evaluation value** are important for understanding how functions work in CCL. Conceptually the value(s) of an expression's `evaluation key` are retrieved and considered in relation to the expression's `operator` and `evaluation values` to determine if the record satisfies the expression. And since functions return a value, you can imagine using a function statement as either am evaluation key or an evaluation value.
 
-In a programming language this would be easy, but in CCL it is possible with caveats due to language ambiguity. To understand these challenges, consider the question: *who's average score is greater than the average of all scores?*. 
+In a programming language this would be easy, but in CCL it is possible with caveats due to language ambiguity. To understand these challenges, consider the question: *who's average score is greater than the average of all scores?*.
 
-This question could be answered by issuing a database query of the form `find("{evaluation key} > {evaluation value}")`. In this case, we know that the evaluation value should be `average(score)` since we want to compare against the average of all scores. Now, our query looks like `find("{evaluation key} > average(score)")`. 
+This question could be answered by issuing a database query of the form `find("{evaluation key} > {evaluation value}")`. In this case, we know that the evaluation value should be `average(score)` since we want to compare against the average of all scores. Now, our query looks like `find("{evaluation key} > average(score)")`.
 
 But confusion abounds when we consider how to express selecting the average score of each record that is being evaluated. Concourse functions support providing an explicit record or records, but, in CCL, we don't know which records are being evaluated. To get around this, we created **implicit function** syntax that uses the pipe character (e.g. `|`) to indicate that an operation should only be applied to the key in the record that is currently being evaluated. So, our complete query would look like `find("score | average > average(score)")`.
 
