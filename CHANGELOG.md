@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 3.2.1 (March 9, 2026)
+#### Version 3.2.1 (March 10, 2026)
 * Fixed a bug that caused the `CONTAINS` and `NOT_CONTAINS` search operators to fail when used with navigation keys (e.g., `mother.children contains 'foo'`).
 
 #### Version 3.2.0 (February 22, 2025)

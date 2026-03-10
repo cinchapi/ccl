@@ -1,9 +1,9 @@
 plugins {
   id 'java'
   id 'eclipse'
-  id 'maven'
   id 'maven-publish'
   id 'signing'
+  id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
@@ -24,8 +24,33 @@ def getVersion = { ->
   return stdout.toString().trim()
 }
 
+def validateVersion = { version ->
+  def matcher = version =~/^(\d+\.)?(\d+\.)?(\d+\.)?(\d+)(-SNAPSHOT){0,1}$/
+  return matcher.matches() || System.getenv('FORCE_PUBLISH')
+}
+
+def getBranch = { ->
+  def branch = System.getenv('CIRCLE_BRANCH')
+      ?: System.getenv('GITHUB_HEAD_REF')
+      ?: System.getenv('GITHUB_REF_NAME')
+      ?: System.getenv('BRANCH_NAME')
+      ?: System.getenv('CI_COMMIT_BRANCH')
+      ?: System.getenv('GIT_BRANCH')
+  if (branch) {
+    return branch
+  }
+  def stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
+    standardOutput = stdout
+  }
+  return stdout.toString().trim()
+}
+
 group = 'com.cinchapi'
 version  = getVersion()
+ext.currentBranch = getBranch()
+
 // Drop the build component from version number and use that for
 // publishing
 ext.mavenVersion = version.split('\\.')
@@ -33,25 +58,36 @@ ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+-", "-")
 ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+", "").trim()
 ext.mavenVersion = ext.mavenVersion.join(".").replace(".-", "-").replaceAll('\\.$', "")
 
+ext.isReleasable = validateVersion(mavenVersion)
+
 jar {
   manifest {
     attributes("Specificiation-Title": "CCL", "Specificiation-Version": version, "Implementation-Version": version)
   }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-  classifier = 'sources'
-  from sourceSets.main.allSource
+java {
+  withSourcesJar()
+  withJavadocJar()
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-  classifier = 'javadoc'
-  from javadoc.destinationDir
+// Sonatype / Maven Central via Nexus Publish Plugin
+nexusPublishing {
+  repositories {
+    sonatype {
+      nexusUrl = uri('https://ossrh-staging-api.central.sonatype.com/service/local/')
+      snapshotRepositoryUrl = uri('https://central.sonatype.com/repository/maven-snapshots/')
+      username = System.getenv('CENTRAL_TOKEN_USER')
+      password = System.getenv('CENTRAL_TOKEN_PASS')
+    }
+  }
 }
 
-artifacts {
-  archives sourcesJar
-  archives javadocJar
+tasks.matching { it.name.contains('publishToSonatype') }.configureEach {
+  onlyIf { isReleasable }
+}
+tasks.matching { it.name.contains('closeSonatype') || it.name.contains('releaseSonatype') || it.name.contains('closeAndReleaseSonatype') }.configureEach {
+  onlyIf { isReleasable && currentBranch == 'master' }
 }
 
 publishing {
@@ -60,7 +96,7 @@ publishing {
       name = 'cloudsmith'
       def releasesRepoUrl = "https://api-g.cloudsmith.io/maven/cinchapi/open-source/"
       def snapshotsRepoUrl = "https://api-g.cloudsmith.io/maven/cinchapi/open-source-snapshots/"
-      url = mavenVersion.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+      url = (isReleasable && !mavenVersion.endsWith('SNAPSHOT')) ? releasesRepoUrl : snapshotsRepoUrl
       credentials {
         username = System.getenv('CLOUDSMITH_API_USER')
         password = System.getenv('CLOUDSMITH_API_KEY')
@@ -70,60 +106,39 @@ publishing {
   publications {
     maven(MavenPublication) {
       from components.java
-      artifact sourcesJar
-      artifact javadocJar
       groupId group
       artifactId project.name
       version mavenVersion
+      pom {
+        name = project.name
+        description = 'The official specification and library for the Concourse Criteria Language'
+        url = 'https://github.com/cinchapi/ccl'
+        inceptionYear = '2015'
+        licenses {
+          license {
+            name = 'Apache-2.0'
+            url = 'https://spdx.org/licenses/Apache-2.0.html'
+          }
+        }
+        developers {
+          developer {
+            id = 'jnelson'
+            name = 'Jeff Nelson'
+          }
+        }
+        scm {
+          connection = 'scm:git:https://github.com/cinchapi/ccl.git'
+          developerConnection = 'scm:git:ssh://github.com/cinchapi/ccl.git'
+          url = 'https://github.com/cinchapi/ccl'
+        }
+      }
     }
   }
 }
 
 signing {
-  required { gradle.taskGraph.hasTask("uploadArchives") }
-  sign configurations.archives
-}
-
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-      pom.version = mavenVersion
-
-      pom.project {
-        name project.name
-        packaging 'jar'
-        description 'The official specificiation and library for the Concourse Criteria Language'
-        url 'https://cinchapi.com'
-
-        scm {
-          url 'git@github.com:cinchapi/ccl.git'
-          connection 'git@github.com:cinchapi/ccl.git'
-          developerConnection 'git@github.com:cinchapi/ccl.git'
-        }
-
-        licenses {
-          license {
-            name 'The Apache License'
-            url 'http://opensource.org/licenses/Apache-2.0'
-            distribution 'repo'
-          }
-        }
-
-        developers {
-          developer {
-            id 'jnelson'
-            name 'Jeff Nelson'
-          }
-        }
-      }
-
-      def mavenUrl = pom.version.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+){0,1}$') ? 'https://oss.sonatype.org/service/local/staging/deploy/maven2' : 'https://oss.sonatype.org/content/repositories/snapshots'
-      repository(url: mavenUrl) {
-        authentication(userName: sonatypeUsername, password: sonatypePassword)
-      }
-    }
-  }
+  required { isReleasable && !mavenVersion.endsWith('SNAPSHOT') }
+  sign publishing.publications.maven
 }
 
 test {
@@ -135,29 +150,26 @@ test {
 repositories {
   mavenCentral()
   maven {
-    url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    url "https://packages.cinchapi.com/public/open-source/maven/"
   }
   maven {
-    url "https://dl.cloudsmith.io/public/cinchapi/open-source/maven/"
+    url "https://packages.cinchapi.com/public/open-source-snapshots/maven/"
   }
   maven {
-    url "https://dl.cloudsmith.io/public/cinchapi/open-source-snapshots/maven/"
+    url "https://packages.cinchapi.com/public/platform/maven/"
   }
   maven {
-    url "https://dl.cloudsmith.io/public/cinchapi/platform/maven/"
+    url "https://packages.cinchapi.com/public/platform-snapshots/maven/"
   }
   maven {
-    url "https://dl.cloudsmith.io/public/cinchapi/platform-snapshots/maven/"
-  }
-  maven {
-    url "https://dl.cloudsmith.io/public/cinchapi/enterprise/maven/"
+    url "https://packages.cinchapi.com/public/enterprise/maven/"
     credentials {
       username = System.getenv('CLOUDSMITH_API_USER')
       password = System.getenv('CLOUDSMITH_API_KEY')
     }
   }
   maven {
-    url "https://dl.cloudsmith.io/public/cinchapi/enterprise-snapshots/maven/"
+    url "https://packages.cinchapi.com/public/enterprise-snapshots/maven/"
     credentials {
       username = System.getenv('CLOUDSMITH_API_USER')
       password = System.getenv('CLOUDSMITH_API_KEY')
@@ -168,16 +180,16 @@ repositories {
 ext.concourseVersion = '0.12.0'
 
 dependencies {
-  compile 'com.google.code.findbugs:jsr305:2.0.1'
-  compile 'com.google.guava:guava:25.1-jre'
-  compile 'com.joestelmach:natty:0.13'
-  compile (group: 'com.cinchapi', name: 'accent4j', version: '1.6.1', changing:true) {
+  implementation 'com.google.code.findbugs:jsr305:2.0.1'
+  implementation 'com.google.guava:guava:25.1-jre'
+  implementation 'com.joestelmach:natty:0.13'
+  implementation (group: 'com.cinchapi', name: 'accent4j', version: '1.6.1', changing:true) {
     exclude group: 'com.google.guava', module: 'guava'
   }
-  compile 'joda-time:joda-time:2.2'
+  implementation 'joda-time:joda-time:2.2'
 
-  testCompile 'junit:junit:4.11'
-  testCompile (group: 'com.cinchapi', name: 'concourse-driver-java', version: concourseVersion) {
+  testImplementation 'junit:junit:4.11'
+  testImplementation (group: 'com.cinchapi', name: 'concourse-driver-java', version: concourseVersion) {
       exclude group: 'com.cinchapi', module: 'ccl'
   }
 }
