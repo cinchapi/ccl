@@ -47,19 +47,6 @@ class CompilerJavaCC extends Compiler {
     }
 
     @Override
-    public AbstractSyntaxTree parse(String ccl, Multimap<String, Object> data) {
-        try {
-            Grammar grammar = createGrammar(ccl, data);
-            GrammarVisitor visitor = createVisitor();
-            ASTStart start = grammar.generateAST();
-            return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
-        }
-        catch (Exception exception) {
-            throw new PropagatedSyntaxException(exception, ccl);
-        }
-    }
-
-    @Override
     public List<AbstractSyntaxTree> compile(String ccl,
             Multimap<String, Object> data) {
         try {

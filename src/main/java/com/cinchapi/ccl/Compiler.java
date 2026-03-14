@@ -91,7 +91,7 @@ public abstract class Compiler {
      * Evaluate the {@code ccl} statement. If it is well-formed, return a
      * {@link AbstractSyntaxTree} that can be used to logically evaluate the
      * statement.
-     * 
+     *
      * @param ccl the CCL statement to parse
      * @return an {@link AbstractSyntaxTree} that represents the CCL statement
      */
@@ -108,14 +108,22 @@ public abstract class Compiler {
      * variable values in the CCL statement. The variable values, will be
      * replaced with values from the local {@code data} if possible.
      * </p>
-     * 
+     *
      * @param ccl the CCL statement to parse
      * @param data data that can be used to perform local resolution of any
      *            value variables (e.g. ssn = $ssn) in the CCL statement
      * @return an {@link AbstractSyntaxTree} that represents the CCL statement
      */
-    public abstract AbstractSyntaxTree parse(String ccl,
-            Multimap<String, Object> data);
+    public AbstractSyntaxTree parse(String ccl,
+            Multimap<String, Object> data) {
+        try {
+            return compile(ccl, data).get(0);
+        }
+        catch (IndexOutOfBoundsException e) {
+            throw new IllegalArgumentException(
+                    "No statements found in: " + ccl);
+        }
+    }
 
     /**
      * Evaluate a CCL string that may contain multiple statements separated by
