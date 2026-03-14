@@ -552,12 +552,12 @@ if (jjtc001) {
         throw new ParseException();
       }
 jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
+      jjtc000 = false;
 jjtn000.key(key);
-          jjtn000.operator(operator);
-          jjtn000.addValue(value1);
-          if(value2 != null) jjtn000.addValue(value2);
-          if(timestamp != null) jjtn000.timestamp(timestamp);
+      jjtn000.operator(operator);
+      jjtn000.addValue(value1);
+      if(value2 != null) jjtn000.addValue(value2);
+      if(timestamp != null) jjtn000.timestamp(timestamp);
     } catch (Throwable jjte000) {
 if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -577,6 +577,55 @@ if (jjtc000) {
         jjtree.closeNodeScope(jjtn000, true);
       }
     }
+}
+
+  final public KeyTokenSymbol SearchKey() throws ParseException {Token key;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case RESERVED_IDENTIFIER:
+    case NUMERIC:
+    case SIGNED_INTEGER:
+    case SIGNED_DECIMAL:
+    case ALPHANUMERIC:{
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case RESERVED_IDENTIFIER:{
+        key = jj_consume_token(RESERVED_IDENTIFIER);
+        break;
+        }
+      case SIGNED_INTEGER:{
+        key = jj_consume_token(SIGNED_INTEGER);
+        break;
+        }
+      case SIGNED_DECIMAL:{
+        key = jj_consume_token(SIGNED_DECIMAL);
+        break;
+        }
+      case NUMERIC:{
+        key = jj_consume_token(NUMERIC);
+        break;
+        }
+      case ALPHANUMERIC:{
+        key = jj_consume_token(ALPHANUMERIC);
+        break;
+        }
+      default:
+        jj_la1[17] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+{if ("" != null) return new KeySymbol(key.image);}
+      break;
+      }
+    case PERIOD_SEPARATED_STRING:{
+      key = jj_consume_token(PERIOD_SEPARATED_STRING);
+{if ("" != null) return new NavigationKeySymbol(key.image);}
+      break;
+      }
+    default:
+      jj_la1[18] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
 }
 
   final public KeyTokenSymbol Key() throws ParseException {FunctionKeySymbol function;
@@ -877,6 +926,95 @@ if (value.equals("") |
     throw new Error("Missing return statement in function");
 }
 
+  final public ValueTokenSymbol SearchValue() throws ParseException {FunctionValueSymbol function;
+  Token key;
+  Token word;
+  String value = "";
+  List<String> records = Lists.newArrayList();
+  ASTStart ccl;
+    if (jj_2_10(2)) {
+      function = ValueFunction();
+{if ("" != null) return function;}
+    } else {
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case NUMERIC:
+      case SIGNED_INTEGER:
+      case SIGNED_DECIMAL:
+      case ALPHANUMERIC:
+      case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
+        label_6:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+          case SIGNED_INTEGER:{
+            word = jj_consume_token(SIGNED_INTEGER);
+            break;
+            }
+          case SIGNED_DECIMAL:{
+            word = jj_consume_token(SIGNED_DECIMAL);
+            break;
+            }
+          case NUMERIC:{
+            word = jj_consume_token(NUMERIC);
+            break;
+            }
+          case ALPHANUMERIC:{
+            word = jj_consume_token(ALPHANUMERIC);
+            break;
+            }
+          case NON_ALPHANUMERIC_AND_ALPHANUMERIC:{
+            word = jj_consume_token(NON_ALPHANUMERIC_AND_ALPHANUMERIC);
+            break;
+            }
+          default:
+            jj_la1[26] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
+value += (value.equals("")) ? word.image : " " + word.image;
+          if (jj_2_9(2)) {
+            ;
+          } else {
+            break label_6;
+          }
+        }
+if(value.charAt(0) == '$') {
+        String var = value.substring(1);
+        try {
+            value = Iterables.getOnlyElement(data.get(var)).toString();
+        }
+        catch (IllegalArgumentException e) {
+            String err = "Unable to resolve variable {} because multiple values exist locally: {}";
+            {if (true) throw new SyntaxException(AnyStrings.format(err, value, data.get(var)));}
+        }
+        catch (NoSuchElementException e) {
+            String err = "Unable to resolve variable {} because no values exist locally";
+            {if (true) throw new SyntaxException(AnyStrings.format(err, value));}
+        }
+    }
+    else if(value.length() > 2 && value.charAt(0) == '\\'
+            && value.charAt(1) == '$') {
+        value = value.substring(1);
+    }
+    else {
+        value = value.replace("\\@", "@");
+    }
+    {if ("" != null) return new ValueSymbol(transformValue(value));}
+        break;
+        }
+      case QUOTED_STRING:{
+        word = jj_consume_token(QUOTED_STRING);
+{if ("" != null) return new ValueSymbol(transformValue(word.image.replace("\\\"", "\"")));}
+        break;
+        }
+      default:
+        jj_la1[27] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    }
+    throw new Error("Missing return statement in function");
+}
+
   final public ValueTokenSymbol BinaryValue() throws ParseException {FunctionValueSymbol function;
   Token key;
   Token word;
@@ -1025,6 +1163,25 @@ value = word.image;
     throw new Error("Missing return statement in function");
 }
 
+  final public OperatorSymbol SearchOperator() throws ParseException {Token operator;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case SEARCH_MATCH:{
+      operator = jj_consume_token(SEARCH_MATCH);
+      break;
+      }
+    case SEARCH_EXCLUDE:{
+      operator = jj_consume_token(SEARCH_EXCLUDE);
+      break;
+      }
+    default:
+      jj_la1[32] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+{if ("" != null) return new OperatorSymbol(transformOperator(operator.image));}
+    throw new Error("Missing return statement in function");
+}
+
   final public TimestampSymbol Timestamp() throws ParseException {Token word;
   String timestamp = "";
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -1077,7 +1234,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
       if (jj_2_13(2)) {
         ;
       } else {
-        break label_6;
+        break label_7;
       }
     }
 {if ("" != null) return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp));}
@@ -3788,7 +3945,14 @@ keys.add(key.toString());
     finally { jj_save(46, xla); }
   }
 
-  private boolean jj_3R_19()
+  private boolean jj_3R_21()
+ {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
+  private boolean jj_3_15()
  {
     Token xsp;
     xsp = jj_scanpos;
@@ -3949,7 +4113,7 @@ keys.add(key.toString());
     return false;
   }
 
-  private boolean jj_3R_18()
+  private boolean jj_3R_20()
  {
     if (jj_3R_42()) return true;
     return false;
@@ -4369,7 +4533,7 @@ keys.add(key.toString());
     return false;
   }
 
-  private boolean jj_3_1()
+  private boolean jj_3R_28()
  {
     Token xsp;
     xsp = jj_scanpos;
@@ -4385,12 +4549,88 @@ keys.add(key.toString());
 
   private boolean jj_3R_84()
  {
-    if (jj_scan_token(QUOTED_STRING)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(41)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(42)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(39)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(43)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(45)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(44)) return true;
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_46()
+ {
+    if (jj_3R_60()) return true;
+    if (jj_3R_61()) return true;
+    if (jj_3R_61()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_45()
+ {
+    if (jj_3R_57()) return true;
+    if (jj_3R_58()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_59()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3_11()
+ {
+    if (jj_3R_19()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_61()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_11()) {
+    jj_scanpos = xsp;
+    if (jj_3R_67()) {
+    jj_scanpos = xsp;
+    if (jj_3R_68()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_44()
+ {
+    if (jj_3R_54()) return true;
+    if (jj_3R_55()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_56()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3R_43()
+ {
+    if (jj_3R_51()) return true;
+    if (jj_3R_52()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_53()) jj_scanpos = xsp;
     return false;
   }
 
   private boolean jj_3R_63()
  {
+    if (jj_3R_42()) return true;
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_69()) {
@@ -4920,10 +5160,7 @@ keys.add(key.toString());
     xsp = jj_scanpos;
     if (jj_scan_token(52)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(37)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(41)) return true;
-    }
+    if (jj_3R_46()) return true;
     }
     if (jj_3_14()) return true;
     while (true) {

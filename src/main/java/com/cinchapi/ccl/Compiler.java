@@ -24,7 +24,7 @@ import java.util.function.Function;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
-import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
@@ -126,19 +126,19 @@ public abstract class Compiler {
      */
     public final StatementAnalysis analyze(ConditionTree tree) {
         return new StatementAnalysis() {
-            
+
             List<Symbol> tokens = null;
 
             @Override
-            public Set<String> keys() {              
+            public Set<String> keys() {
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize($tokens().size());
                 $tokens().forEach((symbol) -> {
                     if(symbol instanceof ExpressionSymbol) {
                         keys.add(((ExpressionSymbol) symbol).raw().key());
                     }
-                    else if(symbol instanceof KeySymbol) {
-                        keys.add(((KeySymbol) symbol).key());
+                    else if(symbol instanceof KeyTokenSymbol) {
+                        keys.add(((KeyTokenSymbol<?>) symbol).key().toString());
                     }
                 });
                 return Collections.unmodifiableSet(keys);
@@ -176,7 +176,7 @@ public abstract class Compiler {
                 });
                 return operators;
             }
-            
+
             private List<Symbol> $tokens() {
                 if(tokens == null) {
                     tokens = tokenize(tree);

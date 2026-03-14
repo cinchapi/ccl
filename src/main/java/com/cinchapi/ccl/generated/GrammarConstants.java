@@ -274,6 +274,8 @@ public interface GrammarConstants {
     "\"order by\"",
     "\"asc\"",
     "\"desc\"",
+    "<SEARCH_MATCH>",
+    "<SEARCH_EXCLUDE>",
     "\"|\"",
     "<QUOTED_STRING>",
     "<DOUBLE_QUOTED_STRING>",

@@ -1173,6 +1173,58 @@ public class JavaCCParserLogicTest {
     }
 
     @Test
+    public void testNavigationKeyWithContainsOperator() {
+        String ccl = "mother.children contains 'foo'";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("mother.children", expression.key().toString());
+        Assert.assertEquals("CONTAINS", expression.operator().toString());
+        Assert.assertEquals("foo", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testLongNavigationKeyWithContainsOperator() {
+        String ccl = "mother.mother.siblings contains 'bar'";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("mother.mother.siblings",
+                expression.key().toString());
+        Assert.assertEquals("CONTAINS", expression.operator().toString());
+        Assert.assertEquals("bar", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testNavigationKeyWithNotContainsOperator() {
+        String ccl = "mother.children not_contains 'foo'";
+
+        // Generate tree
+        Parser parser = Parser.create(ccl, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = parser.parse();
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("mother.children", expression.key().toString());
+        Assert.assertEquals("NOT_CONTAINS", expression.operator().toString());
+        Assert.assertEquals("foo", expression.values().get(0).toString());
+    }
+
+    @Test
     public void testPeriodSeparatedValue() {
         String ccl = "mother = a.b.c";
 

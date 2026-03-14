@@ -18,6 +18,7 @@ package com.cinchapi.ccl;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.cinchapi.ccl.syntax.ConjunctionTree;
@@ -53,6 +54,7 @@ import com.cinchapi.concourse.thrift.Operator;
 import com.cinchapi.concourse.time.Time;
 import com.cinchapi.concourse.util.Random;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
@@ -1300,6 +1302,16 @@ public abstract class CompilerTest {
         ExpressionTree expression = (ExpressionTree) ast;
         ExpressionSymbol symbol = (ExpressionSymbol) expression.root();
         Assert.assertEquals(new ValueSymbol("%North Carolina%"), symbol.values().iterator().next());
+    }
+    
+    @Test
+    public void testReproGH_47() {
+        String ccl = "name ~ jeff and company.name = cinchapi or age | avg > 30";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Set<String> keys = compiler.analyze(tree).keys();
+        System.out.println(keys);
+        Assert.assertEquals(ImmutableSet.of("name", "company.name", "age | avg"), keys);
     }
 
     protected abstract Compiler createCompiler();
