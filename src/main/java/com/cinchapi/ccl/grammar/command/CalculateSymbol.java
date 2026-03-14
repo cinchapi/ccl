@@ -25,7 +25,7 @@ public class CalculateSymbol implements CommandSymbol {
      * The set of valid calculation function names.
      */
     private static final Set<String> VALID_FUNCTIONS = ImmutableSet.of(
-            "sum", "average", "count", "min", "max");
+            "sum", "avg", "average", "count", "min", "max");
 
     private final String function;
     private final KeyTokenSymbol<?> key;

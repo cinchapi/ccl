@@ -49,6 +49,18 @@ A CCL input can be one of five statement types:
 
 Multiple statements can be separated by semicolons.
 
+### Preposition Aliasing
+
+CCL accepts semantically appropriate preposition aliases before record references. The keyword `within` is always accepted wherever `in` is accepted. The full rules are:
+
+| Operation Type | Commands | Accepted Prepositions |
+|----------------|----------|----------------------|
+| **Write/Put** | ADD, SET, INSERT | `in`, `to`, `within`, `into` (INSERT only) |
+| **Read/Extract** | SELECT, GET, NAVIGATE, CALCULATE | `from`, `in`, `within` |
+| **Remove** | REMOVE, CLEAR | `from`, `in`, `within` |
+| **Inspect** | VERIFY, VERIFY_AND_SWAP, VERIFY_OR_SET, CHRONICLE, DIFF, AUDIT, REVERT, RECONCILE | `in`, `within` |
+| **Directional** | LINK, UNLINK | `from` ... `to` (no aliases) |
+
 ---
 
 ## 2. Statement Types
@@ -564,14 +576,14 @@ Add a value to a key, optionally in specific record(s).
 
 ```
 add <key> as <value>
-add <key> as <value> in <record>
-add <key> as <value> in [<records>]
+add <key> as <value> (in|to|within) <record>
+add <key> as <value> (in|to|within) [<records>]
 ```
 
 ```
 add name as jeff
 add name as jeff in 1
-add name as jeff in [1, 2, 3]
+add name as jeff to [1, 2, 3]
 ```
 
 #### SET
@@ -579,13 +591,13 @@ add name as jeff in [1, 2, 3]
 Set a value for a key in a record (replaces existing values).
 
 ```
-set <key> as <value> in <record>
-set <key> as <value> in [<records>]
+set <key> as <value> (in|to|within) <record>
+set <key> as <value> (in|to|within) [<records>]
 ```
 
 ```
 set name as jeff in 1
-set name as jeff in [1, 2, 3]
+set name as jeff to [1, 2, 3]
 ```
 
 #### REMOVE
@@ -593,19 +605,19 @@ set name as jeff in [1, 2, 3]
 Remove a specific value from a key, or remove all values.
 
 ```
-remove <key> as <value> from <record>
-remove <key> as <value> from [<records>]
-remove <key> from <record>
-remove <key> in <record>
+remove <key> as <value> (from|in|within) <record>
+remove <key> as <value> (from|in|within) [<records>]
+remove <key> (from|in|within) <record>
 ```
 
 ```
 remove name as jeff from 1
 remove name as jeff from [1, 2, 3]
-remove name from 1
+remove name in 1
+remove name within 1
 ```
 
-Note: `from` and `in` are interchangeable in the remove command.
+Note: `from`, `in`, and `within` are interchangeable in the remove command.
 
 #### CLEAR
 
@@ -614,17 +626,18 @@ Clear all values for a key in a record, or clear an entire record.
 ```
 clear <record>
 clear [<records>]
-clear <key> from <record>
-clear <key> from [<records>]
-clear [<keys>] from <record>
-clear [<keys>] from [<records>]
+clear <key> (from|in|within) <record>
+clear <key> (from|in|within) [<records>]
+clear [<keys>] (from|in|within) <record>
+clear [<keys>] (from|in|within) [<records>]
 ```
 
 ```
 clear 1
 clear [1, 2, 3]
 clear name from 1
-clear [name, age] from [1, 2, 3]
+clear name in 1
+clear [name, age] within [1, 2, 3]
 ```
 
 #### VERIFY_AND_SWAP
@@ -632,8 +645,8 @@ clear [name, age] from [1, 2, 3]
 Atomic compare-and-swap: if the key has the expected value, replace it.
 
 ```
-verify_and_swap <key> as <expected> in <record> with <replacement>
-verifyAndSwap <key> as <expected> in <record> with <replacement>
+verify_and_swap <key> as <expected> (in|within) <record> with <replacement>
+verifyAndSwap <key> as <expected> (in|within) <record> with <replacement>
 ```
 
 ```
@@ -646,8 +659,8 @@ verifyAndSwap status as pending in 42 with active
 If the key doesn't have the value, set it.
 
 ```
-verify_or_set <key> as <value> in <record>
-verifyOrSet <key> as <value> in <record>
+verify_or_set <key> as <value> (in|within) <record>
+verifyOrSet <key> as <value> (in|within) <record>
 ```
 
 ```
@@ -665,10 +678,8 @@ Insert a JSON document as a new record or into existing record(s).
 
 ```
 insert <json>
-insert <json> in <record>
-insert <json> into <record>
-insert <json> in [<records>]
-insert <json> into [<records>]
+insert <json> (in|into|to|within) <record>
+insert <json> (in|into|to|within) [<records>]
 ```
 
 The JSON must be a quoted string containing a valid JSON object:
@@ -677,9 +688,10 @@ The JSON must be a quoted string containing a valid JSON object:
 insert '{"name": "jeff", "age": 30}'
 insert '{"status": "active"}' in 1
 insert '{"role": "admin"}' into [1, 2, 3]
+insert '{"role": "admin"}' to 1
 ```
 
-Note: `in` and `into` are interchangeable.
+Note: `in`, `into`, `to`, and `within` are interchangeable.
 
 ---
 
@@ -720,17 +732,18 @@ unlink friends from 1 to 2
 Select key values from records, with condition, or by record ID.
 
 ```
-select <key> from <record> [timestamp] [order] [page]
-select <key> from [<records>] [timestamp] [order] [page]
-select [<keys>] from <record> [timestamp] [order] [page]
-select [<keys>] from [<records>] [timestamp] [order] [page]
+select <key> (from|in|within) <record> [timestamp] [order] [page]
+select <key> (from|in|within) [<records>] [timestamp] [order] [page]
+select [<keys>] (from|in|within) <record> [timestamp] [order] [page]
+select [<keys>] (from|in|within) [<records>] [timestamp] [order] [page]
 select <key> where <condition> [timestamp] [order] [page]
 select [<keys>] where <condition> [timestamp] [order] [page]
 ```
 
 ```
 select name from 1
-select [name, age] from 1
+select name in 1
+select [name, age] within 1
 select name from [1, 2, 3]
 select name where age > 30
 select name where age > 30 order by name page 1 size 10
@@ -743,16 +756,17 @@ select name from 1 as of "2024-01-01"
 Get key values (similar to select with different semantics).
 
 ```
-get <key> from <record> [timestamp] [order] [page]
-get <key> from [<records>] [timestamp] [order] [page]
-get [<keys>] from <record> [timestamp] [order] [page]
-get [<keys>] from [<records>] [timestamp] [order] [page]
+get <key> (from|in|within) <record> [timestamp] [order] [page]
+get <key> (from|in|within) [<records>] [timestamp] [order] [page]
+get [<keys>] (from|in|within) <record> [timestamp] [order] [page]
+get [<keys>] (from|in|within) [<records>] [timestamp] [order] [page]
 get [<keys>] where <condition> [timestamp] [order] [page]
 ```
 
 ```
 get name from 1
-get [name, age] from [1, 2, 3]
+get name in 1
+get [name, age] within [1, 2, 3]
 get [name, age] where score > 90 order by name
 ```
 
@@ -821,7 +835,7 @@ describe as of "2024-01-01"
 Check if a specific key-value pair exists in a record.
 
 ```
-verify <key> as <value> in <record> [timestamp]
+verify <key> as <value> (in|within) <record> [timestamp]
 ```
 
 ```
@@ -862,17 +876,18 @@ browse name at "yesterday"
 Navigate linked data through navigation keys.
 
 ```
-navigate <key> from <record> [timestamp]
-navigate <key> from [<records>] [timestamp]
-navigate [<keys>] from <record> [timestamp]
-navigate [<keys>] from [<records>] [timestamp]
+navigate <key> (from|in|within) <record> [timestamp]
+navigate <key> (from|in|within) [<records>] [timestamp]
+navigate [<keys>] (from|in|within) <record> [timestamp]
+navigate [<keys>] (from|in|within) [<records>] [timestamp]
 navigate <key> where <condition> [timestamp]
 navigate [<keys>] where <condition> [timestamp]
 ```
 
 ```
 navigate friends.name from 1
-navigate [friends.name, age] from [1, 2]
+navigate friends.name in 1
+navigate [friends.name, age] within [1, 2]
 navigate friends.name where age > 30
 ```
 
@@ -881,7 +896,7 @@ navigate friends.name where age > 30
 View the change history for a key in a record.
 
 ```
-chronicle <key> in <record> [start_timestamp [end_timestamp]]
+chronicle <key> (in|within) <record> [start_timestamp [end_timestamp]]
 ```
 
 ```
@@ -896,7 +911,7 @@ Compare state between timestamps.
 
 ```
 diff <record> <start_timestamp> [end_timestamp]
-diff <key> in <record> <start_timestamp> [end_timestamp]
+diff <key> (in|within) <record> <start_timestamp> [end_timestamp]
 diff <key> <start_timestamp> <end_timestamp>
 diff <key> <start_timestamp>
 ```
@@ -914,7 +929,7 @@ View the audit log for a record or a key in a record.
 
 ```
 audit <record> [start_timestamp [end_timestamp]]
-audit <key> in <record> [start_timestamp [end_timestamp]]
+audit <key> (in|within) <record> [start_timestamp [end_timestamp]]
 ```
 
 ```
@@ -970,7 +985,7 @@ The `with $id$` option includes the record identifier in the JSON output.
 Reconcile a key's values in a record with a given set of values.
 
 ```
-reconcile <key> in <record> with [<values>]
+reconcile <key> (in|within) <record> with [<values>]
 ```
 
 ```
@@ -1014,10 +1029,10 @@ abort
 Revert key(s) in record(s) to a previous state at a given timestamp.
 
 ```
-revert <key> in <record> <timestamp>
-revert <key> in [<records>] <timestamp>
-revert [<keys>] in <record> <timestamp>
-revert [<keys>] in [<records>] <timestamp>
+revert <key> (in|within) <record> <timestamp>
+revert <key> (in|within) [<records>] <timestamp>
+revert [<keys>] (in|within) <record> <timestamp>
+revert [<keys>] (in|within) [<records>] <timestamp>
 ```
 
 ```
@@ -1073,15 +1088,16 @@ Perform aggregate calculations.
 
 ```
 calculate <function> <key> [timestamp]
-calculate <function> <key> in <record> [timestamp]
-calculate <function> <key> in [<records>] [timestamp]
+calculate <function> <key> (from|in|within) <record> [timestamp]
+calculate <function> <key> (from|in|within) [<records>] [timestamp]
 calculate <function> <key> where <condition> [timestamp]
 ```
 
 ```
 calculate sum age
 calculate avg score in 1
-calculate count name in [1, 2, 3]
+calculate avg score from 1
+calculate count name within [1, 2, 3]
 calculate sum salary where department = engineering
 calculate avg score where score > 50 at "yesterday"
 ```
@@ -1214,6 +1230,78 @@ ValueCollection   ::= '[' Value (',' Value)* ']'
 (* JSON *)
 JsonObject        ::= QUOTED_STRING       (* containing valid JSON *)
 
+(* Prepositions *)
+WritePreposition  ::= 'in' | 'to' | 'within'
+InsertPreposition ::= 'in' | 'into' | 'to' | 'within'
+ReadPreposition   ::= 'from' | 'in' | 'within'
+RemovePreposition ::= 'from' | 'in' | 'within'
+InspectPreposition::= 'in' | 'within'
+
+(* Commands *)
+Command           ::= AddCommand | SetCommand | InsertCommand
+                    | RemoveCommand | ClearCommand
+                    | SelectCommand | GetCommand | NavigateCommand | CalculateCommand
+                    | VerifyCommand | VerifyAndSwapCommand | VerifyOrSetCommand
+                    | ChronicleCommand | DiffCommand | AuditCommand
+                    | RevertCommand | ReconcileCommand
+                    | LinkCommand | UnlinkCommand
+                    | FindCommand | PingCommand
+
+AddCommand        ::= 'add' Key 'as' Value WritePreposition NUMERIC
+                    | 'add' Key 'as' Value WritePreposition RecordCollection
+SetCommand        ::= 'set' Key 'as' Value WritePreposition NUMERIC
+                    | 'set' Key 'as' Value WritePreposition RecordCollection
+InsertCommand     ::= 'insert' JsonObject
+                    | 'insert' JsonObject InsertPreposition NUMERIC
+                    | 'insert' JsonObject InsertPreposition RecordCollection
+RemoveCommand     ::= 'remove' Key 'as' Value RemovePreposition NUMERIC
+                    | 'remove' Key 'as' Value RemovePreposition RecordCollection
+ClearCommand      ::= 'clear' Key RemovePreposition NUMERIC
+                    | 'clear' Key RemovePreposition RecordCollection
+                    | 'clear' NUMERIC
+                    | 'clear' RecordCollection
+
+SelectCommand     ::= 'select' Key ReadPreposition NUMERIC [TimestampCommand] [Order] [Page]
+                    | 'select' Key ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
+                    | 'select' KeyCollection ReadPreposition NUMERIC [TimestampCommand] [Order] [Page]
+                    | 'select' KeyCollection ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
+                    | 'select' Key 'where' Condition [TimestampCommand] [Order] [Page]
+                    | 'select' KeyCollection 'where' Condition [TimestampCommand] [Order] [Page]
+                    | 'select' NUMERIC [TimestampCommand]
+                    | 'select' RecordCollection [TimestampCommand]
+GetCommand        ::= 'get' Key ReadPreposition NUMERIC [TimestampCommand] [Order] [Page]
+                    | 'get' Key ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
+                    | 'get' KeyCollection ReadPreposition NUMERIC [TimestampCommand] [Order] [Page]
+                    | 'get' KeyCollection ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
+                    | 'get' Key 'where' Condition [TimestampCommand] [Order] [Page]
+                    | 'get' KeyCollection 'where' Condition [TimestampCommand] [Order] [Page]
+NavigateCommand   ::= 'navigate' NavigationKey ReadPreposition NUMERIC [TimestampCommand] [Order] [Page]
+                    | 'navigate' NavigationKey ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
+                    | 'navigate' NavigationKey 'where' Condition [TimestampCommand] [Order] [Page]
+CalculateCommand  ::= 'calculate' ALPHANUMERIC Key ReadPreposition NUMERIC [TimestampCommand]
+                    | 'calculate' ALPHANUMERIC Key ReadPreposition RecordCollection [TimestampCommand]
+                    | 'calculate' ALPHANUMERIC Key 'where' Condition [TimestampCommand]
+
+VerifyCommand     ::= 'verify' Key 'as' Value InspectPreposition NUMERIC [TimestampCommand]
+VerifyAndSwapCommand ::= 'verify_and_swap' Key 'as' Value InspectPreposition NUMERIC 'as' Value
+VerifyOrSetCommand::= 'verify_or_set' Key 'as' Value InspectPreposition NUMERIC
+ChronicleCommand  ::= 'chronicle' Key InspectPreposition NUMERIC [TimestampCommand [TimestampCommand]]
+DiffCommand       ::= 'diff' Key InspectPreposition NUMERIC TimestampCommand [TimestampCommand]
+                    | 'diff' NUMERIC TimestampCommand [TimestampCommand]
+AuditCommand      ::= 'audit' Key InspectPreposition NUMERIC [TimestampCommand [TimestampCommand]]
+                    | 'audit' NUMERIC [TimestampCommand [TimestampCommand]]
+RevertCommand     ::= 'revert' Key InspectPreposition NUMERIC TimestampCommand
+                    | 'revert' Key InspectPreposition RecordCollection TimestampCommand
+                    | 'revert' NUMERIC TimestampCommand
+                    | 'revert' RecordCollection TimestampCommand
+ReconcileCommand  ::= 'reconcile' Key InspectPreposition NUMERIC
+LinkCommand       ::= 'link' Key 'from' NUMERIC 'to' NUMERIC
+UnlinkCommand     ::= 'unlink' Key 'from' NUMERIC 'to' NUMERIC
+
+FindCommand       ::= 'find' Key Operator Value [Timestamp]
+PingCommand       ::= 'ping' NUMERIC
+                    | 'ping' RecordCollection
+
 (* Multi-statement *)
 Input             ::= Statement (';' Statement)* [';']
 ```
@@ -1242,8 +1330,7 @@ All extend `AbstractSyntaxTree` and support the Visitor pattern via `accept(Visi
 
 | Class | Method | Purpose |
 |-------|--------|---------|
-| `Compiler` | `compile(String)` | Parse a single CCL statement into an AST |
-| `Compiler` | `compileBatch(String)` | Parse multiple semicolon-separated statements |
-| `Compiler` | `tokenize(String)` | Tokenize a CCL condition into postfix notation symbols |
-| `Parsing` | `toPostfixNotation(String)` | Convert infix CCL to postfix notation |
+| `Compiler` | `compile(String)` | Parse one or more semicolon-separated CCL statements into a list of ASTs |
+| `Compiler` | `compile(String, Multimap)` | Same as above with local variable data for resolution |
+| `Compiler` | `tokenize(AbstractSyntaxTree)` | Tokenize a condition AST into postfix notation symbols |
 | `Parsing` | `toPostfixNotation(List<Symbol>)` | Convert symbol list to postfix (Shunting-Yard) |
