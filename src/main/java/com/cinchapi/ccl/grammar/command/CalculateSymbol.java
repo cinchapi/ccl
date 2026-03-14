@@ -10,14 +10,23 @@
 package com.cinchapi.ccl.grammar.command;
 
 import java.util.Collection;
+import java.util.Set;
 import javax.annotation.Nullable;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * A {@link CommandSymbol} that represents a CALCULATE command.
  */
 public class CalculateSymbol implements CommandSymbol {
+
+    /**
+     * The set of valid calculation function names.
+     */
+    private static final Set<String> VALID_FUNCTIONS = ImmutableSet.of(
+            "sum", "average", "count", "min", "max");
+
     private final String function;
     private final KeyTokenSymbol<?> key;
     private final Collection<Long> records;
@@ -30,11 +39,18 @@ public class CalculateSymbol implements CommandSymbol {
      * @param key the key to calculate on
      * @param records the records to include
      * @param timestamp optional timestamp for historical calculation
+     * @throws IllegalArgumentException if the function is not a valid
+     *             calculation function
      */
     public CalculateSymbol(String function, KeyTokenSymbol<?> key,
                            @Nullable Collection<Long> records,
                            @Nullable TimestampSymbol timestamp) {
-        this.function = function;
+        if(!VALID_FUNCTIONS.contains(function.toLowerCase())) {
+            throw new IllegalArgumentException(
+                    "Invalid calculation function '" + function
+                            + "'. Must be one of: " + VALID_FUNCTIONS);
+        }
+        this.function = function.toLowerCase();
         this.key = key;
         this.records = records;
         this.timestamp = timestamp;

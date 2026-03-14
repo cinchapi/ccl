@@ -2089,6 +2089,44 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void testCalculateSumSingleRecordCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate sum age in 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testCalculateSumSingleRecordWithTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate sum age in 1 at \"December 30, 1987\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = Exception.class)
+    public void testInvalidCalculateBadFunctionCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate xyzgarbage age";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === NAVIGATE single key with WHERE test ===
+
+    @Test
+    public void testNavigateSingleKeyWhereCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "navigate name where name = \"Jeff\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     /**
      * Constants
      */

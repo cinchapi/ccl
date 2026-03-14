@@ -1301,7 +1301,7 @@ CommandSymbol NavigateCommand() : {
         }
     )
     (
-        (<WHERE> DisjunctionExpression())
+        (<WHERE> DisjunctionExpression()) (timestamp=TimestampReadCommand())?
         { return new NavigateSymbol(keys, (String)null, timestamp); }
       |
         <FROM>
@@ -1312,7 +1312,7 @@ CommandSymbol NavigateCommand() : {
             records=RecordCollection() (timestamp=TimestampReadCommand())?
             { return new NavigateSymbol(keys, records, timestamp); }
         )
-    )?
+    )
 }
 
 CommandSymbol ReconcileCommand() : {
@@ -1482,15 +1482,24 @@ CommandSymbol ConsolidateCommand() : {
 CommandSymbol CalculateCommand() : {
     Token function;
     KeyTokenSymbol<?> key;
+    Token record = null;
     Collection<Long> records = null;
     TimestampSymbol timestamp = null;
 }
 {
     <CALCULATE> function=<ALPHANUMERIC> key=Key()
     (
-        LOOKAHEAD(2)
+        LOOKAHEAD(<IN> <OPEN_BRACKET>)
         <IN> records=RecordCollection() (timestamp=TimestampReadCommand())?
         { return new CalculateSymbol(function.image, key, records, timestamp); }
+      |
+        LOOKAHEAD(<IN> <NUMERIC>)
+        <IN> record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        {
+            records = new ArrayList<Long>();
+            records.add(Long.parseLong(record.image));
+            return new CalculateSymbol(function.image, key, records, timestamp);
+        }
       |
         <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())?
         { return new CalculateSymbol(function.image, key, timestamp); }
