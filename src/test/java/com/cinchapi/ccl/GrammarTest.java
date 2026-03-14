@@ -2325,17 +2325,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testSetWithToPreposition() throws UnsupportedEncodingException, ParseException {
-        String ccl = "set name as \"Jeff\" to 1";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
-        grammar.generateAST();
-    }
-
-    @Test
     public void testSetWithWithinPreposition() throws UnsupportedEncodingException, ParseException {
-        String ccl = "set name as \"Jeff\" within [1, 2, 3]";
+        String ccl = "set name as \"Jeff\" within 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);

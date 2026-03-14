@@ -956,7 +956,7 @@ CommandSymbol SetCommand() : {
     Collection records = null;
 }
 {
-    <SET> key=Key() <AS> value=UnaryValue() (<IN> | <TO> | <WITHIN>)
+    <SET> key=Key() <AS> value=UnaryValue() (<IN> | <WITHIN>)
     (
         record=<NUMERIC>
         { return new SetSymbol(key, value, Long.parseLong(record.image)); }

@@ -51,11 +51,12 @@ Multiple statements can be separated by semicolons.
 
 ### Preposition Aliasing
 
-CCL accepts semantically appropriate preposition aliases before record references. The keyword `within` is always accepted wherever `in` is accepted. The full rules are:
+CCL accepts semantically appropriate preposition aliases before record references. The full rules are:
 
 | Operation Type | Commands | Accepted Prepositions |
 |----------------|----------|----------------------|
-| **Write/Put** | ADD, SET, INSERT | `in`, `to`, `within`, `into` (INSERT only) |
+| **Write/Put** | ADD, INSERT | `in`, `to`, `within`, `into` (INSERT only) |
+| **Write/Put** | SET | `in`, `within` |
 | **Read/Extract** | SELECT, GET, NAVIGATE, CALCULATE | `from`, `in`, `within` |
 | **Remove** | REMOVE, CLEAR | `from`, `in`, `within` |
 | **Inspect** | VERIFY, VERIFY_AND_SWAP, VERIFY_OR_SET, CHRONICLE, DIFF, AUDIT, REVERT, RECONCILE | `in`, `within` |
@@ -591,8 +592,8 @@ add name as jeff to [1, 2, 3]
 Set a value for a key in a record (replaces existing values).
 
 ```
-set <key> as <value> (in|to|within) <record>
-set <key> as <value> (in|to|within) [<records>]
+set <key> as <value> (in|within) <record>
+set <key> as <value> (in|within) [<records>]
 ```
 
 ```
@@ -1232,6 +1233,7 @@ JsonObject        ::= QUOTED_STRING       (* containing valid JSON *)
 
 (* Prepositions *)
 WritePreposition  ::= 'in' | 'to' | 'within'
+SetPreposition    ::= 'in' | 'within'
 InsertPreposition ::= 'in' | 'into' | 'to' | 'within'
 ReadPreposition   ::= 'from' | 'in' | 'within'
 RemovePreposition ::= 'from' | 'in' | 'within'
@@ -1249,8 +1251,8 @@ Command           ::= AddCommand | SetCommand | InsertCommand
 
 AddCommand        ::= 'add' Key 'as' Value WritePreposition NUMERIC
                     | 'add' Key 'as' Value WritePreposition RecordCollection
-SetCommand        ::= 'set' Key 'as' Value WritePreposition NUMERIC
-                    | 'set' Key 'as' Value WritePreposition RecordCollection
+SetCommand        ::= 'set' Key 'as' Value SetPreposition NUMERIC
+                    | 'set' Key 'as' Value SetPreposition RecordCollection
 InsertCommand     ::= 'insert' JsonObject
                     | 'insert' JsonObject InsertPreposition NUMERIC
                     | 'insert' JsonObject InsertPreposition RecordCollection
