@@ -1,5 +1,64 @@
 # Changelog
 
+#### Version 4.0.0
+##### Command Support
+The CCL grammar has been expanded to support parsing **Concourse commands** in addition to conditions, orders, and pages. A command string (e.g., `select name from 1 where age > 30`) is parsed into a `CommandTree` containing a `CommandSymbol` that represents the operation, along with optional `ConditionTree`, `OrderTree`, and `PageTree` children.
+
+###### Supported Commands
+The following Concourse operations can now be expressed and parsed in CCL:
+
+**Data Modification**
+* `add` - Add a value to a key in a record (e.g., `add name as jeff in 1`)
+* `set` - Set a value for a key in a record or records (e.g., `set name as jeff in [1, 2, 3]`)
+* `remove` - Remove a value from a key in a record (e.g., `remove name as jeff from 1`)
+* `clear` - Clear all values for a key in a record (e.g., `clear name from 1`)
+* `insert` - Insert a JSON document (e.g., `insert {"name": "jeff"}`)
+* `reconcile` - Reconcile values for a key in a record (e.g., `reconcile name in 1 with [jeff, bob]`)
+* `verify_and_swap` - Atomically verify and swap a value (e.g., `verify_and_swap name as jeff to bob in 1`)
+* `verify_or_set` - Verify or set a value (e.g., `verify_or_set name as jeff in 1`)
+
+**Data Reading**
+* `select` - Select keys from records with optional conditions, ordering, and pagination
+* `get` - Get key values from records at an optional timestamp
+* `find` - Find records matching a condition with optional ordering and pagination
+* `find_or_add` / `find_or_insert` - Find records matching a condition or add/insert if none found
+* `browse` - Browse values for keys (e.g., `browse name` or `browse [name, age]`)
+* `navigate` - Navigate linked data (e.g., `navigate friends.name from 1 where age > 21`)
+* `describe` - Describe a record's keys at an optional timestamp (e.g., `describe 1 at "yesterday"`)
+* `search` - Full-text search (e.g., `search name for "jeff"`)
+* `verify` - Verify a value exists (e.g., `verify name as jeff in 1`)
+* `jsonify` - Export records as JSON with optional identifier inclusion
+
+**History and Auditing**
+* `audit` - View the audit log for a record or key (e.g., `audit name in 1 at "2024-01-01" at "2024-02-01"`)
+* `chronicle` - View the change history for a key in a record (e.g., `chronicle name in 1`)
+* `diff` - Compare data between timestamps (e.g., `diff 1 at "yesterday" at "today"`)
+* `revert` - Revert keys in records to a prior state (e.g., `revert name in 1 at "last week"`)
+* `trace` - Trace incoming references to a record (e.g., `trace 1`)
+
+**Calculations**
+* `calculate` - Perform aggregate calculations (`sum`, `average`, `count`, `min`, `max`) on key values with optional record filtering and conditions (e.g., `calculate sum age where department = engineering`)
+
+**Links**
+* `link` / `unlink` - Create or remove links between records (e.g., `link friends from 1 to 2`)
+
+**Transactions**
+* `stage` / `commit` / `abort` - Transaction control
+
+**Utility**
+* `ping` - Server health check
+* `holds` - Check if records contain data (e.g., `holds 1` or `holds [1, 2, 3]`)
+* `consolidate` - Merge records (e.g., `consolidate 1 2 3`)
+* `inventory` - List all records
+
+###### New Symbol Classes
+Each command is represented by a dedicated `CommandSymbol` implementation: `AddSymbol`, `SetSymbol`, `RemoveSymbol`, `ClearSymbol`, `InsertSymbol`, `ReconcileSymbol`, `VerifyAndSwapSymbol`, `VerifyOrSetSymbol`, `SelectSymbol`, `GetSymbol`, `FindSymbol`, `FindOrAddSymbol`, `FindOrInsertSymbol`, `BrowseSymbol`, `NavigateSymbol`, `DescribeSymbol`, `SearchSymbol`, `VerifySymbol`, `JsonifySymbol`, `AuditSymbol`, `ChronicleSymbol`, `DiffSymbol`, `RevertSymbol`, `TraceSymbol`, `CalculateSymbol`, `LinkSymbol`, `UnlinkSymbol`, `StageSymbol`, `CommitSymbol`, `AbortSymbol`, `PingSymbol`, `HoldsSymbol`, `ConsolidateSymbol`, `InventorySymbol`.
+
+##### Build Modernization
+* Upgraded Gradle from 3.3 to 8.14.3.
+* Modernized `build.gradle`: replaced deprecated `compile`/`testCompile` with `implementation`/`testImplementation`, added Nexus Publish Plugin for Maven Central publishing, and modernized signing configuration.
+* Upgraded CircleCI configuration from v2 to v2.1 with separate setup, compile, test, and publish jobs.
+
 #### Version 3.2.1 (March 10, 2026)
 * Fixed a bug that caused the `CONTAINS` and `NOT_CONTAINS` search operators to fail when used with navigation keys (e.g., `mother.children contains 'foo'`).
 
