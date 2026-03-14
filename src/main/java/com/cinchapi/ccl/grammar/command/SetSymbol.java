@@ -9,6 +9,8 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
+import java.util.Collection;
+import javax.annotation.Nullable;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 
@@ -19,9 +21,10 @@ public class SetSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final ValueTokenSymbol<?> value;
     private final long record;
+    private final Collection<Long> records;
 
     /**
-     * Construct a new instance.
+     * Construct a new instance for setting in a single record.
      *
      * @param key the key to set
      * @param value the value to set
@@ -31,6 +34,21 @@ public class SetSymbol implements CommandSymbol {
         this.key = key;
         this.value = value;
         this.record = record;
+        this.records = null;
+    }
+
+    /**
+     * Construct a new instance for setting in multiple records.
+     *
+     * @param key the key to set
+     * @param value the value to set
+     * @param records the record identifiers
+     */
+    public SetSymbol(KeyTokenSymbol<?> key, ValueTokenSymbol<?> value, Collection<Long> records) {
+        this.key = key;
+        this.value = value;
+        this.record = -1;
+        this.records = records;
     }
 
     @Override
@@ -57,5 +75,15 @@ public class SetSymbol implements CommandSymbol {
      */
     public long record() {
         return record;
+    }
+
+    /**
+     * Return the record identifiers if setting in multiple records.
+     *
+     * @return the record ids or {@code null} if using single record
+     */
+    @Nullable
+    public Collection<Long> records() {
+        return records;
     }
 }

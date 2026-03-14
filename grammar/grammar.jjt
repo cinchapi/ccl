@@ -169,6 +169,10 @@ TOKEN [IGNORE_CASE] : {
   // Revert operation
 | < REVERT: "revert" >
 
+  // Utility operations
+| < PING: "ping" >
+| < CONSOLIDATE: "consolidate" >
+
   // Other keywords
 | < IN: "in" >
 | < INTO: "into" >
@@ -781,6 +785,8 @@ void Command() #Command : {
         cmd = TransactionOperations()
       |
         cmd = RevertCommand()
+      |
+        cmd = UtilityOperations()
     )
     { jjtThis.command(cmd); }
 }
@@ -830,10 +836,17 @@ CommandSymbol SetCommand() : {
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value;
     Token record;
+    Collection records = null;
 }
 {
-    <SET> key=Key() <AS> value=UnaryValue() <IN> record=<NUMERIC>
-    { return new SetSymbol(key, value, Long.parseLong(record.image)); }
+    <SET> key=Key() <AS> value=UnaryValue() <IN>
+    (
+        record=<NUMERIC>
+        { return new SetSymbol(key, value, Long.parseLong(record.image)); }
+      |
+        records=RecordCollection()
+        { return new SetSymbol(key, value, records); }
+    )
 }
 
 CommandSymbol RemoveCommand() : {
@@ -979,21 +992,10 @@ CommandSymbol UnlinkCommand() : {
     KeyTokenSymbol<?> key;
     Token source;
     Token destination;
-    Collection destinations = null;
 }
 {
-    <UNLINK> key=Key() <FROM> source=<NUMERIC> <TO>
-    (
-        destination=<NUMERIC>
-        {
-            Collection dest = new ArrayList();
-            dest.add(Long.parseLong(destination.image));
-            return new UnlinkSymbol(key, Long.parseLong(source.image), dest);
-        }
-      |
-        destinations=RecordCollection()
-        { return new UnlinkSymbol(key, Long.parseLong(source.image), destinations); }
-    )
+    <UNLINK> key=Key() <FROM> source=<NUMERIC> <TO> destination=<NUMERIC>
+    { return new UnlinkSymbol(key, Long.parseLong(source.image), Long.parseLong(destination.image)); }
 }
 
 CommandSymbol QueryOperations() : {
@@ -1184,11 +1186,23 @@ CommandSymbol SearchCommand() : {
 }
 
 CommandSymbol BrowseCommand() : {
-    Collection<KeyTokenSymbol<?>> keys;
+    KeyTokenSymbol<?> key = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
     TimestampSymbol timestamp = null;
 }
 {
-    <BROWSE> keys=KeyCollection() (timestamp=TimestampReadCommand())?
+    <BROWSE>
+    (
+        LOOKAHEAD(2)
+        keys=KeyCollection()
+      |
+        key=Key()
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
+    )
+    (timestamp=TimestampReadCommand())?
     { return new BrowseSymbol(keys, timestamp); }
 }
 
@@ -1253,23 +1267,39 @@ CommandSymbol JsonifyCommand() : {
     (
         LOOKAHEAD(2)
         record=<NUMERIC>
-        { return new JsonifySymbol(Long.parseLong(record.image), identifier); }
       |
         records=RecordCollection()
-        { return new JsonifySymbol(records, identifier); }
     )
     (<WITH> <RESERVED_IDENTIFIER> { identifier = true; })?
     (timestamp=TimestampReadCommand())?
+    {
+        if(record != null) {
+            return new JsonifySymbol(Long.parseLong(record.image), null, timestamp, identifier);
+        } else {
+            return new JsonifySymbol(null, records, timestamp, identifier);
+        }
+    }
 }
 
 CommandSymbol NavigateCommand() : {
-    Collection<KeyTokenSymbol<?>> keys;
+    KeyTokenSymbol<?> key = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
     Token record = null;
     Collection<Long> records = null;
     TimestampSymbol timestamp = null;
 }
 {
-    <NAVIGATE> keys=KeyCollection()
+    <NAVIGATE>
+    (
+        LOOKAHEAD(2)
+        keys=KeyCollection()
+      |
+        key=Key()
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
+    )
     (
         (<WHERE> DisjunctionExpression())
         { return new NavigateSymbol(keys, (String)null, timestamp); }
@@ -1393,6 +1423,80 @@ CommandSymbol RevertCommand() : {
         keys=KeyCollection() <IN> records=RecordCollection()
         timestamp=TimestampReadCommand()
         { return new RevertSymbol(keys, records, timestamp); }
+    )
+}
+
+// Utility Operations
+CommandSymbol UtilityOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = PingCommand()
+      |
+        cmd = ConsolidateCommand()
+      |
+        cmd = CalculateCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol PingCommand() : {
+    Token record = null;
+    Collection<Long> records = null;
+}
+{
+    <PING>
+    (
+        LOOKAHEAD(2)
+        record=<NUMERIC>
+        { return new PingSymbol(Long.parseLong(record.image)); }
+      |
+        records=RecordCollection()
+        { return new PingSymbol(records); }
+    )?
+    { return PingSymbol.INSTANCE; }
+}
+
+CommandSymbol ConsolidateCommand() : {
+    Token first;
+    Token second;
+    Collection<Long> remaining = null;
+}
+{
+    <CONSOLIDATE> first=<NUMERIC>
+    (
+        LOOKAHEAD(2)
+        remaining=RecordCollection()
+        { return new ConsolidateSymbol(Long.parseLong(first.image), remaining); }
+      |
+        second=<NUMERIC>
+        {
+            Collection<Long> others = new ArrayList<Long>();
+            others.add(Long.parseLong(second.image));
+            return new ConsolidateSymbol(Long.parseLong(first.image), others);
+        }
+    )
+}
+
+CommandSymbol CalculateCommand() : {
+    Token function;
+    KeyTokenSymbol<?> key;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <CALCULATE> function=<ALPHANUMERIC> key=Key()
+    (
+        LOOKAHEAD(2)
+        <IN> records=RecordCollection() (timestamp=TimestampReadCommand())?
+        { return new CalculateSymbol(function.image, key, records, timestamp); }
+      |
+        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())?
+        { return new CalculateSymbol(function.image, key, timestamp); }
+      |
+        (timestamp=TimestampReadCommand())?
+        { return new CalculateSymbol(function.image, key, timestamp); }
     )
 }
 

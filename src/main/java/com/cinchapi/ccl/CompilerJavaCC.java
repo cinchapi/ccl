@@ -23,7 +23,6 @@ import java.util.function.Function;
 import com.cinchapi.ccl.generated.*;
 import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
-import com.cinchapi.concourse.lang.sort.Order;
 import com.google.common.collect.Multimap;
 
 /**

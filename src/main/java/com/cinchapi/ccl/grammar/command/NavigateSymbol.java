@@ -13,7 +13,6 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.concourse.lang.BuildableState;
 
 /**
  * A {@link CommandSymbol} that represents a NAVIGATE command.
@@ -23,7 +22,7 @@ public class NavigateSymbol implements CommandSymbol {
     private final Long record;
     private final Collection<Long> records;
     private final String ccl;
-    private final BuildableState criteria;
+    private final Object criteria;
     private final TimestampSymbol timestamp;
 
     /**
@@ -57,7 +56,7 @@ public class NavigateSymbol implements CommandSymbol {
      * @param criteria the criteria for selecting starting records
      * @param timestamp optional timestamp for historical navigation
      */
-    public NavigateSymbol(Collection<KeyTokenSymbol<?>> keys, BuildableState criteria,
+    public NavigateSymbol(Collection<KeyTokenSymbol<?>> keys, Object criteria,
                           @Nullable TimestampSymbol timestamp) {
         this(keys, null, null, null, criteria, timestamp);
     }
@@ -76,7 +75,7 @@ public class NavigateSymbol implements CommandSymbol {
 
     private NavigateSymbol(Collection<KeyTokenSymbol<?>> keys, @Nullable Long record,
                            @Nullable Collection<Long> records, @Nullable String ccl,
-                           @Nullable BuildableState criteria, @Nullable TimestampSymbol timestamp) {
+                           @Nullable Object criteria, @Nullable TimestampSymbol timestamp) {
         this.keys = keys;
         this.record = record;
         this.records = records;
@@ -135,7 +134,7 @@ public class NavigateSymbol implements CommandSymbol {
      * @return the criteria or {@code null} if using record ids or CCL
      */
     @Nullable
-    public BuildableState criteria() {
+    public Object criteria() {
         return criteria;
     }
 

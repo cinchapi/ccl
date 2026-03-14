@@ -9,7 +9,6 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
-import java.util.Collection;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 
 /**
@@ -18,19 +17,19 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 public class UnlinkSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final long source;
-    private final Collection<Long> destinations;
+    private final long destination;
 
     /**
      * Construct a new instance.
      *
      * @param key the key to unlink
      * @param source the source record
-     * @param destinations the destination records
+     * @param destination the destination record
      */
-    public UnlinkSymbol(KeyTokenSymbol<?> key, long source, Collection<Long> destinations) {
+    public UnlinkSymbol(KeyTokenSymbol<?> key, long source, long destination) {
         this.key = key;
         this.source = source;
-        this.destinations = destinations;
+        this.destination = destination;
     }
 
     @Override
@@ -53,9 +52,9 @@ public class UnlinkSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the destination records.
+     * Return the destination record.
      */
-    public Collection<Long> destinations() {
-        return destinations;
+    public long destination() {
+        return destination;
     }
 }

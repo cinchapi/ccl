@@ -897,8 +897,8 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    @Test(expected = ParseException.class)
-    public void testInvalidBrowseCommandMissingBrackets() throws UnsupportedEncodingException, ParseException {
+    @Test
+    public void testBrowseSingleKeyWithoutBrackets() throws UnsupportedEncodingException, ParseException {
         String ccl = "browse name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
@@ -1684,8 +1684,8 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    @Test
-    public void testUnlinkMultipleDestinations() throws UnsupportedEncodingException, ParseException {
+    @Test(expected = ParseException.class)
+    public void testInvalidUnlinkMultipleDestinations() throws UnsupportedEncodingException, ParseException {
         String ccl = "unlink friends from 1 to [2, 3, 4]";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1849,6 +1849,240 @@ public class GrammarTest {
     @Test
     public void testFindOrInsertWithComplexCriteria() throws UnsupportedEncodingException, ParseException {
         String ccl = "findOrInsert (age > 25 and city = \"NYC\") \"{'name': 'John', 'age': 30, 'city': 'NYC'}\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === SET command tests ===
+
+    @Test
+    public void testSetSingleRecordCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "set name as \"Jeff\" in 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testSetMultipleRecordsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "set name as \"Jeff\" in [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === LINK command tests ===
+
+    @Test
+    public void testLinkSingleDestinationCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "link friends from 1 to 2";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testLinkMultipleDestinationsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "link friends from 1 to [2, 3, 4]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === UNLINK command tests ===
+
+    @Test
+    public void testUnlinkSingleDestinationCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "unlink friends from 1 to 2";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === JSONIFY command tests ===
+
+    @Test
+    public void testJsonifySingleRecordCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "jsonify 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testJsonifyMultipleRecordsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "jsonify [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testJsonifyWithIdentifierCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "jsonify 1 with $id$";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testJsonifyWithTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "jsonify 1 at \"December 30, 1987\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testJsonifyWithIdentifierAndTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "jsonify 1 with $id$ at \"December 30, 1987\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === RECONCILE command tests ===
+
+    @Test
+    public void testReconcileCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "reconcile name in 1 with [\"Jeff\", \"Bob\"]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === NAVIGATE single key tests ===
+
+    @Test
+    public void testNavigateSingleKeyFromRecordCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "navigate name from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === PING command tests ===
+
+    @Test
+    public void testPingNoArgsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "ping";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testPingSingleRecordCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "ping 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testPingMultipleRecordsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "ping [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === CONSOLIDATE command tests ===
+
+    @Test
+    public void testConsolidateTwoRecordsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "consolidate 1 2";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testConsolidateMultipleRecordsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "consolidate 1 [2, 3, 4]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidConsolidateSingleRecordCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "consolidate 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === CALCULATE command tests ===
+
+    @Test
+    public void testCalculateSumCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate sum age";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testCalculateAverageWithRecordsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate average age in [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testCalculateCountWithConditionCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate count name where name = \"Jeff\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testCalculateMinWithTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate min age at \"December 30, 1987\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testCalculateMaxWithRecordsAndTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate max score in [1, 2] at \"December 30, 1987\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidCalculateMissingKeyCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate sum";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);

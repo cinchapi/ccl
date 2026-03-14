@@ -16,8 +16,21 @@ import javax.annotation.Nullable;
  * A {@link CommandSymbol} that represents a PING command.
  */
 public class PingSymbol implements CommandSymbol {
+
+    /**
+     * Singleton instance for server ping (no args).
+     */
+    public static final PingSymbol INSTANCE = new PingSymbol();
+
     private final long record;
     private final Collection<Long> records;
+
+    /**
+     * Construct a no-arg instance for a server health check.
+     */
+    private PingSymbol() {
+        this(-1, null);
+    }
 
     /**
      * Construct a new instance for a single record.
