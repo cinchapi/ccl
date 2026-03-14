@@ -938,8 +938,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testChronologizeBasicCommand() throws UnsupportedEncodingException, ParseException {
-        String ccl = "chronologize name in 1";
+    public void testChronicleBasicCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -947,8 +947,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testChronologizeWithStartTime() throws UnsupportedEncodingException, ParseException {
-        String ccl = "chronologize name in 1 at \"2024-01-01\"";
+    public void testChronicleWithStartTime() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1 at \"2024-01-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -956,8 +956,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testChronologizeWithStartAndEndTime() throws UnsupportedEncodingException, ParseException {
-        String ccl = "chronologize name in 1 at \"2024-01-01\" at \"2024-02-01\"";
+    public void testChronicleWithStartAndEndTime() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1 at \"2024-01-01\" at \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -965,8 +965,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testChronologizeWithNaturalLanguageTime() throws UnsupportedEncodingException, ParseException {
-        String ccl = "chronologize name in 1 at \"two weeks ago\"";
+    public void testChronicleWithNaturalLanguageTime() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1 at \"two weeks ago\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1028,8 +1028,8 @@ public class GrammarTest {
     }
 
     @Test(expected = ParseException.class)
-    public void testInvalidChronologizeNoRecord() throws UnsupportedEncodingException, ParseException {
-        String ccl = "chronologize name";
+    public void testInvalidChronicleNoRecord() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1586,8 +1586,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testReviewBasic() throws UnsupportedEncodingException, ParseException {
-        String ccl = "review 1";
+    public void testAuditBasic() throws UnsupportedEncodingException, ParseException {
+        String ccl = "audit 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1595,8 +1595,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testReviewWithTimeRange() throws UnsupportedEncodingException, ParseException {
-        String ccl = "review name in 1 at \"2024-01-01\" at \"2024-02-01\"";
+    public void testAuditWithTimeRange() throws UnsupportedEncodingException, ParseException {
+        String ccl = "audit name in 1 at \"2024-01-01\" at \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1986,8 +1986,8 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    @Test
-    public void testPingSingleRecordCommand() throws UnsupportedEncodingException, ParseException {
+    @Test(expected = ParseException.class)
+    public void testInvalidPingSingleRecordCommand() throws UnsupportedEncodingException, ParseException {
         String ccl = "ping 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1995,9 +1995,38 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    @Test
-    public void testPingMultipleRecordsCommand() throws UnsupportedEncodingException, ParseException {
+    @Test(expected = ParseException.class)
+    public void testInvalidPingMultipleRecordsCommand() throws UnsupportedEncodingException, ParseException {
         String ccl = "ping [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === HOLDS command tests ===
+
+    @Test
+    public void testHoldsSingleRecordCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "holds 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testHoldsMultipleRecordsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "holds [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidHoldsNoRecordCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "holds";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -2121,6 +2150,44 @@ public class GrammarTest {
     @Test
     public void testNavigateSingleKeyWhereCommand() throws UnsupportedEncodingException, ParseException {
         String ccl = "navigate name where name = \"Jeff\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testNavigateWhereWithTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "navigate [user.friends] where age > 25 at \"December 30, 1987\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testCalculateCountWithConditionAndTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "calculate count name where name = \"Jeff\" at \"December 30, 1987\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === DESCRIBE timestamp-only tests ===
+
+    @Test
+    public void testDescribeTimestampOnlyCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "describe at \"December 30, 1987\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testDescribeNoArgsCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "describe";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);

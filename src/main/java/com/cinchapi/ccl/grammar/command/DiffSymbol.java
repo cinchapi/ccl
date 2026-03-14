@@ -44,15 +44,46 @@ public class DiffSymbol implements CommandSymbol {
     }
 
     /**
+     * Construct a new instance for diffing changes to a key across all records.
+     *
+     * @param key the field name
+     * @param start the base timestamp for comparison
+     */
+    public DiffSymbol(KeyTokenSymbol<?> key, TimestampSymbol start) {
+        this(key, null, start, null);
+    }
+
+    /**
+     * Construct a new instance for diffing changes to a key across all records
+     * between two timestamps.
+     *
+     * @param key the field name
+     * @param start the base timestamp for comparison
+     * @param end the comparison timestamp
+     */
+    public DiffSymbol(KeyTokenSymbol<?> key, TimestampSymbol start,
+                      TimestampSymbol end) {
+        this(key, null, start, end);
+    }
+
+    /**
      * Construct a new instance for diffing changes between two timestamps.
      *
      * @param key the field name, if diffing a specific field
-     * @param record the record id
+     * @param record the record id, or {@code null} if diffing across all records
      * @param start the base timestamp for comparison
      * @param end the comparison timestamp
      */
     public DiffSymbol(@Nullable KeyTokenSymbol<?> key, long record,
                       TimestampSymbol start, @Nullable TimestampSymbol end) {
+        this.key = key;
+        this.record = record;
+        this.start = start;
+        this.end = end;
+    }
+
+    private DiffSymbol(@Nullable KeyTokenSymbol<?> key, @Nullable Long record,
+                       TimestampSymbol start, @Nullable TimestampSymbol end) {
         this.key = key;
         this.record = record;
         this.start = start;
@@ -77,9 +108,10 @@ public class DiffSymbol implements CommandSymbol {
     /**
      * Return the record identifier.
      *
-     * @return the record id
+     * @return the record id, or {@code null} if diffing across all records
      */
-    public long record() {
+    @Nullable
+    public Long record() {
         return record;
     }
 

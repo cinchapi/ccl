@@ -2291,8 +2291,8 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
-    public void testChronologizeCommand() {
-        String ccl = "chronologize location in 5 at \"2024-01-01\" at \"2024-02-01\"";
+    public void testChronicleCommand() {
+        String ccl = "chronicle location in 5 at \"2024-01-01\" at \"2024-02-01\"";
 
         // Generate tree
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -2303,14 +2303,14 @@ public class CompilerJavaCCLogicTest {
         Assert.assertTrue(tree instanceof CommandTree);
         CommandTree rootNode = (CommandTree) tree;
 
-        ChronologizeSymbol chronologizeSymbol = (ChronologizeSymbol) rootNode.root();
-        Assert.assertEquals("location", chronologizeSymbol.key().toString());
-        Assert.assertEquals(5L, chronologizeSymbol.record());
+        ChronicleSymbol chronicleSymbol = (ChronicleSymbol) rootNode.root();
+        Assert.assertEquals("location", chronicleSymbol.key().toString());
+        Assert.assertEquals(5L, chronicleSymbol.record());
 
         // Validate timestamps
         Assert.assertEquals(
                 TimeUnit.DAYS.convert(
-                        chronologizeSymbol.start().timestamp(),
+                        chronicleSymbol.start().timestamp(),
                         TimeUnit.MICROSECONDS),
                 TimeUnit.DAYS.convert(
                         NaturalLanguage.parseMicros("2024-01-01"),
@@ -2319,7 +2319,7 @@ public class CompilerJavaCCLogicTest {
 
         Assert.assertEquals(
                 TimeUnit.DAYS.convert(
-                        chronologizeSymbol.end().timestamp(),
+                        chronicleSymbol.end().timestamp(),
                         TimeUnit.MICROSECONDS),
                 TimeUnit.DAYS.convert(
                         NaturalLanguage.parseMicros("2024-02-01"),

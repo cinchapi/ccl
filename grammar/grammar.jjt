@@ -151,13 +151,13 @@ TOKEN [IGNORE_CASE] : {
 | < VERIFY: "verify" >
 | < SEARCH: "search" >
 | < BROWSE: "browse" >
-| < CHRONOLOGIZE: "chronologize" >
+| < CHRONICLE: "chronicle" >
 | < DIFF: "diff" >
 | < INVENTORY: "inventory" >
 | < JSONIFY: "jsonify" >
 | < NAVIGATE: "navigate" >
 | < RECONCILE: "reconcile" >
-| < REVIEW: "review" >
+| < AUDIT: "audit" >
 | < TRACE: "trace" >
 | < CALCULATE: "calculate" >
 
@@ -171,6 +171,7 @@ TOKEN [IGNORE_CASE] : {
 
   // Utility operations
 | < PING: "ping" >
+| < HOLDS: "holds" >
 | < CONSOLIDATE: "consolidate" >
 
   // Other keywords
@@ -1021,7 +1022,7 @@ CommandSymbol QueryOperations() : {
       |
         cmd = BrowseCommand()
       |
-        cmd = ChronologizeCommand()
+        cmd = ChronicleCommand()
       |
         cmd = DiffCommand()
       |
@@ -1033,7 +1034,7 @@ CommandSymbol QueryOperations() : {
       |
         cmd = ReconcileCommand()
       |
-        cmd = ReviewCommand()
+        cmd = AuditCommand()
       |
         cmd = TraceCommand()
     )
@@ -1160,7 +1161,8 @@ CommandSymbol DescribeCommand() : {
         records=RecordCollection() (timestamp=TimestampReadCommand())?
         { return new DescribeSymbol(records, timestamp); }
       |
-        { return new DescribeSymbol(-1, null); }
+        (timestamp=TimestampReadCommand())?
+        { return new DescribeSymbol(timestamp); }
     )
 }
 
@@ -1206,19 +1208,19 @@ CommandSymbol BrowseCommand() : {
     { return new BrowseSymbol(keys, timestamp); }
 }
 
-CommandSymbol ChronologizeCommand() : {
+CommandSymbol ChronicleCommand() : {
     KeyTokenSymbol<?> key;
     Token record;
     TimestampSymbol start = null;
     TimestampSymbol end = null;
 }
 {
-    <CHRONOLOGIZE> key=Key() <IN> record=<NUMERIC>
+    <CHRONICLE> key=Key() <IN> record=<NUMERIC>
     (
         (start=TimestampReadCommand())
         (end=TimestampReadCommand())?
     )?
-    { return new ChronologizeSymbol(key, Long.parseLong(record.image), start, end); }
+    { return new ChronicleSymbol(key, Long.parseLong(record.image), start, end); }
 }
 
 CommandSymbol DiffCommand() : {
@@ -1242,10 +1244,10 @@ CommandSymbol DiffCommand() : {
         (
             LOOKAHEAD(3)
             start=TimestampReadCommand() end=TimestampReadCommand()
-            { return new DiffSymbol(key, -1, start, end); }
+            { return new DiffSymbol(key, start, end); }
           |
             start=TimestampReadCommand()
-            { return new DiffSymbol(key, -1, start, null); }
+            { return new DiffSymbol(key, start); }
         )
     )
 }
@@ -1325,14 +1327,14 @@ CommandSymbol ReconcileCommand() : {
     { return new ReconcileSymbol(key, Long.parseLong(record.image), values); }
 }
 
-CommandSymbol ReviewCommand() : {
+CommandSymbol AuditCommand() : {
     KeyTokenSymbol<?> key = null;
     Token record;
     TimestampSymbol start = null;
     TimestampSymbol end = null;
 }
 {
-    <REVIEW>
+    <AUDIT>
     (
         LOOKAHEAD(2)
         key=Key() <IN>
@@ -1342,7 +1344,7 @@ CommandSymbol ReviewCommand() : {
         (start=TimestampReadCommand())
         (end=TimestampReadCommand())?
     )?
-    { return new ReviewSymbol(key, Long.parseLong(record.image), start, end); }
+    { return new AuditSymbol(key, Long.parseLong(record.image), start, end); }
 }
 
 CommandSymbol TraceCommand() : {
@@ -1434,6 +1436,8 @@ CommandSymbol UtilityOperations() : {
     (
         cmd = PingCommand()
       |
+        cmd = HoldsCommand()
+      |
         cmd = ConsolidateCommand()
       |
         cmd = CalculateCommand()
@@ -1441,21 +1445,25 @@ CommandSymbol UtilityOperations() : {
     { return cmd; }
 }
 
-CommandSymbol PingCommand() : {
-    Token record = null;
-    Collection<Long> records = null;
-}
+CommandSymbol PingCommand() : {}
 {
     <PING>
-    (
-        LOOKAHEAD(2)
-        record=<NUMERIC>
-        { return new PingSymbol(Long.parseLong(record.image)); }
-      |
-        records=RecordCollection()
-        { return new PingSymbol(records); }
-    )?
     { return PingSymbol.INSTANCE; }
+}
+
+CommandSymbol HoldsCommand() : {
+    Token record;
+    Collection<Long> records;
+}
+{
+    <HOLDS>
+    (
+        LOOKAHEAD(<OPEN_BRACKET>) records=RecordCollection()
+        { return new HoldsSymbol(records); }
+      |
+        record=<NUMERIC>
+        { return new HoldsSymbol(Long.parseLong(record.image)); }
+    )
 }
 
 CommandSymbol ConsolidateCommand() : {

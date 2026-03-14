@@ -14,45 +14,55 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 
 /**
- * A {@link CommandSymbol} that represents a CHRONOLOGIZE command.
+ * A {@link CommandSymbol} that represents an AUDIT command.
  */
-public class ChronologizeSymbol implements CommandSymbol {
+public class AuditSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final long record;
     private final TimestampSymbol start;
     private final TimestampSymbol end;
 
     /**
-     * Construct a new instance for chronologizing all changes.
+     * Construct a new instance for auditing all changes to a record.
+     *
+     * @param record the record id
+     */
+    public AuditSymbol(long record) {
+        this(null, record, null, null);
+    }
+
+    /**
+     * Construct a new instance for auditing all changes to a specific field.
      *
      * @param key the field name
      * @param record the record id
      */
-    public ChronologizeSymbol(KeyTokenSymbol<?> key, long record) {
+    public AuditSymbol(KeyTokenSymbol<?> key, long record) {
         this(key, record, null, null);
     }
 
     /**
-     * Construct a new instance for chronologizing changes after a start time.
+     * Construct a new instance for auditing changes after a start time.
      *
-     * @param key the field name
+     * @param key the field name if auditing specific field
      * @param record the record id
      * @param start the inclusive start timestamp
      */
-    public ChronologizeSymbol(KeyTokenSymbol<?> key, long record, TimestampSymbol start) {
+    public AuditSymbol(@Nullable KeyTokenSymbol<?> key, long record,
+                       TimestampSymbol start) {
         this(key, record, start, null);
     }
 
     /**
-     * Construct a new instance for chronologizing changes in a time range.
+     * Construct a new instance for auditing changes in a time range.
      *
-     * @param key the field name
+     * @param key the field name if auditing specific field
      * @param record the record id
      * @param start the inclusive start timestamp
      * @param end the non-inclusive end timestamp
      */
-    public ChronologizeSymbol(KeyTokenSymbol<?> key, long record,
-                              @Nullable TimestampSymbol start, @Nullable TimestampSymbol end) {
+    public AuditSymbol(@Nullable KeyTokenSymbol<?> key, long record,
+                       @Nullable TimestampSymbol start, @Nullable TimestampSymbol end) {
         this.key = key;
         this.record = record;
         this.start = start;
@@ -61,14 +71,15 @@ public class ChronologizeSymbol implements CommandSymbol {
 
     @Override
     public String type() {
-        return "CHRONOLOGIZE";
+        return "AUDIT";
     }
 
     /**
-     * Return the key to chronologize.
+     * Return the key to audit if specified.
      *
-     * @return the field name
+     * @return the field name or {@code null} if auditing entire record
      */
+    @Nullable
     public KeyTokenSymbol<?> key() {
         return key;
     }
@@ -83,9 +94,9 @@ public class ChronologizeSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the start timestamp.
+     * Return the start timestamp if specified.
      *
-     * @return the inclusive start timestamp if specified, otherwise {@code null}
+     * @return the inclusive start timestamp or {@code null} if auditing from beginning
      */
     @Nullable
     public TimestampSymbol start() {
@@ -93,9 +104,9 @@ public class ChronologizeSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the end timestamp.
+     * Return the end timestamp if specified.
      *
-     * @return the non-inclusive end timestamp if specified, otherwise {@code null}
+     * @return the non-inclusive end timestamp or {@code null} if auditing to present
      */
     @Nullable
     public TimestampSymbol end() {

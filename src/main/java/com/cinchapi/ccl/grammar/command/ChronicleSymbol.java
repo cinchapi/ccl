@@ -14,55 +14,45 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 
 /**
- * A {@link CommandSymbol} that represents a REVIEW command. T
+ * A {@link CommandSymbol} that represents a CHRONICLE command.
  */
-public class ReviewSymbol implements CommandSymbol {
+public class ChronicleSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final long record;
     private final TimestampSymbol start;
     private final TimestampSymbol end;
 
     /**
-     * Construct a new instance for reviewing all changes to a record.
-     *
-     * @param record the record id
-     */
-    public ReviewSymbol(long record) {
-        this(null, record, null, null);
-    }
-
-    /**
-     * Construct a new instance for reviewing all changes to a specific field.
+     * Construct a new instance for chronicling all changes.
      *
      * @param key the field name
      * @param record the record id
      */
-    public ReviewSymbol(KeyTokenSymbol<?> key, long record) {
+    public ChronicleSymbol(KeyTokenSymbol<?> key, long record) {
         this(key, record, null, null);
     }
 
     /**
-     * Construct a new instance for reviewing changes after a start time.
+     * Construct a new instance for chronicling changes after a start time.
      *
-     * @param key the field name if reviewing specific field
+     * @param key the field name
      * @param record the record id
      * @param start the inclusive start timestamp
      */
-    public ReviewSymbol(@Nullable KeyTokenSymbol<?> key, long record,
-                        TimestampSymbol start) {
+    public ChronicleSymbol(KeyTokenSymbol<?> key, long record, TimestampSymbol start) {
         this(key, record, start, null);
     }
 
     /**
-     * Construct a new instance for reviewing changes in a time range.
+     * Construct a new instance for chronicling changes in a time range.
      *
-     * @param key the field name if reviewing specific field
+     * @param key the field name
      * @param record the record id
      * @param start the inclusive start timestamp
      * @param end the non-inclusive end timestamp
      */
-    public ReviewSymbol(@Nullable KeyTokenSymbol<?> key, long record,
-                        @Nullable TimestampSymbol start, @Nullable TimestampSymbol end) {
+    public ChronicleSymbol(KeyTokenSymbol<?> key, long record,
+                           @Nullable TimestampSymbol start, @Nullable TimestampSymbol end) {
         this.key = key;
         this.record = record;
         this.start = start;
@@ -71,15 +61,14 @@ public class ReviewSymbol implements CommandSymbol {
 
     @Override
     public String type() {
-        return "REVIEW";
+        return "CHRONICLE";
     }
 
     /**
-     * Return the key to review if specified.
+     * Return the key to chronicle.
      *
-     * @return the field name or {@code null} if reviewing entire record
+     * @return the field name
      */
-    @Nullable
     public KeyTokenSymbol<?> key() {
         return key;
     }
@@ -94,9 +83,9 @@ public class ReviewSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the start timestamp if specified.
+     * Return the start timestamp.
      *
-     * @return the inclusive start timestamp or {@code null} if reviewing from beginning
+     * @return the inclusive start timestamp if specified, otherwise {@code null}
      */
     @Nullable
     public TimestampSymbol start() {
@@ -104,9 +93,9 @@ public class ReviewSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the end timestamp if specified.
+     * Return the end timestamp.
      *
-     * @return the non-inclusive end timestamp or {@code null} if reviewing to present
+     * @return the non-inclusive end timestamp if specified, otherwise {@code null}
      */
     @Nullable
     public TimestampSymbol end() {

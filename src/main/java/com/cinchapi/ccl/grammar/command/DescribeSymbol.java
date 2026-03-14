@@ -17,12 +17,25 @@ import com.cinchapi.ccl.grammar.TimestampSymbol;
  * A {@link CommandSymbol} that represents a DESCRIBE command.
  */
 public class DescribeSymbol implements CommandSymbol {
-    private final long record;
+    private final Long record;
     private final Collection<Long> records;
     private final TimestampSymbol timestamp;
 
     /**
+     * Construct a new instance for describing all records (optionally at a
+     * historical timestamp).
+     *
+     * @param timestamp optional timestamp for historical describe
+     */
+    public DescribeSymbol(@Nullable TimestampSymbol timestamp) {
+        this(null, null, timestamp);
+    }
+
+    /**
      * Construct a new instance for a single record.
+     *
+     * @param record the record id
+     * @param timestamp optional timestamp for historical describe
      */
     public DescribeSymbol(long record, @Nullable TimestampSymbol timestamp) {
         this(record, null, timestamp);
@@ -30,14 +43,17 @@ public class DescribeSymbol implements CommandSymbol {
 
     /**
      * Construct a new instance for multiple records.
+     *
+     * @param records the record ids
+     * @param timestamp optional timestamp for historical describe
      */
     public DescribeSymbol(Collection<Long> records, @Nullable TimestampSymbol timestamp) {
-        this(-1, records, timestamp);
+        this(null, records, timestamp);
     }
 
-    private DescribeSymbol(long record, @Nullable Collection<Long> records,
+    private DescribeSymbol(@Nullable Long record, @Nullable Collection<Long> records,
                            @Nullable TimestampSymbol timestamp) {
-        this.record = record == -1 ? 0 : record;
+        this.record = record;
         this.records = records;
         this.timestamp = timestamp;
     }
@@ -49,13 +65,20 @@ public class DescribeSymbol implements CommandSymbol {
 
     /**
      * Return the record identifier, if operating on a single record.
+     *
+     * @return the record id, or {@code null} if operating on all records or
+     *         multiple records
      */
-    public long record() {
+    @Nullable
+    public Long record() {
         return record;
     }
 
     /**
      * Return the record identifiers, if operating on multiple records.
+     *
+     * @return the record ids, or {@code null} if operating on a single record
+     *         or all records
      */
     @Nullable
     public Collection<Long> records() {
@@ -64,6 +87,8 @@ public class DescribeSymbol implements CommandSymbol {
 
     /**
      * Return the timestamp for historical describe.
+     *
+     * @return the timestamp if specified, otherwise {@code null}
      */
     @Nullable
     public TimestampSymbol timestamp() {

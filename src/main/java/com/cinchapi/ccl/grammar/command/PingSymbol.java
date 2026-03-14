@@ -9,69 +9,20 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
-import java.util.Collection;
-import javax.annotation.Nullable;
-
 /**
  * A {@link CommandSymbol} that represents a PING command.
  */
 public class PingSymbol implements CommandSymbol {
 
     /**
-     * Singleton instance for server ping (no args).
+     * Singleton instance for server ping.
      */
     public static final PingSymbol INSTANCE = new PingSymbol();
 
-    private final long record;
-    private final Collection<Long> records;
-
-    /**
-     * Construct a no-arg instance for a server health check.
-     */
-    private PingSymbol() {
-        this(-1, null);
-    }
-
-    /**
-     * Construct a new instance for a single record.
-     *
-     * @param record the record identifier
-     */
-    public PingSymbol(long record) {
-        this(record, null);
-    }
-
-    /**
-     * Construct a new instance for multiple records.
-     *
-     * @param records the record identifiers
-     */
-    public PingSymbol(Collection<Long> records) {
-        this(-1, records);
-    }
-
-    private PingSymbol(long record, @Nullable Collection<Long> records) {
-        this.record = record;
-        this.records = records;
-    }
+    private PingSymbol() {}
 
     @Override
     public String type() {
         return "PING";
-    }
-
-    /**
-     * Return the record identifier if pinging a single record.
-     */
-    public long record() {
-        return record;
-    }
-
-    /**
-     * Return the record identifiers if pinging multiple records.
-     */
-    @Nullable
-    public Collection<Long> records() {
-        return records;
     }
 }
