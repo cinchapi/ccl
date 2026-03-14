@@ -18,6 +18,9 @@ package com.cinchapi.ccl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 import com.cinchapi.ccl.generated.*;
@@ -46,144 +49,179 @@ class CompilerJavaCC extends Compiler {
     @Override
     public AbstractSyntaxTree parse(String ccl, Multimap<String, Object> data) {
         try {
-            InputStream stream = new ByteArrayInputStream(
-                    ccl.getBytes(StandardCharsets.UTF_8.name()));
-
-            GrammarVisitor visitor = new GrammarVisitor() {
-                @Override
-                public Object visit(SimpleNode node, Object data) {
-                    System.out.println(
-                            node + ": acceptor not unimplemented in subclass?");
-                    data = node.childrenAccept(this, data);
-                    return data;
-                }
-
-                @Override
-                public Object visit(ASTStart node, Object data) {
-                    ConditionTree conditionTree = null;
-                    PageTree pageTree = null;
-                    OrderTree orderTree = null;
-                    FunctionTree functionTree = null;
-                    CommandTree commandTree = null;
-
-                    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-                        Object child = node.jjtGetChild(i).jjtAccept(this,
-                                data);
-                        if(child instanceof PageTree) {
-                            pageTree = (PageTree) child;
-                        }
-                        else if(child instanceof OrderTree) {
-                            orderTree = (OrderTree) child;
-                        }
-                        else if(child instanceof FunctionTree) {
-                            functionTree = (FunctionTree) child;
-                        }
-                        else if(child instanceof CommandTree) {
-                            commandTree = (CommandTree) child;
-                        }
-                        else {
-                            conditionTree = (ConditionTree) child;
-                        }
-                    }
-                    if(conditionTree != null && pageTree == null
-                            && orderTree == null && functionTree == null && commandTree == null) {
-                        return conditionTree;
-                    }
-                    else if(pageTree != null && conditionTree == null
-                            && orderTree == null && functionTree == null && commandTree == null) {
-                        return pageTree;
-                    }
-                    else if(orderTree != null && conditionTree == null
-                            && pageTree == null && functionTree == null && commandTree == null) {
-                        return orderTree;
-                    }
-                    else if(functionTree != null && conditionTree == null
-                            && pageTree == null && orderTree == null && commandTree == null) {
-                        return functionTree;
-                    }
-                    else if(functionTree == null && conditionTree == null
-                            && pageTree == null && orderTree == null && commandTree != null) {
-                        return commandTree;
-                    }
-                    else {
-                        // If the statement has multiple elements, it is
-                        // implicitly a command.
-                        return new CommandTree(conditionTree, pageTree,
-                                orderTree);
-                    }
-
-                }
-
-                @Override
-                public Object visit(ASTOr node, Object data) {
-                    ConditionTree left = (ConditionTree) node.jjtGetChild(0)
-                            .jjtAccept(this, data);
-                    ConditionTree right = (ConditionTree) node.jjtGetChild(1)
-                            .jjtAccept(this, data);
-                    return new OrTree(left, right);
-                }
-
-                @Override
-                public Object visit(ASTAnd node, Object data) {
-                    ConditionTree left = (ConditionTree) node.jjtGetChild(0)
-                            .jjtAccept(this, data);
-                    ConditionTree right = (ConditionTree) node.jjtGetChild(1)
-                            .jjtAccept(this, data);
-                    return new AndTree(left, right);
-                }
-
-                @Override
-                public Object visit(ASTExpression node, Object data) {
-                    return new ExpressionTree(node);
-                }
-
-                @Override
-                public Object visit(ASTOrder node, Object data) {
-                    return new OrderTree(node.order());
-                }
-
-                @Override
-                public Object visit(ASTPage node, Object data) {
-                    return new PageTree(node.page());
-                }
-
-                @Override
-                public Object visit(ASTFunction node, Object data) {
-                    return new FunctionTree(node.function());
-                }
-
-                @Override
-                public Object visit(ASTCommand node, Object data) {
-                    ConditionTree conditionTree = null;
-                    OrderTree orderTree = null;
-                    PageTree pageTree = null;
-
-                    for(int i = 0; i < node.jjtGetNumChildren(); i++) {
-                        Object child = node.jjtGetChild(i).jjtAccept(this, data);
-                        if (child instanceof ConditionTree) {
-                            conditionTree = (ConditionTree) child;
-                        }
-                        else if (child instanceof PageTree) {
-                            pageTree = (PageTree) child;
-                        }
-                        else if (child instanceof OrderTree) {
-                            orderTree = (OrderTree) child;
-                        }
-                    }
-
-                    return new CommandTree(node.command(), conditionTree, pageTree, orderTree);
-                }
-            };
-
-            Grammar grammar = new Grammar(stream, valueParser, operatorParser,
-                    data, visitor);
+            Grammar grammar = createGrammar(ccl, data);
+            GrammarVisitor visitor = createVisitor();
             ASTStart start = grammar.generateAST();
-
             return (AbstractSyntaxTree) start.jjtAccept(visitor, null);
         }
         catch (Exception exception) {
             throw new PropagatedSyntaxException(exception, ccl);
         }
+    }
+
+    @Override
+    public List<AbstractSyntaxTree> parseMulti(String ccl,
+            Multimap<String, Object> data) {
+        try {
+            Grammar grammar = createGrammar(ccl, data);
+            GrammarVisitor visitor = createVisitor();
+            List<ASTStart> starts = grammar.generateMultiAST();
+            List<AbstractSyntaxTree> results = new ArrayList<>(starts.size());
+            for (ASTStart start : starts) {
+                results.add((AbstractSyntaxTree) start.jjtAccept(visitor, null));
+            }
+            return Collections.unmodifiableList(results);
+        }
+        catch (Exception exception) {
+            throw new PropagatedSyntaxException(exception, ccl);
+        }
+    }
+
+    /**
+     * Create a {@link Grammar} instance for parsing the given CCL string.
+     */
+    private Grammar createGrammar(String ccl, Multimap<String, Object> data) {
+        try {
+            InputStream stream = new ByteArrayInputStream(
+                    ccl.getBytes(StandardCharsets.UTF_8.name()));
+            return new Grammar(stream, valueParser, operatorParser,
+                    data, createVisitor());
+        }
+        catch (Exception e) {
+            throw new PropagatedSyntaxException(e, ccl);
+        }
+    }
+
+    /**
+     * Create a {@link GrammarVisitor} that transforms AST nodes into
+     * {@link AbstractSyntaxTree} instances.
+     */
+    private GrammarVisitor createVisitor() {
+        return new GrammarVisitor() {
+            @Override
+            public Object visit(SimpleNode node, Object data) {
+                System.out.println(
+                        node + ": acceptor not unimplemented in subclass?");
+                data = node.childrenAccept(this, data);
+                return data;
+            }
+
+            @Override
+            public Object visit(ASTStart node, Object data) {
+                ConditionTree conditionTree = null;
+                PageTree pageTree = null;
+                OrderTree orderTree = null;
+                FunctionTree functionTree = null;
+                CommandTree commandTree = null;
+
+                for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+                    Object child = node.jjtGetChild(i).jjtAccept(this,
+                            data);
+                    if(child instanceof PageTree) {
+                        pageTree = (PageTree) child;
+                    }
+                    else if(child instanceof OrderTree) {
+                        orderTree = (OrderTree) child;
+                    }
+                    else if(child instanceof FunctionTree) {
+                        functionTree = (FunctionTree) child;
+                    }
+                    else if(child instanceof CommandTree) {
+                        commandTree = (CommandTree) child;
+                    }
+                    else {
+                        conditionTree = (ConditionTree) child;
+                    }
+                }
+                if(conditionTree != null && pageTree == null
+                        && orderTree == null && functionTree == null && commandTree == null) {
+                    return conditionTree;
+                }
+                else if(pageTree != null && conditionTree == null
+                        && orderTree == null && functionTree == null && commandTree == null) {
+                    return pageTree;
+                }
+                else if(orderTree != null && conditionTree == null
+                        && pageTree == null && functionTree == null && commandTree == null) {
+                    return orderTree;
+                }
+                else if(functionTree != null && conditionTree == null
+                        && pageTree == null && orderTree == null && commandTree == null) {
+                    return functionTree;
+                }
+                else if(functionTree == null && conditionTree == null
+                        && pageTree == null && orderTree == null && commandTree != null) {
+                    return commandTree;
+                }
+                else {
+                    // If the statement has multiple elements, it is
+                    // implicitly a command.
+                    return new CommandTree(conditionTree, pageTree,
+                            orderTree);
+                }
+
+            }
+
+            @Override
+            public Object visit(ASTOr node, Object data) {
+                ConditionTree left = (ConditionTree) node.jjtGetChild(0)
+                        .jjtAccept(this, data);
+                ConditionTree right = (ConditionTree) node.jjtGetChild(1)
+                        .jjtAccept(this, data);
+                return new OrTree(left, right);
+            }
+
+            @Override
+            public Object visit(ASTAnd node, Object data) {
+                ConditionTree left = (ConditionTree) node.jjtGetChild(0)
+                        .jjtAccept(this, data);
+                ConditionTree right = (ConditionTree) node.jjtGetChild(1)
+                        .jjtAccept(this, data);
+                return new AndTree(left, right);
+            }
+
+            @Override
+            public Object visit(ASTExpression node, Object data) {
+                return new ExpressionTree(node);
+            }
+
+            @Override
+            public Object visit(ASTOrder node, Object data) {
+                return new OrderTree(node.order());
+            }
+
+            @Override
+            public Object visit(ASTPage node, Object data) {
+                return new PageTree(node.page());
+            }
+
+            @Override
+            public Object visit(ASTFunction node, Object data) {
+                return new FunctionTree(node.function());
+            }
+
+            @Override
+            public Object visit(ASTCommand node, Object data) {
+                ConditionTree conditionTree = null;
+                OrderTree orderTree = null;
+                PageTree pageTree = null;
+
+                for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+                    Object child = node.jjtGetChild(i).jjtAccept(this, data);
+                    if (child instanceof ConditionTree) {
+                        conditionTree = (ConditionTree) child;
+                    }
+                    else if (child instanceof PageTree) {
+                        pageTree = (PageTree) child;
+                    }
+                    else if (child instanceof OrderTree) {
+                        orderTree = (OrderTree) child;
+                    }
+                }
+
+                return new CommandTree(node.command(), conditionTree, pageTree, orderTree);
+            }
+        };
     }
 
 }

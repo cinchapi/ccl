@@ -118,6 +118,31 @@ public abstract class Compiler {
             Multimap<String, Object> data);
 
     /**
+     * Evaluate a CCL string that may contain multiple statements separated by
+     * semicolons. Each statement is parsed independently and an
+     * {@link AbstractSyntaxTree} is returned for each.
+     *
+     * @param ccl the CCL string, potentially containing semicolons
+     * @return a {@link List} of {@link AbstractSyntaxTree} instances, one per
+     *         statement
+     */
+    public final List<AbstractSyntaxTree> parseMulti(String ccl) {
+        return parseMulti(ccl, ImmutableMultimap.of());
+    }
+
+    /**
+     * Evaluate a CCL string that may contain multiple statements separated by
+     * semicolons, using the provided {@code data} for local variable
+     * resolution. Each statement is parsed independently.
+     *
+     * @param ccl the CCL string, potentially containing semicolons
+     * @param data data for local resolution of value variables
+     * @return a {@link List} of {@link AbstractSyntaxTree} instances
+     */
+    public abstract List<AbstractSyntaxTree> parseMulti(String ccl,
+            Multimap<String, Object> data);
+
+    /**
      * Return {@link StatementAnalysis analysis} about the {@link ConditionTree
      * tree}.
      * 

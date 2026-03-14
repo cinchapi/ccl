@@ -102,6 +102,32 @@ public class Grammar {
         return valueTransformFunction.apply(token);
     }
 
+    public List<ASTStart> generateMultiAST() throws ParseException {
+        List<ASTStart> statements = new ArrayList<ASTStart>();
+        // Skip any leading semicolons
+        while(getToken(1).kind == GrammarConstants.SEMICOLON) {
+            jj_consume_token(GrammarConstants.SEMICOLON);
+        }
+        if(getToken(1).kind != GrammarConstants.EOF) {
+            ASTStart first = generateStatement();
+            statements.add(first);
+            while(getToken(1).kind != GrammarConstants.EOF) {
+                jj_consume_token(GrammarConstants.SEMICOLON);
+                // Skip consecutive semicolons
+                while(getToken(1).kind == GrammarConstants.SEMICOLON) {
+                    jj_consume_token(GrammarConstants.SEMICOLON);
+                }
+                if(getToken(1).kind == GrammarConstants.EOF) {
+                    break; // trailing semicolon
+                }
+                ASTStart next = generateStatement();
+                statements.add(next);
+            }
+        }
+        jj_consume_token(GrammarConstants.EOF);
+        return statements;
+    }
+
     private boolean isValidJson(String json) {
         // Basic JSON validation
         int braceCount = 0;
@@ -186,6 +212,7 @@ TOKEN [IGNORE_CASE] : {
 | < OPEN_BRACE : "{" >
 | < CLOSE_BRACE : "}" >
 | < COLON : ":" >
+| < SEMICOLON : ";" >
 }
 
 
@@ -277,7 +304,7 @@ TOKEN :
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "="] >
+  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "=", ";"] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
@@ -316,6 +343,23 @@ ASTStart generateAST() #Start : {}
      Order() <EOF>
    |
      Function() <EOF>
+   )
+   { return jjtThis; }
+}
+
+ASTStart generateStatement() #Start : {}
+{
+   (
+     Command()
+   |
+     LOOKAHEAD(4)
+     (<WHERE>)? DisjunctionExpression() (Order())? (Page())?
+   |
+     Page()
+   |
+     Order()
+   |
+     Function()
    )
    { return jjtThis; }
 }
