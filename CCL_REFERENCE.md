@@ -1328,16 +1328,18 @@ NavigateCommand   ::= 'navigate' Key ReadPreposition NUMERIC [TimestampCommand]
                     | 'navigate' KeyCollection ReadPreposition RecordCollection [TimestampCommand]
                     | 'navigate' Key 'where' Condition [TimestampCommand]
                     | 'navigate' KeyCollection 'where' Condition [TimestampCommand]
-CalculateCommand  ::= 'calculate' ALPHANUMERIC Key ReadPreposition NUMERIC [TimestampCommand]
+CalculateCommand  ::= 'calculate' ALPHANUMERIC Key [TimestampCommand]
+                    | 'calculate' ALPHANUMERIC Key ReadPreposition NUMERIC [TimestampCommand]
                     | 'calculate' ALPHANUMERIC Key ReadPreposition RecordCollection [TimestampCommand]
                     | 'calculate' ALPHANUMERIC Key 'where' Condition [TimestampCommand]
 
 VerifyCommand     ::= 'verify' Key 'as' Value InspectPreposition NUMERIC [TimestampCommand]
-VerifyAndSwapCommand ::= 'verify_and_swap' Key 'as' Value InspectPreposition NUMERIC 'as' Value
+VerifyAndSwapCommand ::= 'verify_and_swap' Key 'as' Value InspectPreposition NUMERIC 'with' Value
 VerifyOrSetCommand::= 'verify_or_set' Key 'as' Value InspectPreposition NUMERIC
 ChronicleCommand  ::= 'chronicle' Key InspectPreposition NUMERIC [TimestampCommand [TimestampCommand]]
 DiffCommand       ::= 'diff' Key InspectPreposition NUMERIC TimestampCommand [TimestampCommand]
                     | 'diff' NUMERIC TimestampCommand [TimestampCommand]
+                    | 'diff' Key TimestampCommand [TimestampCommand]
 AuditCommand      ::= 'audit' Key InspectPreposition NUMERIC [TimestampCommand [TimestampCommand]]
                     | 'audit' NUMERIC [TimestampCommand [TimestampCommand]]
 RevertCommand     ::= 'revert' Key InspectPreposition NUMERIC TimestampCommand
@@ -1349,9 +1351,8 @@ LinkCommand       ::= 'link' Key 'from' NUMERIC 'to' NUMERIC
                     | 'link' Key 'from' NUMERIC 'to' RecordCollection
 UnlinkCommand     ::= 'unlink' Key 'from' NUMERIC 'to' NUMERIC
 
-FindCommand       ::= 'find' Key Operator Value [Timestamp]
-PingCommand       ::= 'ping' NUMERIC
-                    | 'ping' RecordCollection
+FindCommand       ::= 'find' Condition [TimestampCommand] [Order] [Page]
+PingCommand       ::= 'ping'
 
 (* Multi-statement *)
 Input             ::= Statement (';' Statement)* [';']
