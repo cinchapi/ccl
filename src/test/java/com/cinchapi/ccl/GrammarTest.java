@@ -1784,6 +1784,42 @@ public class GrammarTest {
     }
 
     @Test
+    public void testSelectWhereNoKeys() throws UnsupportedEncodingException, ParseException {
+        String ccl = "select where age > 25";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testGetFromRecordNoKeys() throws UnsupportedEncodingException, ParseException {
+        String ccl = "get from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testGetFromRecordsNoKeys() throws UnsupportedEncodingException, ParseException {
+        String ccl = "get from [1, 2]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testGetWhereNoKeys() throws UnsupportedEncodingException, ParseException {
+        String ccl = "get where age > 25";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
     public void testGetSingleKeyWhere() throws UnsupportedEncodingException, ParseException {
         String ccl = "get name where age > 30";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
@@ -2146,6 +2182,53 @@ public class GrammarTest {
     @Test
     public void testFindOrInsertWithComplexCriteria() throws UnsupportedEncodingException, ParseException {
         String ccl = "findOrInsert (age > 25 and city = \"NYC\") \"{'name': 'John', 'age': 30, 'city': 'NYC'}\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testFindOrInsertWithTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "findOrInsert age > 25 at \"2024-01-01\" \"{'name': 'John', 'age': 30}\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testFindOrInsertWithParenthesizedTimestampAndCommandTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "findOrInsert (age > 25 at \"yesterday\") at \"2024-01-01\" \"{'name': 'John'}\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    // === Bare record GET tests ===
+
+    @Test
+    public void testGetSingleRecordNoKeys() throws UnsupportedEncodingException, ParseException {
+        String ccl = "get 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testGetRecordCollectionNoKeys() throws UnsupportedEncodingException, ParseException {
+        String ccl = "get [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testGetBracketlessRecordCollectionNoKeys() throws UnsupportedEncodingException, ParseException {
+        String ccl = "get 1, 2, 3";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);

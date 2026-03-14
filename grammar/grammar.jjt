@@ -416,6 +416,71 @@ void RelationalExpression() #Expression :
     }
 }
 
+// --- No-timestamp expression variants ---
+// These four productions mirror DisjunctionExpression, ConjunctionExpression,
+// UnaryExpression, and RelationalExpression but suppress expression-level
+// timestamps. They exist so FindOrInsertCommand can parse its criteria without
+// the last RelationalExpression greedily consuming the command-level timestamp.
+//
+// Parenthesised sub-expressions delegate back to DisjunctionExpression (the
+// full variant), so expression-level timestamps inside parentheses still work:
+//   findOrInsert (age > 25 at "yesterday") at "2024-01-01" "{...}"
+//
+// MAINTENANCE: if the original expression productions change (e.g. new operator
+// types in RelationalExpression), update RelationalExpressionNoTimestamp to
+// match — the only difference should be the absence of the optional Timestamp()
+// call.
+
+void DisjunctionExpressionNoTimestamp() : {}
+{
+  (
+    ConjunctionExpressionNoTimestamp() (((<DISJUNCTION>) ConjunctionExpressionNoTimestamp()) #Or(2) )*
+  )
+}
+
+void ConjunctionExpressionNoTimestamp() : {}
+{
+  (
+    UnaryExpressionNoTimestamp() (((<CONJUNCTION>) UnaryExpressionNoTimestamp()) #And(2) )*
+  )
+}
+
+void UnaryExpressionNoTimestamp() : {}
+{
+   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpressionNoTimestamp()
+}
+
+void RelationalExpressionNoTimestamp() #Expression :
+{
+    KeyTokenSymbol key = null;
+    OperatorSymbol operator = null;
+    ValueTokenSymbol value1 = null;
+    ValueTokenSymbol value2 = null;
+}
+{
+    (
+      LOOKAHEAD(2)
+      key=SearchKey() operator=SearchOperator() value1=SearchValue()
+    |
+      key=Key()
+      (
+        operator=LinksToOperator() value1=LinksToValue()
+      |
+        operator=RegexBasedOperator() value1=RegexValue()
+      |
+        operator=UnaryOperator() value1=UnaryValue()
+      |
+        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue()
+      )
+    )
+    {
+      jjtThis.key(key);
+      jjtThis.operator(operator);
+      jjtThis.addValue(value1);
+      if(value2 != null) jjtThis.addValue(value2);
+    }
+}
+
 KeyTokenSymbol SearchKey() :
 {
   Token key;
@@ -692,6 +757,21 @@ TimestampSymbol TimestampReadCommand() :
 {
   (<TIMESTAMP> | <IN> | <AS_OF>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+}
+
+// Single-token timestamp variant used by FindOrInsertCommand, where the
+// multi-token greedy loop of TimestampReadCommand would consume the trailing
+// JSON QUOTED_STRING. This production accepts exactly one value token after the
+// timestamp keyword.
+TimestampSymbol TimestampSingleToken() :
+{
+  Token word;
+}
+{
+  (<TIMESTAMP> | <IN> | <AS_OF>)
+  (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL>
+   | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(word.image)); }
 }
 
 void Page() #Page :
@@ -1246,6 +1326,12 @@ CommandSymbol SelectCommand() : {
             }
         )
       |
+        // No keys + where — select where active = true
+        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        {
+            return new SelectSymbol(null, timestamp);
+        }
+      |
         // Bracketless record collection (no keys) — select 1, 2, 3
         LOOKAHEAD(<NUMERIC> <COMMA>)
         records=RecordCollection() (timestamp=TimestampReadCommand())?
@@ -1297,14 +1383,59 @@ CommandSymbol GetCommand() : {
       |
         LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN>))
         key=Key() (<FROM> | <IN> | <WITHIN>)
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
-            { return new GetSymbol(key, records, timestamp); }
+            { return new GetSymbol(keys, records, timestamp); }
           |
             record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
-            { return new GetSymbol(key, Long.parseLong(record.image), timestamp); }
+            { return new GetSymbol(keys, Long.parseLong(record.image), timestamp); }
         )
+      |
+        // No keys + where — get where active = true
+        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        {
+            return new GetSymbol(null, timestamp);
+        }
+      |
+        // No keys + preposition — get from 1 / get from [1, 2]
+        (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            {
+                return new GetSymbol(null, records, timestamp);
+            }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            {
+                return new GetSymbol(null, Long.parseLong(record.image), timestamp);
+            }
+        )
+      |
+        // Bracketed record collection (no keys) — get [1, 2, 3]
+        LOOKAHEAD(<OPEN_BRACKET> <NUMERIC>)
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        {
+            return new GetSymbol(null, records, timestamp);
+        }
+      |
+        // Bracketless record collection (no keys) — get 1, 2, 3
+        LOOKAHEAD(<NUMERIC> <COMMA>)
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        {
+            return new GetSymbol(null, records, timestamp);
+        }
+      |
+        // Single record (no keys) — get 1
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        {
+            return new GetSymbol(null, Long.parseLong(record.image), timestamp);
+        }
     )
 }
 
@@ -1337,8 +1468,11 @@ CommandSymbol FindOrInsertCommand() : {
 }
 {
     <FIND_OR_INSERT>
-    DisjunctionExpression()
-    (timestamp=TimestampReadCommand())?
+    DisjunctionExpressionNoTimestamp()
+    (
+        LOOKAHEAD(TimestampSingleToken() <QUOTED_STRING>)
+        timestamp=TimestampSingleToken()
+    )?
     json=<QUOTED_STRING>
     { return new FindOrInsertSymbol(json.image, timestamp); }
 }

@@ -16,62 +16,47 @@ import com.cinchapi.ccl.grammar.TimestampSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a GET command.
+ * <p>
+ * When {@link #keys()} returns {@code null}, all keys are implied
+ * (equivalent to a SELECT without explicit keys).
  */
 public class GetSymbol implements CommandSymbol {
-    private final KeyTokenSymbol<?> key;
     private final Collection<KeyTokenSymbol<?>> keys;
-    private final long record;
+    private final Long record;
     private final Collection<Long> records;
     private final TimestampSymbol timestamp;
 
     /**
-     * Construct a new instance for keys with optional where clause and timestamp.
+     * Construct a new instance for getting from a single record.
      */
-    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, TimestampSymbol timestamp) {
-        this(null, keys, -1, null, timestamp);
-    }
-
-    /**
-     * Construct a new instance for single key and record.
-     */
-    public GetSymbol(KeyTokenSymbol<?> key, long record, TimestampSymbol timestamp) {
-        this(key, null, record, null, timestamp);
-    }
-
-    /**
-     * Construct a new instance for single key and multiple records.
-     */
-    public GetSymbol(KeyTokenSymbol<?> key, Collection<Long> records, TimestampSymbol timestamp) {
-        this(key, null, -1, records, timestamp);
-    }
-
-    /**
-     * Construct a new instance for multiple keys and single record.
-     */
-    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, long record, TimestampSymbol timestamp) {
-        this(null, keys, record, null, timestamp);
-    }
-
-    /**
-     * Construct a new instance for multiple keys and records.
-     */
-    public GetSymbol(Collection<KeyTokenSymbol<?>> keys, Collection<Long> records, TimestampSymbol timestamp) {
-        this(null, keys, -1, records, timestamp);
-    }
-
-    /**
-     * Comprehensive constructor to handle all variations.
-     */
-    private GetSymbol(KeyTokenSymbol<?> key,
-                      Collection<KeyTokenSymbol<?>> keys,
-                      long record,
-                      Collection<Long> records,
-                      TimestampSymbol timestamp) {
-        this.key = key;
+    public GetSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys, long record,
+                     @Nullable TimestampSymbol timestamp) {
         this.keys = keys;
         this.record = record;
+        this.records = null;
+        this.timestamp = timestamp;
+    }
+
+    /**
+     * Construct a new instance for getting from multiple records.
+     */
+    public GetSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys, Collection<Long> records,
+                     @Nullable TimestampSymbol timestamp) {
+        this.keys = keys;
+        this.record = null;
         this.records = records;
         this.timestamp = timestamp;
+    }
+
+    /**
+     * Construct a new instance for expression-based getting (WHERE clause).
+     */
+    public GetSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
+                     @Nullable TimestampSymbol timestamp) {
+        this.keys = keys;
+        this.timestamp = timestamp;
+        this.record = null;
+        this.records = null;
     }
 
     @Override
@@ -79,25 +64,43 @@ public class GetSymbol implements CommandSymbol {
         return "GET";
     }
 
+    /**
+     * Return the single key if exactly one was specified, otherwise
+     * {@code null}. This is a convenience accessor; prefer {@link #keys()}.
+     */
     @Nullable
     public KeyTokenSymbol<?> key() {
-        return key;
+        return keys != null && keys.size() == 1
+                ? keys.iterator().next() : null;
     }
 
+    /**
+     * Return the keys to get, or {@code null} if all keys are implied.
+     */
     @Nullable
     public Collection<KeyTokenSymbol<?>> keys() {
         return keys;
     }
 
-    public long record() {
+    /**
+     * Return the record identifier if getting from a single record.
+     */
+    @Nullable
+    public Long record() {
         return record;
     }
 
+    /**
+     * Return the record identifiers if getting from multiple records.
+     */
     @Nullable
     public Collection<Long> records() {
         return records;
     }
 
+    /**
+     * Return the timestamp for historical get.
+     */
     @Nullable
     public TimestampSymbol timestamp() {
         return timestamp;

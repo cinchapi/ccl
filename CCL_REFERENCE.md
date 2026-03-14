@@ -745,6 +745,7 @@ select <keys> (from|in|within) <record> [timestamp] [order] [page]
 select <keys> (from|in|within) <records> [timestamp] [order] [page]
 select <key> where <condition> [timestamp] [order] [page]
 select <keys> where <condition> [timestamp] [order] [page]
+select where <condition> [timestamp] [order] [page]
 select <record> [timestamp]
 select <records> [timestamp]
 ```
@@ -758,6 +759,7 @@ select name from [1, 2, 3]
 select 1
 select 1, 2, 3
 select name where age > 30
+select where age > 30
 select name where age > 30 order by name page 1 size 10
 select name from 1 at "yesterday"
 select name from 1 as of "2024-01-01"
@@ -774,6 +776,11 @@ get <keys> (from|in|within) <record> [timestamp] [order] [page]
 get <keys> (from|in|within) <records> [timestamp] [order] [page]
 get <key> where <condition> [timestamp] [order] [page]
 get <keys> where <condition> [timestamp] [order] [page]
+get where <condition> [timestamp] [order] [page]
+get (from|in|within) <record> [timestamp] [order] [page]
+get (from|in|within) <records> [timestamp] [order] [page]
+get <record> [timestamp]
+get <records> [timestamp]
 ```
 
 ```
@@ -782,6 +789,12 @@ get name in 1
 get [name, age] within [1, 2, 3]
 get name, age from 1
 get name where age > 30
+get where age > 30
+get from 1
+get from [1, 2, 3]
+get 1
+get [1, 2, 3]
+get 1, 2, 3
 get [name, age] where score > 90 order by name
 ```
 
@@ -825,6 +838,13 @@ find_or_insert <condition> [timestamp] <json>
 
 ```
 findOrInsert age > 30 '{"name": "jeff", "age": 35}'
+findOrInsert age > 30 at "2024-01-01" '{"name": "jeff", "age": 35}'
+```
+
+**Note:** The timestamp must be a single token (quoted string or number). Expression-level timestamps within parenthesised sub-conditions are also supported:
+
+```
+findOrInsert (age > 30 at "yesterday") at "2024-01-01" '{"name": "jeff"}'
 ```
 
 #### DESCRIBE
@@ -1288,6 +1308,7 @@ SelectCommand     ::= 'select' Key ReadPreposition NUMERIC [TimestampCommand] [O
                     | 'select' KeyCollection ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
                     | 'select' Key 'where' Condition [TimestampCommand] [Order] [Page]
                     | 'select' KeyCollection 'where' Condition [TimestampCommand] [Order] [Page]
+                    | 'select' 'where' Condition [TimestampCommand] [Order] [Page]
                     | 'select' NUMERIC [TimestampCommand]
                     | 'select' RecordCollection [TimestampCommand]
 GetCommand        ::= 'get' Key ReadPreposition NUMERIC [TimestampCommand] [Order] [Page]
@@ -1296,6 +1317,11 @@ GetCommand        ::= 'get' Key ReadPreposition NUMERIC [TimestampCommand] [Orde
                     | 'get' KeyCollection ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
                     | 'get' Key 'where' Condition [TimestampCommand] [Order] [Page]
                     | 'get' KeyCollection 'where' Condition [TimestampCommand] [Order] [Page]
+                    | 'get' 'where' Condition [TimestampCommand] [Order] [Page]
+                    | 'get' ReadPreposition NUMERIC [TimestampCommand] [Order] [Page]
+                    | 'get' ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
+                    | 'get' NUMERIC [TimestampCommand]
+                    | 'get' RecordCollection [TimestampCommand]
 NavigateCommand   ::= 'navigate' Key ReadPreposition NUMERIC [TimestampCommand]
                     | 'navigate' Key ReadPreposition RecordCollection [TimestampCommand]
                     | 'navigate' KeyCollection ReadPreposition NUMERIC [TimestampCommand]
