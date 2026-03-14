@@ -102,7 +102,7 @@ public class Grammar {
         return valueTransformFunction.apply(token);
     }
 
-    public List<ASTStart> generateMultiAST() throws ParseException {
+    public List<ASTStart> generateASTs() throws ParseException {
         List<ASTStart> statements = new ArrayList<ASTStart>();
         // Skip any leading semicolons
         while(getToken(1).kind == GrammarConstants.SEMICOLON) {
@@ -212,10 +212,10 @@ TOKEN [IGNORE_CASE] : {
 | < OPEN_BRACE : "{" >
 | < CLOSE_BRACE : "}" >
 | < COLON : ":" >
-| < SEMICOLON : ";" >
 }
 
 
+TOKEN : { < SEMICOLON : ";" > }
 TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN : { < OPEN_BRACKET : "[" > }
@@ -330,26 +330,8 @@ ASTStart StartCommandLine() #Start : {}
    { return jjtThis; }
 }
 
-ASTStart generateAST() #Start : {}
+void Statement() : {}
 {
-   (
-     Command() <EOF>
-   |
-     LOOKAHEAD(4)
-     (<WHERE>)? DisjunctionExpression() (Order())? (Page())? <EOF>
-   |
-     Page() <EOF>
-   |
-     Order() <EOF>
-   |
-     Function() <EOF>
-   )
-   { return jjtThis; }
-}
-
-ASTStart generateStatement() #Start : {}
-{
-   (
      Command()
    |
      LOOKAHEAD(4)
@@ -360,7 +342,18 @@ ASTStart generateStatement() #Start : {}
      Order()
    |
      Function()
-   )
+}
+
+// Used by unit tests to parse a single statement (expects EOF)
+ASTStart generateAST() #Start : {}
+{
+   Statement() <EOF>
+   { return jjtThis; }
+}
+
+ASTStart generateStatement() #Start : {}
+{
+   Statement()
    { return jjtThis; }
 }
 

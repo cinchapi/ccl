@@ -1444,4 +1444,40 @@ public abstract class CompilerTest {
         Assert.assertTrue(trees.get(1) instanceof CommandTree);
     }
 
+    @Test
+    public void testCompileEmptyString() {
+        String ccl = "";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(0, trees.size());
+    }
+
+    @Test
+    public void testCompileOnlySemicolons() {
+        String ccl = ";;;";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(0, trees.size());
+    }
+
+    @Test
+    public void testCompileMixedConditionAndCommand() {
+        String ccl = "a = 1; get name from 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+        Assert.assertTrue(trees.get(0) instanceof ConditionTree);
+        Assert.assertTrue(trees.get(1) instanceof CommandTree);
+    }
+
+    @Test
+    public void testCompileCommandThenCondition() {
+        String ccl = "get name from 1; a = 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+        Assert.assertTrue(trees.get(0) instanceof CommandTree);
+        Assert.assertTrue(trees.get(1) instanceof ConditionTree);
+    }
+
 }

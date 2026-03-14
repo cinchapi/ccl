@@ -50,9 +50,12 @@ class CompilerJavaCC extends Compiler {
     public List<AbstractSyntaxTree> compile(String ccl,
             Multimap<String, Object> data) {
         try {
-            Grammar grammar = createGrammar(ccl, data);
             GrammarVisitor visitor = createVisitor();
-            List<ASTStart> starts = grammar.generateMultiAST();
+            InputStream stream = new ByteArrayInputStream(
+                    ccl.getBytes(StandardCharsets.UTF_8.name()));
+            Grammar grammar = new Grammar(stream, valueParser, operatorParser,
+                    data, visitor);
+            List<ASTStart> starts = grammar.generateASTs();
             List<AbstractSyntaxTree> results = new ArrayList<>(starts.size());
             for (ASTStart start : starts) {
                 results.add((AbstractSyntaxTree) start.jjtAccept(visitor, null));
@@ -65,21 +68,6 @@ class CompilerJavaCC extends Compiler {
     }
 
     /**
-     * Create a {@link Grammar} instance for parsing the given CCL string.
-     */
-    private Grammar createGrammar(String ccl, Multimap<String, Object> data) {
-        try {
-            InputStream stream = new ByteArrayInputStream(
-                    ccl.getBytes(StandardCharsets.UTF_8.name()));
-            return new Grammar(stream, valueParser, operatorParser,
-                    data, createVisitor());
-        }
-        catch (Exception e) {
-            throw new PropagatedSyntaxException(e, ccl);
-        }
-    }
-
-    /**
      * Create a {@link GrammarVisitor} that transforms AST nodes into
      * {@link AbstractSyntaxTree} instances.
      */
@@ -87,8 +75,6 @@ class CompilerJavaCC extends Compiler {
         return new GrammarVisitor() {
             @Override
             public Object visit(SimpleNode node, Object data) {
-                System.out.println(
-                        node + ": acceptor not unimplemented in subclass?");
                 data = node.childrenAccept(this, data);
                 return data;
             }
