@@ -60,7 +60,7 @@ class CompilerJavaCC extends Compiler {
     }
 
     @Override
-    public List<AbstractSyntaxTree> parseMulti(String ccl,
+    public List<AbstractSyntaxTree> compile(String ccl,
             Multimap<String, Object> data) {
         try {
             Grammar grammar = createGrammar(ccl, data);

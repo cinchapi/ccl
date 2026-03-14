@@ -1388,7 +1388,7 @@ public abstract class CompilerTest {
     public void testParseMultiTwoStatements() {
         String ccl = "a = 1; b > 2";
         Compiler compiler = createCompiler();
-        List<AbstractSyntaxTree> trees = compiler.parseMulti(ccl);
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
         Assert.assertEquals(2, trees.size());
         Assert.assertTrue(trees.get(0) instanceof ConditionTree);
         Assert.assertTrue(trees.get(1) instanceof ConditionTree);
@@ -1398,7 +1398,7 @@ public abstract class CompilerTest {
     public void testParseMultiSingleStatement() {
         String ccl = "a = 1";
         Compiler compiler = createCompiler();
-        List<AbstractSyntaxTree> trees = compiler.parseMulti(ccl);
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
         Assert.assertEquals(1, trees.size());
     }
 
@@ -1406,7 +1406,7 @@ public abstract class CompilerTest {
     public void testParseMultiTrailingSemicolon() {
         String ccl = "a = 1; b > 2;";
         Compiler compiler = createCompiler();
-        List<AbstractSyntaxTree> trees = compiler.parseMulti(ccl);
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
         Assert.assertEquals(2, trees.size());
     }
 
@@ -1414,7 +1414,7 @@ public abstract class CompilerTest {
     public void testParseMultiSemicolonInQuotedString() {
         String ccl = "name = \"hello;world\"; age > 5";
         Compiler compiler = createCompiler();
-        List<AbstractSyntaxTree> trees = compiler.parseMulti(ccl);
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
         Assert.assertEquals(2, trees.size());
     }
 
@@ -1422,7 +1422,7 @@ public abstract class CompilerTest {
     public void testParseMultiThreeStatements() {
         String ccl = "a = 1; b > 2; c != 3";
         Compiler compiler = createCompiler();
-        List<AbstractSyntaxTree> trees = compiler.parseMulti(ccl);
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
         Assert.assertEquals(3, trees.size());
     }
 
@@ -1430,7 +1430,7 @@ public abstract class CompilerTest {
     public void testParseMultiEmptyBetweenSemicolons() {
         String ccl = "a = 1;; b > 2";
         Compiler compiler = createCompiler();
-        List<AbstractSyntaxTree> trees = compiler.parseMulti(ccl);
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
         Assert.assertEquals(2, trees.size());
     }
 
@@ -1438,7 +1438,7 @@ public abstract class CompilerTest {
     public void testParseMultiWithCommands() {
         String ccl = "get name from 1; select age from 2";
         Compiler compiler = createCompiler();
-        List<AbstractSyntaxTree> trees = compiler.parseMulti(ccl);
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
         Assert.assertEquals(2, trees.size());
         Assert.assertTrue(trees.get(0) instanceof CommandTree);
         Assert.assertTrue(trees.get(1) instanceof CommandTree);

@@ -126,8 +126,8 @@ public abstract class Compiler {
      * @return a {@link List} of {@link AbstractSyntaxTree} instances, one per
      *         statement
      */
-    public final List<AbstractSyntaxTree> parseMulti(String ccl) {
-        return parseMulti(ccl, ImmutableMultimap.of());
+    public final List<AbstractSyntaxTree> compile(String ccl) {
+        return compile(ccl, ImmutableMultimap.of());
     }
 
     /**
@@ -139,7 +139,7 @@ public abstract class Compiler {
      * @param data data for local resolution of value variables
      * @return a {@link List} of {@link AbstractSyntaxTree} instances
      */
-    public abstract List<AbstractSyntaxTree> parseMulti(String ccl,
+    public abstract List<AbstractSyntaxTree> compile(String ccl,
             Multimap<String, Object> data);
 
     /**
