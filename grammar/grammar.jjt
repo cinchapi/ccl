@@ -939,11 +939,12 @@ CommandSymbol AddCommand() : {
     (
         ((<IN> | <TO> | <WITHIN>)
         (
-            record=<NUMERIC>
-            { return new AddSymbol(key, value, Long.parseLong(record.image)); }
-          |
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()
             { return new AddSymbol(key, value, records); }
+          |
+            record=<NUMERIC>
+            { return new AddSymbol(key, value, Long.parseLong(record.image)); }
         ))?
     )
     { return new AddSymbol(key, value); }
@@ -958,11 +959,12 @@ CommandSymbol SetCommand() : {
 {
     <SET> key=Key() <AS> value=UnaryValue() (<IN> | <WITHIN>)
     (
-        record=<NUMERIC>
-        { return new SetSymbol(key, value, Long.parseLong(record.image)); }
-      |
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection()
         { return new SetSymbol(key, value, records); }
+      |
+        record=<NUMERIC>
+        { return new SetSymbol(key, value, Long.parseLong(record.image)); }
     )
 }
 
@@ -975,9 +977,10 @@ CommandSymbol RemoveCommand() : {
 {
     <REMOVE> key=Key() (<AS> value=UnaryValue())? (<FROM> | <IN> | <WITHIN>)
     (
-        record=<NUMERIC> { return new RemoveSymbol(key, value, Long.parseLong(record.image)); }
-      |
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection() { return new RemoveSymbol(key, value, records); }
+      |
+        record=<NUMERIC> { return new RemoveSymbol(key, value, Long.parseLong(record.image)); }
     )
 }
 
@@ -990,29 +993,43 @@ CommandSymbol ClearCommand() : {
 {
     <CLEAR>
     (
-        LOOKAHEAD(2)
-        record=<NUMERIC>
-        { return new ClearSymbol((KeyTokenSymbol<?>)null, Long.parseLong(record.image)); }
-      |
-        LOOKAHEAD(3)
+        // Bracketed record collection — clear [1, 2, 3]
+        LOOKAHEAD(<OPEN_BRACKET> <NUMERIC>)
         records=RecordCollection()
         { return new ClearSymbol((KeyTokenSymbol<?>)null, records); }
       |
-        LOOKAHEAD(3)
-        key=Key() (<FROM> | <IN> | <WITHIN>) record=<NUMERIC>
-        { return new ClearSymbol(key, Long.parseLong(record.image)); }
+        // Key collection + preposition — clear [name, age] from 1 / clear name, age from 1
+        LOOKAHEAD(KeyCollection() (<FROM> | <IN> | <WITHIN>))
+        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            { return new ClearSymbol(keys, records); }
+          |
+            record=<NUMERIC>
+            { return new ClearSymbol(keys, Long.parseLong(record.image)); }
+        )
       |
-        LOOKAHEAD(3)
-        key=Key() (<FROM> | <IN> | <WITHIN>) records=RecordCollection()
-        { return new ClearSymbol(key, records); }
+        // Single key + preposition — clear name from 1
+        LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN>))
+        key=Key() (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            { return new ClearSymbol(key, records); }
+          |
+            record=<NUMERIC>
+            { return new ClearSymbol(key, Long.parseLong(record.image)); }
+        )
       |
-        LOOKAHEAD(7)
-        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>) record=<NUMERIC>
-        { return new ClearSymbol(keys, Long.parseLong(record.image)); }
+        // Bracketless record collection — clear 1, 2, 3
+        LOOKAHEAD(<NUMERIC> <COMMA>)
+        records=RecordCollection()
+        { return new ClearSymbol((KeyTokenSymbol<?>)null, records); }
       |
-        LOOKAHEAD(7)
-        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>) records=RecordCollection()
-        { return new ClearSymbol(keys, records); }
+        // Single record — clear 1
+        record=<NUMERIC>
+        { return new ClearSymbol((KeyTokenSymbol<?>)null, Long.parseLong(record.image)); }
     )
 }
 
@@ -1062,11 +1079,12 @@ CommandSymbol InsertCommand() : {
     (
         (<IN> | <INTO> | <TO> | <WITHIN>)
         (
-            record=<NUMERIC>
-            { return new InsertSymbol(json, Long.parseLong(record.image)); }
-          |
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()
             { return new InsertSymbol(json, records); }
+          |
+            record=<NUMERIC>
+            { return new InsertSymbol(json, Long.parseLong(record.image)); }
         )
     )?
     { return new InsertSymbol(json); }
@@ -1093,15 +1111,16 @@ CommandSymbol LinkCommand() : {
 {
     <LINK> key=Key() <FROM> source=<NUMERIC> <TO>
     (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        destinations=RecordCollection()
+        { return new LinkSymbol(key, Long.parseLong(source.image), destinations); }
+      |
         destination=<NUMERIC>
         {
             Collection dest = new ArrayList();
             dest.add(Long.parseLong(destination.image));
             return new LinkSymbol(key, Long.parseLong(source.image), dest);
         }
-      |
-        destinations=RecordCollection()
-        { return new LinkSymbol(key, Long.parseLong(source.image), destinations); }
     )
 }
 
@@ -1167,30 +1186,77 @@ CommandSymbol SelectCommand() : {
 {
     <SELECT>
     (
-        LOOKAHEAD(2)
-        keys=KeyCollection()
+        // Bracketed record collection (no keys) — select [1, 2, 3]
+        LOOKAHEAD(<OPEN_BRACKET> <NUMERIC>)
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        {
+            return new SelectSymbol(null, records, timestamp);
+        }
       |
+        // Key collection + preposition/where — select [name, age] from 1 / select name, age from 1
+        LOOKAHEAD(KeyCollection() (<FROM> | <IN> | <WITHIN> | <WHERE>))
+        keys=KeyCollection()
+        (
+            LOOKAHEAD(2)
+            (<FROM> | <IN> | <WITHIN>)
+            (
+                LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+                records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+                {
+                    return new SelectSymbol(keys, records, timestamp);
+                }
+              |
+                record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+                {
+                    return new SelectSymbol(keys, Long.parseLong(record.image), timestamp);
+                }
+            )
+          |
+            <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            {
+                return new SelectSymbol(keys, timestamp);
+            }
+        )
+      |
+        // Single key + preposition/where — select name from 1
+        LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN> | <WHERE>))
         key=Key() {
             keys = new ArrayList<KeyTokenSymbol<?>>();
             keys.add(key);
         }
-    )
-    (
-        LOOKAHEAD(2)
-        (<FROM> | <IN> | <WITHIN>) record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        (
+            LOOKAHEAD(2)
+            (<FROM> | <IN> | <WITHIN>)
+            (
+                LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+                records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+                {
+                    return new SelectSymbol(keys, records, timestamp);
+                }
+              |
+                record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+                {
+                    return new SelectSymbol(keys, Long.parseLong(record.image), timestamp);
+                }
+            )
+          |
+            <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            {
+                return new SelectSymbol(keys, timestamp);
+            }
+        )
+      |
+        // Bracketless record collection (no keys) — select 1, 2, 3
+        LOOKAHEAD(<NUMERIC> <COMMA>)
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
         {
-            return new SelectSymbol(keys, Long.parseLong(record.image), timestamp);
+            return new SelectSymbol(null, records, timestamp);
         }
       |
-        LOOKAHEAD(2)
-        (<FROM> | <IN> | <WITHIN>) records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        // Single record (no keys) — select 1
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
         {
-            return new SelectSymbol(keys, records, timestamp);
-        }
-      |
-        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
-        {
-            return new SelectSymbol(keys, timestamp);
+            return new SelectSymbol(null, Long.parseLong(record.image), timestamp);
         }
     )
 }
@@ -1205,25 +1271,40 @@ CommandSymbol GetCommand() : {
 {
     <GET>
     (
-        LOOKAHEAD(7)
+        LOOKAHEAD(KeyCollection() <WHERE>)
         keys=KeyCollection() <WHERE> (DisjunctionExpression())? (timestamp=TimestampReadCommand())? (Order())? (Page())?
         { return new GetSymbol(keys, timestamp); }
       |
-        LOOKAHEAD(3)
-        key=Key() (<FROM> | <IN> | <WITHIN>) record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
-        { return new GetSymbol(key, Long.parseLong(record.image), timestamp); }
+        // Single key + where — get name where age > 30
+        LOOKAHEAD(Key() <WHERE>)
+        key=Key() <WHERE> (DisjunctionExpression())? (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+            return new GetSymbol(keys, timestamp);
+        }
       |
-        LOOKAHEAD(3)
-        key=Key() (<FROM> | <IN> | <WITHIN>) records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
-        { return new GetSymbol(key, records, timestamp); }
+        LOOKAHEAD(KeyCollection() (<FROM> | <IN> | <WITHIN>))
+        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            { return new GetSymbol(keys, records, timestamp); }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            { return new GetSymbol(keys, Long.parseLong(record.image), timestamp); }
+        )
       |
-        LOOKAHEAD(7)
-        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>) record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
-        { return new GetSymbol(keys, Long.parseLong(record.image), timestamp); }
-      |
-        LOOKAHEAD(3)
-        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>) records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
-        { return new GetSymbol(keys, records, timestamp); }
+        LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN>))
+        key=Key() (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            { return new GetSymbol(key, records, timestamp); }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            { return new GetSymbol(key, Long.parseLong(record.image), timestamp); }
+        )
     )
 }
 
@@ -1270,12 +1351,13 @@ CommandSymbol DescribeCommand() : {
 {
     <DESCRIBE>
     (
-        LOOKAHEAD(2)
-        record=<NUMERIC> (timestamp=TimestampReadCommand())?
-        { return new DescribeSymbol(Long.parseLong(record.image), timestamp); }
-      |
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection() (timestamp=TimestampReadCommand())?
         { return new DescribeSymbol(records, timestamp); }
+      |
+        LOOKAHEAD(<NUMERIC>)
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        { return new DescribeSymbol(Long.parseLong(record.image), timestamp); }
       |
         (timestamp=TimestampReadCommand())?
         { return new DescribeSymbol(timestamp); }
@@ -1311,7 +1393,7 @@ CommandSymbol BrowseCommand() : {
 {
     <BROWSE>
     (
-        LOOKAHEAD(2)
+        LOOKAHEAD( <OPEN_BRACKET> | Key() <COMMA> )
         keys=KeyCollection()
       |
         key=Key()
@@ -1383,10 +1465,10 @@ CommandSymbol JsonifyCommand() : {
 {
     <JSONIFY>
     (
-        LOOKAHEAD(2)
-        record=<NUMERIC>
-      |
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection()
+      |
+        record=<NUMERIC>
     )
     (<WITH> <RESERVED_IDENTIFIER> { identifier = true; })?
     (timestamp=TimestampReadCommand())?
@@ -1409,7 +1491,7 @@ CommandSymbol NavigateCommand() : {
 {
     <NAVIGATE>
     (
-        LOOKAHEAD(2)
+        LOOKAHEAD( <OPEN_BRACKET> | Key() <COMMA> )
         keys=KeyCollection()
       |
         key=Key()
@@ -1424,11 +1506,12 @@ CommandSymbol NavigateCommand() : {
       |
         (<FROM> | <IN> | <WITHIN>)
         (
-            record=<NUMERIC> (timestamp=TimestampReadCommand())?
-            { return new NavigateSymbol(keys, Long.parseLong(record.image), timestamp); }
-          |
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection() (timestamp=TimestampReadCommand())?
             { return new NavigateSymbol(keys, records, timestamp); }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())?
+            { return new NavigateSymbol(keys, Long.parseLong(record.image), timestamp); }
         )
     )
 }
@@ -1471,12 +1554,12 @@ CommandSymbol TraceCommand() : {
 {
     <TRACE>
     (
-        LOOKAHEAD(2)
-        record=<NUMERIC> (timestamp=TimestampReadCommand())?
-        { return new TraceSymbol(Long.parseLong(record.image), timestamp); }
-      |
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection() (timestamp=TimestampReadCommand())?
         { return new TraceSymbol(records, timestamp); }
+      |
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        { return new TraceSymbol(Long.parseLong(record.image), timestamp); }
     )
 }
 
@@ -1523,24 +1606,30 @@ CommandSymbol RevertCommand() : {
 {
     <REVERT>
     (
-        LOOKAHEAD(3)
-        key=Key() (<IN> | <WITHIN>) record=<NUMERIC>
-        timestamp=TimestampReadCommand()
-        { return new RevertSymbol(key, Long.parseLong(record.image), timestamp); }
+        LOOKAHEAD(KeyCollection() (<IN> | <WITHIN>))
+        keys=KeyCollection() (<IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            timestamp=TimestampReadCommand()
+            { return new RevertSymbol(keys, records, timestamp); }
+          |
+            record=<NUMERIC>
+            timestamp=TimestampReadCommand()
+            { return new RevertSymbol(keys, Long.parseLong(record.image), timestamp); }
+        )
       |
-        LOOKAHEAD(3)
-        key=Key() (<IN> | <WITHIN>) records=RecordCollection()
-        timestamp=TimestampReadCommand()
-        { return new RevertSymbol(key, records, timestamp); }
-      |
-        LOOKAHEAD(7)
-        keys=KeyCollection() (<IN> | <WITHIN>) record=<NUMERIC>
-        timestamp=TimestampReadCommand()
-        { return new RevertSymbol(keys, Long.parseLong(record.image), timestamp); }
-      |
-        keys=KeyCollection() (<IN> | <WITHIN>) records=RecordCollection()
-        timestamp=TimestampReadCommand()
-        { return new RevertSymbol(keys, records, timestamp); }
+        key=Key() (<IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            timestamp=TimestampReadCommand()
+            { return new RevertSymbol(key, records, timestamp); }
+          |
+            record=<NUMERIC>
+            timestamp=TimestampReadCommand()
+            { return new RevertSymbol(key, Long.parseLong(record.image), timestamp); }
+        )
     )
 }
 
@@ -1574,7 +1663,8 @@ CommandSymbol HoldsCommand() : {
 {
     <HOLDS>
     (
-        LOOKAHEAD(<OPEN_BRACKET>) records=RecordCollection()
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        records=RecordCollection()
         { return new HoldsSymbol(records); }
       |
         record=<NUMERIC>
@@ -1590,7 +1680,7 @@ CommandSymbol ConsolidateCommand() : {
 {
     <CONSOLIDATE> first=<NUMERIC>
     (
-        LOOKAHEAD(2)
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         remaining=RecordCollection()
         { return new ConsolidateSymbol(Long.parseLong(first.image), remaining); }
       |
@@ -1613,7 +1703,7 @@ CommandSymbol CalculateCommand() : {
 {
     <CALCULATE> function=<ALPHANUMERIC> key=Key()
     (
-        LOOKAHEAD((<FROM> | <IN> | <WITHIN>) <OPEN_BRACKET>)
+        LOOKAHEAD((<FROM> | <IN> | <WITHIN>) (<OPEN_BRACKET> | <NUMERIC> <COMMA>))
         (<FROM> | <IN> | <WITHIN>) records=RecordCollection() (timestamp=TimestampReadCommand())?
         { return new CalculateSymbol(function.image, key, records, timestamp); }
       |
@@ -1639,10 +1729,15 @@ Collection<ValueTokenSymbol<?>> ValueCollection() : {
     Collection<ValueTokenSymbol<?>> values = Lists.newArrayList();
 }
 {
-    <OPEN_BRACKET>
+    (
+        <OPEN_BRACKET>
+            value=UnaryValue() { values.add(value); }
+            (<COMMA> value=UnaryValue() { values.add(value); })*
+        <CLOSE_BRACKET>
+      |
         value=UnaryValue() { values.add(value); }
-        (<COMMA> value=UnaryValue() { values.add(value); })*
-    <CLOSE_BRACKET>
+        (<COMMA> value=UnaryValue() { values.add(value); })+
+    )
     { return values; }
 }
 
@@ -1652,10 +1747,15 @@ Collection RecordCollection() :
     Collection records = new ArrayList();
 }
 {
-    <OPEN_BRACKET>
+    (
+        <OPEN_BRACKET>
+            record=<NUMERIC> { records.add(Long.parseLong(record.image)); }
+            (<COMMA> record=<NUMERIC> { records.add(Long.parseLong(record.image)); })*
+        <CLOSE_BRACKET>
+      |
         record=<NUMERIC> { records.add(Long.parseLong(record.image)); }
-        (<COMMA> record=<NUMERIC> { records.add(Long.parseLong(record.image)); })*
-    <CLOSE_BRACKET>
+        (<COMMA> record=<NUMERIC> { records.add(Long.parseLong(record.image)); })+
+    )
     { return records; }
 }
 
@@ -1665,10 +1765,15 @@ Collection KeyCollection() :
     Collection keys = new ArrayList();
 }
 {
-    <OPEN_BRACKET>
+    (
+        <OPEN_BRACKET>
+            key=Key() { keys.add(key.toString()); }
+            (<COMMA> key=Key() { keys.add(key.toString()); })*
+        <CLOSE_BRACKET>
+      |
         key=Key() { keys.add(key.toString()); }
-        (<COMMA> key=Key() { keys.add(key.toString()); })*
-    <CLOSE_BRACKET>
+        (<COMMA> key=Key() { keys.add(key.toString()); })+
+    )
     { return keys; }
 }
 

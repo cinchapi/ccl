@@ -124,18 +124,20 @@ Records are identified by positive integer IDs:
 
 ### Record Collections
 
-Multiple record IDs are enclosed in square brackets, comma-separated:
+Multiple record IDs listed comma-separated. Brackets are optional:
 
 ```
 [1, 2, 3]
+1, 2, 3
 ```
 
 ### Key Collections
 
-Multiple keys are enclosed in square brackets, comma-separated:
+Multiple keys listed comma-separated. Brackets are optional:
 
 ```
 [name, age, email]
+name, age, email
 ```
 
 ### Value Collections
@@ -585,6 +587,7 @@ add <key> as <value> (in|to|within) [<records>]
 add name as jeff
 add name as jeff in 1
 add name as jeff to [1, 2, 3]
+add name as jeff in 1, 2, 3
 ```
 
 #### SET
@@ -598,7 +601,8 @@ set <key> as <value> (in|within) [<records>]
 
 ```
 set name as jeff in 1
-set name as jeff to [1, 2, 3]
+set name as jeff within [1, 2, 3]
+set name as jeff in 1, 2, 3
 ```
 
 #### REMOVE
@@ -636,9 +640,11 @@ clear [<keys>] (from|in|within) [<records>]
 ```
 clear 1
 clear [1, 2, 3]
+clear 1, 2, 3
 clear name from 1
 clear name in 1
 clear [name, age] within [1, 2, 3]
+clear name, age from 1
 ```
 
 #### VERIFY_AND_SWAP
@@ -734,18 +740,23 @@ Select key values from records, with condition, or by record ID.
 
 ```
 select <key> (from|in|within) <record> [timestamp] [order] [page]
-select <key> (from|in|within) [<records>] [timestamp] [order] [page]
-select [<keys>] (from|in|within) <record> [timestamp] [order] [page]
-select [<keys>] (from|in|within) [<records>] [timestamp] [order] [page]
+select <key> (from|in|within) <records> [timestamp] [order] [page]
+select <keys> (from|in|within) <record> [timestamp] [order] [page]
+select <keys> (from|in|within) <records> [timestamp] [order] [page]
 select <key> where <condition> [timestamp] [order] [page]
-select [<keys>] where <condition> [timestamp] [order] [page]
+select <keys> where <condition> [timestamp] [order] [page]
+select <record> [timestamp]
+select <records> [timestamp]
 ```
 
 ```
 select name from 1
 select name in 1
 select [name, age] within 1
+select name, age from 1
 select name from [1, 2, 3]
+select 1
+select 1, 2, 3
 select name where age > 30
 select name where age > 30 order by name page 1 size 10
 select name from 1 at "yesterday"
@@ -758,16 +769,19 @@ Get key values (similar to select with different semantics).
 
 ```
 get <key> (from|in|within) <record> [timestamp] [order] [page]
-get <key> (from|in|within) [<records>] [timestamp] [order] [page]
-get [<keys>] (from|in|within) <record> [timestamp] [order] [page]
-get [<keys>] (from|in|within) [<records>] [timestamp] [order] [page]
-get [<keys>] where <condition> [timestamp] [order] [page]
+get <key> (from|in|within) <records> [timestamp] [order] [page]
+get <keys> (from|in|within) <record> [timestamp] [order] [page]
+get <keys> (from|in|within) <records> [timestamp] [order] [page]
+get <key> where <condition> [timestamp] [order] [page]
+get <keys> where <condition> [timestamp] [order] [page]
 ```
 
 ```
 get name from 1
 get name in 1
 get [name, age] within [1, 2, 3]
+get name, age from 1
+get name where age > 30
 get [name, age] where score > 90 order by name
 ```
 
@@ -1223,10 +1237,13 @@ Page              ::= 'page' NUMERIC ['size' NUMERIC]
 (* Functions *)
 Function          ::= FunctionKey | FunctionValue
 
-(* Collections *)
+(* Collections — brackets are optional for 2+ items *)
 RecordCollection  ::= '[' NUMERIC (',' NUMERIC)* ']'
+                    | NUMERIC (',' NUMERIC)+
 KeyCollection     ::= '[' Key (',' Key)* ']'
+                    | Key (',' Key)+
 ValueCollection   ::= '[' Value (',' Value)* ']'
+                    | Value (',' Value)+
 
 (* JSON *)
 JsonObject        ::= QUOTED_STRING       (* containing valid JSON *)
@@ -1260,6 +1277,8 @@ RemoveCommand     ::= 'remove' Key 'as' Value RemovePreposition NUMERIC
                     | 'remove' Key 'as' Value RemovePreposition RecordCollection
 ClearCommand      ::= 'clear' Key RemovePreposition NUMERIC
                     | 'clear' Key RemovePreposition RecordCollection
+                    | 'clear' KeyCollection RemovePreposition NUMERIC
+                    | 'clear' KeyCollection RemovePreposition RecordCollection
                     | 'clear' NUMERIC
                     | 'clear' RecordCollection
 
@@ -1277,9 +1296,12 @@ GetCommand        ::= 'get' Key ReadPreposition NUMERIC [TimestampCommand] [Orde
                     | 'get' KeyCollection ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
                     | 'get' Key 'where' Condition [TimestampCommand] [Order] [Page]
                     | 'get' KeyCollection 'where' Condition [TimestampCommand] [Order] [Page]
-NavigateCommand   ::= 'navigate' NavigationKey ReadPreposition NUMERIC [TimestampCommand] [Order] [Page]
-                    | 'navigate' NavigationKey ReadPreposition RecordCollection [TimestampCommand] [Order] [Page]
-                    | 'navigate' NavigationKey 'where' Condition [TimestampCommand] [Order] [Page]
+NavigateCommand   ::= 'navigate' Key ReadPreposition NUMERIC [TimestampCommand]
+                    | 'navigate' Key ReadPreposition RecordCollection [TimestampCommand]
+                    | 'navigate' KeyCollection ReadPreposition NUMERIC [TimestampCommand]
+                    | 'navigate' KeyCollection ReadPreposition RecordCollection [TimestampCommand]
+                    | 'navigate' Key 'where' Condition [TimestampCommand]
+                    | 'navigate' KeyCollection 'where' Condition [TimestampCommand]
 CalculateCommand  ::= 'calculate' ALPHANUMERIC Key ReadPreposition NUMERIC [TimestampCommand]
                     | 'calculate' ALPHANUMERIC Key ReadPreposition RecordCollection [TimestampCommand]
                     | 'calculate' ALPHANUMERIC Key 'where' Condition [TimestampCommand]
@@ -1294,10 +1316,11 @@ AuditCommand      ::= 'audit' Key InspectPreposition NUMERIC [TimestampCommand [
                     | 'audit' NUMERIC [TimestampCommand [TimestampCommand]]
 RevertCommand     ::= 'revert' Key InspectPreposition NUMERIC TimestampCommand
                     | 'revert' Key InspectPreposition RecordCollection TimestampCommand
-                    | 'revert' NUMERIC TimestampCommand
-                    | 'revert' RecordCollection TimestampCommand
-ReconcileCommand  ::= 'reconcile' Key InspectPreposition NUMERIC
+                    | 'revert' KeyCollection InspectPreposition NUMERIC TimestampCommand
+                    | 'revert' KeyCollection InspectPreposition RecordCollection TimestampCommand
+ReconcileCommand  ::= 'reconcile' Key InspectPreposition NUMERIC 'with' ValueCollection
 LinkCommand       ::= 'link' Key 'from' NUMERIC 'to' NUMERIC
+                    | 'link' Key 'from' NUMERIC 'to' RecordCollection
 UnlinkCommand     ::= 'unlink' Key 'from' NUMERIC 'to' NUMERIC
 
 FindCommand       ::= 'find' Key Operator Value [Timestamp]
