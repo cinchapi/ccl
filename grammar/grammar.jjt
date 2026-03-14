@@ -1272,12 +1272,12 @@ CommandSymbol GetCommand() : {
     <GET>
     (
         LOOKAHEAD(KeyCollection() <WHERE>)
-        keys=KeyCollection() <WHERE> (DisjunctionExpression())? (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        keys=KeyCollection() <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
         { return new GetSymbol(keys, timestamp); }
       |
         // Single key + where — get name where age > 30
         LOOKAHEAD(Key() <WHERE>)
-        key=Key() <WHERE> (DisjunctionExpression())? (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        key=Key() <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
         {
             keys = new ArrayList<KeyTokenSymbol<?>>();
             keys.add(key);
