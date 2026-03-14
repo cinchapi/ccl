@@ -367,12 +367,29 @@ void RelationalExpression() #Expression :
         operator=UnaryOperator() value1=UnaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
-      ) { jjtThis.key(key);
-          jjtThis.operator(operator);
-          jjtThis.addValue(value1);
-          if(value2 != null) jjtThis.addValue(value2);
-          if(timestamp != null) jjtThis.timestamp(timestamp);
-        }
+      )
+    )
+    {
+      jjtThis.key(key);
+      jjtThis.operator(operator);
+      jjtThis.addValue(value1);
+      if(value2 != null) jjtThis.addValue(value2);
+      if(timestamp != null) jjtThis.timestamp(timestamp);
+    }
+}
+
+KeyTokenSymbol SearchKey() :
+{
+  Token key;
+}
+{
+  (
+    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
+    { return new KeySymbol(key.image); }
+  |
+    (key=<PERIOD_SEPARATED_STRING>)
+    { return new NavigationKeySymbol(key.image); }
+  )
 }
 
 KeyTokenSymbol Key() :
