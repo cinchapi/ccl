@@ -52,7 +52,7 @@ public abstract class Compiler {
     /**
      * Create a {@link Compiler} that can parse CCL statements into intermediate
      * formats for logical evaluation.
-     * 
+     *
      * @param valueParser a {@link Function} that parses values appropriately
      * @param operatorParser a {@link Function} that parses {@link Operator
      *            operators} appropriately
@@ -77,7 +77,7 @@ public abstract class Compiler {
 
     /**
      * Construct a new instance.
-     * 
+     *
      * @param valueParser
      * @param operatorParser
      */
@@ -116,12 +116,13 @@ public abstract class Compiler {
      */
     public AbstractSyntaxTree parse(String ccl,
             Multimap<String, Object> data) {
-        try {
-            return compile(ccl, data).get(0);
-        }
-        catch (IndexOutOfBoundsException e) {
+        List<AbstractSyntaxTree> results = compile(ccl, data);
+        if (results.isEmpty()) {
             throw new IllegalArgumentException(
                     "No statements found in: " + ccl);
+        }
+        else {
+            return results.get(0);
         }
     }
 
@@ -153,7 +154,7 @@ public abstract class Compiler {
     /**
      * Return {@link StatementAnalysis analysis} about the {@link ConditionTree
      * tree}.
-     * 
+     *
      * @param tree
      * @return the {@link StatementAnalysis}
      */
@@ -223,7 +224,7 @@ public abstract class Compiler {
     /**
      * Return {@code true} if the {@code data} is described by the condition
      * encapsulated in the {@code tree}.
-     * 
+     *
      * @param tree the {@link ConditionTree} that represents the condition
      * @param data the data to test for adherences to the condition
      * @param evaluator a {@link TriFunction} that takes a consideration value,
@@ -291,7 +292,7 @@ public abstract class Compiler {
      * Traverse the {@code ast} in breadth-first order and break up its nodes
      * into distinct {@link Symbol symbols} (i.e. separate an
      * {@link ExpressionSymbol} into its distinct parts}.
-     * 
+     *
      * @param ast
      * @return the list of {@link Symbol symbols} in the {@code ast}
      */
@@ -391,7 +392,7 @@ public abstract class Compiler {
      * of {@link PostfixNotationSymbol}s (i.e. expressions are grouped into
      * {@link ExpressionSymbol}s that are sorted by the proper order of
      * operations.
-     * 
+     *
      * @param tree
      * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}

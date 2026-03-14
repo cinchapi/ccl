@@ -151,7 +151,6 @@ An Order statement can be parsed from the following forms:
   * `ORDER BY {key1} {direction} at {timestamp}, {key2}, ... {keyn} {direction} at {timestamp}` = sort by multiple keys, each with an independent and optional `timestamp` and `direction`
 
 ##### API Breaks
-* **Breaking**: Semicolons (`;`) are now reserved syntax. Values containing semicolons must be quoted (e.g., `name = "hello;world"` instead of `name = hello;world`).
 * The `Expression` symbol has been deprecated and renamed `ExpressionSymbol` for clarity.
 * The deprecated `ConcourseParser` has been removed.
 * Renamed the `com.cinchapi.ccl.v2.generated` package to `com.cinchapi.ccl.generated`.
