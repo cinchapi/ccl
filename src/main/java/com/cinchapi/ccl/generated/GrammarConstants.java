@@ -101,99 +101,101 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int COLON = 47;
   /** RegularExpression Id. */
-  int OPEN_PARENTHESES = 48;
+  int SEMICOLON = 48;
   /** RegularExpression Id. */
-  int CLOSE_PARENTHESES = 49;
+  int OPEN_PARENTHESES = 49;
   /** RegularExpression Id. */
-  int OPEN_BRACKET = 50;
+  int CLOSE_PARENTHESES = 50;
   /** RegularExpression Id. */
-  int CLOSE_BRACKET = 51;
+  int OPEN_BRACKET = 51;
   /** RegularExpression Id. */
-  int TIMESTAMP = 52;
+  int CLOSE_BRACKET = 52;
   /** RegularExpression Id. */
-  int WHERE = 53;
+  int TIMESTAMP = 53;
   /** RegularExpression Id. */
-  int RESERVED_IDENTIFIER = 54;
+  int WHERE = 54;
   /** RegularExpression Id. */
-  int CONJUNCTION = 55;
+  int RESERVED_IDENTIFIER = 55;
   /** RegularExpression Id. */
-  int DISJUNCTION = 56;
+  int CONJUNCTION = 56;
   /** RegularExpression Id. */
-  int UNARY_OPERATOR = 57;
+  int DISJUNCTION = 57;
   /** RegularExpression Id. */
-  int BINARY_OPERATOR = 58;
+  int UNARY_OPERATOR = 58;
   /** RegularExpression Id. */
-  int OPEN_ANGLE_BRACKET = 59;
+  int BINARY_OPERATOR = 59;
   /** RegularExpression Id. */
-  int CLOSE_ANGLE_BRACKET = 60;
+  int OPEN_ANGLE_BRACKET = 60;
   /** RegularExpression Id. */
-  int EQUALS = 61;
+  int CLOSE_ANGLE_BRACKET = 61;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 62;
+  int EQUALS = 62;
   /** RegularExpression Id. */
-  int GREATER_THAN = 63;
+  int NOT_EQUALS = 63;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 64;
+  int GREATER_THAN = 64;
   /** RegularExpression Id. */
-  int LESS_THAN = 65;
+  int GREATER_THAN_OR_EQUALS = 65;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 66;
+  int LESS_THAN = 66;
   /** RegularExpression Id. */
-  int LINKS_TO = 67;
+  int LESS_THAN_OR_EQUALS = 67;
   /** RegularExpression Id. */
-  int REGEX = 68;
+  int LINKS_TO = 68;
   /** RegularExpression Id. */
-  int NOT_REGEX = 69;
+  int REGEX = 69;
   /** RegularExpression Id. */
-  int LIKE = 70;
+  int NOT_REGEX = 70;
   /** RegularExpression Id. */
-  int NOT_LIKE = 71;
+  int LIKE = 71;
   /** RegularExpression Id. */
-  int BETWEEN = 72;
+  int NOT_LIKE = 72;
   /** RegularExpression Id. */
-  int PAGE = 73;
+  int BETWEEN = 73;
   /** RegularExpression Id. */
-  int SIZE = 74;
+  int PAGE = 74;
   /** RegularExpression Id. */
-  int ORDER = 75;
+  int SIZE = 75;
   /** RegularExpression Id. */
-  int ASC = 76;
+  int ORDER = 76;
   /** RegularExpression Id. */
-  int DESC = 77;
+  int ASC = 77;
   /** RegularExpression Id. */
-  int SEARCH_MATCH = 78;
+  int DESC = 78;
   /** RegularExpression Id. */
-  int SEARCH_EXCLUDE = 79;
+  int SEARCH_MATCH = 79;
   /** RegularExpression Id. */
-  int PIPE = 80;
+  int SEARCH_EXCLUDE = 80;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 81;
+  int PIPE = 81;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 82;
+  int QUOTED_STRING = 82;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 83;
+  int DOUBLE_QUOTED_STRING = 83;
   /** RegularExpression Id. */
-  int NUMERIC = 84;
+  int SINGLE_QUOTED_STRING = 84;
   /** RegularExpression Id. */
-  int COMMA = 85;
+  int NUMERIC = 85;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 86;
+  int COMMA = 86;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 87;
+  int SIGNED_INTEGER = 87;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 88;
+  int SIGNED_DECIMAL = 88;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 89;
+  int ALPHANUMERIC = 89;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 90;
+  int PERIOD_SEPARATED_STRING = 90;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 91;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 91;
   /** RegularExpression Id. */
-  int LETTER = 92;
+  int NON_ALPHANUMERIC = 92;
   /** RegularExpression Id. */
-  int DIGIT = 93;
+  int LETTER = 93;
   /** RegularExpression Id. */
-  int PERIOD = 94;
+  int DIGIT = 94;
+  /** RegularExpression Id. */
+  int PERIOD = 95;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -248,6 +250,7 @@ public interface GrammarConstants {
     "\"{\"",
     "\"}\"",
     "\":\"",
+    "\";\"",
     "\"(\"",
     "\")\"",
     "\"[\"",

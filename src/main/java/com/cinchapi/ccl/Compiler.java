@@ -52,7 +52,7 @@ public abstract class Compiler {
     /**
      * Create a {@link Compiler} that can parse CCL statements into intermediate
      * formats for logical evaluation.
-     * 
+     *
      * @param valueParser a {@link Function} that parses values appropriately
      * @param operatorParser a {@link Function} that parses {@link Operator
      *            operators} appropriately
@@ -77,7 +77,7 @@ public abstract class Compiler {
 
     /**
      * Construct a new instance.
-     * 
+     *
      * @param valueParser
      * @param operatorParser
      */
@@ -91,7 +91,7 @@ public abstract class Compiler {
      * Evaluate the {@code ccl} statement. If it is well-formed, return a
      * {@link AbstractSyntaxTree} that can be used to logically evaluate the
      * statement.
-     * 
+     *
      * @param ccl the CCL statement to parse
      * @return an {@link AbstractSyntaxTree} that represents the CCL statement
      */
@@ -108,19 +108,53 @@ public abstract class Compiler {
      * variable values in the CCL statement. The variable values, will be
      * replaced with values from the local {@code data} if possible.
      * </p>
-     * 
+     *
      * @param ccl the CCL statement to parse
      * @param data data that can be used to perform local resolution of any
      *            value variables (e.g. ssn = $ssn) in the CCL statement
      * @return an {@link AbstractSyntaxTree} that represents the CCL statement
      */
-    public abstract AbstractSyntaxTree parse(String ccl,
+    public AbstractSyntaxTree parse(String ccl,
+            Multimap<String, Object> data) {
+        List<AbstractSyntaxTree> results = compile(ccl, data);
+        if (results.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "No statements found in: " + ccl);
+        }
+        else {
+            return results.get(0);
+        }
+    }
+
+    /**
+     * Evaluate a CCL string that may contain multiple statements separated by
+     * semicolons. Each statement is parsed independently and an
+     * {@link AbstractSyntaxTree} is returned for each.
+     *
+     * @param ccl the CCL string, potentially containing semicolons
+     * @return a {@link List} of {@link AbstractSyntaxTree} instances, one per
+     *         statement
+     */
+    public final List<AbstractSyntaxTree> compile(String ccl) {
+        return compile(ccl, ImmutableMultimap.of());
+    }
+
+    /**
+     * Evaluate a CCL string that may contain multiple statements separated by
+     * semicolons, using the provided {@code data} for local variable
+     * resolution. Each statement is parsed independently.
+     *
+     * @param ccl the CCL string, potentially containing semicolons
+     * @param data data for local resolution of value variables
+     * @return a {@link List} of {@link AbstractSyntaxTree} instances
+     */
+    public abstract List<AbstractSyntaxTree> compile(String ccl,
             Multimap<String, Object> data);
 
     /**
      * Return {@link StatementAnalysis analysis} about the {@link ConditionTree
      * tree}.
-     * 
+     *
      * @param tree
      * @return the {@link StatementAnalysis}
      */
@@ -190,7 +224,7 @@ public abstract class Compiler {
     /**
      * Return {@code true} if the {@code data} is described by the condition
      * encapsulated in the {@code tree}.
-     * 
+     *
      * @param tree the {@link ConditionTree} that represents the condition
      * @param data the data to test for adherences to the condition
      * @param evaluator a {@link TriFunction} that takes a consideration value,
@@ -258,7 +292,7 @@ public abstract class Compiler {
      * Traverse the {@code ast} in breadth-first order and break up its nodes
      * into distinct {@link Symbol symbols} (i.e. separate an
      * {@link ExpressionSymbol} into its distinct parts}.
-     * 
+     *
      * @param ast
      * @return the list of {@link Symbol symbols} in the {@code ast}
      */
@@ -358,7 +392,7 @@ public abstract class Compiler {
      * of {@link PostfixNotationSymbol}s (i.e. expressions are grouped into
      * {@link ExpressionSymbol}s that are sorted by the proper order of
      * operations.
-     * 
+     *
      * @param tree
      * @return a {@link Queue} of {@link PostfixNotationSymbol
      *         PostfixNotationSymbols}

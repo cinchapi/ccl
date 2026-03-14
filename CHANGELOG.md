@@ -54,10 +54,9 @@ The following Concourse operations can now be expressed and parsed in CCL:
 ###### New Symbol Classes
 Each command is represented by a dedicated `CommandSymbol` implementation: `AddSymbol`, `SetSymbol`, `RemoveSymbol`, `ClearSymbol`, `InsertSymbol`, `ReconcileSymbol`, `VerifyAndSwapSymbol`, `VerifyOrSetSymbol`, `SelectSymbol`, `GetSymbol`, `FindSymbol`, `FindOrAddSymbol`, `FindOrInsertSymbol`, `BrowseSymbol`, `NavigateSymbol`, `DescribeSymbol`, `SearchSymbol`, `VerifySymbol`, `JsonifySymbol`, `AuditSymbol`, `ChronicleSymbol`, `DiffSymbol`, `RevertSymbol`, `TraceSymbol`, `CalculateSymbol`, `LinkSymbol`, `UnlinkSymbol`, `StageSymbol`, `CommitSymbol`, `AbortSymbol`, `PingSymbol`, `HoldsSymbol`, `ConsolidateSymbol`, `InventorySymbol`.
 
-##### Build Modernization
-* Upgraded Gradle from 3.3 to 8.14.3.
-* Modernized `build.gradle`: replaced deprecated `compile`/`testCompile` with `implementation`/`testImplementation`, added Nexus Publish Plugin for Maven Central publishing, and modernized signing configuration.
-* Upgraded CircleCI configuration from v2 to v2.1 with separate setup, compile, test, and publish jobs.
+##### Multi-Statement Parsing
+Added support for parsing multiple semicolon-delimited CCL statements in a single call, similar to SQL. The new `Compiler#compile(String)` and `Compiler#compile(String, Multimap)` methods accept a CCL string containing one or more statements separated by `;` and return a `List<AbstractSyntaxTree>` with one tree per statement.
+* Semicolons (`;`) are now a reserved token in the grammar. Unquoted semicolons in values are no longer permitted (use quoted strings instead).
 
 #### Version 3.2.1 (March 10, 2026)
 * Fixed a bug that caused the `CONTAINS` and `NOT_CONTAINS` search operators to fail when used with navigation keys (e.g., `mother.children contains 'foo'`).

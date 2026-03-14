@@ -102,6 +102,32 @@ public class Grammar {
         return valueTransformFunction.apply(token);
     }
 
+    public List<ASTStart> generateASTs() throws ParseException {
+        List<ASTStart> statements = new ArrayList<ASTStart>();
+        // Skip any leading semicolons
+        while(getToken(1).kind == GrammarConstants.SEMICOLON) {
+            jj_consume_token(GrammarConstants.SEMICOLON);
+        }
+        if(getToken(1).kind != GrammarConstants.EOF) {
+            ASTStart first = generateStatement();
+            statements.add(first);
+            while(getToken(1).kind != GrammarConstants.EOF) {
+                jj_consume_token(GrammarConstants.SEMICOLON);
+                // Skip consecutive semicolons
+                while(getToken(1).kind == GrammarConstants.SEMICOLON) {
+                    jj_consume_token(GrammarConstants.SEMICOLON);
+                }
+                if(getToken(1).kind == GrammarConstants.EOF) {
+                    break; // trailing semicolon
+                }
+                ASTStart next = generateStatement();
+                statements.add(next);
+            }
+        }
+        jj_consume_token(GrammarConstants.EOF);
+        return statements;
+    }
+
     private boolean isValidJson(String json) {
         // Basic JSON validation
         int braceCount = 0;
@@ -189,6 +215,7 @@ TOKEN [IGNORE_CASE] : {
 }
 
 
+TOKEN : { < SEMICOLON : ";" > }
 TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN : { < OPEN_BRACKET : "[" > }
@@ -277,7 +304,7 @@ TOKEN :
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "="] >
+  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "=", ";"] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
@@ -303,20 +330,30 @@ ASTStart StartCommandLine() #Start : {}
    { return jjtThis; }
 }
 
-ASTStart generateAST() #Start : {}
+void Statement() : {}
 {
-   (
-     Command() <EOF>
+     Command()
    |
      LOOKAHEAD(4)
-     (<WHERE>)? DisjunctionExpression() (Order())? (Page())? <EOF>
+     (<WHERE>)? DisjunctionExpression() (Order())? (Page())?
    |
-     Page() <EOF>
+     Page()
    |
-     Order() <EOF>
+     Order()
    |
-     Function() <EOF>
-   )
+     Function()
+}
+
+// Used by unit tests to parse a single statement (expects EOF)
+ASTStart generateAST() #Start : {}
+{
+   Statement() <EOF>
+   { return jjtThis; }
+}
+
+ASTStart generateStatement() #Start : {}
+{
+   Statement()
    { return jjtThis; }
 }
 
