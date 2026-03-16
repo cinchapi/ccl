@@ -1065,7 +1065,7 @@ CommandSymbol RemoveCommand() : {
     Collection records = null;
 }
 {
-    <REMOVE> key=Key() (<AS> value=UnaryValue())? (<FROM> | <IN> | <WITHIN>)
+    <REMOVE> key=Key() <AS> value=UnaryValue() (<FROM> | <IN> | <WITHIN>)
     (
         LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection() { return new RemoveSymbol(key, value, records); }

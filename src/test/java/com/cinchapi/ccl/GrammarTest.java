@@ -1630,6 +1630,24 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test(expected = ParseException.class)
+    public void testRemoveWithoutValueFromSingleRecordFails() throws UnsupportedEncodingException, ParseException {
+        String ccl = "remove name from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testRemoveWithoutValueFromBracketedRecordsFails() throws UnsupportedEncodingException, ParseException {
+        String ccl = "remove name from [1, 2]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     @Test
     public void testRevertSingleKey() throws UnsupportedEncodingException, ParseException {
         String ccl = "revert [name] in 1 at \"2024-01-01\"";
@@ -1876,6 +1894,15 @@ public class GrammarTest {
     @Test
     public void testRemoveBracketlessRecordCollection() throws UnsupportedEncodingException, ParseException {
         String ccl = "remove name as \"jeff\" from 1, 2, 3";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testRemoveWithoutValueFromBracketlessRecordsFails() throws UnsupportedEncodingException, ParseException {
+        String ccl = "remove name from 1, 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);

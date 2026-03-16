@@ -607,19 +607,16 @@ set name as jeff in 1, 2, 3
 
 #### REMOVE
 
-Remove a specific value from a key, or remove all values.
+Remove a specific value from a key.
 
 ```
 remove <key> as <value> (from|in|within) <record>
 remove <key> as <value> (from|in|within) [<records>]
-remove <key> (from|in|within) <record>
 ```
 
 ```
 remove name as jeff from 1
 remove name as jeff from [1, 2, 3]
-remove name in 1
-remove name within 1
 ```
 
 Note: `from`, `in`, and `within` are interchangeable in the remove command.
