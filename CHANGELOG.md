@@ -30,7 +30,7 @@ The following Concourse operations can now be expressed and parsed in CCL:
 * `jsonify` - Export records as JSON with optional identifier inclusion
 
 **History and Auditing**
-* `audit` - View the audit log for a record or key (e.g., `audit name in 1 at "2024-01-01" at "2024-02-01"`)
+* `audit` - View the audit log for a record or key (e.g., `audit name in 1 from "2024-01-01" to "2024-02-01"`)
 * `chronicle` - View the change history for a key in a record (e.g., `chronicle name in 1`)
 * `diff` - Compare data between timestamps (e.g., `diff 1 from "yesterday" to "today"`)
 * `revert` - Revert keys in records to a prior state (e.g., `revert name in 1 at "last week"`)

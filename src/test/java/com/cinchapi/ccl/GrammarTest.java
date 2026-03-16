@@ -1046,8 +1046,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testChronicleWithStartTime() throws UnsupportedEncodingException, ParseException {
-        String ccl = "chronicle name in 1 at \"2024-01-01\"";
+    public void testChronicleWithRange() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1 from \"2024-01-01\" to \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1055,17 +1055,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testChronicleWithStartAndEndTime() throws UnsupportedEncodingException, ParseException {
-        String ccl = "chronicle name in 1 at \"2024-01-01\" at \"2024-02-01\"";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
-        grammar.generateAST();
-    }
-
-    @Test
-    public void testChronicleWithNaturalLanguageTime() throws UnsupportedEncodingException, ParseException {
-        String ccl = "chronicle name in 1 at \"two weeks ago\"";
+    public void testChronicleWithNaturalLanguageRange() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1 from \"two weeks ago\" to \"today\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1668,7 +1659,7 @@ public class GrammarTest {
 
     @Test
     public void testAuditWithTimeRange() throws UnsupportedEncodingException, ParseException {
-        String ccl = "audit name in 1 at \"2024-01-01\" at \"2024-02-01\"";
+        String ccl = "audit name in 1 from \"2024-01-01\" to \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -2747,8 +2738,26 @@ public class GrammarTest {
     }
 
     @Test
+    public void testChronicleWithWithinPrepositionAndRange() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name within 1 from \"2024-01-01\" to \"2024-02-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
     public void testDiffWithWithinPreposition() throws UnsupportedEncodingException, ParseException {
         String ccl = "diff name within 1 from \"2024-01-01\" to \"2024-02-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidChronicleLegacySyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1 at \"2024-01-01\" at \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -2785,6 +2794,24 @@ public class GrammarTest {
     @Test
     public void testAuditWithWithinPreposition() throws UnsupportedEncodingException, ParseException {
         String ccl = "audit name within 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testAuditWithWithinPrepositionAndRange() throws UnsupportedEncodingException, ParseException {
+        String ccl = "audit name within 1 from \"2024-01-01\" to \"2024-02-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidAuditLegacySyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "audit name in 1 at \"2024-01-01\" at \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);

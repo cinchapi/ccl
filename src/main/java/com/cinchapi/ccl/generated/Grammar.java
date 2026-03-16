@@ -3956,25 +3956,15 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     }
     record = jj_consume_token(NUMERIC);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case IN:
-    case AS_OF:
-    case TIMESTAMP:{
-      start = TimestampReadCommand();
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case IN:
-      case AS_OF:
-      case TIMESTAMP:{
-        end = TimestampReadCommand();
-        break;
-        }
-      default:
-        jj_la1[171] = jj_gen;
-        ;
-      }
+    case FROM:{
+      jj_consume_token(FROM);
+      start = TimestampValue();
+      jj_consume_token(TO);
+      end = TimestampValue();
       break;
       }
     default:
-      jj_la1[172] = jj_gen;
+      jj_la1[171] = jj_gen;
       ;
     }
 {if ("" != null) return new ChronicleSymbol(key, Long.parseLong(record.image), start, end);}
@@ -4261,25 +4251,15 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     }
     record = jj_consume_token(NUMERIC);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case IN:
-    case AS_OF:
-    case TIMESTAMP:{
-      start = TimestampReadCommand();
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case IN:
-      case AS_OF:
-      case TIMESTAMP:{
-        end = TimestampReadCommand();
-        break;
-        }
-      default:
-        jj_la1[187] = jj_gen;
-        ;
-      }
+    case FROM:{
+      jj_consume_token(FROM);
+      start = TimestampValue();
+      jj_consume_token(TO);
+      end = TimestampValue();
       break;
       }
     default:
-      jj_la1[188] = jj_gen;
+      jj_la1[187] = jj_gen;
       ;
     }
 {if ("" != null) return new AuditSymbol(key, Long.parseLong(record.image), start, end);}

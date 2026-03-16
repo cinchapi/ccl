@@ -373,8 +373,8 @@ Some commands accept two timestamps for range queries:
 
 ```
 diff 1 from "yesterday" to "today"
-chronicle name in 1 at "2024-01-01" at "2024-06-01"
-audit 1 at "last month" at "today"
+chronicle name in 1 from "2024-01-01" to "2024-06-01"
+audit 1 from "last month" to "today"
 ```
 
 ---
@@ -931,13 +931,12 @@ navigate friends.name where age > 30
 View the change history for a key in a record.
 
 ```
-chronicle <key> (in|within) <record> [start_timestamp [end_timestamp]]
+chronicle <key> (in|within) <record> [from <start_timestamp> to <end_timestamp>]
 ```
 
 ```
 chronicle name in 1
-chronicle name in 1 at "2024-01-01"
-chronicle name in 1 at "2024-01-01" at "2024-06-01"
+chronicle name in 1 from "2024-01-01" to "2024-06-01"
 ```
 
 #### DIFF
@@ -962,15 +961,15 @@ diff name from "last week" to "today"
 View the audit log for a record or a key in a record.
 
 ```
-audit <record> [start_timestamp [end_timestamp]]
-audit <key> (in|within) <record> [start_timestamp [end_timestamp]]
+audit <record> [from <start_timestamp> to <end_timestamp>]
+audit <key> (in|within) <record> [from <start_timestamp> to <end_timestamp>]
 ```
 
 ```
 audit 1
 audit name in 1
-audit 1 at "2024-01-01" at "2024-06-01"
-audit name in 1 at "last month"
+audit 1 from "2024-01-01" to "2024-06-01"
+audit name in 1 from "last month" to "today"
 ```
 
 #### TRACE
@@ -1335,12 +1334,12 @@ CalculateCommand  ::= 'calculate' ALPHANUMERIC Key [TimestampCommand]
 VerifyCommand     ::= 'verify' Key 'as' Value InspectPreposition NUMERIC [TimestampCommand]
 VerifyAndSwapCommand ::= 'verify_and_swap' Key 'as' Value InspectPreposition NUMERIC 'with' Value
 VerifyOrSetCommand::= 'verify_or_set' Key 'as' Value InspectPreposition NUMERIC
-ChronicleCommand  ::= 'chronicle' Key InspectPreposition NUMERIC [TimestampCommand [TimestampCommand]]
+ChronicleCommand  ::= 'chronicle' Key InspectPreposition NUMERIC ['from' TimestampValue 'to' TimestampValue]
 DiffCommand       ::= 'diff' Key InspectPreposition NUMERIC 'from' TimestampValue 'to' TimestampValue
                     | 'diff' NUMERIC 'from' TimestampValue 'to' TimestampValue
                     | 'diff' Key 'from' TimestampValue 'to' TimestampValue
-AuditCommand      ::= 'audit' Key InspectPreposition NUMERIC [TimestampCommand [TimestampCommand]]
-                    | 'audit' NUMERIC [TimestampCommand [TimestampCommand]]
+AuditCommand      ::= 'audit' Key InspectPreposition NUMERIC ['from' TimestampValue 'to' TimestampValue]
+                    | 'audit' NUMERIC ['from' TimestampValue 'to' TimestampValue]
 RevertCommand     ::= 'revert' Key InspectPreposition NUMERIC TimestampCommand
                     | 'revert' Key InspectPreposition RecordCollection TimestampCommand
                     | 'revert' KeyCollection InspectPreposition NUMERIC TimestampCommand
