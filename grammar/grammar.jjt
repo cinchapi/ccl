@@ -745,7 +745,7 @@ TimestampSymbol Timestamp() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> | <IN>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
@@ -755,7 +755,7 @@ TimestampSymbol TimestampReadCommand() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> | <IN> | <AS_OF>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP> | <AS_OF>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
@@ -778,7 +778,7 @@ TimestampSymbol TimestampSingleToken() :
   Token word;
 }
 {
-  (<TIMESTAMP> | <IN> | <AS_OF>)
+  (<TIMESTAMP> | <AS_OF>)
   (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL>
    | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
   { return new TimestampSymbol(NaturalLanguage.parseMicros(word.image)); }

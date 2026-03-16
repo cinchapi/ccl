@@ -1882,7 +1882,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testOrderKeyWithStringTimestampDescending() {
-        String input = ORDER + " > age in 1992-10-02";
+        String input = ORDER + " > age at 1992-10-02";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
@@ -2159,7 +2159,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testKeyCclFunctionWithTimestampAbstractSyntaxTree() {
-        String ccl = "avg(age, age > 3, in 1992-10-02)";
+        String ccl = "avg(age, age > 3, at 1992-10-02)";
 
         // Generate tree
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -2249,7 +2249,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testKeyMultiRecordsFunctionWithTimestampAbstractSyntaxTree() {
-        String ccl = "avg(age, [1,2,3,5,11], in 1992-10-02)";
+        String ccl = "avg(age, [1,2,3,5,11], at 1992-10-02)";
 
         // Generate tree
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -2281,7 +2281,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testIndexFunctionWithTimestampAbstractSyntaxTree() {
-        String ccl = "avg(age, in 1992-10-02)";
+        String ccl = "avg(age, at 1992-10-02)";
 
         // Generate tree
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -2344,7 +2344,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testChronicleCommand() {
-        String ccl = "chronicle location in 5 at \"2024-01-01\" at \"2024-02-01\"";
+        String ccl = "chronicle location in 5 from \"2024-01-01\" to \"2024-02-01\"";
 
         // Generate tree
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,

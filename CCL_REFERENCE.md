@@ -1237,8 +1237,8 @@ SearchOperator    ::= '~' | 'contains' | 'search_match'
                     | '!~' | 'not_contains' | 'search_exclude'
 
 (* Timestamp *)
-Timestamp         ::= ('at' | 'on' | 'during' | 'in') TimestampValue
-TimestampCommand  ::= ('at' | 'on' | 'during' | 'in' | 'as of') TimestampValue
+Timestamp         ::= ('at' | 'on' | 'during') TimestampValue
+TimestampCommand  ::= ('at' | 'on' | 'during' | 'as of') TimestampValue
 TimestampValue    ::= QUOTED_STRING | NUMERIC+
 
 (* Ordering *)

@@ -788,7 +788,7 @@ public class GrammarTest {
 
     @Test
     public void testOrderByTimestamp() throws UnsupportedEncodingException, ParseException {
-        String ccl = "" + ORDER + " > age in 1992-10-02";
+        String ccl = "" + ORDER + " > age at 1992-10-02";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -798,7 +798,7 @@ public class GrammarTest {
 
     @Test
     public void testKeyMultiRecordsFunctionWithTimestamp2() throws UnsupportedEncodingException, ParseException {
-        String ccl = "avg(age, [1,2,3,5,11], in 1992-10-02)";
+        String ccl = "avg(age, [1,2,3,5,11], at 1992-10-02)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -818,7 +818,7 @@ public class GrammarTest {
 
     @Test
     public void testKeyCclFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
-        String ccl = "avg(age, age > 3, in 1992-10-02)";
+        String ccl = "avg(age, age > 3, at 1992-10-02)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -838,7 +838,7 @@ public class GrammarTest {
 
     @Test
     public void testIndexFunctionWithTimestamp() throws UnsupportedEncodingException, ParseException {
-        String ccl = "avg(age, in 1992-10-02)";
+        String ccl = "avg(age, at 1992-10-02)";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -2838,7 +2838,7 @@ public class GrammarTest {
 
     // -- Edge case tests --
 
-    @Test
+    @Test(expected = ParseException.class)
     public void testSelectInPrepositionWithInTimestamp() throws UnsupportedEncodingException, ParseException {
         String ccl = "select name in 1 in \"yesterday\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
@@ -2847,10 +2847,40 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void testGetInPrepositionWithInTimestamp() throws UnsupportedEncodingException, ParseException {
         String ccl = "get name in 1 in \"yesterday\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testBrowseWithInTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "browse [name] in \"2024-01-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testFindOrInsertWithInTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "find_or_insert name = jeff in \"2024-01-01\" \"{\\\"name\\\":\\\"Jeff\\\"}\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testIndexFunctionWithInTimestampFails() throws UnsupportedEncodingException, ParseException {
+        String ccl = "avg(age, in 1992-10-02)";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
         grammar.generateAST();
