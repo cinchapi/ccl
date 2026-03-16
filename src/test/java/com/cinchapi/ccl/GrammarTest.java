@@ -1217,8 +1217,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testDiffSingleRecordWithStart() throws UnsupportedEncodingException, ParseException {
-        String ccl = "diff 1 at \"2024-01-01\"";
+    public void testDiffSingleRecordWithRange() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff 1 from \"2024-01-01\" to \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1226,8 +1226,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testDiffSingleRecordWithStartAndEnd() throws UnsupportedEncodingException, ParseException {
-        String ccl = "diff 1 at \"2024-01-01\" at \"2024-02-01\"";
+    public void testDiffKeyRecordWithRange() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff name in 1 from \"2024-01-01\" to \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1235,35 +1235,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testDiffKeyRecordWithStart() throws UnsupportedEncodingException, ParseException {
-        String ccl = "diff name in 1 at \"2024-01-01\"";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
-        grammar.generateAST();
-    }
-
-    @Test
-    public void testDiffKeyRecordWithStartAndEnd() throws UnsupportedEncodingException, ParseException {
-        String ccl = "diff name in 1 at \"2024-01-01\" at \"2024-02-01\"";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
-        grammar.generateAST();
-    }
-
-    @Test
-    public void testDiffKeyWithStart() throws UnsupportedEncodingException, ParseException {
-        String ccl = "diff name at \"2024-01-01\"";
-        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
-        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
-                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
-        grammar.generateAST();
-    }
-
-    @Test
-    public void testDiffKeyWithStartAndEnd() throws UnsupportedEncodingException, ParseException {
-        String ccl = "diff name at \"2024-01-01\" at \"2024-02-01\"";
+    public void testDiffKeyWithRange() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff name from \"2024-01-01\" to \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -2775,7 +2748,34 @@ public class GrammarTest {
 
     @Test
     public void testDiffWithWithinPreposition() throws UnsupportedEncodingException, ParseException {
-        String ccl = "diff name within 1 at \"2024-01-01\"";
+        String ccl = "diff name within 1 from \"2024-01-01\" to \"2024-02-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidDiffSingleRecordLegacySyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff 1 at \"2024-01-01\" at \"2024-02-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidDiffKeyRecordLegacySyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff name in 1 at \"2024-01-01\" at \"2024-02-01\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidDiffKeyLegacySyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff name at \"2024-01-01\" at \"2024-02-01\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);

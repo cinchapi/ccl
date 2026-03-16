@@ -759,6 +759,16 @@ TimestampSymbol TimestampReadCommand() :
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
+TimestampSymbol TimestampValue() :
+{
+  Token word;
+  String timestamp = "";
+}
+{
+  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+}
+
 // Single-token timestamp variant used by FindOrInsertCommand, where the
 // multi-token greedy loop of TimestampReadCommand would consume the trailing
 // JSON QUOTED_STRING. This production accepts exactly one value token after the
@@ -1559,28 +1569,21 @@ CommandSymbol DiffCommand() : {
     KeyTokenSymbol<?> key = null;
     Token record = null;
     TimestampSymbol start;
-    TimestampSymbol end = null;
+    TimestampSymbol end;
 }
 {
     <DIFF>
     (
-        LOOKAHEAD(2)
-        key=Key() (<IN> | <WITHIN>)
-    )?
-    (
-        LOOKAHEAD(3)
-        record=<NUMERIC> start=TimestampReadCommand() (end=TimestampReadCommand())?
+        LOOKAHEAD(4)
+        key=Key() (<IN> | <WITHIN>) record=<NUMERIC> <FROM> start=TimestampValue() <TO> end=TimestampValue()
         { return new DiffSymbol(key, Long.parseLong(record.image), start, end); }
       |
-        key=Key()
-        (
-            LOOKAHEAD(3)
-            start=TimestampReadCommand() end=TimestampReadCommand()
-            { return new DiffSymbol(key, start, end); }
-          |
-            start=TimestampReadCommand()
-            { return new DiffSymbol(key, start); }
-        )
+        LOOKAHEAD(2)
+        record=<NUMERIC> <FROM> start=TimestampValue() <TO> end=TimestampValue()
+        { return new DiffSymbol(null, Long.parseLong(record.image), start, end); }
+      |
+        key=Key() <FROM> start=TimestampValue() <TO> end=TimestampValue()
+        { return new DiffSymbol(key, start, end); }
     )
 }
 

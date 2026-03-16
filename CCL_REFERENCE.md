@@ -372,7 +372,7 @@ describe 1 at "last christmas"
 Some commands accept two timestamps for range queries:
 
 ```
-diff 1 at "yesterday" at "today"
+diff 1 from "yesterday" to "today"
 chronicle name in 1 at "2024-01-01" at "2024-06-01"
 audit 1 at "last month" at "today"
 ```
@@ -945,17 +945,16 @@ chronicle name in 1 at "2024-01-01" at "2024-06-01"
 Compare state between timestamps.
 
 ```
-diff <record> <start_timestamp> [end_timestamp]
-diff <key> (in|within) <record> <start_timestamp> [end_timestamp]
-diff <key> <start_timestamp> <end_timestamp>
-diff <key> <start_timestamp>
+diff <record> from <start_timestamp> to <end_timestamp>
+diff <key> (in|within) <record> from <start_timestamp> to <end_timestamp>
+diff <key> from <start_timestamp> to <end_timestamp>
 ```
 
 ```
-diff 1 at "yesterday" at "today"
-diff name in 1 at "yesterday"
-diff name in 1 at "yesterday" at "today"
-diff name at "last week" at "today"
+diff 1 from "yesterday" to "today"
+diff name in 1 from "yesterday" to "today"
+diff name within 1 from "yesterday" to "today"
+diff name from "last week" to "today"
 ```
 
 #### AUDIT
@@ -1337,9 +1336,9 @@ VerifyCommand     ::= 'verify' Key 'as' Value InspectPreposition NUMERIC [Timest
 VerifyAndSwapCommand ::= 'verify_and_swap' Key 'as' Value InspectPreposition NUMERIC 'with' Value
 VerifyOrSetCommand::= 'verify_or_set' Key 'as' Value InspectPreposition NUMERIC
 ChronicleCommand  ::= 'chronicle' Key InspectPreposition NUMERIC [TimestampCommand [TimestampCommand]]
-DiffCommand       ::= 'diff' Key InspectPreposition NUMERIC TimestampCommand [TimestampCommand]
-                    | 'diff' NUMERIC TimestampCommand [TimestampCommand]
-                    | 'diff' Key TimestampCommand [TimestampCommand]
+DiffCommand       ::= 'diff' Key InspectPreposition NUMERIC 'from' TimestampValue 'to' TimestampValue
+                    | 'diff' NUMERIC 'from' TimestampValue 'to' TimestampValue
+                    | 'diff' Key 'from' TimestampValue 'to' TimestampValue
 AuditCommand      ::= 'audit' Key InspectPreposition NUMERIC [TimestampCommand [TimestampCommand]]
                     | 'audit' NUMERIC [TimestampCommand [TimestampCommand]]
 RevertCommand     ::= 'revert' Key InspectPreposition NUMERIC TimestampCommand

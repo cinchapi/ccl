@@ -32,7 +32,7 @@ The following Concourse operations can now be expressed and parsed in CCL:
 **History and Auditing**
 * `audit` - View the audit log for a record or key (e.g., `audit name in 1 at "2024-01-01" at "2024-02-01"`)
 * `chronicle` - View the change history for a key in a record (e.g., `chronicle name in 1`)
-* `diff` - Compare data between timestamps (e.g., `diff 1 at "yesterday" at "today"`)
+* `diff` - Compare data between timestamps (e.g., `diff 1 from "yesterday" to "today"`)
 * `revert` - Revert keys in records to a prior state (e.g., `revert name in 1 at "last week"`)
 * `trace` - Trace incoming references to a record (e.g., `trace 1`)
 
