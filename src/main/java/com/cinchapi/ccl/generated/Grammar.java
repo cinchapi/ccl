@@ -4754,7 +4754,7 @@ records.add(Long.parseLong(record.image));
     case OPEN_BRACKET:{
       jj_consume_token(OPEN_BRACKET);
       key = Key();
-keys.add(key.toString());
+keys.add(key);
       label_18:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -4768,7 +4768,7 @@ keys.add(key.toString());
         }
         jj_consume_token(COMMA);
         key = Key();
-keys.add(key.toString());
+keys.add(key);
       }
       jj_consume_token(CLOSE_BRACKET);
       break;
@@ -4780,12 +4780,12 @@ keys.add(key.toString());
     case ALPHANUMERIC:
     case PERIOD_SEPARATED_STRING:{
       key = Key();
-keys.add(key.toString());
+keys.add(key);
       label_19:
       while (true) {
         jj_consume_token(COMMA);
         key = Key();
-keys.add(key.toString());
+keys.add(key);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA:{
           ;

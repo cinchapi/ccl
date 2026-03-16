@@ -26,11 +26,15 @@ import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.grammar.command.CommandSymbol;
+import com.cinchapi.ccl.grammar.command.SelectSymbol;
+import com.cinchapi.ccl.grammar.command.NavigateSymbol;
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
@@ -1478,6 +1482,60 @@ public abstract class CompilerTest {
         Assert.assertEquals(2, trees.size());
         Assert.assertTrue(trees.get(0) instanceof CommandTree);
         Assert.assertTrue(trees.get(1) instanceof ConditionTree);
+    }
+
+    @Test
+    public void testSelectBracketlessKeyCollectionReturnsKeyTokenSymbols() {
+        String ccl = "select name, age from 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(1, trees.size());
+        CommandTree tree = (CommandTree) trees.get(0);
+        SelectSymbol sym = (SelectSymbol) tree.root();
+        Assert.assertNotNull(sym.keys());
+        Assert.assertEquals(2, sym.keys().size());
+        for (Object key : sym.keys()) {
+            Assert.assertTrue(
+                    "Expected KeyTokenSymbol but got "
+                            + key.getClass().getName(),
+                    key instanceof KeyTokenSymbol);
+        }
+    }
+
+    @Test
+    public void testSelectBracketedKeyCollectionReturnsKeyTokenSymbols() {
+        String ccl = "select [name, age] from 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(1, trees.size());
+        CommandTree tree = (CommandTree) trees.get(0);
+        SelectSymbol sym = (SelectSymbol) tree.root();
+        Assert.assertNotNull(sym.keys());
+        Assert.assertEquals(2, sym.keys().size());
+        for (Object key : sym.keys()) {
+            Assert.assertTrue(
+                    "Expected KeyTokenSymbol but got "
+                            + key.getClass().getName(),
+                    key instanceof KeyTokenSymbol);
+        }
+    }
+
+    @Test
+    public void testNavigateKeyCollectionReturnsKeyTokenSymbols() {
+        String ccl = "navigate name, age from 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(1, trees.size());
+        CommandTree tree = (CommandTree) trees.get(0);
+        NavigateSymbol sym = (NavigateSymbol) tree.root();
+        Assert.assertNotNull(sym.keys());
+        Assert.assertEquals(2, sym.keys().size());
+        for (Object key : sym.keys()) {
+            Assert.assertTrue(
+                    "Expected KeyTokenSymbol but got "
+                            + key.getClass().getName(),
+                    key instanceof KeyTokenSymbol);
+        }
     }
 
 }

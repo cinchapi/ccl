@@ -1901,12 +1901,12 @@ Collection KeyCollection() :
 {
     (
         <OPEN_BRACKET>
-            key=Key() { keys.add(key.toString()); }
-            (<COMMA> key=Key() { keys.add(key.toString()); })*
+            key=Key() { keys.add(key); }
+            (<COMMA> key=Key() { keys.add(key); })*
         <CLOSE_BRACKET>
       |
-        key=Key() { keys.add(key.toString()); }
-        (<COMMA> key=Key() { keys.add(key.toString()); })+
+        key=Key() { keys.add(key); }
+        (<COMMA> key=Key() { keys.add(key); })+
     )
     { return keys; }
 }
