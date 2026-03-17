@@ -1484,7 +1484,11 @@ CommandSymbol FindOrInsertCommand() : {
         timestamp=TimestampSingleToken()
     )?
     json=<QUOTED_STRING>
-    { return new FindOrInsertSymbol(json.image, timestamp); }
+    {
+        return new FindOrInsertSymbol(
+                json.image.substring(1, json.image.length() - 1),
+                timestamp);
+    }
 }
 
 CommandSymbol DescribeCommand() : {
@@ -1918,5 +1922,5 @@ String JsonObject() :
 }
 {
     content=<QUOTED_STRING>
-    { return content.image; }
+    { return content.image.substring(1, content.image.length() - 1); }
 }
