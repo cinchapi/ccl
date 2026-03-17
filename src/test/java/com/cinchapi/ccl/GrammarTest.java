@@ -2298,8 +2298,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testJsonifyWithIdentifierCommand() throws UnsupportedEncodingException, ParseException {
-        String ccl = "jsonify 1 with $id$";
+    public void testJsonifyWithoutIdentifierCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "jsonify 1 without $id$";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -2316,8 +2316,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testJsonifyWithIdentifierAndTimestampCommand() throws UnsupportedEncodingException, ParseException {
-        String ccl = "jsonify 1 with $id$ at \"December 30, 1987\"";
+    public void testJsonifyWithoutIdentifierAndTimestampCommand() throws UnsupportedEncodingException, ParseException {
+        String ccl = "jsonify 1 without $id$ at \"December 30, 1987\"";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);

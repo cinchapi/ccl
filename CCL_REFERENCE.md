@@ -150,7 +150,7 @@ Multiple values enclosed in square brackets (used by `reconcile`):
 
 ### Reserved Identifiers
 
-`$id$` is reserved for JSON record identifiers, used with `jsonify ... with $id$`.
+`$id$` is reserved for JSON record identifiers. By default, `jsonify` includes the record identifier; use `jsonify ... without $id$` to exclude it.
 
 ---
 
@@ -996,21 +996,19 @@ inventory
 
 #### JSONIFY
 
-Export records as JSON.
+Export records as JSON. The record identifier (`$id$`) is included by default; use `without $id$` to exclude it.
 
 ```
-jsonify <record> [with $id$] [timestamp]
-jsonify [<records>] [with $id$] [timestamp]
+jsonify <record> [without $id$] [timestamp]
+jsonify [<records>] [without $id$] [timestamp]
 ```
 
 ```
 jsonify 1
 jsonify [1, 2, 3]
-jsonify 1 with $id$
+jsonify 1 without $id$
 jsonify 1 at "yesterday"
 ```
-
-The `with $id$` option includes the record identifier in the JSON output.
 
 #### RECONCILE
 

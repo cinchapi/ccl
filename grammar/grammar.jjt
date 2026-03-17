@@ -210,6 +210,7 @@ TOKEN [IGNORE_CASE] : {
 | < AS: "as" >
 | < FOR: "for" >
 | < WITH: "with" >
+| < WITHOUT: "without" >
 | < OPEN_BRACE : "{" >
 | < CLOSE_BRACE : "}" >
 | < COLON : ":" >
@@ -1600,7 +1601,7 @@ CommandSymbol JsonifyCommand() : {
     Token record = null;
     Collection<Long> records = null;
     TimestampSymbol timestamp = null;
-    boolean identifier = false;
+    boolean identifier = true;
 }
 {
     <JSONIFY>
@@ -1610,7 +1611,7 @@ CommandSymbol JsonifyCommand() : {
       |
         record=<NUMERIC>
     )
-    (<WITH> <RESERVED_IDENTIFIER> { identifier = true; })?
+    (<WITHOUT> <RESERVED_IDENTIFIER> { identifier = false; })?
     (timestamp=TimestampReadCommand())?
     {
         if(record != null) {
