@@ -938,18 +938,20 @@ chronicle name in 1 from "2024-01-01" to "2024-06-01"
 
 #### DIFF
 
-Compare state between timestamps.
+Compare state at or between timestamps.
 
 ```
-diff <record> from <start_timestamp> to <end_timestamp>
-diff <key> (in|within) <record> from <start_timestamp> to <end_timestamp>
-diff <key> from <start_timestamp> to <end_timestamp>
+diff <record> from <start_timestamp> [to <end_timestamp>]
+diff <key> (in|within) <record> from <start_timestamp> [to <end_timestamp>]
+diff <key> from <start_timestamp> [to <end_timestamp>]
 ```
 
 ```
+diff 1 from "yesterday"
 diff 1 from "yesterday" to "today"
 diff name in 1 from "yesterday" to "today"
 diff name within 1 from "yesterday" to "today"
+diff name from "last week"
 diff name from "last week" to "today"
 ```
 
@@ -1332,9 +1334,9 @@ VerifyCommand     ::= 'verify' Key 'as' Value InspectPreposition NUMERIC [Timest
 VerifyAndSwapCommand ::= 'verify_and_swap' Key 'as' Value InspectPreposition NUMERIC 'with' Value
 VerifyOrSetCommand::= 'verify_or_set' Key 'as' Value InspectPreposition NUMERIC
 ChronicleCommand  ::= 'chronicle' Key InspectPreposition NUMERIC ['from' TimestampValue 'to' TimestampValue]
-DiffCommand       ::= 'diff' Key InspectPreposition NUMERIC 'from' TimestampValue 'to' TimestampValue
-                    | 'diff' NUMERIC 'from' TimestampValue 'to' TimestampValue
-                    | 'diff' Key 'from' TimestampValue 'to' TimestampValue
+DiffCommand       ::= 'diff' Key InspectPreposition NUMERIC 'from' TimestampValue ['to' TimestampValue]
+                    | 'diff' NUMERIC 'from' TimestampValue ['to' TimestampValue]
+                    | 'diff' Key 'from' TimestampValue ['to' TimestampValue]
 AuditCommand      ::= 'audit' Key InspectPreposition NUMERIC ['from' TimestampValue 'to' TimestampValue]
                     | 'audit' NUMERIC ['from' TimestampValue 'to' TimestampValue]
 RevertCommand     ::= 'revert' Key InspectPreposition NUMERIC TimestampCommand

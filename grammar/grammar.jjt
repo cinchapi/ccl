@@ -1572,20 +1572,20 @@ CommandSymbol DiffCommand() : {
     KeyTokenSymbol<?> key = null;
     Token record = null;
     TimestampSymbol start;
-    TimestampSymbol end;
+    TimestampSymbol end = null;
 }
 {
     <DIFF>
     (
         LOOKAHEAD(4)
-        key=Key() (<IN> | <WITHIN>) record=<NUMERIC> <FROM> start=TimestampValue() <TO> end=TimestampValue()
+        key=Key() (<IN> | <WITHIN>) record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(key, Long.parseLong(record.image), start, end); }
       |
         LOOKAHEAD(2)
-        record=<NUMERIC> <FROM> start=TimestampValue() <TO> end=TimestampValue()
+        record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(null, Long.parseLong(record.image), start, end); }
       |
-        key=Key() <FROM> start=TimestampValue() <TO> end=TimestampValue()
+        key=Key() <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(key, start, end); }
     )
 }
