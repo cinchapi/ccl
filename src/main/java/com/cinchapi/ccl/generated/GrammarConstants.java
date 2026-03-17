@@ -161,45 +161,51 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int SIZE = 77;
   /** RegularExpression Id. */
-  int ORDER = 78;
+  int OFFSET = 78;
   /** RegularExpression Id. */
-  int ASC = 79;
+  int SKIP_ = 79;
   /** RegularExpression Id. */
-  int DESC = 80;
+  int LIMIT = 80;
   /** RegularExpression Id. */
-  int SEARCH_MATCH = 81;
+  int ORDER = 81;
   /** RegularExpression Id. */
-  int SEARCH_EXCLUDE = 82;
+  int ASC = 82;
   /** RegularExpression Id. */
-  int PIPE = 83;
+  int DESC = 83;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 84;
+  int SEARCH_MATCH = 84;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 85;
+  int SEARCH_EXCLUDE = 85;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 86;
+  int PIPE = 86;
   /** RegularExpression Id. */
-  int NUMERIC = 87;
+  int QUOTED_STRING = 87;
   /** RegularExpression Id. */
-  int COMMA = 88;
+  int DOUBLE_QUOTED_STRING = 88;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 89;
+  int SINGLE_QUOTED_STRING = 89;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 90;
+  int NUMERIC = 90;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 91;
+  int COMMA = 91;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 92;
+  int SIGNED_INTEGER = 92;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 93;
+  int SIGNED_DECIMAL = 93;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 94;
+  int ALPHANUMERIC = 94;
   /** RegularExpression Id. */
-  int LETTER = 95;
+  int PERIOD_SEPARATED_STRING = 95;
   /** RegularExpression Id. */
-  int DIGIT = 96;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 96;
   /** RegularExpression Id. */
-  int PERIOD = 97;
+  int NON_ALPHANUMERIC = 97;
+  /** RegularExpression Id. */
+  int LETTER = 98;
+  /** RegularExpression Id. */
+  int DIGIT = 99;
+  /** RegularExpression Id. */
+  int PERIOD = 100;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -284,6 +290,9 @@ public interface GrammarConstants {
     "<BETWEEN>",
     "\"page\"",
     "\"size\"",
+    "\"offset\"",
+    "\"skip\"",
+    "\"limit\"",
     "\"order by\"",
     "\"asc\"",
     "\"desc\"",

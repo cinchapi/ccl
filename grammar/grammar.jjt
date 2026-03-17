@@ -271,6 +271,12 @@ TOKEN [IGNORE_CASE]:
 |
   < SIZE : "size" >
 |
+  < OFFSET : "offset" >
+|
+  < SKIP_ : "skip" >
+|
+  < LIMIT : "limit" >
+|
   < ORDER : "order by" >
 |
   < ASC : "asc" >
@@ -789,14 +795,23 @@ void Page() #Page :
 {
   String number = null;
   String size = null;
+  String skip = null;
+  String limit = null;
 }
 {
   (
+    skip=Offset() limit=Limit()
+    { jjtThis.page(PageSymbol.ofSkip(Integer.parseInt(skip), Integer.parseInt(limit))); }
+  |
+    limit=Limit() skip=Offset()
+    { jjtThis.page(PageSymbol.ofSkip(Integer.parseInt(skip), Integer.parseInt(limit))); }
+  |
     number=Number() (size=Size())?
+    { jjtThis.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
   |
     size=Size() (number=Number())?
+    { jjtThis.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
   )
-  { jjtThis.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
 }
 
 String Number() :
@@ -818,6 +833,28 @@ String Size() :
   (
      (<SIZE> size=<NUMERIC>)
      { return size.image; }
+  )
+}
+
+String Offset() :
+{
+   Token offset;
+}
+{
+  (
+     ((<OFFSET> | <SKIP_>) offset=<NUMERIC>)
+     { return offset.image; }
+  )
+}
+
+String Limit() :
+{
+   Token limit;
+}
+{
+  (
+     (<LIMIT> limit=<NUMERIC>)
+     { return limit.image; }
   )
 }
 

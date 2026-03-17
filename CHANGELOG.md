@@ -58,6 +58,10 @@ Each command is represented by a dedicated `CommandSymbol` implementation: `AddS
 Added support for parsing multiple semicolon-delimited CCL statements in a single call, similar to SQL. The new `Compiler#compile(String)` and `Compiler#compile(String, Multimap)` methods accept a CCL string containing one or more statements separated by `;` and return a `List<AbstractSyntaxTree>` with one tree per statement.
 * Semicolons (`;`) are now a reserved token in the grammar. Unquoted semicolons in values are no longer permitted (use quoted strings instead).
 
+##### Pagination
+* Added `skip`/`offset` and `limit` keywords for offset-based pagination (e.g., `skip 10 limit 5` or `offset 10 limit 5`). Both models &mdash; page-number (`page N size S`) and skip/offset (`skip N limit S`) &mdash; are fully supported and resolve to the same underlying representation.
+* `PageSymbol` now tracks a `Mode` (`PAGE_NUMBER` or `SKIP_LIMIT`) indicating how it was constructed. A new `PageSymbol.ofSkip(int, int)` factory creates skip/limit mode instances.
+
 #### Version 3.2.1 (March 10, 2026)
 * Fixed a bug that caused the `CONTAINS` and `NOT_CONTAINS` search operators to fail when used with navigation keys (e.g., `mother.children contains 'foo'`).
 
