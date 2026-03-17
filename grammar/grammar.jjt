@@ -1531,7 +1531,7 @@ CommandSymbol SearchCommand() : {
 }
 {
     <SEARCH> key=Key() <FOR> query=<QUOTED_STRING>
-    { return new SearchSymbol(key, query.image); }
+    { return new SearchSymbol(key, transformValue(query.image).toString()); }
 }
 
 CommandSymbol BrowseCommand() : {
@@ -1923,5 +1923,5 @@ String JsonObject() :
 }
 {
     content=<QUOTED_STRING>
-    { return content.image.substring(1, content.image.length() - 1); }
+    { return transformValue(content.image).toString(); }
 }

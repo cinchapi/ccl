@@ -3835,7 +3835,7 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     key = Key();
     jj_consume_token(FOR);
     query = jj_consume_token(QUOTED_STRING);
-{if ("" != null) return new SearchSymbol(key, query.image);}
+{if ("" != null) return new SearchSymbol(key, transformValue(query.image).toString());}
     throw new Error("Missing return statement in function");
 }
 
@@ -4773,7 +4773,7 @@ keys.add(key);
 
   final public String JsonObject() throws ParseException {Token content;
     content = jj_consume_token(QUOTED_STRING);
-{if ("" != null) return content.image.substring(1, content.image.length() - 1);}
+{if ("" != null) return transformValue(content.image).toString();}
     throw new Error("Missing return statement in function");
 }
 
