@@ -1515,7 +1515,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(3, null));
+        expectedTokens.add(PageSymbol.fromPageNumber(3));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1533,7 +1533,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(3, 1));
+        expectedTokens.add(PageSymbol.fromPageNumberAndSize(3, 1));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1551,7 +1551,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(null, 3));
+        expectedTokens.add(PageSymbol.firstPageOfSize(3));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1569,7 +1569,7 @@ public class CompilerJavaCCLogicTest {
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(new PageSymbol(3, 1));
+        expectedTokens.add(PageSymbol.fromPageNumberAndSize(3, 1));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1609,7 +1609,7 @@ public class CompilerJavaCCLogicTest {
                 COMPILER_PARSE_OPERATOR_FUNCTION.apply("=")));
         expectedTokens
                 .add(new ValueSymbol(COMPILER_PARSE_VALUE_FUNCTION.apply("1")));
-        expectedTokens.add(new PageSymbol(1, 3));
+        expectedTokens.add(PageSymbol.fromPageNumberAndSize(1, 3));
 
         // Generate queue
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,

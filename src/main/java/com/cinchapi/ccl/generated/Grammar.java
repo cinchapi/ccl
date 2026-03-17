@@ -1723,7 +1723,7 @@ jjtn000.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), Integer.parseInt(l
         }
 jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
-jjtn000.page(PageSymbol.fromNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null));
+jjtn000.page(PageSymbol.fromPageNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null));
         break;
         }
       case SIZE:{
@@ -1739,7 +1739,7 @@ jjtn000.page(PageSymbol.fromNumberAndSize(number != null ? Integer.parseInt(numb
         }
 jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
-jjtn000.page(PageSymbol.fromNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null));
+jjtn000.page(PageSymbol.fromPageNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null));
         break;
         }
       default:

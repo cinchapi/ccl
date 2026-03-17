@@ -50,11 +50,33 @@ public class PageSymbol implements Symbol {
      *        the default
      * @return the {@link PageSymbol}
      */
-    public static PageSymbol fromNumberAndSize(
+    public static PageSymbol fromPageNumberAndSize(
             @Nullable Integer number, @Nullable Integer size) {
         int n = number != null ? number : DEFAULT_PAGE_NUMBER;
         int s = size != null ? size : DEFAULT_PAGE_SIZE;
         return new PageSymbol(s * (n - 1), s);
+    }
+
+    /**
+     * Create a {@link PageSymbol} from a 1-indexed page number
+     * and the default page size.
+     *
+     * @param number the 1-indexed page number
+     * @return the {@link PageSymbol}
+     */
+    public static PageSymbol fromPageNumber(int number) {
+        return fromPageNumberAndSize(number, null);
+    }
+
+    /**
+     * Create a {@link PageSymbol} for the first page with a
+     * specific page size.
+     *
+     * @param size the page size
+     * @return the {@link PageSymbol}
+     */
+    public static PageSymbol firstPageOfSize(int size) {
+        return fromPageNumberAndSize(null, size);
     }
 
     /**

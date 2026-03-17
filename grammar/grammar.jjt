@@ -807,10 +807,10 @@ void Page() #Page :
     { jjtThis.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), Integer.parseInt(limit))); }
   |
     number=Number() (size=Size())?
-    { jjtThis.page(PageSymbol.fromNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
+    { jjtThis.page(PageSymbol.fromPageNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
   |
     size=Size() (number=Number())?
-    { jjtThis.page(PageSymbol.fromNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
+    { jjtThis.page(PageSymbol.fromPageNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
   )
 }
 
