@@ -267,10 +267,6 @@ TOKEN [IGNORE_CASE]:
 |
   < #BETWEEN: "><" | "bw" | "between" >
 |
-  < PAGE : "page" >
-|
-  < SIZE : "size" >
-|
   < OFFSET : "offset" >
 |
   < SKIP_ : "skip" >
@@ -793,46 +789,16 @@ TimestampSymbol TimestampSingleToken() :
 
 void Page() #Page :
 {
-  String number = null;
-  String size = null;
   String skip = null;
   String limit = null;
 }
 {
   (
-    skip=Offset() limit=Limit()
-    { jjtThis.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), Integer.parseInt(limit))); }
+    skip=Offset() (limit=Limit())?
+    { jjtThis.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), limit != null ? Integer.parseInt(limit) : null)); }
   |
-    limit=Limit() skip=Offset()
-    { jjtThis.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), Integer.parseInt(limit))); }
-  |
-    number=Number() (size=Size())?
-    { jjtThis.page(PageSymbol.fromPageNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
-  |
-    size=Size() (number=Number())?
-    { jjtThis.page(PageSymbol.fromPageNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
-  )
-}
-
-String Number() :
-{
-   Token number;
-}
-{
-  (
-     (<PAGE> number=<NUMERIC>)
-     { return number.image; }
-  )
-}
-
-String Size() :
-{
-   Token size;
-}
-{
-  (
-     (<SIZE> size=<NUMERIC>)
-     { return size.image; }
+    limit=Limit() (skip=Offset())?
+    { jjtThis.page(PageSymbol.fromSkipLimit(skip != null ? Integer.parseInt(skip) : 0, Integer.parseInt(limit))); }
   )
 }
 

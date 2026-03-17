@@ -533,8 +533,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testWithNumber() throws UnsupportedEncodingException, ParseException {
-        String input = PAGE + " 3";
+    public void testWithOffset() throws UnsupportedEncodingException, ParseException {
+        String input = OFFSET + " 3";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream,
@@ -544,8 +544,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testWithNumberAndSize() throws UnsupportedEncodingException, ParseException {
-        String input = SIZE + " 1 " + PAGE + " 3";
+    public void testWithOffsetAndLimit() throws UnsupportedEncodingException, ParseException {
+        String input = OFFSET + " 3 " + LIMIT + " 1";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream,
@@ -555,8 +555,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testWithSize() throws UnsupportedEncodingException, ParseException {
-        String input = SIZE + " 3";
+    public void testWithLimit() throws UnsupportedEncodingException, ParseException {
+        String input = LIMIT + " 3";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream,
@@ -566,8 +566,8 @@ public class GrammarTest {
     }
 
     @Test
-    public void testWithSizeAndNumber() throws UnsupportedEncodingException, ParseException {
-        String input = SIZE + " 1 " + PAGE + " 3";
+    public void testWithLimitAndOffset() throws UnsupportedEncodingException, ParseException {
+        String input = LIMIT + " 1 " + OFFSET + " 3";
 
         InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream,
@@ -578,7 +578,47 @@ public class GrammarTest {
 
     @Test
     public void validUnaryOperatorWithPage() throws UnsupportedEncodingException, ParseException {
-        String ccl = "a = 1 " + PAGE + " 1 " + SIZE + " 3";
+        String ccl = "a = 1 " + OFFSET + " 1 " + LIMIT + " 3";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void invalidPageNumberSyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "page 2";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void invalidPageSizeSyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "size 10";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void invalidPageNumberAndSizeSyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "page 2 size 10";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(
+                StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test(expected = ParseException.class)
+    public void invalidSizeAndPageNumberSyntax() throws UnsupportedEncodingException, ParseException {
+        String ccl = "size 10 page 2";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -738,7 +778,7 @@ public class GrammarTest {
 
     @Test
     public void validUnaryOperatorWithOrderAndPage() throws UnsupportedEncodingException, ParseException {
-        String ccl = "a = 1 " + ORDER + " a " + SIZE+ " 3 " + PAGE + " 1";
+        String ccl = "a = 1 " + ORDER + " a " + LIMIT + " 3 " + OFFSET + " 1";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(
                 StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
@@ -1272,7 +1312,7 @@ public class GrammarTest {
 
     @Test
     public void testFindWithOrderAndPage() throws UnsupportedEncodingException, ParseException {
-        String ccl = "find name = \"John\" " + ORDER + " age " + PAGE + " 1 " + SIZE + " 10";
+        String ccl = "find name = \"John\" " + ORDER + " age " + LIMIT + " 10";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -1407,7 +1447,7 @@ public class GrammarTest {
 
     @Test
     public void testGetWithCriteriaAndPagination() throws UnsupportedEncodingException, ParseException {
-        String ccl = "get [name, age] where age > 25 " + PAGE + " 1 " + SIZE + " 10";
+        String ccl = "get [name, age] where age > 25 " + OFFSET + " 10";
         InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
         Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
                 PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
@@ -2952,8 +2992,8 @@ public class GrammarTest {
     /**
      * Constants
      */
-    private static final String PAGE = "page";
-    private static final String SIZE = "size";
+    private static final String LIMIT = "limit";
+    private static final String OFFSET = "offset";
     private static final String ORDER = "ORDER BY";
 
     /**

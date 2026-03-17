@@ -58,9 +58,11 @@ Each command is represented by a dedicated `CommandSymbol` implementation: `AddS
 Added support for parsing multiple semicolon-delimited CCL statements in a single call, similar to SQL. The new `Compiler#compile(String)` and `Compiler#compile(String, Multimap)` methods accept a CCL string containing one or more statements separated by `;` and return a `List<AbstractSyntaxTree>` with one tree per statement.
 * Semicolons (`;`) are now a reserved token in the grammar. Unquoted semicolons in values are no longer permitted (use quoted strings instead).
 
-##### Pagination
-* Added `skip`/`offset` and `limit` keywords for offset-based pagination (e.g., `skip 10 limit 5` or `offset 10 limit 5`). Both models &mdash; page-number (`page N size S`) and skip/offset (`skip N limit S`) &mdash; are fully supported and resolve to the same underlying skip/limit representation.
-* `PageSymbol` now uses a single canonical constructor and two static factories: `PageSymbol.fromSkipLimit(int, int)` for skip/limit construction and `PageSymbol.fromNumberAndSize(Integer, Integer)` for page-number construction.
+##### API Breaks and Deprecations
+###### Pagination
+* Changed pagination to use canonical offset-based forms only: `limit n`, `skip n`, `offset n`, `skip n limit m`, `offset n limit m`, `limit m skip n`, and `limit m offset n`.
+* Updated `PageSymbol` to model pagination as a required skip and an optional limit, with factories for `fromSkip(int)`, `fromLimit(int)`, and `fromSkipLimit(int, Integer)`.
+* Removed page-number pagination syntax such as `page n`, `size n`, and `page n size m`.
 
 #### Version 3.2.1 (March 10, 2026)
 * Fixed a bug that caused the `CONTAINS` and `NOT_CONTAINS` search operators to fail when used with navigation keys (e.g., `mother.children contains 'foo'`).

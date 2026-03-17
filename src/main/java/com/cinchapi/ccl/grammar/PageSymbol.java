@@ -19,75 +19,43 @@ import javax.annotation.Nullable;
 
 /**
  * A {@link Symbol} that represents a page of results.
- * <p>
- * Regardless of how the pagination was expressed in CCL
- * (page-number or skip/limit), a {@link PageSymbol} always
- * normalizes to a skip and limit representation.
- * </p>
  *
  * @author Jeff Nelson
  */
 public class PageSymbol implements Symbol {
 
     /**
-     * The default page number (1-indexed).
-     */
-    public static final int DEFAULT_PAGE_NUMBER = 1;
-
-    /**
-     * The default number of items per page.
-     */
-    public static final int DEFAULT_PAGE_SIZE = 20;
-
-    /**
-     * Create a {@link PageSymbol} from a 1-indexed page
-     * number and page size, applying defaults for
-     * {@code null} values.
+     * Create a {@link PageSymbol} from an explicit skip
+     * offset without a limit.
      *
-     * @param number the 1-indexed page number, or
-     *        {@code null} for the default
-     * @param size the page size, or {@code null} for
-     *        the default
+     * @param skip the number of items to skip (0-indexed)
      * @return the {@link PageSymbol}
      */
-    public static PageSymbol fromPageNumberAndSize(
-            @Nullable Integer number, @Nullable Integer size) {
-        int n = number != null ? number : DEFAULT_PAGE_NUMBER;
-        int s = size != null ? size : DEFAULT_PAGE_SIZE;
-        return new PageSymbol(s * (n - 1), s);
+    public static PageSymbol fromSkip(int skip) {
+        return new PageSymbol(skip, null);
     }
 
     /**
-     * Create a {@link PageSymbol} from a 1-indexed page number
-     * and the default page size.
+     * Create a {@link PageSymbol} from a limit with the
+     * default skip offset.
      *
-     * @param number the 1-indexed page number
+     * @param limit the maximum number of items to return
      * @return the {@link PageSymbol}
      */
-    public static PageSymbol fromPageNumber(int number) {
-        return fromPageNumberAndSize(number, null);
-    }
-
-    /**
-     * Create a {@link PageSymbol} for the first page with a
-     * specific page size.
-     *
-     * @param size the page size
-     * @return the {@link PageSymbol}
-     */
-    public static PageSymbol firstPageOfSize(int size) {
-        return fromPageNumberAndSize(null, size);
+    public static PageSymbol fromLimit(int limit) {
+        return new PageSymbol(0, limit);
     }
 
     /**
      * Create a {@link PageSymbol} from an explicit skip
-     * offset and limit.
+     * offset and an optional limit.
      *
      * @param skip the number of items to skip (0-indexed)
-     * @param limit the maximum number of items to return
+     * @param limit the maximum number of items to return,
+     *            or {@code null} for no limit
      * @return the {@link PageSymbol}
      */
-    public static PageSymbol fromSkipLimit(int skip, int limit) {
+    public static PageSymbol fromSkipLimit(int skip, @Nullable Integer limit) {
         return new PageSymbol(skip, limit);
     }
 
@@ -99,27 +67,18 @@ public class PageSymbol implements Symbol {
     /**
      * The maximum number of items to return.
      */
-    private final int limit;
+    private final Integer limit;
 
     /**
      * Construct a new instance.
      *
      * @param skip the number of items to skip
-     * @param limit the maximum number of items to return
+     * @param limit the maximum number of items to return,
+     *            or {@code null} for no limit
      */
-    private PageSymbol(int skip, int limit) {
+    private PageSymbol(int skip, @Nullable Integer limit) {
         this.skip = skip;
         this.limit = limit;
-    }
-
-    /**
-     * Return the page size (maximum number of items per
-     * page).
-     *
-     * @return the page size
-     */
-    public int size() {
-        return limit;
     }
 
     /**
@@ -142,24 +101,35 @@ public class PageSymbol implements Symbol {
     }
 
     /**
-     * Alias for {@link #size()}.
+     * Return the maximum number of items to return, if one
+     * was specified.
      *
-     * @return the limit
+     * @return the limit, or {@code null}
      */
-    public int limit() {
-        return size();
+    @Nullable
+    public Integer limit() {
+        return limit;
     }
 
     @Override
     public String toString() {
-        return "skip " + skip + " limit " + limit;
+        if(limit == null) {
+            return "skip " + skip;
+        }
+        else if(skip == 0) {
+            return "limit " + limit;
+        }
+        else {
+            return "skip " + skip + " limit " + limit;
+        }
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof PageSymbol) {
             PageSymbol other = (PageSymbol) obj;
-            return skip == other.skip && limit == other.limit;
+            return skip == other.skip
+                    && java.util.Objects.equals(limit, other.limit);
         }
         else {
             return false;
@@ -168,7 +138,7 @@ public class PageSymbol implements Symbol {
 
     @Override
     public int hashCode() {
-        return 31 * skip + limit;
+        return java.util.Objects.hash(skip, limit);
     }
 
 }

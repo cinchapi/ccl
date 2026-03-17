@@ -1509,13 +1509,13 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
-    public void testPageWithNumber() {
-        String input = PAGE + " 3";
+    public void testPageWithOffset() {
+        String input = OFFSET + " 3";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(PageSymbol.fromPageNumber(3));
+        expectedTokens.add(PageSymbol.fromSkip(3));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1527,13 +1527,13 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
-    public void testPageWithNumberAndSize() {
-        String input = SIZE + " 1 " + PAGE + " 3";
+    public void testPageWithOffsetAndLimit() {
+        String input = OFFSET + " 3 " + LIMIT + " 1";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(PageSymbol.fromPageNumberAndSize(3, 1));
+        expectedTokens.add(PageSymbol.fromSkipLimit(3, 1));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1545,13 +1545,13 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
-    public void testPageWithSize() {
-        String input = SIZE + " 3";
+    public void testPageWithLimit() {
+        String input = LIMIT + " 3";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(PageSymbol.firstPageOfSize(3));
+        expectedTokens.add(PageSymbol.fromLimit(3));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1563,13 +1563,13 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
-    public void testPageWithSizeAndNumber() {
-        String input = SIZE + " 1 " + PAGE + " 3";
+    public void testPageWithLimitAndOffset() {
+        String input = LIMIT + " 1 " + OFFSET + " 3";
 
         // Build expected list
         List<Object> expectedTokens = Lists.newArrayList();
 
-        expectedTokens.add(PageSymbol.fromPageNumberAndSize(3, 1));
+        expectedTokens.add(PageSymbol.fromSkipLimit(3, 1));
 
         // Generate list
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1581,8 +1581,8 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
-    public void testPageWithSizeAndNumberAST() {
-        String input = SIZE + " 1 " + PAGE + " 3";
+    public void testPageWithLimitAndOffsetAST() {
+        String input = LIMIT + " 1 " + OFFSET + " 3";
 
         // Generate queue
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1593,13 +1593,43 @@ public class CompilerJavaCCLogicTest {
         Assert.assertTrue(tree instanceof PageTree);
 
         PageSymbol page = (PageSymbol) tree.root();
-        Assert.assertEquals(2, page.offset());
-        Assert.assertEquals(1, page.limit());
+        Assert.assertEquals(3, page.offset());
+        Assert.assertEquals(Integer.valueOf(1), page.limit());
+    }
+
+    @Test
+    public void testPageWithOffsetAST() {
+        String input = OFFSET + " 3";
+
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(input);
+
+        Assert.assertTrue(tree instanceof PageTree);
+        PageSymbol page = (PageSymbol) tree.root();
+        Assert.assertEquals(3, page.offset());
+        Assert.assertNull(page.limit());
+    }
+
+    @Test
+    public void testPageSymbolFactoriesAndFormatting() {
+        PageSymbol skip = PageSymbol.fromSkip(10);
+        PageSymbol limit = PageSymbol.fromLimit(10);
+        PageSymbol skipLimit = PageSymbol.fromSkipLimit(10, 5);
+
+        Assert.assertNull(skip.limit());
+        Assert.assertEquals("skip 10", skip.toString());
+        Assert.assertEquals(Integer.valueOf(10), limit.limit());
+        Assert.assertEquals("limit 10", limit.toString());
+        Assert.assertEquals(Integer.valueOf(5), skipLimit.limit());
+        Assert.assertEquals("skip 10 limit 5", skipLimit.toString());
+        Assert.assertEquals(PageSymbol.fromSkip(10), skip);
+        Assert.assertEquals(PageSymbol.fromSkip(10).hashCode(), skip.hashCode());
     }
 
     @Test
     public void testSingleExpressionTokenizeWithPage() {
-        String ccl = "a = 1 " + SIZE + " 3 " + PAGE + " 1 ";
+        String ccl = "a = 1 " + LIMIT + " 3 " + OFFSET + " 1 ";
 
         // Build expected queue
         List<Object> expectedTokens = Lists.newArrayList();
@@ -1609,7 +1639,7 @@ public class CompilerJavaCCLogicTest {
                 COMPILER_PARSE_OPERATOR_FUNCTION.apply("=")));
         expectedTokens
                 .add(new ValueSymbol(COMPILER_PARSE_VALUE_FUNCTION.apply("1")));
-        expectedTokens.add(PageSymbol.fromPageNumberAndSize(1, 3));
+        expectedTokens.add(PageSymbol.fromSkipLimit(1, 3));
 
         // Generate queue
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1622,7 +1652,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testSingleExpressionASTWithPage() {
-        String ccl = "a = 1 " + SIZE + " 1 " + PAGE + " 3 ";
+        String ccl = "a = 1 " + LIMIT + " 1 " + OFFSET + " 3 ";
 
         // Generate queue
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
@@ -1645,8 +1675,8 @@ public class CompilerJavaCCLogicTest {
         // Page Node
         Assert.assertTrue(((CommandTree) tree).pageTree() != null);
         PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
-        Assert.assertEquals(2, page.offset());
-        Assert.assertEquals(1, page.limit());
+        Assert.assertEquals(3, page.offset());
+        Assert.assertEquals(Integer.valueOf(1), page.limit());
     }
 
     @Test
@@ -2034,7 +2064,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testOrderSingleExpressionWithOrderAndPageAbstractSyntaxTree() {
-        String ccl = "a = 1 " + ORDER + " a " + SIZE + " 1 " + PAGE + " 3";
+        String ccl = "a = 1 " + ORDER + " a " + LIMIT + " 1 " + OFFSET + " 3";
 
         OrderSymbol expectedOrder = new OrderSymbol();
         expectedOrder.add(new OrderComponentSymbol(new KeySymbol("a"),
@@ -2067,8 +2097,8 @@ public class CompilerJavaCCLogicTest {
         // Page Node
         Assert.assertTrue(((CommandTree) tree).pageTree() != null);
         PageSymbol page = (PageSymbol) ((CommandTree) tree).pageTree().root();
-        Assert.assertEquals(2, page.offset());
-        Assert.assertEquals(1, page.limit());
+        Assert.assertEquals(3, page.offset());
+        Assert.assertEquals(Integer.valueOf(1), page.limit());
     }
 
     @Test
@@ -2400,7 +2430,7 @@ public class CompilerJavaCCLogicTest {
 
     @Test
     public void testGetWithOrderTimestampAndPage() {
-        String ccl = "get [name, age] where salary > 50000 " + ORDER + " age at \"2024-01-01\" " + PAGE + " 2 " + SIZE + " 5";
+        String ccl = "get [name, age] where salary > 50000 " + ORDER + " age at \"2024-01-01\" " + OFFSET + " 5 " + LIMIT + " 5";
 
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
                 COMPILER_PARSE_OPERATOR_FUNCTION);
@@ -2438,12 +2468,12 @@ public class CompilerJavaCCLogicTest {
         // Validate Page
         PageSymbol page = (PageSymbol) commandTree.pageTree().root();
         Assert.assertEquals(5, page.offset());
-        Assert.assertEquals(5, page.limit());
+        Assert.assertEquals(Integer.valueOf(5), page.limit());
     }
 
     @Test
     public void testFindWithOrderAndPage() {
-        String ccl = "find age > 25 " + ORDER + " name ASC, age DESC " + SIZE + " 10 " + PAGE + " 1";
+        String ccl = "find age > 25 " + ORDER + " name ASC, age DESC " + LIMIT + " 10";
 
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
                 COMPILER_PARSE_OPERATOR_FUNCTION);
@@ -2470,7 +2500,7 @@ public class CompilerJavaCCLogicTest {
         // Validate Page
         PageSymbol page = (PageSymbol) commandTree.pageTree().root();
         Assert.assertEquals(0, page.offset());
-        Assert.assertEquals(10, page.limit());
+        Assert.assertEquals(Integer.valueOf(10), page.limit());
     }
 
     @Test
@@ -2545,8 +2575,8 @@ public class CompilerJavaCCLogicTest {
     /**
      * Constants
      */
-    private static final String PAGE = "page";
-    private static final String SIZE = "size";
+    private static final String LIMIT = "limit";
+    private static final String OFFSET = "offset";
     private static final String ORDER = "order by";
 
     /**
