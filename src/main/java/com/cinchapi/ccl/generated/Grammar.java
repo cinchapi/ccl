@@ -1699,7 +1699,7 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
         limit = Limit();
 jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
-jjtn000.page(PageSymbol.ofSkip(Integer.parseInt(skip), Integer.parseInt(limit)));
+jjtn000.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), Integer.parseInt(limit)));
         break;
         }
       case LIMIT:{
@@ -1707,7 +1707,7 @@ jjtn000.page(PageSymbol.ofSkip(Integer.parseInt(skip), Integer.parseInt(limit)))
         skip = Offset();
 jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
-jjtn000.page(PageSymbol.ofSkip(Integer.parseInt(skip), Integer.parseInt(limit)));
+jjtn000.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), Integer.parseInt(limit)));
         break;
         }
       case PAGE:{
@@ -1723,7 +1723,7 @@ jjtn000.page(PageSymbol.ofSkip(Integer.parseInt(skip), Integer.parseInt(limit)))
         }
 jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
-jjtn000.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null));
+jjtn000.page(PageSymbol.fromNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null));
         break;
         }
       case SIZE:{
@@ -1739,7 +1739,7 @@ jjtn000.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, si
         }
 jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
-jjtn000.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null));
+jjtn000.page(PageSymbol.fromNumberAndSize(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null));
         break;
         }
       default:
