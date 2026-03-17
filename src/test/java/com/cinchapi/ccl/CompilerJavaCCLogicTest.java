@@ -2394,7 +2394,7 @@ public class CompilerJavaCCLogicTest {
         SearchSymbol searchSymbol = (SearchSymbol) commandTree.root();
 
         Assert.assertEquals("email", searchSymbol.key().toString());
-        Assert.assertEquals("\"john@example.com\"", searchSymbol.query());
+        Assert.assertEquals("john@example.com", searchSymbol.query());
         Assert.assertEquals("SEARCH", searchSymbol.type());
     }
 
