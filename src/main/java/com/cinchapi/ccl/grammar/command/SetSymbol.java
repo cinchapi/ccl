@@ -20,7 +20,7 @@ import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 public class SetSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final ValueTokenSymbol<?> value;
-    private final long record;
+    private final Long record;
     private final Collection<Long> records;
 
     /**
@@ -47,7 +47,7 @@ public class SetSymbol implements CommandSymbol {
     public SetSymbol(KeyTokenSymbol<?> key, ValueTokenSymbol<?> value, Collection<Long> records) {
         this.key = key;
         this.value = value;
-        this.record = -1;
+        this.record = null;
         this.records = records;
     }
 
@@ -73,7 +73,8 @@ public class SetSymbol implements CommandSymbol {
     /**
      * Return the record identifier.
      */
-    public long record() {
+    @Nullable
+    public Long record() {
         return record;
     }
 

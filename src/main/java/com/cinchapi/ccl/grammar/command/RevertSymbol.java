@@ -20,7 +20,7 @@ import com.cinchapi.ccl.grammar.TimestampSymbol;
 public class RevertSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final Collection<KeyTokenSymbol<?>> keys;
-    private final long record;
+    private final Long record;
     private final Collection<Long> records;
     private final TimestampSymbol timestamp;
 
@@ -54,7 +54,7 @@ public class RevertSymbol implements CommandSymbol {
      * @param timestamp the timestamp to revert to
      */
     public RevertSymbol(KeyTokenSymbol<?> key, Collection<Long> records, TimestampSymbol timestamp) {
-        this(key, null, -1, records, timestamp);
+        this(key, null, null, records, timestamp);
     }
 
     /**
@@ -66,11 +66,11 @@ public class RevertSymbol implements CommandSymbol {
      */
     public RevertSymbol(Collection<KeyTokenSymbol<?>> keys, Collection<Long> records,
                         TimestampSymbol timestamp) {
-        this(null, keys, -1, records, timestamp);
+        this(null, keys, null, records, timestamp);
     }
 
     private RevertSymbol(@Nullable KeyTokenSymbol<?> key, @Nullable Collection<KeyTokenSymbol<?>> keys,
-                         long record, @Nullable Collection<Long> records, TimestampSymbol timestamp) {
+                         @Nullable Long record, @Nullable Collection<Long> records, TimestampSymbol timestamp) {
         this.key = key;
         this.keys = keys;
         this.record = record;
@@ -102,7 +102,8 @@ public class RevertSymbol implements CommandSymbol {
     /**
      * Return the record identifier, if operating on a single record.
      */
-    public long record() {
+    @Nullable
+    public Long record() {
         return record;
     }
 

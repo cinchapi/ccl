@@ -21,9 +21,8 @@ import java.util.Collection;
 public class RemoveSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final ValueTokenSymbol<?> value;
-    private final long record;
+    private final Long record;
     private final Collection<Long> records;
-    private final boolean isMultiRecord;
 
     /**
      * Construct a new instance for single record removal.
@@ -37,7 +36,6 @@ public class RemoveSymbol implements CommandSymbol {
         this.value = value;
         this.record = record;
         this.records = null;
-        this.isMultiRecord = false;
     }
 
     /**
@@ -50,9 +48,8 @@ public class RemoveSymbol implements CommandSymbol {
     public RemoveSymbol(KeyTokenSymbol<?> key, @Nullable ValueTokenSymbol<?> value, Collection<Long> records) {
         this.key = key;
         this.value = value;
-        this.record = -1;
+        this.record = null;
         this.records = records;
-        this.isMultiRecord = true;
     }
 
     @Override
@@ -81,11 +78,12 @@ public class RemoveSymbol implements CommandSymbol {
 
     /**
      * Return the record identifier for single record operations.
-     * Returns -1 if this is a multi-record operation.
      *
-     * @return the record id
+     * @return the record id, or {@code null} if using multiple
+     *         records
      */
-    public long record() {
+    @Nullable
+    public Long record() {
         return record;
     }
 
@@ -99,12 +97,4 @@ public class RemoveSymbol implements CommandSymbol {
         return records;
     }
 
-    /**
-     * Indicates whether this is a multi-record operation.
-     *
-     * @return true if operating on multiple records, false otherwise
-     */
-    public boolean isMultiRecord() {
-        return isMultiRecord;
-    }
 }

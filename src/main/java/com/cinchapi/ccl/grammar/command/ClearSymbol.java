@@ -19,7 +19,7 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 public class ClearSymbol implements CommandSymbol {
     private final KeyTokenSymbol<?> key;
     private final Collection<KeyTokenSymbol<?>> keys;
-    private final long record;
+    private final Long record;
     private final Collection<Long> records;
 
     /**
@@ -40,18 +40,18 @@ public class ClearSymbol implements CommandSymbol {
      * Construct a new instance for single key and multiple records.
      */
     public ClearSymbol(KeyTokenSymbol<?> key, Collection<Long> records) {
-        this(key, null, -1, records);
+        this(key, null, null, records);
     }
 
     /**
      * Construct a new instance for multiple keys and records.
      */
     public ClearSymbol(Collection<KeyTokenSymbol<?>> keys, Collection<Long> records) {
-        this(null, keys, -1, records);
+        this(null, keys, null, records);
     }
 
     private ClearSymbol(@Nullable KeyTokenSymbol<?> key, @Nullable Collection<KeyTokenSymbol<?>> keys,
-                        long record, @Nullable Collection<Long> records) {
+                        @Nullable Long record, @Nullable Collection<Long> records) {
         this.key = key;
         this.keys = keys;
         this.record = record;
@@ -82,7 +82,8 @@ public class ClearSymbol implements CommandSymbol {
     /**
      * Return the record identifier, if operating on a single record.
      */
-    public long record() {
+    @Nullable
+    public Long record() {
         return record;
     }
 
