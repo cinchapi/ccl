@@ -437,33 +437,22 @@ order by name asc at "2024-01-01", age desc
 ```
 find age > 30 order by name
 select name where age > 30 order by age desc
-select name from 1 order by name page 1 size 10
+select name from 1 order by name limit 10
 ```
 
 ---
 
 ## 10. Pagination
 
-Page clauses limit and offset results. Two models are
-supported: page-number (1-indexed) and skip/offset (0-indexed).
+Page clauses limit and offset results using offset-based
+(0-indexed) parameters.
 
-### Page-Number Model
-
-```
-page <number>
-size <number>
-page <number> size <number>
-size <number> page <number>
-```
-
-`page` and `size` can appear in either order.
-
-- `page` specifies the 1-based page number (default: 1)
-- `size` specifies the number of results per page (default: 20)
-
-### Skip/Offset Model
+### Syntax
 
 ```
+skip <number>
+offset <number>
+limit <number>
 skip <number> limit <number>
 limit <number> skip <number>
 offset <number> limit <number>
@@ -471,41 +460,29 @@ limit <number> offset <number>
 ```
 
 `skip` and `offset` are synonyms. The two parts can appear in
-either order.
+either order. Either part can appear alone.
 
 - `skip`/`offset` specifies the 0-based number of results to
   skip
 - `limit` specifies the maximum number of results to return
 
-### Equivalence
-
-Both models resolve to the same underlying skip/limit
-representation:
-
-| Page-Number | Skip/Offset |
-|-------------|-------------|
-| `page 1 size 10` | `skip 0 limit 10` |
-| `page 2 size 10` | `skip 10 limit 10` |
-| `page 3 size 10` | `offset 20 limit 10` |
-
 ### Examples
 
 ```
-page 1
-page 2 size 10
-size 50 page 3
 skip 20 limit 10
 offset 0 limit 50
 limit 25 skip 100
+skip 20
+limit 10
 ```
 
 ### Usage with Conditions and Commands
 
 ```
-find age > 30 page 1 size 20
-select name where age > 30 order by name page 2 size 10
 find age > 30 skip 0 limit 20
 select name where age > 30 order by name offset 10 limit 10
+find age > 30 limit 50
+select name where age > 30 order by name skip 20 limit 10
 ```
 
 ---
@@ -790,7 +767,7 @@ select 1
 select 1, 2, 3
 select name where age > 30
 select where age > 30
-select name where age > 30 order by name page 1 size 10
+select name where age > 30 order by name limit 10
 select name from 1 at "yesterday"
 select name from 1 as of "2024-01-01"
 ```
@@ -839,7 +816,7 @@ find <condition> [timestamp] [order] [page]
 ```
 find age > 30
 find age > 30 order by name
-find age > 30 page 2 size 20
+find age > 30 skip 20 limit 20
 find name = jeff at "yesterday"
 find age > 30 as of "2024-01-01"
 ```
@@ -1279,10 +1256,8 @@ DirectionSymbol   ::= '<' | '>'
 DirectionWord     ::= 'asc' | 'desc'
 
 (* Pagination *)
-Page              ::= 'page' NUMERIC ['size' NUMERIC]
-                    | 'size' NUMERIC ['page' NUMERIC]
-                    | Offset Limit
-                    | Limit Offset
+Page              ::= Offset [Limit]
+                    | Limit [Offset]
 Offset            ::= ('skip' | 'offset') NUMERIC
 Limit             ::= 'limit' NUMERIC
 
@@ -1402,7 +1377,7 @@ The compiler produces these abstract syntax tree types (in `com.cinchapi.ccl.syn
 | `ExpressionTree` | Individual relational expressions |
 | `ConjunctionTree` | AND/OR combinations |
 | `OrderTree` | ORDER BY clauses |
-| `PageTree` | PAGE/SIZE and SKIP/OFFSET/LIMIT clauses |
+| `PageTree` | SKIP/OFFSET/LIMIT clauses |
 | `CommandTree` | All command statements |
 | `FunctionTree` | Standalone function statements |
 
