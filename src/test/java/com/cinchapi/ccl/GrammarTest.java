@@ -2876,6 +2876,69 @@ public class GrammarTest {
         grammar.generateAST();
     }
 
+    @Test
+    public void testChronicleWithSingleTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1 from 100";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testChronicleWithSingleTimestampNaturalLanguage() throws UnsupportedEncodingException, ParseException {
+        String ccl = "chronicle name in 1 from \"two weeks ago\"";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testAuditRecordWithSingleTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "audit 1 from 100";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testAuditKeyRecordWithSingleTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "audit name in 1 from 100";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testDiffRecordWithSingleTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff 1 from 100";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testDiffKeyRecordWithSingleTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff name in 1 from 100";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testDiffKeyWithSingleTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "diff name from 100";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
     @Test(expected = ParseException.class)
     public void testInvalidAuditLegacySyntax() throws UnsupportedEncodingException, ParseException {
         String ccl = "audit name in 1 at \"2024-01-01\" at \"2024-02-01\"";

@@ -1567,7 +1567,7 @@ CommandSymbol ChronicleCommand() : {
 {
     <CHRONICLE> key=Key() (<IN> | <WITHIN>) record=<NUMERIC>
     (
-        <FROM> start=TimestampValue() <TO> end=TimestampValue()
+        <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
     )?
     { return new ChronicleSymbol(key, Long.parseLong(record.image), start, end); }
 }
@@ -1684,7 +1684,7 @@ CommandSymbol AuditCommand() : {
     )?
     record=<NUMERIC>
     (
-        <FROM> start=TimestampValue() <TO> end=TimestampValue()
+        <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
     )?
     { return new AuditSymbol(key, Long.parseLong(record.image), start, end); }
 }
