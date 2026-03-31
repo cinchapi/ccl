@@ -225,8 +225,8 @@ public abstract class Compiler {
             Multimap<String, Object> data);
 
     /**
-     * Return {@code true} if the {@code data} satisfies the
-     * condition encapsulated in the {@code tree}.
+     * Return {@code true} if the {@code data} satisfies the condition
+     * encapsulated in the {@code tree}.
      * <p>
      * Prefer this overload over
      * {@link #evaluate(ConditionTree, Multimap, TriFunction)}
@@ -298,8 +298,8 @@ public abstract class Compiler {
     }
 
     /**
-     * Return {@code true} if the {@code data} is described
-     * by the condition encapsulated in the {@code tree}.
+     * Return {@code true} if the {@code data} is described by the condition
+     * encapsulated in the {@code tree}.
      * <p>
      * This overload converts the {@link Multimap} to an {@link Association}
      * before evaluating. When an {@link Association} is already available,
