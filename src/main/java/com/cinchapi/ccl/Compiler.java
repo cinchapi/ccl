@@ -229,24 +229,22 @@ public abstract class Compiler {
      * encapsulated in the {@code tree}.
      * <p>
      * Prefer this overload over
-     * {@link #evaluate(ConditionTree, Multimap, TriFunction)}
-     * when possible &mdash; it avoids the intermediate
-     * conversion from {@link Multimap} to
+     * {@link #evaluate(ConditionTree, Multimap, TriFunction)} when possible
+     * &mdash; it avoids the intermediate conversion from {@link Multimap} to
      * {@link Association} and is therefore more efficient.
      * </p>
      *
      * @param tree the {@link ConditionTree} that represents
      *            the condition to evaluate
-     * @param data the {@link Association} containing the data
-     *            to test for adherence to the condition
-     * @param evaluator a {@link TriFunction} that takes a
-     *            stored value, {@link Operator}, and list of
-     *            reference values as input and returns a
-     *            boolean indicating whether the stored value
-     *            satisfies the {@link Operator} in relation
-     *            to the reference values
-     * @return {@code true} if the {@code data} is described
-     *         by the condition in the {@code tree}
+     * @param data the {@link Association} containing the data to test for
+     *            adherence to the condition
+     * @param evaluator a {@link TriFunction} that takes a stored value,
+     *            {@link Operator}, and list of reference values as input and
+     *            returns a boolean indicating whether the stored value
+     *            satisfies the {@link Operator} in relation to the reference
+     *            values
+     * @return {@code true} if the {@code data} is described by the condition in
+     *         the {@code tree}
      */
     public final boolean evaluate(ConditionTree tree, Association data,
             TriFunction<Object, Operator, List<Object>, Boolean> evaluator) {
@@ -309,17 +307,14 @@ public abstract class Compiler {
      *
      * @param tree the {@link ConditionTree} that represents
      *            the condition
-     * @param data the data to test for adherence to the
-     *            condition
-     * @param evaluator a {@link TriFunction} that takes a
-     *            consideration value, {@link Operator}, and
-     *            list of reference values as input and
-     *            returns a boolean indicating whether the
-     *            consideration value satisfies the
-     *            {@link Operator} in relation to the
-     *            reference values
-     * @return {@code true} if the {@code data} is described
-     *         by the condition in the {@code tree}
+     * @param data the data to test for adherence to the condition
+     * @param evaluator a {@link TriFunction} that takes a consideration value,
+     *            {@link Operator}, and list of reference values as input and
+     *            returns a boolean indicating whether the consideration value
+     *            satisfies the {@link Operator} in relation to the reference
+     *            values
+     * @return {@code true} if the {@code data} is described by the condition in
+     *         the {@code tree}
      */
     public final boolean evaluate(ConditionTree tree,
             Multimap<String, Object> data,
