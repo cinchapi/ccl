@@ -1,5 +1,8 @@
 # Changelog
 
+#### Version 3.2.2 (TBD)
+* Fixed a bug that caused the `Compiler`'s local evaluation to fail when the condition contained navigation keys (e.g., `friend.name = jeff`). The `evaluate` method now accepts an `Association` whose `fetch` method natively resolves dot-separated key paths by traversing nested data structures. The existing `Multimap`-based `evaluate` method is still supported and automatically converts to an `Association` for interoperability, but callers are encouraged to use the `Association` overload directly for better performance.
+
 #### Version 3.2.1 (March 10, 2026)
 * Fixed a bug that caused the `CONTAINS` and `NOT_CONTAINS` search operators to fail when used with navigation keys (e.g., `mother.children contains 'foo'`).
 

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.cinchapi.ccl.grammar.CommandSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
@@ -44,6 +45,9 @@ import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.Visitor;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
+import com.cinchapi.common.collect.Association;
+import com.cinchapi.common.collect.Multimaps;
+import com.cinchapi.common.collect.Sequences;
 import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
@@ -197,21 +201,30 @@ public abstract class Compiler {
     }
 
     /**
-     * Return {@code true} if the {@code data} is described by the condition
+     * Return {@code true} if the {@code data} satisfies the condition
      * encapsulated in the {@code tree}.
-     * 
-     * @param tree the {@link ConditionTree} that represents the condition
-     * @param data the data to test for adherences to the condition
-     * @param evaluator a {@link TriFunction} that takes a consideration value,
-     *            {@link Operator}, and list of reference values as input and
-     *            returns a boolean that indicates whether the consideration
-     *            value satisfies the {@link Operator} in relation to the
-     *            reference values
-     * @return {@code true} if the data is described by the criteria that has
-     *         been parsed
+     * <p>
+     * Prefer this overload over
+     * {@link #evaluate(ConditionTree, Multimap, TriFunction)}
+     * when possible &mdash; it avoids the intermediate
+     * conversion from {@link Multimap} to
+     * {@link Association} and is therefore more efficient.
+     * </p>
+     *
+     * @param tree the {@link ConditionTree} that represents
+     *            the condition to evaluate
+     * @param data the {@link Association} containing the data
+     *            to test for adherence to the condition
+     * @param evaluator a {@link TriFunction} that takes a
+     *            stored value, {@link Operator}, and list of
+     *            reference values as input and returns a
+     *            boolean indicating whether the stored value
+     *            satisfies the {@link Operator} in relation
+     *            to the reference values
+     * @return {@code true} if the {@code data} is described
+     *         by the condition in the {@code tree}
      */
-    public final boolean evaluate(ConditionTree tree,
-            Multimap<String, Object> data,
+    public final boolean evaluate(ConditionTree tree, Association data,
             TriFunction<Object, Operator, List<Object>, Boolean> evaluator) {
         Visitor<Boolean> visitor = new ConditionTreeVisitor<Boolean>() {
 
@@ -236,31 +249,61 @@ public abstract class Compiler {
                 }
             }
 
-            @SuppressWarnings("unchecked")
             @Override
             public Boolean visit(ExpressionTree tree, Object... data) {
                 Verify.thatArgument(data.length > 0);
-                Verify.thatArgument(data[0] instanceof Multimap);
-                Multimap<String, Object> dataset = (Multimap<String, Object>) data[0];
+                Verify.thatArgument(data[0] instanceof Association);
+                Association dataset = (Association) data[0];
                 ExpressionSymbol expression = ((ExpressionSymbol) tree.root());
                 String key = expression.raw().key();
                 Operator operator = expression.raw().operator();
                 List<Object> values = expression.raw().values();
-                boolean matches = false;
-                for (Object stored : dataset.get(key)) {
-                    if(evaluator.apply(stored, operator, values)) {
-                        matches = true;
-                        break;
-                    }
-                    else {
-                        continue;
-                    }
-                }
-                return matches;
+                Object stored = dataset.fetch(key);
+                Stream<Object> stream = Sequences.isSequence(stored)
+                        ? Sequences.stream(stored)
+                        : Stream.of(stored);
+                return stream
+                        .map(item -> evaluator.apply(item, operator, values))
+                        .filter(value -> Boolean.TRUE.equals(value)).findFirst()
+                        .orElse(false);
+
             }
 
         };
         return tree.accept(visitor, data);
+    }
+
+    /**
+     * Return {@code true} if the {@code data} is described by the condition
+     * encapsulated in the {@code tree}.
+     * <p>
+     * This overload converts the {@link Multimap} to an {@link Association}
+     * before evaluating. When an {@link Association} is already available,
+     * prefer {@link #evaluate(ConditionTree, Association, TriFunction)} to
+     * avoid the conversion overhead.
+     * </p>
+     *
+     * @param tree the {@link ConditionTree} that represents
+     *            the condition
+     * @param data the data to test for adherence to the
+     *            condition
+     * @param evaluator a {@link TriFunction} that takes a
+     *            consideration value, {@link Operator}, and
+     *            list of reference values as input and
+     *            returns a boolean indicating whether the
+     *            consideration value satisfies the
+     *            {@link Operator} in relation to the
+     *            reference values
+     * @return {@code true} if the {@code data} is described
+     *         by the condition in the {@code tree}
+     */
+    public final boolean evaluate(ConditionTree tree,
+            Multimap<String, Object> data,
+            TriFunction<Object, Operator, List<Object>, Boolean> evaluator) {
+        return evaluate(tree,
+                Association.ensure(
+                        Multimaps.asMapWithSingleValueWherePossible(data)),
+                evaluator);
     }
 
     /**
