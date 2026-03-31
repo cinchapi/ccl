@@ -32,6 +32,7 @@ import com.cinchapi.common.base.Array;
 import com.cinchapi.common.function.TriFunction;
 import com.cinchapi.concourse.thrift.TObject;
 import com.cinchapi.concourse.util.Convert;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
@@ -133,6 +134,50 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         Compiler compiler = createCompiler();
         compiler.parse(ccl);
         Assert.assertTrue(true); // lack of Exception means the test passes
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link Compiler#evaluate(ConditionTree, Multimap,
+     * TriFunction)} resolves navigation keys through nested
+     * data.
+     * <p>
+     * <strong>Start state:</strong> A {@link Multimap} where
+     * {@code friend} maps to a sub-map containing
+     * {@code name = jeff}.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "friend.name = jeff"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Build a {@link Multimap} with nested data under
+     *       the {@code friend} key.</li>
+     *   <li>Evaluate the tree against the
+     *       {@link Multimap}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code true} because the navigation key path is
+     * resolved through the nested data structure.
+     */
+    @Test
+    public void testLocalEvaluationWithNavigationKey() {
+        String ccl = "friend.name = jeff";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        Multimap<String, Object> data = ImmutableMultimap.of("friend",
+                ImmutableMap.of("name", "jeff"));
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(compiler.evaluate(tree, data, evaluator));
     }
 
     @Override

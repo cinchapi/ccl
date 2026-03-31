@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 4.0.0
+#### Version 4.0.0 (TBD)
 ##### Command Support
 The CCL grammar has been expanded to support parsing **Concourse commands** in addition to conditions, orders, and pages. A command string (e.g., `select name from 1 where age > 30`) is parsed into a `CommandTree` containing a `CommandSymbol` that represents the operation, along with optional `ConditionTree`, `OrderTree`, and `PageTree` children.
 
@@ -63,6 +63,9 @@ Added support for parsing multiple semicolon-delimited CCL statements in a singl
 * Changed pagination to use canonical offset-based forms only: `limit n`, `skip n`, `offset n`, `skip n limit m`, `offset n limit m`, `limit m skip n`, and `limit m offset n`.
 * Updated `PageSymbol` to model pagination as a required skip and an optional limit, with factories for `fromSkip(int)`, `fromLimit(int)`, and `fromSkipLimit(int, Integer)`.
 * Removed page-number pagination syntax such as `page n`, `size n`, and `page n size m`.
+
+#### Version 3.2.2 (TBD)
+* Fixed a bug that caused the `Compiler`'s local evaluation to fail when the condition contained navigation keys (e.g., `friend.name = jeff`). The `evaluate` method now accepts an `Association` whose `fetch` method natively resolves dot-separated key paths by traversing nested data structures. The existing `Multimap`-based `evaluate` method is still supported and automatically converts to an `Association` for interoperability, but callers are encouraged to use the `Association` overload directly for better performance.
 
 #### Version 3.2.1 (March 10, 2026)
 * Fixed a bug that caused the `CONTAINS` and `NOT_CONTAINS` search operators to fail when used with navigation keys (e.g., `mother.children contains 'foo'`).

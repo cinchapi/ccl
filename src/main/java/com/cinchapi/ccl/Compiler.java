@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
@@ -35,6 +36,9 @@ import com.cinchapi.ccl.grammar.command.ImplicitSymbol;
 import com.cinchapi.ccl.syntax.*;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Verify;
+import com.cinchapi.common.collect.Association;
+import com.cinchapi.common.collect.Multimaps;
+import com.cinchapi.common.collect.Sequences;
 import com.cinchapi.common.function.TriFunction;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
@@ -86,70 +90,6 @@ public abstract class Compiler {
         this.valueParser = valueParser;
         this.operatorParser = operatorParser;
     }
-
-    /**
-     * Evaluate the {@code ccl} statement. If it is well-formed, return a
-     * {@link AbstractSyntaxTree} that can be used to logically evaluate the
-     * statement.
-     *
-     * @param ccl the CCL statement to parse
-     * @return an {@link AbstractSyntaxTree} that represents the CCL statement
-     */
-    public final AbstractSyntaxTree parse(String ccl) {
-        return parse(ccl, ImmutableMultimap.of());
-    }
-
-    /**
-     * Evaluate the {@code ccl} statement. If it is well-formed, return a
-     * {@link AbstractSyntaxTree} that can be used to logically evaluate the
-     * statement.
-     * <p>
-     * The provided {@code data} will be used to perform local resolution of any
-     * variable values in the CCL statement. The variable values, will be
-     * replaced with values from the local {@code data} if possible.
-     * </p>
-     *
-     * @param ccl the CCL statement to parse
-     * @param data data that can be used to perform local resolution of any
-     *            value variables (e.g. ssn = $ssn) in the CCL statement
-     * @return an {@link AbstractSyntaxTree} that represents the CCL statement
-     */
-    public AbstractSyntaxTree parse(String ccl,
-            Multimap<String, Object> data) {
-        List<AbstractSyntaxTree> results = compile(ccl, data);
-        if (results.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "No statements found in: " + ccl);
-        }
-        else {
-            return results.get(0);
-        }
-    }
-
-    /**
-     * Evaluate a CCL string that may contain multiple statements separated by
-     * semicolons. Each statement is parsed independently and an
-     * {@link AbstractSyntaxTree} is returned for each.
-     *
-     * @param ccl the CCL string, potentially containing semicolons
-     * @return a {@link List} of {@link AbstractSyntaxTree} instances, one per
-     *         statement
-     */
-    public final List<AbstractSyntaxTree> compile(String ccl) {
-        return compile(ccl, ImmutableMultimap.of());
-    }
-
-    /**
-     * Evaluate a CCL string that may contain multiple statements separated by
-     * semicolons, using the provided {@code data} for local variable
-     * resolution. Each statement is parsed independently.
-     *
-     * @param ccl the CCL string, potentially containing semicolons
-     * @param data data for local resolution of value variables
-     * @return a {@link List} of {@link AbstractSyntaxTree} instances
-     */
-    public abstract List<AbstractSyntaxTree> compile(String ccl,
-            Multimap<String, Object> data);
 
     /**
      * Return {@link StatementAnalysis analysis} about the {@link ConditionTree
@@ -222,21 +162,93 @@ public abstract class Compiler {
     }
 
     /**
-     * Return {@code true} if the {@code data} is described by the condition
-     * encapsulated in the {@code tree}.
+     * Arrange the {@link Symbol symbols} in the {@code tree} as a {@link Queue}
+     * of {@link PostfixNotationSymbol}s (i.e. expressions are grouped into
+     * {@link ExpressionSymbol}s that are sorted by the proper order of
+     * operations.
      *
-     * @param tree the {@link ConditionTree} that represents the condition
-     * @param data the data to test for adherences to the condition
-     * @param evaluator a {@link TriFunction} that takes a consideration value,
-     *            {@link Operator}, and list of reference values as input and
-     *            returns a boolean that indicates whether the consideration
-     *            value satisfies the {@link Operator} in relation to the
-     *            reference values
-     * @return {@code true} if the data is described by the criteria that has
-     *         been parsed
+     * @param tree
+     * @return a {@link Queue} of {@link PostfixNotationSymbol
+     *         PostfixNotationSymbols}
      */
-    public final boolean evaluate(ConditionTree tree,
-            Multimap<String, Object> data,
+    public final Queue<PostfixNotationSymbol> arrange(ConditionTree tree) {
+        Visitor<Queue<PostfixNotationSymbol>> visitor = new ConditionTreeVisitor<Queue<PostfixNotationSymbol>>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<PostfixNotationSymbol> visit(ConjunctionTree tree,
+                    Object... data) {
+                Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>) data[0];
+                for (AbstractSyntaxTree child : tree.children()) {
+                    queue = child.accept(this, data);
+                }
+                queue.add((ConjunctionSymbol) tree.root());
+                return queue;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<PostfixNotationSymbol> visit(ExpressionTree tree,
+                    Object... data) {
+                Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>) data[0];
+                queue.add((ExpressionSymbol) tree.root());
+                return queue;
+            }
+
+        };
+        return tree.accept(visitor, new LinkedList<>());
+    }
+
+    /**
+     * Evaluate a CCL string that may contain multiple statements separated by
+     * semicolons. Each statement is parsed independently and an
+     * {@link AbstractSyntaxTree} is returned for each.
+     *
+     * @param ccl the CCL string, potentially containing semicolons
+     * @return a {@link List} of {@link AbstractSyntaxTree} instances, one per
+     *         statement
+     */
+    public final List<AbstractSyntaxTree> compile(String ccl) {
+        return compile(ccl, ImmutableMultimap.of());
+    }
+
+    /**
+     * Evaluate a CCL string that may contain multiple statements separated by
+     * semicolons, using the provided {@code data} for local variable
+     * resolution. Each statement is parsed independently.
+     *
+     * @param ccl the CCL string, potentially containing semicolons
+     * @param data data for local resolution of value variables
+     * @return a {@link List} of {@link AbstractSyntaxTree} instances
+     */
+    public abstract List<AbstractSyntaxTree> compile(String ccl,
+            Multimap<String, Object> data);
+
+    /**
+     * Return {@code true} if the {@code data} satisfies the
+     * condition encapsulated in the {@code tree}.
+     * <p>
+     * Prefer this overload over
+     * {@link #evaluate(ConditionTree, Multimap, TriFunction)}
+     * when possible &mdash; it avoids the intermediate
+     * conversion from {@link Multimap} to
+     * {@link Association} and is therefore more efficient.
+     * </p>
+     *
+     * @param tree the {@link ConditionTree} that represents
+     *            the condition to evaluate
+     * @param data the {@link Association} containing the data
+     *            to test for adherence to the condition
+     * @param evaluator a {@link TriFunction} that takes a
+     *            stored value, {@link Operator}, and list of
+     *            reference values as input and returns a
+     *            boolean indicating whether the stored value
+     *            satisfies the {@link Operator} in relation
+     *            to the reference values
+     * @return {@code true} if the {@code data} is described
+     *         by the condition in the {@code tree}
+     */
+    public final boolean evaluate(ConditionTree tree, Association data,
             TriFunction<Object, Operator, List<Object>, Boolean> evaluator) {
         Visitor<Boolean> visitor = new ConditionTreeVisitor<Boolean>() {
 
@@ -261,31 +273,99 @@ public abstract class Compiler {
                 }
             }
 
-            @SuppressWarnings("unchecked")
             @Override
             public Boolean visit(ExpressionTree tree, Object... data) {
                 Verify.thatArgument(data.length > 0);
-                Verify.thatArgument(data[0] instanceof Multimap);
-                Multimap<String, Object> dataset = (Multimap<String, Object>) data[0];
+                Verify.thatArgument(data[0] instanceof Association);
+                Association dataset = (Association) data[0];
                 ExpressionSymbol expression = ((ExpressionSymbol) tree.root());
                 String key = expression.raw().key();
                 Operator operator = expression.raw().operator();
                 List<Object> values = expression.raw().values();
-                boolean matches = false;
-                for (Object stored : dataset.get(key)) {
-                    if(evaluator.apply(stored, operator, values)) {
-                        matches = true;
-                        break;
-                    }
-                    else {
-                        continue;
-                    }
-                }
-                return matches;
+                Object stored = dataset.fetch(key);
+                Stream<Object> stream = Sequences.isSequence(stored)
+                        ? Sequences.stream(stored)
+                        : Stream.of(stored);
+                return stream
+                        .map(item -> evaluator.apply(item, operator, values))
+                        .filter(value -> Boolean.TRUE.equals(value)).findFirst()
+                        .orElse(false);
+
             }
 
         };
         return tree.accept(visitor, data);
+    }
+
+    /**
+     * Return {@code true} if the {@code data} is described
+     * by the condition encapsulated in the {@code tree}.
+     * <p>
+     * This overload converts the {@link Multimap} to an {@link Association}
+     * before evaluating. When an {@link Association} is already available,
+     * prefer {@link #evaluate(ConditionTree, Association, TriFunction)} to
+     * avoid the conversion overhead.
+     * </p>
+     *
+     * @param tree the {@link ConditionTree} that represents
+     *            the condition
+     * @param data the data to test for adherence to the
+     *            condition
+     * @param evaluator a {@link TriFunction} that takes a
+     *            consideration value, {@link Operator}, and
+     *            list of reference values as input and
+     *            returns a boolean indicating whether the
+     *            consideration value satisfies the
+     *            {@link Operator} in relation to the
+     *            reference values
+     * @return {@code true} if the {@code data} is described
+     *         by the condition in the {@code tree}
+     */
+    public final boolean evaluate(ConditionTree tree,
+            Multimap<String, Object> data,
+            TriFunction<Object, Operator, List<Object>, Boolean> evaluator) {
+        return evaluate(tree,
+                Association.ensure(
+                        Multimaps.asMapWithSingleValueWherePossible(data)),
+                evaluator);
+    }
+
+    /**
+     * Evaluate the {@code ccl} statement. If it is well-formed, return a
+     * {@link AbstractSyntaxTree} that can be used to logically evaluate the
+     * statement.
+     *
+     * @param ccl the CCL statement to parse
+     * @return an {@link AbstractSyntaxTree} that represents the CCL statement
+     */
+    public final AbstractSyntaxTree parse(String ccl) {
+        return parse(ccl, ImmutableMultimap.of());
+    }
+
+    /**
+     * Evaluate the {@code ccl} statement. If it is well-formed, return a
+     * {@link AbstractSyntaxTree} that can be used to logically evaluate the
+     * statement.
+     * <p>
+     * The provided {@code data} will be used to perform local resolution of any
+     * variable values in the CCL statement. The variable values, will be
+     * replaced with values from the local {@code data} if possible.
+     * </p>
+     *
+     * @param ccl the CCL statement to parse
+     * @param data data that can be used to perform local resolution of any
+     *            value variables (e.g. ssn = $ssn) in the CCL statement
+     * @return an {@link AbstractSyntaxTree} that represents the CCL statement
+     */
+    public AbstractSyntaxTree parse(String ccl, Multimap<String, Object> data) {
+        List<AbstractSyntaxTree> results = compile(ccl, data);
+        if(results.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "No statements found in: " + ccl);
+        }
+        else {
+            return results.get(0);
+        }
     }
 
     /**
@@ -360,6 +440,14 @@ public abstract class Compiler {
 
             @SuppressWarnings("unchecked")
             @Override
+            public List<Symbol> visit(FunctionTree tree, Object... data) {
+                List<Symbol> symbols = (List<Symbol>) data[0];
+                symbols.add(tree.root());
+                return symbols;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
             public List<Symbol> visit(OrderTree tree, Object... data) {
                 List<Symbol> symbols = (List<Symbol>) data[0];
                 symbols.add(tree.root());
@@ -374,55 +462,8 @@ public abstract class Compiler {
                 return symbols;
             }
 
-            @SuppressWarnings("unchecked")
-            @Override
-            public List<Symbol> visit(FunctionTree tree,
-                                      Object... data) {
-                List<Symbol> symbols = (List<Symbol>) data[0];
-                symbols.add(tree.root());
-                return symbols;
-            }
-
         };
         return ast.accept(visitor, Lists.newArrayList());
-    }
-
-    /**
-     * Arrange the {@link Symbol symbols} in the {@code tree} as a {@link Queue}
-     * of {@link PostfixNotationSymbol}s (i.e. expressions are grouped into
-     * {@link ExpressionSymbol}s that are sorted by the proper order of
-     * operations.
-     *
-     * @param tree
-     * @return a {@link Queue} of {@link PostfixNotationSymbol
-     *         PostfixNotationSymbols}
-     */
-    public final Queue<PostfixNotationSymbol> arrange(ConditionTree tree) {
-        Visitor<Queue<PostfixNotationSymbol>> visitor = new ConditionTreeVisitor<Queue<PostfixNotationSymbol>>() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public Queue<PostfixNotationSymbol> visit(ConjunctionTree tree,
-                    Object... data) {
-                Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>) data[0];
-                for (AbstractSyntaxTree child : tree.children()) {
-                    queue = child.accept(this, data);
-                }
-                queue.add((ConjunctionSymbol) tree.root());
-                return queue;
-            }
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public Queue<PostfixNotationSymbol> visit(ExpressionTree tree,
-                    Object... data) {
-                Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>) data[0];
-                queue.add((ExpressionSymbol) tree.root());
-                return queue;
-            }
-
-        };
-        return tree.accept(visitor, new LinkedList<>());
     }
 
 }
