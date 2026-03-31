@@ -64,7 +64,7 @@ Added support for parsing multiple semicolon-delimited CCL statements in a singl
 * Updated `PageSymbol` to model pagination as a required skip and an optional limit, with factories for `fromSkip(int)`, `fromLimit(int)`, and `fromSkipLimit(int, Integer)`.
 * Removed page-number pagination syntax such as `page n`, `size n`, and `page n size m`.
 
-#### Version 3.2.2 (TBD)
+#### Version 3.2.2 (March 31, 2026)
 * Fixed a bug that caused the `Compiler`'s local evaluation to fail when the condition contained navigation keys (e.g., `friend.name = jeff`). The `evaluate` method now accepts an `Association` whose `fetch` method natively resolves dot-separated key paths by traversing nested data structures. The existing `Multimap`-based `evaluate` method is still supported and automatically converts to an `Association` for interoperability, but callers are encouraged to use the `Association` overload directly for better performance.
 
 #### Version 3.2.1 (March 10, 2026)
