@@ -192,9 +192,9 @@ A navigation key must contain at least one `.` — a standalone `children*` with
 no dots is not accepted.
 
 Programmatic consumers can use `NavigationKeySymbol.stops()` to iterate over
-each segment as a structured `NavigationKeyStop` (with `name()` and
-`transitive()` accessors) instead of parsing the raw component strings
-returned by `components()`.
+each segment as a structured `NavigationKeyStop` (with `key()`,
+`isTransitive()`, and `value()` accessors) instead of parsing the raw
+component strings returned by `components()`.
 
 ### Function Keys
 

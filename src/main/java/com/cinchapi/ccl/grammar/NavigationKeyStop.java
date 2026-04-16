@@ -17,45 +17,61 @@ package com.cinchapi.ccl.grammar;
 
 import java.util.Objects;
 
+import com.google.common.base.Preconditions;
+
 /**
  * A {@link NavigationKeyStop} is a single stop along a
- * {@link NavigationKeySymbol} path. A stop has a name and may be marked as
- * transitive to indicate that the corresponding link should be followed
- * recursively rather than traversed a single time.
+ * {@link NavigationKeySymbol} path. A stop has a {@link #key() key} and may
+ * be marked as {@link #isTransitive() transitive} to indicate that the
+ * corresponding link should be followed recursively rather than traversed a
+ * single time.
  *
  * @author Jeff Nelson
  */
 public final class NavigationKeyStop {
 
     /**
-     * The suffix character that marks a {@link NavigationKeyStop} as
-     * transitive when it appears at the end of its raw component string.
-     */
-    static final char TRANSITIVE_SUFFIX = '*';
-
-    /**
-     * Return a {@link NavigationKeyStop} that corresponds to the given raw
-     * navigation key {@code component} (e.g. {@code "children*"} or
-     * {@code "name"}).
+     * Return the {@link NavigationKeyStop} that corresponds to the given raw
+     * {@code value} (e.g. {@code "children*"} or {@code "name"}).
      *
-     * @param component the raw component string
+     * @param value the raw value string; must be non-{@code null},
+     *            non-empty, and must contain at least one character before
+     *            any trailing {@link #TRANSITIVE_SUFFIX}
      * @return the {@link NavigationKeyStop}
+     * @throws NullPointerException if {@code value} is {@code null}
+     * @throws IllegalArgumentException if {@code value} is empty or
+     *             consists solely of the {@link #TRANSITIVE_SUFFIX}
      */
-    public static NavigationKeyStop parse(String component) {
-        int length = component.length();
-        if(length > 0
-                && component.charAt(length - 1) == TRANSITIVE_SUFFIX) {
-            return new NavigationKeyStop(component.substring(0, length - 1),
-                    true);
+    public static NavigationKeyStop parse(String value) {
+        Preconditions.checkNotNull(value,
+                "navigation key stop value cannot be null");
+        int length = value.length();
+        Preconditions.checkArgument(length > 0,
+                "navigation key stop value cannot be empty");
+        String key = value;
+        boolean isTransitive = false;
+        if(value.charAt(length - 1) == TRANSITIVE_SUFFIX) {
+            Preconditions.checkArgument(length > 1,
+                    "navigation key stop value cannot consist solely of the "
+                            + "transitive suffix '%s'",
+                    TRANSITIVE_SUFFIX);
+            key = value.substring(0, length - 1);
+            isTransitive = true;
         }
-        return new NavigationKeyStop(component, false);
+        return new NavigationKeyStop(key, isTransitive);
     }
 
     /**
-     * The base name of this {@link NavigationKeyStop}, without any
-     * transitive suffix.
+     * The suffix character that marks a {@link NavigationKeyStop} as
+     * transitive when it appears at the end of its raw component string.
      */
-    private final String name;
+    public static final char TRANSITIVE_SUFFIX = '*';
+
+    /**
+     * The key of this {@link NavigationKeyStop}, without any trailing
+     * {@link #TRANSITIVE_SUFFIX}.
+     */
+    private final String key;
 
     /**
      * A flag that indicates whether this {@link NavigationKeyStop} is
@@ -66,22 +82,32 @@ public final class NavigationKeyStop {
     /**
      * Construct a new {@link NavigationKeyStop}.
      *
-     * @param name the base name of the stop, without any transitive suffix
+     * @param key the key of the stop, without any trailing
+     *            {@link #TRANSITIVE_SUFFIX}
      * @param isTransitive whether the stop is transitive
      */
-    public NavigationKeyStop(String name, boolean isTransitive) {
-        this.name = name;
+    private NavigationKeyStop(String key, boolean isTransitive) {
+        this.key = key;
         this.isTransitive = isTransitive;
     }
 
-    /**
-     * Return the base name of this {@link NavigationKeyStop}, without any
-     * transitive suffix.
-     *
-     * @return the name
-     */
-    public String name() {
-        return name;
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) {
+            return true;
+        }
+        else if(!(obj instanceof NavigationKeyStop)) {
+            return false;
+        }
+        else {
+            NavigationKeyStop other = (NavigationKeyStop) obj;
+            return isTransitive == other.isTransitive && key.equals(other.key);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, isTransitive);
     }
 
     /**
@@ -93,26 +119,30 @@ public final class NavigationKeyStop {
         return isTransitive;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(this == obj) {
-            return true;
-        }
-        if(!(obj instanceof NavigationKeyStop)) {
-            return false;
-        }
-        NavigationKeyStop other = (NavigationKeyStop) obj;
-        return isTransitive == other.isTransitive && name.equals(other.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, isTransitive);
+    /**
+     * Return the key of this {@link NavigationKeyStop}, without any trailing
+     * {@link #TRANSITIVE_SUFFIX}.
+     *
+     * @return the key
+     */
+    public String key() {
+        return key;
     }
 
     @Override
     public String toString() {
-        return isTransitive ? name + TRANSITIVE_SUFFIX : name;
+        return value();
+    }
+
+    /**
+     * Return the raw value of this {@link NavigationKeyStop}, which is the
+     * {@link #key() key} with the {@link #TRANSITIVE_SUFFIX} appended when
+     * this stop {@link #isTransitive() is transitive}.
+     *
+     * @return the value
+     */
+    public String value() {
+        return isTransitive ? key + TRANSITIVE_SUFFIX : key;
     }
 
 }

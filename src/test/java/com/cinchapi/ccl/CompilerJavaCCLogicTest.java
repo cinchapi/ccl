@@ -1358,9 +1358,9 @@ public class CompilerJavaCCLogicTest {
         NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
         List<NavigationKeyStop> stops = key.stops();
         Assert.assertEquals(2, stops.size());
-        Assert.assertEquals(new NavigationKeyStop("children", true),
+        Assert.assertEquals(NavigationKeyStop.parse("children*"),
                 stops.get(0));
-        Assert.assertEquals(new NavigationKeyStop("name", false), stops.get(1));
+        Assert.assertEquals(NavigationKeyStop.parse("name"), stops.get(1));
     }
 
     @Test
@@ -1377,11 +1377,11 @@ public class CompilerJavaCCLogicTest {
         NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
         List<NavigationKeyStop> stops = key.stops();
         Assert.assertEquals(5, stops.size());
-        Assert.assertEquals(new NavigationKeyStop("a", false), stops.get(0));
-        Assert.assertEquals(new NavigationKeyStop("b", true), stops.get(1));
-        Assert.assertEquals(new NavigationKeyStop("c", false), stops.get(2));
-        Assert.assertEquals(new NavigationKeyStop("d", true), stops.get(3));
-        Assert.assertEquals(new NavigationKeyStop("e", false), stops.get(4));
+        Assert.assertEquals(NavigationKeyStop.parse("a"), stops.get(0));
+        Assert.assertEquals(NavigationKeyStop.parse("b*"), stops.get(1));
+        Assert.assertEquals(NavigationKeyStop.parse("c"), stops.get(2));
+        Assert.assertEquals(NavigationKeyStop.parse("d*"), stops.get(3));
+        Assert.assertEquals(NavigationKeyStop.parse("e"), stops.get(4));
     }
 
     @Test
@@ -1400,9 +1400,9 @@ public class CompilerJavaCCLogicTest {
         NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
         List<NavigationKeyStop> stops = key.stops();
         Assert.assertEquals(2, stops.size());
-        Assert.assertEquals(new NavigationKeyStop("mother", false),
+        Assert.assertEquals(NavigationKeyStop.parse("mother"),
                 stops.get(0));
-        Assert.assertEquals(new NavigationKeyStop("children", false),
+        Assert.assertEquals(NavigationKeyStop.parse("children"),
                 stops.get(1));
     }
 
@@ -1454,6 +1454,111 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("mother", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("a.b*.c", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyWithFunctionKey() {
+        // A transitive navigation key piped to an aggregation function must
+        // tokenize as PERIOD_SEPARATED_STRING and feed KeyFunction() as the
+        // raw key (with the `*` preserved in the FunctionKeySymbol).
+        String ccl = "children*.name | avg > 3";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
+        FunctionKeySymbol symbol = expression.key();
+        Assert.assertEquals("avg", symbol.key().operation());
+        Assert.assertEquals("children*.name", symbol.key().key());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertEquals("3", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyWithIndexFunctionValue() {
+        // A transitive navigation key used inside an index function value
+        // (e.g. `avg(children*.name)`) must preserve the `*` on the key.
+        String ccl = "age > avg(children*.name)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(
+                expression.values().get(0) instanceof FunctionValueSymbol);
+        IndexFunction function = (IndexFunction) expression.values().get(0)
+                .value();
+        Assert.assertEquals("avg", function.operation());
+        Assert.assertEquals("children*.name", function.key());
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyWithKeyRecordsFunctionValue() {
+        // A transitive navigation key used inside a KeyRecords function value
+        // (e.g. `avg(children*.name, 1)`) must preserve the `*` on the key.
+        String ccl = "age > avg(children*.name, 1)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(
+                expression.values().get(0) instanceof FunctionValueSymbol);
+        KeyRecordsFunction function = (KeyRecordsFunction) expression.values()
+                .get(0).value();
+        Assert.assertEquals("avg", function.operation());
+        Assert.assertEquals("children*.name", function.key());
+        Assert.assertEquals(1, ((List<Long>) function.source()).size());
+        Assert.assertEquals((long) 1,
+                (long) ((List<Long>) function.source()).get(0));
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyWithKeyConditionFunctionValue() {
+        // A transitive navigation key used inside a KeyCondition function
+        // value (e.g. `avg(children*.name, age > 30)`) must preserve the `*`
+        // on the key.
+        String ccl = "age > avg(children*.name, age > 30)";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(
+                expression.values().get(0) instanceof FunctionValueSymbol);
+        KeyConditionFunction function = (KeyConditionFunction) expression
+                .values().get(0).value();
+        Assert.assertEquals("avg", function.operation());
+        Assert.assertEquals("children*.name", function.key());
+        Assert.assertTrue(function.source() instanceof ExpressionTree);
+        ExpressionSymbol inner = (ExpressionSymbol) ((AbstractSyntaxTree) function
+                .source()).root();
+        Assert.assertEquals("age", inner.key().toString());
+        Assert.assertEquals(">", inner.operator().toString());
+        Assert.assertEquals("30", inner.values().get(0).toString());
     }
 
     @Test
@@ -2790,9 +2895,9 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("children*.name", key.toString());
         List<NavigationKeyStop> stops = ((NavigationKeySymbol) key).stops();
         Assert.assertEquals(2, stops.size());
-        Assert.assertEquals(new NavigationKeyStop("children", true),
+        Assert.assertEquals(NavigationKeyStop.parse("children*"),
                 stops.get(0));
-        Assert.assertEquals(new NavigationKeyStop("name", false), stops.get(1));
+        Assert.assertEquals(NavigationKeyStop.parse("name"), stops.get(1));
         Assert.assertEquals(Long.valueOf(1L), navigate.record());
     }
 
@@ -2814,17 +2919,17 @@ public class CompilerJavaCCLogicTest {
         List<NavigationKeyStop> first = ((NavigationKeySymbol) keys.get(0))
                 .stops();
         Assert.assertEquals(3, first.size());
-        Assert.assertEquals(new NavigationKeyStop("a", false), first.get(0));
-        Assert.assertEquals(new NavigationKeyStop("b", true), first.get(1));
-        Assert.assertEquals(new NavigationKeyStop("c", false), first.get(2));
+        Assert.assertEquals(NavigationKeyStop.parse("a"), first.get(0));
+        Assert.assertEquals(NavigationKeyStop.parse("b*"), first.get(1));
+        Assert.assertEquals(NavigationKeyStop.parse("c"), first.get(2));
 
         List<NavigationKeyStop> second = ((NavigationKeySymbol) keys.get(1))
                 .stops();
         Assert.assertEquals(4, second.size());
-        Assert.assertEquals(new NavigationKeyStop("d", false), second.get(0));
-        Assert.assertEquals(new NavigationKeyStop("e", true), second.get(1));
-        Assert.assertEquals(new NavigationKeyStop("f", true), second.get(2));
-        Assert.assertEquals(new NavigationKeyStop("g", false), second.get(3));
+        Assert.assertEquals(NavigationKeyStop.parse("d"), second.get(0));
+        Assert.assertEquals(NavigationKeyStop.parse("e*"), second.get(1));
+        Assert.assertEquals(NavigationKeyStop.parse("f*"), second.get(2));
+        Assert.assertEquals(NavigationKeyStop.parse("g"), second.get(3));
     }
 
     @Test
