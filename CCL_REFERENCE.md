@@ -179,6 +179,23 @@ mother.children.age
 location.address.city
 ```
 
+Any segment may be suffixed with `*` to mark it as **transitive**, instructing
+the server to follow that link recursively until no further records are linked:
+
+```
+children*.name
+ancestors*.birthplace
+a.b*.c.d*.e
+```
+
+A navigation key must contain at least one `.` — a standalone `children*` with
+no dots is not accepted.
+
+Programmatic consumers can use `NavigationKeySymbol.stops()` to iterate over
+each segment as a structured `NavigationKeyStop` (with `key()`,
+`isTransitive()`, and `value()` accessors) instead of parsing the raw
+component strings returned by `components()`.
+
 ### Function Keys
 
 A key piped to an aggregation function (see [Functions](#11-functions)):
@@ -1222,7 +1239,7 @@ Expression        ::= Key Operator Value [Timestamp]
 (* Keys *)
 Key               ::= FunctionKey | SimpleKey | NavigationKey
 SimpleKey         ::= ALPHANUMERIC | NUMERIC | SIGNED_INTEGER | SIGNED_DECIMAL | '$id$'
-NavigationKey     ::= PERIOD_SEPARATED_STRING          (* e.g., friends.name *)
+NavigationKey     ::= PERIOD_SEPARATED_STRING          (* e.g., friends.name, children*.name *)
 FunctionKey       ::= Key '|' ALPHANUMERIC             (* e.g., score | avg *)
 
 (* Values *)
