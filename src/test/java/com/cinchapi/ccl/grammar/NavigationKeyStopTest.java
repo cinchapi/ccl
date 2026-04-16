@@ -28,14 +28,14 @@ public class NavigationKeyStopTest {
     @Test
     public void testParseNonTransitive() {
         NavigationKeyStop stop = NavigationKeyStop.parse("name");
-        Assert.assertEquals("name", stop.name());
+        Assert.assertEquals("name", stop.key());
         Assert.assertFalse(stop.isTransitive());
     }
 
     @Test
     public void testParseTransitive() {
         NavigationKeyStop stop = NavigationKeyStop.parse("children*");
-        Assert.assertEquals("children", stop.name());
+        Assert.assertEquals("children", stop.key());
         Assert.assertTrue(stop.isTransitive());
     }
 
@@ -53,30 +53,45 @@ public class NavigationKeyStopTest {
 
     @Test
     public void testEquals() {
-        Assert.assertEquals(new NavigationKeyStop("children", true),
+        Assert.assertEquals(NavigationKeyStop.parse("children*"),
                 NavigationKeyStop.parse("children*"));
-        Assert.assertEquals(new NavigationKeyStop("name", false),
+        Assert.assertEquals(NavigationKeyStop.parse("name"),
                 NavigationKeyStop.parse("name"));
     }
 
     @Test
     public void testNotEqualsWhenTransitiveDiffers() {
-        Assert.assertNotEquals(new NavigationKeyStop("children", true),
-                new NavigationKeyStop("children", false));
+        Assert.assertNotEquals(NavigationKeyStop.parse("children*"),
+                NavigationKeyStop.parse("children"));
     }
 
     @Test
-    public void testNotEqualsWhenNameDiffers() {
-        Assert.assertNotEquals(new NavigationKeyStop("children", true),
-                new NavigationKeyStop("parents", true));
+    public void testNotEqualsWhenKeyDiffers() {
+        Assert.assertNotEquals(NavigationKeyStop.parse("children*"),
+                NavigationKeyStop.parse("parents*"));
     }
 
     @Test
     public void testHashCodeConsistentWithEquals() {
-        NavigationKeyStop a = new NavigationKeyStop("children", true);
+        NavigationKeyStop a = NavigationKeyStop.parse("children*");
         NavigationKeyStop b = NavigationKeyStop.parse("children*");
         Assert.assertEquals(a, b);
         Assert.assertEquals(a.hashCode(), b.hashCode());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testParseRejectsNull() {
+        NavigationKeyStop.parse(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseRejectsEmpty() {
+        NavigationKeyStop.parse("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseRejectsBareTransitiveSuffix() {
+        NavigationKeyStop.parse("*");
     }
 
 }
