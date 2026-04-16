@@ -29,6 +29,9 @@ import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.NavigationKeyStop;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.command.*;
@@ -1238,6 +1241,184 @@ public class CompilerJavaCCLogicTest {
     }
 
     @Test
+    public void testTransitiveNavigationKeyAtStart() {
+        String ccl = "children*.name = foo";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expression.key() instanceof NavigationKeySymbol);
+        Assert.assertEquals("children*.name", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("foo", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyInMiddle() {
+        String ccl = "a.b*.c = bar";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expression.key() instanceof NavigationKeySymbol);
+        Assert.assertEquals("a.b*.c", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("bar", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyAtEnd() {
+        String ccl = "a.b.c* = baz";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expression.key() instanceof NavigationKeySymbol);
+        Assert.assertEquals("a.b.c*", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("baz", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testMultipleTransitiveNavigationKeys() {
+        String ccl = "a.b*.c.d*.e = foo";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expression.key() instanceof NavigationKeySymbol);
+        Assert.assertEquals("a.b*.c.d*.e", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("foo", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyComponents() {
+        String ccl = "children*.name = foo";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
+        Assert.assertArrayEquals(new String[] { "children*", "name" },
+                key.components());
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyComponentsMultiple() {
+        String ccl = "a.b*.c.d*.e = foo";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
+        Assert.assertArrayEquals(new String[] { "a", "b*", "c", "d*", "e" },
+                key.components());
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyStops() {
+        String ccl = "children*.name = foo";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
+        List<NavigationKeyStop> stops = key.stops();
+        Assert.assertEquals(2, stops.size());
+        Assert.assertEquals(new NavigationKeyStop("children", true),
+                stops.get(0));
+        Assert.assertEquals(new NavigationKeyStop("name", false), stops.get(1));
+    }
+
+    @Test
+    public void testTransitiveNavigationKeyStopsMultiple() {
+        String ccl = "a.b*.c.d*.e = foo";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
+        List<NavigationKeyStop> stops = key.stops();
+        Assert.assertEquals(5, stops.size());
+        Assert.assertEquals(new NavigationKeyStop("a", false), stops.get(0));
+        Assert.assertEquals(new NavigationKeyStop("b", true), stops.get(1));
+        Assert.assertEquals(new NavigationKeyStop("c", false), stops.get(2));
+        Assert.assertEquals(new NavigationKeyStop("d", true), stops.get(3));
+        Assert.assertEquals(new NavigationKeyStop("e", false), stops.get(4));
+    }
+
+    @Test
+    public void testNonTransitiveNavigationKeyStops() {
+        // Regression: a plain (non-transitive) navigation key should still
+        // yield stops(), with all stops marked as not transitive.
+        String ccl = "mother.children = 3";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
+        List<NavigationKeyStop> stops = key.stops();
+        Assert.assertEquals(2, stops.size());
+        Assert.assertEquals(new NavigationKeyStop("mother", false),
+                stops.get(0));
+        Assert.assertEquals(new NavigationKeyStop("children", false),
+                stops.get(1));
+    }
+
+    @Test(expected = SyntaxException.class)
+    public void testStandaloneTransitiveKeyIsNotANavigationKey() {
+        // A standalone `children*` (no dots) must not be accepted as a key:
+        // the lexer tokenizes `children*` as NON_ALPHANUMERIC_AND_ALPHANUMERIC
+        // (longest match, 9 chars beats ALPHANUMERIC at 8), and Key() does not
+        // accept that token. Transitive navigation requires at least one dot.
+        String ccl = "children* = foo";
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        compiler.parse(ccl);
+    }
+
+    @Test
     public void testPeriodSeparatedValue() {
         String ccl = "mother = a.b.c";
 
@@ -1252,6 +1433,27 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("mother", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("a.b.c", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testPeriodSeparatedValueWithAsterisk() {
+        // Regression: the transitive-navigation change makes a dotted value
+        // containing `*` tokenize as PERIOD_SEPARATED_STRING instead of
+        // NON_ALPHANUMERIC_AND_ALPHANUMERIC. The resulting value string must be
+        // identical so callers that inspect expression.values() see no change.
+        String ccl = "mother = a.b*.c";
+
+        // Generate tree
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        // Root node
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("mother", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("a.b*.c", expression.values().get(0).toString());
     }
 
     @Test
@@ -2417,7 +2619,7 @@ public class CompilerJavaCCLogicTest {
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
                 COMPILER_PARSE_OPERATOR_FUNCTION);
         AbstractSyntaxTree ast = compiler.parse(ccl);
-        List<Symbol> tokens = compiler.tokenize(ast);
+        compiler.tokenize(ast);
 
         // Verify the command symbol
         CommandTree commandTree = (CommandTree) ast;
@@ -2570,6 +2772,82 @@ public class CompilerJavaCCLogicTest {
                 COMPILER_PARSE_OPERATOR_FUNCTION);
         compiler.parse(ccl);
         Assert.assertTrue(true); // lack of Exception means the test passes
+    }
+
+    @Test
+    public void testNavigateCommandWithTransitiveKey() {
+        String ccl = "navigate children*.name from 1";
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree commandTree = (CommandTree) tree;
+        NavigateSymbol navigate = (NavigateSymbol) commandTree.root();
+        Assert.assertEquals(1, navigate.keys().size());
+        KeyTokenSymbol<?> key = navigate.keys().iterator().next();
+        Assert.assertTrue(key instanceof NavigationKeySymbol);
+        Assert.assertEquals("children*.name", key.toString());
+        List<NavigationKeyStop> stops = ((NavigationKeySymbol) key).stops();
+        Assert.assertEquals(2, stops.size());
+        Assert.assertEquals(new NavigationKeyStop("children", true),
+                stops.get(0));
+        Assert.assertEquals(new NavigationKeyStop("name", false), stops.get(1));
+        Assert.assertEquals(Long.valueOf(1L), navigate.record());
+    }
+
+    @Test
+    public void testNavigateCommandWithMultipleTransitiveKeys() {
+        String ccl = "navigate [a.b*.c, d.e*.f*.g] from [1, 2]";
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree commandTree = (CommandTree) tree;
+        NavigateSymbol navigate = (NavigateSymbol) commandTree.root();
+        Assert.assertEquals(2, navigate.keys().size());
+        List<KeyTokenSymbol<?>> keys = Lists.newArrayList(navigate.keys());
+        Assert.assertTrue(keys.get(0) instanceof NavigationKeySymbol);
+        Assert.assertTrue(keys.get(1) instanceof NavigationKeySymbol);
+
+        List<NavigationKeyStop> first = ((NavigationKeySymbol) keys.get(0))
+                .stops();
+        Assert.assertEquals(3, first.size());
+        Assert.assertEquals(new NavigationKeyStop("a", false), first.get(0));
+        Assert.assertEquals(new NavigationKeyStop("b", true), first.get(1));
+        Assert.assertEquals(new NavigationKeyStop("c", false), first.get(2));
+
+        List<NavigationKeyStop> second = ((NavigationKeySymbol) keys.get(1))
+                .stops();
+        Assert.assertEquals(4, second.size());
+        Assert.assertEquals(new NavigationKeyStop("d", false), second.get(0));
+        Assert.assertEquals(new NavigationKeyStop("e", true), second.get(1));
+        Assert.assertEquals(new NavigationKeyStop("f", true), second.get(2));
+        Assert.assertEquals(new NavigationKeyStop("g", false), second.get(3));
+    }
+
+    @Test
+    public void testNavigateCommandWithTransitiveKeyAndCriteria() {
+        String ccl = "navigate children*.name where age > 25";
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof CommandTree);
+        CommandTree commandTree = (CommandTree) tree;
+        NavigateSymbol navigate = (NavigateSymbol) commandTree.root();
+        Assert.assertEquals(1, navigate.keys().size());
+        KeyTokenSymbol<?> key = navigate.keys().iterator().next();
+        Assert.assertTrue(key instanceof NavigationKeySymbol);
+        Assert.assertEquals("children*.name", key.toString());
+
+        // Validate Condition
+        ExpressionSymbol expression = (ExpressionSymbol) commandTree
+                .conditionTree().root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertEquals("25", expression.values().get(0).toString());
     }
 
     /**
