@@ -26,7 +26,6 @@ import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.FunctionTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
-import com.cinchapi.ccl.grammar.command.CommandSymbol;
 import com.cinchapi.ccl.grammar.command.SelectSymbol;
 import com.cinchapi.ccl.grammar.command.NavigateSymbol;
 import com.cinchapi.ccl.syntax.CommandTree;
