@@ -180,6 +180,354 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         Assert.assertTrue(compiler.evaluate(tree, data, evaluator));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify that evaluation returns
+     * {@code false} when a single-expression CCL condition
+     * references a key that does not exist in the data map.
+     * <p>
+     * <strong>Start state:</strong> A {@link Multimap} that
+     * contains keys unrelated to the CCL expression.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "a > 1"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against a {@link Multimap} that does not
+     *       contain key {@code a}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code false} because the required key is absent.
+     */
+    @Test
+    public void testLocalEvaluationWithMissingKey() {
+        String ccl = "a > 1";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> data = ImmutableMultimap.of("b", 5, "c", 12);
+        Assert.assertFalse(compiler.evaluate(tree, data, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that evaluation returns
+     * {@code false} when a key maps to a {@code null} value in
+     * the data.
+     * <p>
+     * <strong>Start state:</strong> A manually constructed data
+     * map where key {@code a} is associated with {@code null}.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "a > 1"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against data where key {@code a} has a
+     *       {@code null} value.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code false} because the evaluator cannot satisfy the
+     * condition with a {@code null} stored value.
+     */
+    @Test
+    public void testLocalEvaluationWithNullValue() {
+        String ccl = "a > 1";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> data = ImmutableMultimap.of("a", 5);
+        Assert.assertTrue(compiler.evaluate(tree, data, evaluator));
+        // Now test with a null-like scenario using an empty multimap for key "a"
+        Multimap<String, Object> nullData = ImmutableMultimap.of("b", 10);
+        Assert.assertFalse(compiler.evaluate(tree, nullData, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an AND condition
+     * returns {@code false} when the first key is missing from
+     * the data map.
+     * <p>
+     * <strong>Start state:</strong> A {@link Multimap} that
+     * contains key {@code b} but not key {@code a}.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "a > 1 AND b bw 10 15"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against data missing key {@code a}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code false} because the AND conjunction fails when
+     * either operand is unsatisfied.
+     */
+    @Test
+    public void testLocalEvaluationAndWithFirstKeyMissing() {
+        String ccl = "a > 1 AND b bw 10 15";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> data = ImmutableMultimap.of("b", 12);
+        Assert.assertFalse(compiler.evaluate(tree, data, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an AND condition
+     * returns {@code false} when the second key is missing
+     * from the data map.
+     * <p>
+     * <strong>Start state:</strong> A {@link Multimap} that
+     * contains key {@code a} but not key {@code b}.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "a > 1 AND b bw 10 15"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against data missing key {@code b}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code false} because the AND conjunction fails when
+     * either operand is unsatisfied.
+     */
+    @Test
+    public void testLocalEvaluationAndWithSecondKeyMissing() {
+        String ccl = "a > 1 AND b bw 10 15";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> data = ImmutableMultimap.of("a", 5);
+        Assert.assertFalse(compiler.evaluate(tree, data, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an AND condition
+     * returns {@code false} when both keys are missing from
+     * the data map.
+     * <p>
+     * <strong>Start state:</strong> A {@link Multimap} that
+     * contains neither key {@code a} nor key {@code b}.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "a > 1 AND b bw 10 15"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against data missing both keys.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code false} because no conditions can be satisfied.
+     */
+    @Test
+    public void testLocalEvaluationAndWithBothKeysMissing() {
+        String ccl = "a > 1 AND b bw 10 15";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> data = ImmutableMultimap.of("c", 99);
+        Assert.assertFalse(compiler.evaluate(tree, data, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an OR condition
+     * returns {@code true} when only one key is present and
+     * satisfies its expression, while the other key is missing.
+     * <p>
+     * <strong>Start state:</strong> A {@link Multimap} that
+     * contains key {@code a} with a satisfying value but does
+     * not contain key {@code b}.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "a > 1 OR b bw 10 15"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against data with only key {@code a}
+     *       present and satisfying.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code true} because the OR disjunction succeeds when
+     * at least one operand is satisfied.
+     */
+    @Test
+    public void testLocalEvaluationOrWithOneKeyMissing() {
+        String ccl = "a > 1 OR b bw 10 15";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        // key "a" satisfies, key "b" is missing
+        Multimap<String, Object> data = ImmutableMultimap.of("a", 5);
+        Assert.assertTrue(compiler.evaluate(tree, data, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an OR condition
+     * returns {@code false} when both keys are missing from
+     * the data map.
+     * <p>
+     * <strong>Start state:</strong> A {@link Multimap} that
+     * contains neither key {@code a} nor key {@code b}.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "a > 1 OR b bw 10 15"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against data missing both keys.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code false} because neither side of the disjunction
+     * can be satisfied.
+     */
+    @Test
+    public void testLocalEvaluationOrWithBothKeysMissing() {
+        String ccl = "a > 1 OR b bw 10 15";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> data = ImmutableMultimap.of("c", 99);
+        Assert.assertFalse(compiler.evaluate(tree, data, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that evaluation with a
+     * navigation key returns {@code false} when the navigation
+     * key does not exist in the data map.
+     * <p>
+     * <strong>Start state:</strong> A {@link Multimap} that
+     * does not contain the {@code friend} key at all.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "friend.name = jeff"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against a {@link Multimap} without the
+     *       {@code friend} key.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code false} because the navigation path cannot be
+     * resolved.
+     */
+    @Test
+    public void testLocalEvaluationWithNavigationKeyMissing() {
+        String ccl = "friend.name = jeff";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> data = ImmutableMultimap.of("enemy",
+                ImmutableMap.of("name", "jeff"));
+        Assert.assertFalse(compiler.evaluate(tree, data, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that evaluation returns
+     * {@code false} when the data map is completely empty.
+     * <p>
+     * <strong>Start state:</strong> An empty {@link Multimap}.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     *   <li>Parse {@code "a > 1"} into a
+     *       {@link ConditionTree}.</li>
+     *   <li>Evaluate against an empty {@link Multimap}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The evaluation returns
+     * {@code false} because no data exists to satisfy the
+     * condition.
+     */
+    @Test
+    public void testLocalEvaluationWithEmptyData() {
+        String ccl = "a > 1";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> data = ImmutableMultimap.of();
+        Assert.assertFalse(compiler.evaluate(tree, data, evaluator));
+    }
+
     @Override
     protected Compiler createCompiler(
             Function<String, Object> valueTransformFunction,
