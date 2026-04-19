@@ -1406,16 +1406,66 @@ public class CompilerJavaCCLogicTest {
                 stops.get(1));
     }
 
-    @Test(expected = SyntaxException.class)
-    public void testStandaloneTransitiveKeyIsNotANavigationKey() {
-        // A standalone `children*` (no dots) must not be accepted as a key:
-        // the lexer tokenizes `children*` as NON_ALPHANUMERIC_AND_ALPHANUMERIC
-        // (longest match, 9 chars beats ALPHANUMERIC at 8), and Key() does not
-        // accept that token. Transitive navigation requires at least one dot.
+    @Test
+    public void testStandaloneTransitiveKeyIsANavigationKey() {
         String ccl = "children* = foo";
+
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
                 COMPILER_PARSE_OPERATOR_FUNCTION);
-        compiler.parse(ccl);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expression.key() instanceof NavigationKeySymbol);
+        Assert.assertEquals("children*", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("foo", expression.values().get(0).toString());
+
+        NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
+        Assert.assertArrayEquals(new String[] { "children*" },
+                key.components());
+        List<NavigationKeyStop> stops = key.stops();
+        Assert.assertEquals(1, stops.size());
+        Assert.assertEquals(NavigationKeyStop.parse("children*"),
+                stops.get(0));
+        Assert.assertTrue(stops.get(0).isTransitive());
+        Assert.assertEquals("children", stops.get(0).key());
+    }
+
+    @Test
+    public void testStandaloneTransitiveWordAsValue() {
+        // A standalone `<word>*` (e.g. `children*`) tokenizes as
+        // ASTERISK_SUFFIXED_STRING. Value productions accept it so the raw
+        // string value round-trips unchanged, matching the pre-PR behavior
+        // where `children*` tokenized as NON_ALPHANUMERIC_AND_ALPHANUMERIC.
+        String ccl = "mother = children*";
+
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("mother", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("children*",
+                expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testStandaloneTransitiveWordAsSearchValue() {
+        // Same round-trip invariant for unquoted search values.
+        String ccl = "name contains abc*";
+
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("name", expression.key().toString());
+        Assert.assertEquals("CONTAINS", expression.operator().toString());
+        Assert.assertEquals("abc*", expression.values().get(0).toString());
     }
 
     @Test
@@ -1454,6 +1504,49 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("mother", expression.key().toString());
         Assert.assertEquals("=", expression.operator().toString());
         Assert.assertEquals("a.b*.c", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testStandaloneTransitiveKeyWithFunctionKey() {
+        // A standalone transitive stop piped to an aggregation function must
+        // tokenize as ASTERISK_SUFFIXED_STRING and feed KeyFunction() as the
+        // raw key (with the `*` preserved in the FunctionKeySymbol).
+        String ccl = "children* | avg > 3";
+
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expression.key() instanceof FunctionKeySymbol);
+        FunctionKeySymbol symbol = expression.key();
+        Assert.assertEquals("avg", symbol.key().operation());
+        Assert.assertEquals("children*", symbol.key().key());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertEquals("3", expression.values().get(0).toString());
+    }
+
+    @Test
+    public void testStandaloneTransitiveKeyWithIndexFunctionValue() {
+        // A standalone transitive stop used inside an index function value
+        // (e.g. `avg(children*)`) must preserve the `*` on the key.
+        String ccl = "age > avg(children*)";
+
+        Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
+                COMPILER_PARSE_OPERATOR_FUNCTION);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("age", expression.key().toString());
+        Assert.assertEquals(">", expression.operator().toString());
+        Assert.assertTrue(
+                expression.values().get(0) instanceof FunctionValueSymbol);
+        IndexFunction function = (IndexFunction) expression.values().get(0)
+                .value();
+        Assert.assertEquals("avg", function.operation());
+        Assert.assertEquals("children*", function.key());
     }
 
     @Test

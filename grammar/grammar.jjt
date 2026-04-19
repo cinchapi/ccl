@@ -306,6 +306,8 @@ TOKEN :
 |
   < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")?)+ >
 |
+  < ASTERISK_SUFFIXED_STRING: <ALPHANUMERIC> "*" >
+|
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
   < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "=", ";"] >
@@ -493,7 +495,7 @@ KeyTokenSymbol SearchKey() :
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
     { return new KeySymbol(key.image); }
   |
-    (key=<PERIOD_SEPARATED_STRING>)
+    (key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
     { return new NavigationKeySymbol(key.image); }
   )
 }
@@ -513,7 +515,7 @@ KeyTokenSymbol Key() :
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
     { return new KeySymbol(key.image); }
   |
-    (key=<PERIOD_SEPARATED_STRING>)
+    (key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
     { return new NavigationKeySymbol(key.image); }
   )
 }
@@ -533,7 +535,7 @@ ValueTokenSymbol UnaryValue() :
   (function=ValueFunction())
   { return function; }
 |
-  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   {
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
@@ -579,7 +581,7 @@ ValueTokenSymbol RegexValue() :
 
 }
 {
-    <OPEN_PARENTHESES> (LOOKAHEAD(4) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="_" | word="=")
+    <OPEN_PARENTHESES> (LOOKAHEAD(4) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>  | word="_" | word="=")
     {
         if (value.equals("") |
             value.endsWith("(") | word.image.equals(")") |
@@ -593,7 +595,7 @@ ValueTokenSymbol RegexValue() :
     })+ <CLOSE_PARENTHESES>
     { return new ValueSymbol(transformValue("(" + value + ")")); }
   |
-    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="_" | word="=")
+    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>  | word="_" | word="=")
     {
         if (value.equals("") |
             value.endsWith("(") | word.image.equals(")") |
@@ -626,7 +628,7 @@ ValueTokenSymbol SearchValue() :
   (function=ValueFunction())
   { return function; }
 |
-  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   {
     if(value.charAt(0) == '$') {
         String var = value.substring(1);
@@ -671,7 +673,7 @@ ValueTokenSymbol BinaryValue() :
   (function=ValueFunction())
   { return function; }
 |
-  (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>)
+  (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>)
   {
     value = word.image;
     if(value.charAt(0) == '$') {
@@ -748,7 +750,7 @@ TimestampSymbol Timestamp() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
@@ -758,7 +760,7 @@ TimestampSymbol TimestampReadCommand() :
   String timestamp = "";
 }
 {
-  (<TIMESTAMP> | <AS_OF>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP> | <AS_OF>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
@@ -768,7 +770,7 @@ TimestampSymbol TimestampValue() :
   String timestamp = "";
 }
 {
-  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
@@ -783,7 +785,7 @@ TimestampSymbol TimestampSingleToken() :
 {
   (<TIMESTAMP> | <AS_OF>)
   (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL>
-   | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>)
+   | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>)
   { return new TimestampSymbol(NaturalLanguage.parseMicros(word.image)); }
 }
 
@@ -921,7 +923,7 @@ FunctionKeySymbol KeyFunction() :
   Token function;
 }
 {
-   (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <PIPE> function=<ALPHANUMERIC>
+   (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <PIPE> function=<ALPHANUMERIC>
    { return new FunctionKeySymbol(new ImplicitKeyRecordFunction(function.image, key.image.substring(0, key.image.length())));}
 }
 
@@ -939,7 +941,7 @@ FunctionValueSymbol ValueFunction() :
    (
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
      (
          <CLOSE_PARENTHESES>
          { return new FunctionValueSymbol(new IndexFunction(function.image, key.image));}
@@ -950,7 +952,7 @@ FunctionValueSymbol ValueFunction() :
    |
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA>
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <COMMA>
      (
         (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image);}
         (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })* <CLOSE_PARENTHESES>
@@ -963,7 +965,7 @@ FunctionValueSymbol ValueFunction() :
         { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records, timestamp.timestamp()));}
      )
    |
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST()
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <COMMA> ccl=generateSubAST()
      (
         <CLOSE_PARENTHESES>
         {
