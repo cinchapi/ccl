@@ -1406,16 +1406,30 @@ public class CompilerJavaCCLogicTest {
                 stops.get(1));
     }
 
-    @Test(expected = SyntaxException.class)
-    public void testStandaloneTransitiveKeyIsNotANavigationKey() {
-        // A standalone `children*` (no dots) must not be accepted as a key:
-        // the lexer tokenizes `children*` as NON_ALPHANUMERIC_AND_ALPHANUMERIC
-        // (longest match, 9 chars beats ALPHANUMERIC at 8), and Key() does not
-        // accept that token. Transitive navigation requires at least one dot.
+    @Test
+    public void testStandaloneTransitiveKeyIsANavigationKey() {
         String ccl = "children* = foo";
+
         Compiler compiler = Compiler.create(COMPILER_PARSE_VALUE_FUNCTION,
                 COMPILER_PARSE_OPERATOR_FUNCTION);
-        compiler.parse(ccl);
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expression = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expression.key() instanceof NavigationKeySymbol);
+        Assert.assertEquals("children*", expression.key().toString());
+        Assert.assertEquals("=", expression.operator().toString());
+        Assert.assertEquals("foo", expression.values().get(0).toString());
+
+        NavigationKeySymbol key = (NavigationKeySymbol) expression.key();
+        Assert.assertArrayEquals(new String[] { "children*" },
+                key.components());
+        List<NavigationKeyStop> stops = key.stops();
+        Assert.assertEquals(1, stops.size());
+        Assert.assertEquals(NavigationKeyStop.parse("children*"),
+                stops.get(0));
+        Assert.assertTrue(stops.get(0).isTransitive());
+        Assert.assertEquals("children", stops.get(0).key());
     }
 
     @Test

@@ -188,8 +188,9 @@ ancestors*.birthplace
 a.b*.c.d*.e
 ```
 
-A navigation key must contain at least one `.` — a standalone `children*` with
-no dots is not accepted.
+A standalone transitive stop (e.g. `children*`) is also accepted as a
+navigation key and is equivalent to a single-stop path whose terminal stop is
+transitive.
 
 Programmatic consumers can use `NavigationKeySymbol.stops()` to iterate over
 each segment as a structured `NavigationKeyStop` (with `key()`,
