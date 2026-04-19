@@ -31,6 +31,32 @@ import com.google.common.base.Preconditions;
 public final class NavigationKeyStop {
 
     /**
+     * Return the {@link #key() key} of the {@link NavigationKeyStop}
+     * represented by {@code value}.
+     *
+     * @param value the raw value
+     * @return the key
+     */
+    public static String extractKeyAtPossiblyTransitiveStop(String value) {
+        int length = value.length();
+        if(length > 0 && value.charAt(length - 1) == TRANSITIVE_SUFFIX) {
+            return value.substring(0, length - 1);
+        }
+        return value;
+    }
+
+    /**
+     * Return {@code true} if {@code value} represents a transitive
+     * {@link NavigationKeyStop}.
+     *
+     * @param value the raw value
+     * @return {@code true} if {@code value} is a transitive stop
+     */
+    public static boolean isTransitiveStop(String value) {
+        return !extractKeyAtPossiblyTransitiveStop(value).equals(value);
+    }
+
+    /**
      * Return the {@link NavigationKeyStop} that corresponds to the given raw
      * {@code value} (e.g. {@code "children*"} or {@code "name"}).
      *
@@ -45,19 +71,14 @@ public final class NavigationKeyStop {
     public static NavigationKeyStop parse(String value) {
         Preconditions.checkNotNull(value,
                 "navigation key stop value cannot be null");
-        int length = value.length();
-        Preconditions.checkArgument(length > 0,
+        Preconditions.checkArgument(!value.isEmpty(),
                 "navigation key stop value cannot be empty");
-        String key = value;
-        boolean isTransitive = false;
-        if(value.charAt(length - 1) == TRANSITIVE_SUFFIX) {
-            Preconditions.checkArgument(length > 1,
-                    "navigation key stop value cannot consist solely of the "
-                            + "transitive suffix '%s'",
-                    TRANSITIVE_SUFFIX);
-            key = value.substring(0, length - 1);
-            isTransitive = true;
-        }
+        String key = extractKeyAtPossiblyTransitiveStop(value);
+        boolean isTransitive = !key.equals(value);
+        Preconditions.checkArgument(!isTransitive || !key.isEmpty(),
+                "navigation key stop value cannot consist solely of the "
+                        + "transitive suffix '%s'",
+                TRANSITIVE_SUFFIX);
         return new NavigationKeyStop(key, isTransitive);
     }
 
