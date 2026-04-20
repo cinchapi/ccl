@@ -154,6 +154,13 @@ class CompilerJavaCC extends Compiler {
             }
 
             @Override
+            public Object visit(ASTStrict node, Object data) {
+                ConditionTree inner = (ConditionTree) node.jjtGetChild(0)
+                        .jjtAccept(this, data);
+                return new StrictConditionTree(inner);
+            }
+
+            @Override
             public Object visit(ASTExpression node, Object data) {
                 return new ExpressionTree(node);
             }

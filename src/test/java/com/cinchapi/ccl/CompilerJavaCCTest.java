@@ -25,7 +25,11 @@ import org.junit.Test;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
+import com.cinchapi.ccl.syntax.ExpressionTree;
+import com.cinchapi.ccl.syntax.OrTree;
+import com.cinchapi.ccl.syntax.StrictConditionTree;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Array;
@@ -526,6 +530,87 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
         Multimap<String, Object> data = ImmutableMultimap.of();
         Assert.assertFalse(compiler.evaluate(tree, data, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@code strict(A.foo = "A" AND A.bar = "B")} parses into a
+     * {@link StrictConditionTree} wrapping an {@link AndTree}.
+     */
+    @Test
+    public void testParseStrictWrappingAnd() {
+        String ccl = "strict(A.foo = \"A\" AND A.bar = \"B\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof StrictConditionTree);
+        ConditionTree inner = ((StrictConditionTree) tree).condition();
+        Assert.assertTrue(inner instanceof AndTree);
+        AndTree and = (AndTree) inner;
+        Assert.assertTrue(and.left() instanceof ExpressionTree);
+        Assert.assertTrue(and.right() instanceof ExpressionTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a single-expression
+     * {@code strict(A.foo = "A")} parses into a
+     * {@link StrictConditionTree} wrapping an {@link ExpressionTree}.
+     */
+    @Test
+    public void testParseStrictWrappingSingleExpression() {
+        String ccl = "strict(A.foo = \"A\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof StrictConditionTree);
+        Assert.assertTrue(((StrictConditionTree) tree)
+                .condition() instanceof ExpressionTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@code strict(A.foo = "X" OR A.bar = "Y")} parses into a
+     * {@link StrictConditionTree} wrapping an {@link OrTree}.
+     */
+    @Test
+    public void testParseStrictWrappingOr() {
+        String ccl = "strict(A.foo = \"X\" OR A.bar = \"Y\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof StrictConditionTree);
+        Assert.assertTrue(((StrictConditionTree) tree)
+                .condition() instanceof OrTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@code strict(...)} composes
+     * with outer logical connectives, appearing as a child of an
+     * enclosing {@link OrTree}.
+     */
+    @Test
+    public void testParseStrictInsideLargerExpression() {
+        String ccl = "strict(A.foo = \"A\" AND A.bar = \"B\") OR name = \"test\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof OrTree);
+        OrTree or = (OrTree) tree;
+        Assert.assertTrue(or.left() instanceof StrictConditionTree);
+        Assert.assertTrue(or.right() instanceof ExpressionTree);
+        Assert.assertTrue(((StrictConditionTree) or.left())
+                .condition() instanceof AndTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@code strict(...)} accepts
+     * non-navigation keys without complaint; the parser wraps them
+     * regardless, leaving semantic handling to the engine.
+     */
+    @Test
+    public void testParseStrictAcceptsNonNavigationKeys() {
+        String ccl = "strict(name = \"Jeff\" AND age > 30)";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof StrictConditionTree);
+        Assert.assertTrue(((StrictConditionTree) tree)
+                .condition() instanceof AndTree);
     }
 
     @Override

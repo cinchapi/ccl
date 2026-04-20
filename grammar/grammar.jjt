@@ -211,6 +211,7 @@ TOKEN [IGNORE_CASE] : {
 | < FOR: "for" >
 | < WITH: "with" >
 | < WITHOUT: "without" >
+| < STRICT: "strict" >
 | < OPEN_BRACE : "{" >
 | < CLOSE_BRACE : "}" >
 | < COLON : ":" >
@@ -385,7 +386,17 @@ void ConjunctionExpression() : {}
 
 void UnaryExpression() : {}
 {
-   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpression()
+   LOOKAHEAD(2)
+   StrictExpression()
+   |
+   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>)
+   |
+   RelationalExpression()
+}
+
+void StrictExpression() #Strict : {}
+{
+  (<STRICT>) (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>)
 }
 
 void RelationalExpression() #Expression :
@@ -452,7 +463,12 @@ void ConjunctionExpressionNoTimestamp() : {}
 
 void UnaryExpressionNoTimestamp() : {}
 {
-   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpressionNoTimestamp()
+   LOOKAHEAD(2)
+   StrictExpression()
+   |
+   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>)
+   |
+   RelationalExpressionNoTimestamp()
 }
 
 void RelationalExpressionNoTimestamp() #Expression :

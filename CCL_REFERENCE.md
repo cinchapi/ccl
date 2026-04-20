@@ -334,6 +334,30 @@ Parentheses override default precedence:
 (a = 1 or b = 2) and (c = 3 or d = 4)
 ```
 
+### Strict Grouping
+
+`strict(...)` wraps a conjunction of conditions that must be satisfied together by the **same** destination when the conditions share a navigation key prefix. Without `strict`, each condition is evaluated independently, which can produce false positives when multiple linked records each satisfy a different condition.
+
+```
+find where strict(friend.name = "Jeff" AND friend.age > 30)
+```
+
+Matches only records whose `friend` links to a **single** record that satisfies both inner conditions. By contrast, the non-strict form:
+
+```
+find where friend.name = "Jeff" AND friend.age > 30
+```
+
+matches records that have *some* friend named Jeff and *some* (possibly different) friend over 30.
+
+`strict(...)` composes with the usual connectives and participates in normal precedence — no special rules:
+
+```
+name = "Jeff" OR strict(friend.name = "Bob" AND friend.age > 30) AND age > 20
+```
+
+The parser accepts any valid expression inside `strict(...)` (pure-`OR`, single expressions, expressions with non-navigation keys, mixed prefixes). Semantic enforcement — i.e. the "same destination" constraint — is applied by the engine, not the parser. Inputs without a shared navigation prefix degrade to regular `AND`/`OR` evaluation.
+
 ### Precedence
 
 `AND` binds tighter than `OR`. Both are left-associative.
