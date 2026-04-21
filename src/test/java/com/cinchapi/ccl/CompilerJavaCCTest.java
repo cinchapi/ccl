@@ -25,9 +25,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
-import com.cinchapi.ccl.grammar.StrictSymbol;
+import com.cinchapi.ccl.grammar.ScopeEndSymbol;
+import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
@@ -35,7 +37,7 @@ import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
-import com.cinchapi.ccl.syntax.StrictConditionTree;
+import com.cinchapi.ccl.syntax.ScopedConditionTree;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.Array;
@@ -539,17 +541,22 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that
-     * {@code strict(A.foo = "A" AND A.bar = "B")} parses into a
-     * {@link StrictConditionTree} wrapping an {@link AndTree}.
+     * <strong>Goal:</strong> Verify that {@code A.(foo = "A" AND bar = "B")}
+     * parses into a {@link ScopedConditionTree} whose
+     * {@link ScopedConditionTree#prefix() prefix} is {@code A} and whose
+     * {@link ScopedConditionTree#condition() inner} is an {@link AndTree}
+     * of leaf expressions.
      */
     @Test
-    public void testParseStrictWrappingAnd() {
-        String ccl = "strict(A.foo = \"A\" AND A.bar = \"B\")";
+    public void testParseScopedWrappingAnd() {
+        String ccl = "A.(foo = \"A\" AND bar = \"B\")";
         Compiler compiler = createCompiler();
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
-        Assert.assertTrue(tree instanceof StrictConditionTree);
-        ConditionTree inner = ((StrictConditionTree) tree).condition();
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertEquals("A", scoped.prefix().key().toString());
+        Assert.assertTrue(scoped.prefix() instanceof KeySymbol);
+        ConditionTree inner = scoped.condition();
         Assert.assertTrue(inner instanceof AndTree);
         AndTree and = (AndTree) inner;
         Assert.assertTrue(and.left() instanceof ExpressionTree);
@@ -558,106 +565,263 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
 
     /**
      * <strong>Goal:</strong> Verify that a single-expression
-     * {@code strict(A.foo = "A")} parses into a
-     * {@link StrictConditionTree} wrapping an {@link ExpressionTree}.
+     * {@code A.(foo = "A")} parses into a {@link ScopedConditionTree}
+     * wrapping an {@link ExpressionTree}.
      */
     @Test
-    public void testParseStrictWrappingSingleExpression() {
-        String ccl = "strict(A.foo = \"A\")";
+    public void testParseScopedWrappingSingleExpression() {
+        String ccl = "A.(foo = \"A\")";
         Compiler compiler = createCompiler();
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
-        Assert.assertTrue(tree instanceof StrictConditionTree);
-        Assert.assertTrue(((StrictConditionTree) tree)
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        Assert.assertTrue(((ScopedConditionTree) tree)
                 .condition() instanceof ExpressionTree);
     }
 
     /**
-     * <strong>Goal:</strong> Verify that
-     * {@code strict(A.foo = "X" OR A.bar = "Y")} parses into a
-     * {@link StrictConditionTree} wrapping an {@link OrTree}.
+     * <strong>Goal:</strong> Verify that {@code A.(foo = "X" OR bar = "Y")}
+     * parses into a {@link ScopedConditionTree} wrapping an {@link OrTree}.
      */
     @Test
-    public void testParseStrictWrappingOr() {
-        String ccl = "strict(A.foo = \"X\" OR A.bar = \"Y\")";
+    public void testParseScopedWrappingOr() {
+        String ccl = "A.(foo = \"X\" OR bar = \"Y\")";
         Compiler compiler = createCompiler();
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
-        Assert.assertTrue(tree instanceof StrictConditionTree);
-        Assert.assertTrue(((StrictConditionTree) tree)
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        Assert.assertTrue(((ScopedConditionTree) tree)
                 .condition() instanceof OrTree);
     }
 
     /**
-     * <strong>Goal:</strong> Verify that {@code strict(...)} composes
-     * with outer logical connectives, appearing as a child of an
-     * enclosing {@link OrTree}.
+     * <strong>Goal:</strong> Verify that a multi-segment scope prefix
+     * (e.g. {@code a.b.(...)}) parses into a {@link ScopedConditionTree}
+     * whose prefix is a {@link NavigationKeySymbol} carrying the full
+     * dotted path.
      */
     @Test
-    public void testParseStrictInsideLargerExpression() {
-        String ccl = "strict(A.foo = \"A\" AND A.bar = \"B\") OR name = \"test\"";
+    public void testParseScopedWithMultiSegmentPrefix() {
+        String ccl = "a.b.(foo = \"X\" AND bar = \"Y\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof NavigationKeySymbol);
+        Assert.assertEquals("a.b", scoped.prefix().key().toString());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a scoped prefix containing a
+     * transitive marker (e.g. {@code children*.(...)}) parses into a
+     * {@link ScopedConditionTree} whose prefix preserves the {@code *}.
+     */
+    @Test
+    public void testParseScopedWithTransitivePrefix() {
+        String ccl = "children*.(name = \"Jeff\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof NavigationKeySymbol);
+        Assert.assertEquals("children*", scoped.prefix().key().toString());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that three-or-more conditions inside a
+     * scope parse into a left-associative {@link AndTree} chain, each leaf
+     * of which is an {@link ExpressionTree}.
+     */
+    @Test
+    public void testParseScopedWithThreeConditions() {
+        String ccl = "a.(foo = \"X\" AND bar = \"Y\" AND baz = \"Z\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ConditionTree inner = ((ScopedConditionTree) tree).condition();
+        Assert.assertTrue(inner instanceof AndTree);
+        AndTree and = (AndTree) inner;
+        // AND is left-associative: ((foo AND bar) AND baz)
+        Assert.assertTrue(and.right() instanceof ExpressionTree);
+        Assert.assertTrue(and.left() instanceof AndTree);
+        AndTree leftAnd = (AndTree) and.left();
+        Assert.assertTrue(leftAnd.left() instanceof ExpressionTree);
+        Assert.assertTrue(leftAnd.right() instanceof ExpressionTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a transitive prefix composes with
+     * multiple inner conditions. The pivot is the (potentially unbounded)
+     * set of records reachable via the transitive stop.
+     */
+    @Test
+    public void testParseScopedTransitiveWithMultipleConditions() {
+        String ccl = "children*.(name = \"Jeff\" AND age > 30 AND active = true)";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof NavigationKeySymbol);
+        Assert.assertEquals("children*", scoped.prefix().key().toString());
+        Assert.assertTrue(scoped.condition() instanceof AndTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a transitive marker on an
+     * intermediate segment of a multi-segment prefix is preserved. Such
+     * prefixes traverse the transitive segment to exhaustion before
+     * continuing to the next segment.
+     */
+    @Test
+    public void testParseScopedMultiSegmentWithInteriorTransitive() {
+        String ccl = "a.b*.c.(foo = \"X\" AND bar = \"Y\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof NavigationKeySymbol);
+        Assert.assertEquals("a.b*.c", scoped.prefix().key().toString());
+        NavigationKeySymbol nav = (NavigationKeySymbol) scoped.prefix();
+        Assert.assertArrayEquals(new String[] { "a", "b*", "c" },
+                nav.components());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a transitive marker on the last
+     * segment of a multi-segment prefix parses and is preserved.
+     */
+    @Test
+    public void testParseScopedMultiSegmentWithTerminalTransitive() {
+        String ccl = "a.b.children*.(name = \"Jeff\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertEquals("a.b.children*",
+                scoped.prefix().key().toString());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that inner conditions inside a scope
+     * can themselves be multi-segment navigation keys, resolved relative
+     * to the outer pivot. This is the real-world pattern from
+     * cinchapi/concourse#533 where the suffix continues navigation past
+     * the pivot.
+     */
+    @Test
+    public void testParseScopedWithNavigationKeysInInner() {
+        String ccl = "a.(b.c = \"X\" AND d.e.f = \"Y\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertEquals("a", scoped.prefix().key().toString());
+        Assert.assertTrue(scoped.condition() instanceof AndTree);
+        AndTree and = (AndTree) scoped.condition();
+        ExpressionTree left = (ExpressionTree) and.left();
+        ExpressionTree right = (ExpressionTree) and.right();
+        Assert.assertTrue(
+                ((ExpressionSymbol) left.root()).raw().key().equals("b.c"));
+        Assert.assertTrue(
+                ((ExpressionSymbol) right.root()).raw().key().equals("d.e.f"));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a scope containing mixed AND/OR
+     * with parenthesised subexpression parses correctly, preserving the
+     * intended precedence inside the pivot.
+     */
+    @Test
+    public void testParseScopedWithMixedAndOrInside() {
+        String ccl = "a.(foo = \"X\" AND (bar = \"Y\" OR baz = \"Z\"))";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ConditionTree inner = ((ScopedConditionTree) tree).condition();
+        Assert.assertTrue(inner instanceof AndTree);
+        AndTree and = (AndTree) inner;
+        Assert.assertTrue(and.left() instanceof ExpressionTree);
+        Assert.assertTrue(and.right() instanceof OrTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify a deeper nesting pattern where an
+     * outer multi-segment pivot wraps an inner multi-segment pivot that
+     * wraps a multi-condition group — exercises the recursive case for
+     * scope production inside scope production.
+     */
+    @Test
+    public void testParseScopedDeeplyNestedWithMultiSegments() {
+        String ccl = "a.b.(c.d.(foo = \"X\" AND bar = \"Y\" AND baz = \"Z\"))";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree outer = (ScopedConditionTree) tree;
+        Assert.assertEquals("a.b", outer.prefix().key().toString());
+        Assert.assertTrue(outer.condition() instanceof ScopedConditionTree);
+        ScopedConditionTree inner = (ScopedConditionTree) outer.condition();
+        Assert.assertEquals("c.d", inner.prefix().key().toString());
+        Assert.assertTrue(inner.condition() instanceof AndTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that scoped conditions nest — the
+     * inner group of a {@link ScopedConditionTree} can itself be a
+     * {@link ScopedConditionTree} relative to the outer pivot.
+     */
+    @Test
+    public void testParseScopedNested() {
+        String ccl = "a.(b.(foo = \"X\" AND bar = \"Y\"))";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree outer = (ScopedConditionTree) tree;
+        Assert.assertEquals("a", outer.prefix().key().toString());
+        Assert.assertTrue(outer.condition() instanceof ScopedConditionTree);
+        ScopedConditionTree inner = (ScopedConditionTree) outer.condition();
+        Assert.assertEquals("b", inner.prefix().key().toString());
+        Assert.assertTrue(inner.condition() instanceof AndTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a scoped group composes with
+     * outer logical connectives, appearing as a child of an enclosing
+     * {@link OrTree}.
+     */
+    @Test
+    public void testParseScopedInsideLargerExpression() {
+        String ccl = "A.(foo = \"A\" AND bar = \"B\") OR name = \"test\"";
         Compiler compiler = createCompiler();
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
         Assert.assertTrue(tree instanceof OrTree);
         OrTree or = (OrTree) tree;
-        Assert.assertTrue(or.left() instanceof StrictConditionTree);
+        Assert.assertTrue(or.left() instanceof ScopedConditionTree);
         Assert.assertTrue(or.right() instanceof ExpressionTree);
-        Assert.assertTrue(((StrictConditionTree) or.left())
+        Assert.assertTrue(((ScopedConditionTree) or.left())
                 .condition() instanceof AndTree);
-    }
-
-    /**
-     * <strong>Goal:</strong> Verify that {@code strict(...)} accepts
-     * non-navigation keys without complaint; the parser wraps them
-     * regardless, leaving semantic handling to the engine.
-     */
-    @Test
-    public void testParseStrictAcceptsNonNavigationKeys() {
-        String ccl = "strict(name = \"Jeff\" AND age > 30)";
-        Compiler compiler = createCompiler();
-        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
-        Assert.assertTrue(tree instanceof StrictConditionTree);
-        Assert.assertTrue(((StrictConditionTree) tree)
-                .condition() instanceof AndTree);
-    }
-
-    /**
-     * <strong>Goal:</strong> Verify that {@code strict(...)} accepts
-     * navigation keys with no shared prefix. The parser wraps the
-     * conditions identically to the shared-prefix case; degradation to
-     * normal {@code AND}/{@code OR} evaluation is the engine's concern.
-     */
-    @Test
-    public void testParseStrictAcceptsNoSharedNavigationPrefix() {
-        String ccl = "strict(A.foo = \"X\" AND B.bar = \"Y\")";
-        Compiler compiler = createCompiler();
-        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
-        Assert.assertTrue(tree instanceof StrictConditionTree);
-        ConditionTree inner = ((StrictConditionTree) tree).condition();
-        Assert.assertTrue(inner instanceof AndTree);
-        AndTree and = (AndTree) inner;
-        Assert.assertTrue(and.left() instanceof ExpressionTree);
-        Assert.assertTrue(and.right() instanceof ExpressionTree);
     }
 
     /**
      * <strong>Goal:</strong> Verify that {@link Compiler#arrange(ConditionTree)
-     * arrange} emits {@link StrictSymbol#BEGIN} and {@link StrictSymbol#END}
-     * markers that bracket the inner postfix so strict-aware consumers can
-     * identify the group.
+     * arrange} emits a {@link ScopeSymbol} BEGIN marker carrying the
+     * prefix and a {@link ScopeEndSymbol#INSTANCE} END marker that
+     * bracket the inner postfix so scope-aware consumers can identify the
+     * group and its pivot.
      */
     @Test
-    public void testArrangeStrictEmitsScopeMarkers() {
-        String ccl = "strict(A.foo = \"X\" AND A.bar = \"Y\") OR name = \"test\"";
+    public void testArrangeScopedEmitsScopeMarkers() {
+        String ccl = "A.(foo = \"X\" AND bar = \"Y\") OR name = \"test\"";
         Compiler compiler = createCompiler();
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
         Queue<PostfixNotationSymbol> queue = compiler.arrange(tree);
         List<PostfixNotationSymbol> symbols = new ArrayList<>(queue);
-        Assert.assertEquals(StrictSymbol.BEGIN, symbols.get(0));
+        Assert.assertTrue(symbols.get(0) instanceof ScopeSymbol);
+        ScopeSymbol begin = (ScopeSymbol) symbols.get(0);
+        Assert.assertEquals("A", begin.prefix().key().toString());
         Assert.assertTrue(symbols.get(1) instanceof ExpressionSymbol);
         Assert.assertTrue(symbols.get(2) instanceof ExpressionSymbol);
         Assert.assertEquals(
                 com.cinchapi.ccl.grammar.ConjunctionSymbol.AND,
                 symbols.get(3));
-        Assert.assertEquals(StrictSymbol.END, symbols.get(4));
+        Assert.assertEquals(ScopeEndSymbol.INSTANCE, symbols.get(4));
         Assert.assertTrue(symbols.get(5) instanceof ExpressionSymbol);
         Assert.assertEquals(
                 com.cinchapi.ccl.grammar.ConjunctionSymbol.OR,
@@ -665,47 +829,17 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that local
-     * {@link Compiler#evaluate(ConditionTree, Multimap,
-     * com.cinchapi.common.function.TriFunction) evaluate} unwraps a
-     * {@code strict(...)} whose inner condition has no navigation keys,
-     * since the same-destination constraint is vacuous without navigation.
-     */
-    @Test
-    public void testEvaluateStrictWithoutNavigationUnwraps() {
-        String ccl = "strict(a > 1 AND b bw 10 15)";
-        Compiler compiler = createCompiler(Convert::stringToJava,
-                Convert::stringToOperator);
-        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
-                operator, values) -> {
-            TObject tvalue = Convert.javaToThrift(value);
-            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
-                    .collect(Collectors.toList()).toArray(Array.containing());
-            com.cinchapi.concourse.thrift.Operator toperator = Convert
-                    .stringToOperator(operator.symbol());
-            return tvalue.is(toperator, tvalues);
-        };
-        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
-        Multimap<String, Object> passes = ImmutableMultimap.of("a", 5, "b",
-                12);
-        Assert.assertTrue(compiler.evaluate(tree, passes, evaluator));
-        Multimap<String, Object> fails = ImmutableMultimap.of("a", 1, "b",
-                12);
-        Assert.assertFalse(compiler.evaluate(tree, fails, evaluator));
-    }
-
-    /**
      * <strong>Goal:</strong> Verify that
      * {@link Parsing#toPostfixNotation(List) toPostfixNotation} applied
      * to {@link Compiler#tokenize(AbstractSyntaxTree) tokenize} output
      * produces the same postfix queue as
-     * {@link Compiler#arrange(ConditionTree) arrange} for a strict
+     * {@link Compiler#arrange(ConditionTree) arrange} for a scoped
      * query. Guards against the two paths diverging on
-     * {@link StrictSymbol#BEGIN}/{@link StrictSymbol#END} bracketing.
+     * {@link ScopeSymbol}/{@link ScopeEndSymbol} bracketing.
      */
     @Test
-    public void testToPostfixNotationMatchesArrangeForStrict() {
-        String ccl = "strict(A.foo = \"X\" AND A.bar = \"Y\") OR name = \"test\"";
+    public void testToPostfixNotationMatchesArrangeForScoped() {
+        String ccl = "A.(foo = \"X\" AND bar = \"Y\") OR name = \"test\"";
         Compiler compiler = createCompiler();
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
         Assert.assertEquals(compiler.arrange(tree),
@@ -713,25 +847,24 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that {@code strict(...)} parses
-     * inside a {@code findOrInsert} command when a trailing
-     * command-level timestamp and JSON argument are present. Exercises
-     * the {@code UnaryExpressionNoTimestamp} branch that was extended
-     * with {@link com.cinchapi.ccl.generated.ASTStrict StrictExpression}
-     * — whose job is to keep the closing {@code at "..."} and JSON
-     * payload from being swallowed by a trailing
-     * {@code RelationalExpression}.
+     * <strong>Goal:</strong> Verify that {@code prefix.(...)} parses
+     * inside a {@code findOrInsert} command when a trailing command-level
+     * timestamp and JSON argument are present. Exercises the
+     * {@code UnaryExpressionNoTimestamp} branch that was extended with
+     * {@link com.cinchapi.ccl.generated.ASTScoped ScopedExpression} —
+     * whose job is to keep the closing {@code at "..."} and JSON payload
+     * from being swallowed by a trailing {@code RelationalExpression}.
      */
     @Test
-    public void testParseStrictInsideFindOrInsertWithCommandTimestamp() {
-        String ccl = "findOrInsert strict(name = \"Jeff\" and age > 30) "
+    public void testParseScopedInsideFindOrInsertWithCommandTimestamp() {
+        String ccl = "findOrInsert friend.(name = \"Jeff\" and age > 30) "
                 + "at \"2024-01-01\" \"{'name': 'Jeff', 'age': 31}\"";
         Compiler compiler = createCompiler();
         AbstractSyntaxTree tree = compiler.parse(ccl);
         Assert.assertTrue(tree instanceof CommandTree);
         ConditionTree condition = ((CommandTree) tree).conditionTree();
-        Assert.assertTrue(condition instanceof StrictConditionTree);
-        Assert.assertTrue(((StrictConditionTree) condition)
+        Assert.assertTrue(condition instanceof ScopedConditionTree);
+        Assert.assertTrue(((ScopedConditionTree) condition)
                 .condition() instanceof AndTree);
     }
 
@@ -739,12 +872,12 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
      * <strong>Goal:</strong> Verify that local
      * {@link Compiler#evaluate(ConditionTree, Multimap,
      * com.cinchapi.common.function.TriFunction) evaluate} throws on a
-     * {@code strict(...)} that contains navigation keys, because a flat
-     * local data view cannot honor same-destination semantics.
+     * {@link ScopedConditionTree} because a flat local data view cannot
+     * honor same-destination semantics at a navigation pivot.
      */
     @Test(expected = UnsupportedOperationException.class)
-    public void testEvaluateStrictWithNavigationThrows() {
-        String ccl = "strict(friend.name = \"Jeff\" AND friend.age > 30)";
+    public void testEvaluateScopedThrows() {
+        String ccl = "friend.(name = \"Jeff\" AND age > 30)";
         Compiler compiler = createCompiler(Convert::stringToJava,
                 Convert::stringToOperator);
         TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,

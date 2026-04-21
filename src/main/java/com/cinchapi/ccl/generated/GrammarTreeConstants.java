@@ -7,7 +7,7 @@ public interface GrammarTreeConstants
   public int JJTVOID = 1;
   public int JJTOR = 2;
   public int JJTAND = 3;
-  public int JJTSTRICT = 4;
+  public int JJTSCOPED = 4;
   public int JJTEXPRESSION = 5;
   public int JJTPAGE = 6;
   public int JJTORDER = 7;
@@ -20,7 +20,7 @@ public interface GrammarTreeConstants
     "void",
     "Or",
     "And",
-    "Strict",
+    "Scoped",
     "Expression",
     "Page",
     "Order",
@@ -28,4 +28,4 @@ public interface GrammarTreeConstants
     "Command",
   };
 }
-/* JavaCC - OriginalChecksum=a0af787f7aa2b15b40501e8e55bea46c (do not edit this line) */
+/* JavaCC - OriginalChecksum=cb55ffc87ab029bb42505ee854b6480b (do not edit this line) */

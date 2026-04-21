@@ -16,11 +16,10 @@
 package com.cinchapi.ccl.type.function;
 
 import com.cinchapi.ccl.ConditionTreeVisitor;
-import com.cinchapi.ccl.grammar.StrictSymbol;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
-import com.cinchapi.ccl.syntax.StrictConditionTree;
+import com.cinchapi.ccl.syntax.ScopedConditionTree;
 
 /**
  * A function that is applied to a key across the records that match a condition
@@ -74,11 +73,11 @@ public class KeyConditionFunction
                     }
 
                     @Override
-                    public String visit(StrictConditionTree tree,
+                    public String visit(ScopedConditionTree tree,
                             Object... data) {
-                        string += " " + StrictSymbol.BEGIN;
+                        string += " " + tree.prefix() + ".(";
                         tree.condition().accept(this, data);
-                        string += " " + StrictSymbol.END;
+                        string += " )";
                         return string;
                     }
 

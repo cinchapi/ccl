@@ -26,11 +26,11 @@ import java.util.stream.Stream;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
-import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
-import com.cinchapi.ccl.grammar.StrictSymbol;
+import com.cinchapi.ccl.grammar.ScopeEndSymbol;
+import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
@@ -199,12 +199,12 @@ public abstract class Compiler {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Queue<PostfixNotationSymbol> visit(StrictConditionTree tree,
+            public Queue<PostfixNotationSymbol> visit(ScopedConditionTree tree,
                     Object... data) {
                 Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>) data[0];
-                queue.add(StrictSymbol.BEGIN);
+                queue.add(new ScopeSymbol(tree.prefix()));
                 tree.condition().accept(this, data);
-                queue.add(StrictSymbol.END);
+                queue.add(ScopeEndSymbol.INSTANCE);
                 return queue;
             }
 
@@ -305,16 +305,13 @@ public abstract class Compiler {
             }
 
             @Override
-            public Boolean visit(StrictConditionTree tree, Object... data) {
-                if(containsNavigationKey(tree.condition())) {
-                    throw new UnsupportedOperationException(
-                            "Local evaluation cannot honor strict "
-                                    + "same-destination semantics for a "
-                                    + "condition containing navigation keys; "
-                                    + "strict navigation evaluation is the "
-                                    + "engine's responsibility.");
-                }
-                return tree.condition().accept(this, data);
+            public Boolean visit(ScopedConditionTree tree, Object... data) {
+                throw new UnsupportedOperationException(
+                        "Local evaluation cannot honor scoped "
+                                + "same-destination semantics for a "
+                                + "prefix-scoped condition; scoped "
+                                + "navigation evaluation is the "
+                                + "engine's responsibility.");
             }
 
         };
@@ -485,43 +482,17 @@ public abstract class Compiler {
 
             @SuppressWarnings("unchecked")
             @Override
-            public List<Symbol> visit(StrictConditionTree tree,
+            public List<Symbol> visit(ScopedConditionTree tree,
                     Object... data) {
                 List<Symbol> symbols = (List<Symbol>) data[0];
-                symbols.add(StrictSymbol.BEGIN);
+                symbols.add(new ScopeSymbol(tree.prefix()));
                 tree.condition().accept(this, data);
-                symbols.add(StrictSymbol.END);
+                symbols.add(ScopeEndSymbol.INSTANCE);
                 return symbols;
             }
 
         };
         return ast.accept(visitor, Lists.newArrayList());
-    }
-
-    /**
-     * Return {@code true} if any {@link ExpressionTree} reachable from
-     * {@code tree} has a {@link NavigationKeySymbol} as its key.
-     *
-     * @param tree
-     * @return {@code true} if {@code tree} contains a navigation key
-     */
-    private static boolean containsNavigationKey(ConditionTree tree) {
-        if(tree instanceof ExpressionTree) {
-            ExpressionSymbol expression = (ExpressionSymbol) tree.root();
-            return expression.key() instanceof NavigationKeySymbol;
-        }
-        else if(tree instanceof StrictConditionTree) {
-            return containsNavigationKey(
-                    ((StrictConditionTree) tree).condition());
-        }
-        else if(tree instanceof ConjunctionTree) {
-            ConjunctionTree conjunction = (ConjunctionTree) tree;
-            return containsNavigationKey(conjunction.left())
-                    || containsNavigationKey(conjunction.right());
-        }
-        else {
-            return false;
-        }
     }
 
 }

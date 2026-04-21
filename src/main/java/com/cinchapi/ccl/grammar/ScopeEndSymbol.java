@@ -16,23 +16,16 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link Symbol} that identifies a modifier keyword applied to a
- * condition (e.g. {@code strict}).
- * <p>
- * A {@link ModifierSymbol} serves as the {@link Symbol} identity of an
- * AST node that wraps a condition with modified evaluation semantics. It
- * is not itself a {@link PostfixNotationSymbol}: the scope boundaries in
- * a linearized stream are carried by dedicated bracketing symbols (e.g.
- * {@link StrictSymbol#BEGIN} and {@link StrictSymbol#END}).
- * </p>
+ * A {@link PostfixNotationSymbol} that closes a scoped condition group
+ * opened by a {@link ScopeSymbol}.
  *
  * @author Jeff Nelson
  */
-public enum ModifierSymbol implements Symbol {
-    STRICT;
+public enum ScopeEndSymbol implements PostfixNotationSymbol {
+    INSTANCE;
 
     @Override
     public String toString() {
-        return name().toLowerCase();
+        return ")";
     }
 }

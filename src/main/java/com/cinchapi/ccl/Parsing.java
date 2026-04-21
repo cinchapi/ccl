@@ -28,7 +28,8 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
-import com.cinchapi.ccl.grammar.StrictSymbol;
+import com.cinchapi.ccl.grammar.ScopeEndSymbol;
+import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
@@ -158,19 +159,20 @@ public final class Parsing {
                     stack.pop();
                 }
             }
-            else if(symbol == StrictSymbol.BEGIN) {
-                // BEGIN acts as a precedence boundary (like LEFT_PAREN) so
-                // operators inside the strict scope cannot be popped out by
-                // later operators of lower precedence, while still flowing
-                // into the output queue in structural position.
+            else if(symbol instanceof ScopeSymbol) {
+                // A ScopeSymbol acts as a precedence boundary (like
+                // LEFT_PAREN) so operators inside the scoped group cannot
+                // be popped out by later operators of lower precedence,
+                // while still flowing into the output queue in structural
+                // position.
                 stack.push(symbol);
                 queue.add((PostfixNotationSymbol) symbol);
             }
-            else if(symbol == StrictSymbol.END) {
+            else if(symbol == ScopeEndSymbol.INSTANCE) {
                 boolean foundBegin = false;
                 while (!stack.isEmpty()) {
                     Symbol top = stack.peek();
-                    if(top == StrictSymbol.BEGIN) {
+                    if(top instanceof ScopeSymbol) {
                         foundBegin = true;
                         break;
                     }
@@ -180,7 +182,7 @@ public final class Parsing {
                 }
                 if(!foundBegin) {
                     throw new SyntaxException(AnyStrings.format(
-                            "Syntax error in {}: Mismatched strict bracket",
+                            "Syntax error in {}: Mismatched scope bracket",
                             symbols));
                 }
                 stack.pop();
@@ -196,9 +198,9 @@ public final class Parsing {
                 throw new SyntaxException(AnyStrings.format(
                         "Syntax error in {}: Mismatched parenthesis", symbols));
             }
-            else if(top == StrictSymbol.BEGIN) {
+            else if(top instanceof ScopeSymbol) {
                 throw new SyntaxException(AnyStrings.format(
-                        "Syntax error in {}: Mismatched strict bracket",
+                        "Syntax error in {}: Mismatched scope bracket",
                         symbols));
             }
             else {

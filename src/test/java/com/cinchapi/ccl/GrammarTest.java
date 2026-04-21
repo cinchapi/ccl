@@ -3102,9 +3102,9 @@ public class GrammarTest {
         }
 
         @Override
-        public Object visit(ASTStrict node, Object data) {
+        public Object visit(ASTScoped node, Object data) {
             ConditionTree inner = (ConditionTree) node.jjtGetChild(0).jjtAccept(this, data);
-            return new StrictConditionTree(inner);
+            return new ScopedConditionTree(node.prefix(), inner);
         }
 
         @Override

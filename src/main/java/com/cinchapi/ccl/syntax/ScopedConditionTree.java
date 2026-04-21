@@ -18,17 +18,29 @@ package com.cinchapi.ccl.syntax;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.cinchapi.ccl.grammar.ModifierSymbol;
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 
 /**
- * A {@link ConditionTree} that wraps an inner {@link ConditionTree} whose
- * conjuncts must be satisfied together, rather than independently.
+ * A {@link ConditionTree} that carries an explicit navigation
+ * {@link #prefix() prefix} and an inner {@link ConditionTree} whose
+ * conditions must all be satisfied by the <em>same</em> destination
+ * record reachable via that prefix.
+ * <p>
+ * Produced by the CCL syntax {@code prefix.(inner)} (e.g.
+ * {@code friend.(name = "Jeff" AND age > 30)}).
+ * </p>
  *
  * @author Jeff Nelson
  */
-public final class StrictConditionTree extends BaseAbstractSyntaxTree
+public final class ScopedConditionTree extends BaseAbstractSyntaxTree
         implements ConditionTree {
+
+    /**
+     * The navigation prefix at which {@link #condition()} is evaluated.
+     */
+    private final KeyTokenSymbol<?> prefix;
 
     /**
      * The wrapped {@link ConditionTree}.
@@ -38,10 +50,23 @@ public final class StrictConditionTree extends BaseAbstractSyntaxTree
     /**
      * Construct a new instance.
      *
-     * @param condition
+     * @param prefix the navigation prefix
+     * @param condition the inner {@link ConditionTree}
      */
-    public StrictConditionTree(ConditionTree condition) {
+    public ScopedConditionTree(KeyTokenSymbol<?> prefix,
+            ConditionTree condition) {
+        this.prefix = prefix;
         this.condition = condition;
+    }
+
+    /**
+     * Return the navigation prefix at which the inner {@link #condition()}
+     * is evaluated.
+     *
+     * @return the prefix
+     */
+    public KeyTokenSymbol<?> prefix() {
+        return prefix;
     }
 
     /**
@@ -60,7 +85,7 @@ public final class StrictConditionTree extends BaseAbstractSyntaxTree
 
     @Override
     public Symbol root() {
-        return ModifierSymbol.STRICT;
+        return new ScopeSymbol(prefix);
     }
 
     @Override

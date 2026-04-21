@@ -7,11 +7,11 @@ public interface GrammarVisitor
   public Object visit(ASTStart node, Object data);
   public Object visit(ASTOr node, Object data);
   public Object visit(ASTAnd node, Object data);
-  public Object visit(ASTStrict node, Object data);
+  public Object visit(ASTScoped node, Object data);
   public Object visit(ASTExpression node, Object data);
   public Object visit(ASTPage node, Object data);
   public Object visit(ASTOrder node, Object data);
   public Object visit(ASTFunction node, Object data);
   public Object visit(ASTCommand node, Object data);
 }
-/* JavaCC - OriginalChecksum=e7d8ba9ec7c9481fbca7f0678d3725ac (do not edit this line) */
+/* JavaCC - OriginalChecksum=bc100170acf69596e031292510f172e0 (do not edit this line) */

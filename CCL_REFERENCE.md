@@ -334,15 +334,15 @@ Parentheses override default precedence:
 (a = 1 or b = 2) and (c = 3 or d = 4)
 ```
 
-### Strict Grouping
+### Scoped Grouping
 
-`strict(...)` wraps a conjunction of conditions that must be satisfied together by the **same** destination when the conditions share a navigation key prefix. Without `strict`, each condition is evaluated independently, which can produce false positives when multiple linked records each satisfy a different condition.
+`prefix.(...)` opens a **scoped** condition group at an explicit navigation prefix. All conditions inside the group must be satisfied by the **same** destination record reachable via `prefix`. Without scoping, each condition is evaluated independently, which can produce false positives when multiple linked records each satisfy a different condition.
 
 ```
-find where strict(friend.name = "Jeff" AND friend.age > 30)
+find where friend.(name = "Jeff" AND age > 30)
 ```
 
-Matches only records whose `friend` links to a **single** record that satisfies both inner conditions. By contrast, the non-strict form:
+Matches only records whose `friend` links to a **single** record that satisfies both inner conditions. By contrast, the non-scoped form:
 
 ```
 find where friend.name = "Jeff" AND friend.age > 30
@@ -350,13 +350,26 @@ find where friend.name = "Jeff" AND friend.age > 30
 
 matches records that have *some* friend named Jeff and *some* (possibly different) friend over 30.
 
-`strict(...)` composes with the usual connectives and participates in normal precedence — no special rules:
+The prefix is part of the syntax, not inferred: inner keys are resolved **relative** to the pivot. A deeper pivot uses a multi-segment prefix, and transitive markers are carried through:
 
 ```
-name = "Jeff" OR strict(friend.name = "Bob" AND friend.age > 30) AND age > 20
+a.b.(baz.bang = "A" AND boo = "C")       -- pivot at a.b
+children*.(name = "Jeff")                 -- transitive pivot
 ```
 
-The parser accepts any valid expression inside `strict(...)` (pure-`OR`, single expressions, expressions with non-navigation keys, mixed prefixes). Semantic enforcement — i.e. the "same destination" constraint — is applied by the engine, not the parser. Inputs without a shared navigation prefix degrade to regular `AND`/`OR` evaluation.
+Scoped groups nest naturally; the inner group rebases relative to the outer pivot:
+
+```
+a.(foo = "X" AND b.(bar = "Y" AND baz = "Z"))
+```
+
+`prefix.(...)` composes with the usual connectives and participates in normal precedence — no special rules:
+
+```
+name = "Jeff" OR friend.(name = "Bob" AND age > 30) AND age > 20
+```
+
+The parser accepts any valid expression inside `prefix.(...)` — single expressions, conjunctions, disjunctions, nested scopes. OR inside a scope parses cleanly but only meaningfully constrains evaluation when combined with AND (since `∃x: p(x) ∨ q(x)` is equivalent to `(∃x: p(x)) ∨ (∃x: q(x))`).
 
 ### Precedence
 
@@ -1256,7 +1269,9 @@ Statement         ::= Command
 (* Conditions *)
 Condition         ::= Conjunction (('or' | '||') Conjunction)*
 Conjunction       ::= Unary (('and' | '&&' | '&') Unary)*
-Unary             ::= '(' Condition ')' | Expression
+Unary             ::= Scoped | '(' Condition ')' | Expression
+Scoped            ::= NavigationPrefix '.' '(' Condition ')'
+NavigationPrefix  ::= SimpleKey | PERIOD_SEPARATED_STRING | ASTERISK_SUFFIXED_STRING
 Expression        ::= Key Operator Value [Timestamp]
                     | Key BinaryOperator Value Value [Timestamp]
                     | Key SearchOperator Value
@@ -1418,6 +1433,7 @@ The compiler produces these abstract syntax tree types (in `com.cinchapi.ccl.syn
 | `ConditionTree` | Condition/where statements |
 | `ExpressionTree` | Individual relational expressions |
 | `ConjunctionTree` | AND/OR combinations |
+| `ScopedConditionTree` | `prefix.(...)` scoped groups |
 | `OrderTree` | ORDER BY clauses |
 | `PageTree` | SKIP/OFFSET/LIMIT clauses |
 | `CommandTree` | All command statements |

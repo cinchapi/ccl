@@ -47,8 +47,8 @@ public interface Visitor<T> {
         else if(tree instanceof ExpressionTree) {
             return visit((ExpressionTree) tree, data);
         }
-        else if(tree instanceof StrictConditionTree) {
-            return visit((StrictConditionTree) tree, data);
+        else if(tree instanceof ScopedConditionTree) {
+            return visit((ScopedConditionTree) tree, data);
         }
         else {
             throw new UnsupportedOperationException(
@@ -102,25 +102,25 @@ public interface Visitor<T> {
     public T visit(PageTree tree, Object... data);
 
     /**
-     * Visit a {@link StrictConditionTree}.
+     * Visit a {@link ScopedConditionTree}.
      * <p>
      * The default implementation throws {@link UnsupportedOperationException}.
-     * {@link StrictConditionTree} carries semantics (same-destination
-     * evaluation for shared navigation prefixes) that cannot be silently
-     * unwrapped without risking incorrect results, so every {@link Visitor}
-     * must explicitly decide how to handle it — either by implementing
-     * strict-aware behavior, or by delegating to
-     * {@link StrictConditionTree#condition()} with an intentional choice.
+     * {@link ScopedConditionTree} carries semantics (same-destination
+     * evaluation at a navigation prefix) that cannot be silently unwrapped
+     * without risking incorrect results, so every {@link Visitor} must
+     * explicitly decide how to handle it &mdash; either by implementing
+     * scope-aware behavior, or by delegating to
+     * {@link ScopedConditionTree#condition()} with an intentional choice.
      * </p>
      *
      * @param tree
      * @param data
      * @return the result of visiting {@code tree}
      */
-    public default T visit(StrictConditionTree tree, Object... data) {
+    public default T visit(ScopedConditionTree tree, Object... data) {
         throw new UnsupportedOperationException(
-                "This Visitor does not handle StrictConditionTree. Override "
-                        + "visit(StrictConditionTree) to honor or explicitly "
+                "This Visitor does not handle ScopedConditionTree. Override "
+                        + "visit(ScopedConditionTree) to honor or explicitly "
                         + "delegate its semantics.");
     }
 }
