@@ -48,6 +48,13 @@ public final class ScopedConditionTree extends BaseAbstractSyntaxTree
     private final ConditionTree condition;
 
     /**
+     * The {@link Symbol} returned by {@link #root()}. Cached so that
+     * {@link #equals(Object)} and {@link #hashCode()} (both of which
+     * consult {@link #root()}) do not allocate on every call.
+     */
+    private final ScopeSymbol root;
+
+    /**
      * Construct a new instance.
      *
      * @param prefix the navigation prefix
@@ -57,6 +64,7 @@ public final class ScopedConditionTree extends BaseAbstractSyntaxTree
             ConditionTree condition) {
         this.prefix = prefix;
         this.condition = condition;
+        this.root = new ScopeSymbol(prefix);
     }
 
     /**
@@ -85,7 +93,7 @@ public final class ScopedConditionTree extends BaseAbstractSyntaxTree
 
     @Override
     public Symbol root() {
-        return new ScopeSymbol(prefix);
+        return root;
     }
 
     @Override

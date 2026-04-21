@@ -26,8 +26,8 @@ public interface Visitor<T> {
     /**
      * Visit a {@link CommandTree}.
      *
-     * @param tree
-     * @param data
+     * @param tree the {@link CommandTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
      * @return the result of visiting {@code tree}
      */
     public T visit(CommandTree tree, Object... data);
@@ -36,8 +36,8 @@ public interface Visitor<T> {
      * Dispatch to the {@code visit} method for the concrete
      * {@link ConditionTree} subtype of {@code tree}.
      *
-     * @param tree
-     * @param data
+     * @param tree the {@link ConditionTree} to dispatch on
+     * @param data caller-supplied context passed through to sub-visits
      * @return the result of visiting {@code tree}
      */
     public default T visit(ConditionTree tree, Object... data) {
@@ -59,8 +59,8 @@ public interface Visitor<T> {
     /**
      * Visit a {@link ConjunctionTree}.
      *
-     * @param tree
-     * @param data
+     * @param tree the {@link ConjunctionTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
      * @return the result of visiting {@code tree}
      */
     public T visit(ConjunctionTree tree, Object... data);
@@ -68,8 +68,8 @@ public interface Visitor<T> {
     /**
      * Visit an {@link ExpressionTree}.
      *
-     * @param tree
-     * @param data
+     * @param tree the {@link ExpressionTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
      * @return the result of visiting {@code tree}
      */
     public T visit(ExpressionTree tree, Object... data);
@@ -77,8 +77,8 @@ public interface Visitor<T> {
     /**
      * Visit a {@link FunctionTree}.
      *
-     * @param tree
-     * @param data
+     * @param tree the {@link FunctionTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
      * @return the result of visiting {@code tree}
      */
     public T visit(FunctionTree tree, Object... data);
@@ -86,8 +86,8 @@ public interface Visitor<T> {
     /**
      * Visit an {@link OrderTree}.
      *
-     * @param tree
-     * @param data
+     * @param tree the {@link OrderTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
      * @return the result of visiting {@code tree}
      */
     public T visit(OrderTree tree, Object... data);
@@ -95,8 +95,8 @@ public interface Visitor<T> {
     /**
      * Visit a {@link PageTree}.
      *
-     * @param tree
-     * @param data
+     * @param tree the {@link PageTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
      * @return the result of visiting {@code tree}
      */
     public T visit(PageTree tree, Object... data);
@@ -113,8 +113,8 @@ public interface Visitor<T> {
      * {@link ScopedConditionTree#condition()} with an intentional choice.
      * </p>
      *
-     * @param tree
-     * @param data
+     * @param tree the {@link ScopedConditionTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
      * @return the result of visiting {@code tree}
      */
     public default T visit(ScopedConditionTree tree, Object... data) {

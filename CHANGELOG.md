@@ -64,7 +64,6 @@ Added support for parsing multiple semicolon-delimited CCL statements in a singl
   * **In CCL**: write the navigation pivot as an explicit prefix ending in `.(`, with inner conditions relative to the pivot. Example: `find where friend.(name = "Jeff" AND age > 30)` — matches records whose `friend` links to a single record satisfying both. Multi-segment (`a.b.(...)`), transitive (`children*.(...)`), and nested (`a.(b.(...))`) pivots compose naturally.
   * **In parsing code**: the parser produces a `ScopedConditionTree` carrying an explicit `prefix()` (a `KeyTokenSymbol`) and an inner `ConditionTree`. `Visitor` implementations must explicitly handle `ScopedConditionTree` — the default `visit(ScopedConditionTree)` throws.
   * **In postfix**: `Compiler#arrange` and `Compiler#tokenize` emit a `ScopeSymbol` (carrying the prefix) as the opening bracket and `ScopeEndSymbol.INSTANCE` as the closing bracket. `Parsing#toPostfixNotation` treats `ScopeSymbol` as a precedence boundary analogous to `(`.
-  * Grammar adds a new `NAVIGATION_SCOPE_OPEN` token that matches a navigation path terminating in `.(` — unambiguous with `PERIOD_SEPARATED_STRING` (which never ends in `.`) and with `NON_ALPHANUMERIC_AND_ALPHANUMERIC`, so value positions that happen to end in `.` (e.g. `Mr.`) are unaffected.
 
 ##### API Breaks and Deprecations
 ###### Pagination
