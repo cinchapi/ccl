@@ -27,9 +27,11 @@ import org.junit.Test;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ScopeEndSymbol;
 import com.cinchapi.ccl.grammar.ScopeSymbol;
+import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
@@ -866,6 +868,99 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         Assert.assertTrue(condition instanceof ScopedConditionTree);
         Assert.assertTrue(((ScopedConditionTree) condition)
                 .condition() instanceof AndTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} includes the
+     * scope pivot prefix so consumers that key off referenced paths
+     * (auth, routing, index selection) see the pivot alongside the inner
+     * expression keys.
+     */
+    @Test
+    public void testAnalyzeKeysIncludesScopePivot() {
+        String ccl = "friend.(name = \"Jeff\" AND age > 30)";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("friend", "name",
+                        "age"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} preserves a
+     * multi-segment pivot verbatim (including any transitive markers) so
+     * callers can disambiguate the exact navigation path the scope
+     * evaluates against.
+     */
+    @Test
+    public void testAnalyzeKeysIncludesMultiSegmentScopePivot() {
+        String ccl = "a.b*.c.(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(
+                compiler.analyze(tree).keys().contains("a.b*.c"));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link Parsing#toPostfixNotation(List) toPostfixNotation} throws a
+     * {@link SyntaxException} when a {@link ScopeEndSymbol} is encountered
+     * with no opening {@link ScopeSymbol} on the stack. Guards the public
+     * API against malformed hand-built token streams.
+     */
+    @Test(expected = SyntaxException.class)
+    public void testToPostfixNotationScopeEndWithoutOpen() {
+        Compiler compiler = createCompiler();
+        List<Symbol> tokens = new ArrayList<>(
+                compiler.tokenize(compiler.parse("foo = \"X\"")));
+        tokens.add(ScopeEndSymbol.INSTANCE);
+        Parsing.toPostfixNotation(tokens);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link Parsing#toPostfixNotation(List) toPostfixNotation} throws a
+     * {@link SyntaxException} when a {@link ScopeSymbol} is opened but
+     * never closed by a {@link ScopeEndSymbol}.
+     */
+    @Test(expected = SyntaxException.class)
+    public void testToPostfixNotationScopeOpenWithoutEnd() {
+        Compiler compiler = createCompiler();
+        List<Symbol> tokens = new ArrayList<>(compiler
+                .tokenize(compiler.parse("A.(foo = \"X\" AND bar = \"Y\")")));
+        // Strip the trailing ScopeEndSymbol to leave the opening
+        // ScopeSymbol unmatched on the stack.
+        Assert.assertEquals(ScopeEndSymbol.INSTANCE,
+                tokens.remove(tokens.size() - 1));
+        Parsing.toPostfixNotation(tokens);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link Parsing#toPostfixNotation(List) toPostfixNotation} throws a
+     * {@link SyntaxException} &mdash; rather than a
+     * {@link ClassCastException} &mdash; when a {@link ParenthesisSymbol}
+     * is still on the stack at {@link ScopeEndSymbol}, which indicates
+     * the scope bracket closes before an inner paren group does.
+     */
+    @Test(expected = SyntaxException.class)
+    public void testToPostfixNotationScopeEndWithUnmatchedParenOnStack() {
+        Compiler compiler = createCompiler();
+        // Start from valid tokens for the inner expression so that
+        // groupExpressions() can fold key/op/value into an ExpressionSymbol,
+        // then wrap with an opening ScopeSymbol and an unmatched LEFT
+        // paren before the scope end.
+        List<Symbol> inner = new ArrayList<>(
+                compiler.tokenize(compiler.parse("foo = \"X\"")));
+        List<Symbol> tokens = new ArrayList<>();
+        tokens.add(new ScopeSymbol(new KeySymbol("A")));
+        tokens.add(ParenthesisSymbol.LEFT);
+        tokens.addAll(inner);
+        tokens.add(ScopeEndSymbol.INSTANCE);
+        Parsing.toPostfixNotation(tokens);
     }
 
     /**

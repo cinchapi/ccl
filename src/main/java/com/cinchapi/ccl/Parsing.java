@@ -176,6 +176,16 @@ public final class Parsing {
                         foundBegin = true;
                         break;
                     }
+                    else if(top instanceof ParenthesisSymbol) {
+                        // An unmatched LEFT paren inside a scope means the
+                        // scope bracket closes before the paren group does;
+                        // report as a scope mismatch rather than letting the
+                        // subsequent PostfixNotationSymbol cast fail with
+                        // ClassCastException.
+                        throw new SyntaxException(AnyStrings.format(
+                                "Syntax error in {}: Mismatched scope bracket",
+                                symbols));
+                    }
                     else {
                         queue.add((PostfixNotationSymbol) stack.pop());
                     }

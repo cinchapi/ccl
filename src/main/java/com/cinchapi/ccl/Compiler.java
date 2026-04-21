@@ -116,6 +116,10 @@ public abstract class Compiler {
                     else if(symbol instanceof KeyTokenSymbol) {
                         keys.add(((KeyTokenSymbol<?>) symbol).key().toString());
                     }
+                    else if(symbol instanceof ScopeSymbol) {
+                        keys.add(((ScopeSymbol) symbol).prefix().key()
+                                .toString());
+                    }
                 });
                 return Collections.unmodifiableSet(keys);
             }
@@ -202,7 +206,7 @@ public abstract class Compiler {
             public Queue<PostfixNotationSymbol> visit(ScopedConditionTree tree,
                     Object... data) {
                 Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>) data[0];
-                queue.add(new ScopeSymbol(tree.prefix()));
+                queue.add((ScopeSymbol) tree.root());
                 tree.condition().accept(this, data);
                 queue.add(ScopeEndSymbol.INSTANCE);
                 return queue;
@@ -485,7 +489,7 @@ public abstract class Compiler {
             public List<Symbol> visit(ScopedConditionTree tree,
                     Object... data) {
                 List<Symbol> symbols = (List<Symbol>) data[0];
-                symbols.add(new ScopeSymbol(tree.prefix()));
+                symbols.add(tree.root());
                 tree.condition().accept(this, data);
                 symbols.add(ScopeEndSymbol.INSTANCE);
                 return symbols;
