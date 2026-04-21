@@ -29,7 +29,9 @@ import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.StrictSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
+import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
+import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.OrTree;
@@ -690,6 +692,47 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         Multimap<String, Object> fails = ImmutableMultimap.of("a", 1, "b",
                 12);
         Assert.assertFalse(compiler.evaluate(tree, fails, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link Parsing#toPostfixNotation(List) toPostfixNotation} applied
+     * to {@link Compiler#tokenize(AbstractSyntaxTree) tokenize} output
+     * produces the same postfix queue as
+     * {@link Compiler#arrange(ConditionTree) arrange} for a strict
+     * query. Guards against the two paths diverging on
+     * {@link StrictSymbol#BEGIN}/{@link StrictSymbol#END} bracketing.
+     */
+    @Test
+    public void testToPostfixNotationMatchesArrangeForStrict() {
+        String ccl = "strict(A.foo = \"X\" AND A.bar = \"Y\") OR name = \"test\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(compiler.arrange(tree),
+                Parsing.toPostfixNotation(compiler.tokenize(tree)));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@code strict(...)} parses
+     * inside a {@code findOrInsert} command when a trailing
+     * command-level timestamp and JSON argument are present. Exercises
+     * the {@code UnaryExpressionNoTimestamp} branch that was extended
+     * with {@link com.cinchapi.ccl.generated.ASTStrict StrictExpression}
+     * — whose job is to keep the closing {@code at "..."} and JSON
+     * payload from being swallowed by a trailing
+     * {@code RelationalExpression}.
+     */
+    @Test
+    public void testParseStrictInsideFindOrInsertWithCommandTimestamp() {
+        String ccl = "findOrInsert strict(name = \"Jeff\" and age > 30) "
+                + "at \"2024-01-01\" \"{'name': 'Jeff', 'age': 31}\"";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof CommandTree);
+        ConditionTree condition = ((CommandTree) tree).conditionTree();
+        Assert.assertTrue(condition instanceof StrictConditionTree);
+        Assert.assertTrue(((StrictConditionTree) condition)
+                .condition() instanceof AndTree);
     }
 
     /**

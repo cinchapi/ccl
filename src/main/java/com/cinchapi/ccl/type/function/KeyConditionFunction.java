@@ -16,6 +16,7 @@
 package com.cinchapi.ccl.type.function;
 
 import com.cinchapi.ccl.ConditionTreeVisitor;
+import com.cinchapi.ccl.grammar.StrictSymbol;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
@@ -75,9 +76,9 @@ public class KeyConditionFunction
                     @Override
                     public String visit(StrictConditionTree tree,
                             Object... data) {
-                        string += " strict(";
+                        string += " " + StrictSymbol.BEGIN;
                         tree.condition().accept(this, data);
-                        string += " )";
+                        string += " " + StrictSymbol.END;
                         return string;
                     }
 
