@@ -19,6 +19,7 @@ import com.cinchapi.ccl.ConditionTreeVisitor;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
+import com.cinchapi.ccl.syntax.StrictConditionTree;
 
 /**
  * A function that is applied to a key across the records that match a condition
@@ -68,6 +69,15 @@ public class KeyConditionFunction
                     @Override
                     public String visit(ExpressionTree tree, Object... data) {
                         string += " " + tree.root().toString();
+                        return string;
+                    }
+
+                    @Override
+                    public String visit(StrictConditionTree tree,
+                            Object... data) {
+                        string += " strict(";
+                        tree.condition().accept(this, data);
+                        string += " )";
                         return string;
                     }
 

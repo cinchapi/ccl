@@ -15,7 +15,9 @@
  */
 package com.cinchapi.ccl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,8 @@ import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.StrictSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
@@ -611,6 +615,99 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         Assert.assertTrue(tree instanceof StrictConditionTree);
         Assert.assertTrue(((StrictConditionTree) tree)
                 .condition() instanceof AndTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@code strict(...)} accepts
+     * navigation keys with no shared prefix. The parser wraps the
+     * conditions identically to the shared-prefix case; degradation to
+     * normal {@code AND}/{@code OR} evaluation is the engine's concern.
+     */
+    @Test
+    public void testParseStrictAcceptsNoSharedNavigationPrefix() {
+        String ccl = "strict(A.foo = \"X\" AND B.bar = \"Y\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof StrictConditionTree);
+        ConditionTree inner = ((StrictConditionTree) tree).condition();
+        Assert.assertTrue(inner instanceof AndTree);
+        AndTree and = (AndTree) inner;
+        Assert.assertTrue(and.left() instanceof ExpressionTree);
+        Assert.assertTrue(and.right() instanceof ExpressionTree);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@link Compiler#arrange(ConditionTree)
+     * arrange} emits {@link StrictSymbol#BEGIN} and {@link StrictSymbol#END}
+     * markers that bracket the inner postfix so strict-aware consumers can
+     * identify the group.
+     */
+    @Test
+    public void testArrangeStrictEmitsScopeMarkers() {
+        String ccl = "strict(A.foo = \"X\" AND A.bar = \"Y\") OR name = \"test\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Queue<PostfixNotationSymbol> queue = compiler.arrange(tree);
+        List<PostfixNotationSymbol> symbols = new ArrayList<>(queue);
+        Assert.assertEquals(StrictSymbol.BEGIN, symbols.get(0));
+        Assert.assertTrue(symbols.get(1) instanceof ExpressionSymbol);
+        Assert.assertTrue(symbols.get(2) instanceof ExpressionSymbol);
+        Assert.assertEquals(
+                com.cinchapi.ccl.grammar.ConjunctionSymbol.AND,
+                symbols.get(3));
+        Assert.assertEquals(StrictSymbol.END, symbols.get(4));
+        Assert.assertTrue(symbols.get(5) instanceof ExpressionSymbol);
+        Assert.assertEquals(
+                com.cinchapi.ccl.grammar.ConjunctionSymbol.OR,
+                symbols.get(6));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that local
+     * {@link Compiler#evaluate(ConditionTree, Multimap,
+     * com.cinchapi.common.function.TriFunction) evaluate} unwraps a
+     * {@code strict(...)} whose inner condition has no navigation keys,
+     * since the same-destination constraint is vacuous without navigation.
+     */
+    @Test
+    public void testEvaluateStrictWithoutNavigationUnwraps() {
+        String ccl = "strict(a > 1 AND b bw 10 15)";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> {
+            TObject tvalue = Convert.javaToThrift(value);
+            TObject[] tvalues = values.stream().map(Convert::javaToThrift)
+                    .collect(Collectors.toList()).toArray(Array.containing());
+            com.cinchapi.concourse.thrift.Operator toperator = Convert
+                    .stringToOperator(operator.symbol());
+            return tvalue.is(toperator, tvalues);
+        };
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Multimap<String, Object> passes = ImmutableMultimap.of("a", 5, "b",
+                12);
+        Assert.assertTrue(compiler.evaluate(tree, passes, evaluator));
+        Multimap<String, Object> fails = ImmutableMultimap.of("a", 1, "b",
+                12);
+        Assert.assertFalse(compiler.evaluate(tree, fails, evaluator));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that local
+     * {@link Compiler#evaluate(ConditionTree, Multimap,
+     * com.cinchapi.common.function.TriFunction) evaluate} throws on a
+     * {@code strict(...)} that contains navigation keys, because a flat
+     * local data view cannot honor same-destination semantics.
+     */
+    @Test(expected = UnsupportedOperationException.class)
+    public void testEvaluateStrictWithNavigationThrows() {
+        String ccl = "strict(friend.name = \"Jeff\" AND friend.age > 30)";
+        Compiler compiler = createCompiler(Convert::stringToJava,
+                Convert::stringToOperator);
+        TriFunction<Object, Operator, List<Object>, Boolean> evaluator = (value,
+                operator, values) -> false;
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        compiler.evaluate(tree, ImmutableMultimap.of(), evaluator);
     }
 
     @Override

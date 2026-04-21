@@ -16,23 +16,23 @@
 package com.cinchapi.ccl.grammar;
 
 /**
- * A {@link PostfixNotationSymbol} that brackets the scope of a
- * {@code strict} grouping when the grouping is linearized into a flat
- * token stream or postfix queue, where the wrapper's boundary would
- * otherwise be lost.
+ * A {@link Symbol} that identifies a modifier keyword applied to a
+ * condition (e.g. {@code strict}).
  * <p>
- * The keyword identity itself lives in {@link ModifierSymbol#STRICT} and
- * is not part of this enum, so each {@link Symbol} stays honest about
- * where its constants are allowed to appear.
+ * A {@link ModifierSymbol} serves as the {@link Symbol} identity of an
+ * AST node that wraps a condition with modified evaluation semantics. It
+ * is not itself a {@link PostfixNotationSymbol}: the scope boundaries in
+ * a linearized stream are carried by dedicated bracketing symbols (e.g.
+ * {@link StrictSymbol#BEGIN} and {@link StrictSymbol#END}).
  * </p>
  *
  * @author Jeff Nelson
  */
-public enum StrictSymbol implements PostfixNotationSymbol {
-    BEGIN, END;
+public enum ModifierSymbol implements Symbol {
+    STRICT;
 
     @Override
     public String toString() {
-        return this == BEGIN ? "strict(" : ")";
+        return name().toLowerCase();
     }
 }

@@ -18,7 +18,7 @@ package com.cinchapi.ccl.syntax;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.cinchapi.ccl.grammar.StrictSymbol;
+import com.cinchapi.ccl.grammar.ModifierSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 
 /**
@@ -60,7 +60,7 @@ public final class StrictConditionTree extends BaseAbstractSyntaxTree
 
     @Override
     public Symbol root() {
-        return StrictSymbol.STRICT;
+        return ModifierSymbol.STRICT;
     }
 
     @Override

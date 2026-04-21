@@ -104,18 +104,23 @@ public interface Visitor<T> {
     /**
      * Visit a {@link StrictConditionTree}.
      * <p>
-     * The default implementation transparently passes through to the wrapped
-     * {@link StrictConditionTree#condition()}, so that {@link Visitor Visitors}
-     * that do not distinguish strict grouping behave as if the wrapper were not
-     * present. Subclasses that must honor strict semantics (e.g.
-     * same-destination navigation evaluation) should override this method.
+     * The default implementation throws {@link UnsupportedOperationException}.
+     * {@link StrictConditionTree} carries semantics (same-destination
+     * evaluation for shared navigation prefixes) that cannot be silently
+     * unwrapped without risking incorrect results, so every {@link Visitor}
+     * must explicitly decide how to handle it — either by implementing
+     * strict-aware behavior, or by delegating to
+     * {@link StrictConditionTree#condition()} with an intentional choice.
      * </p>
      *
      * @param tree
      * @param data
-     * @return the result of visiting the wrapped tree
+     * @return the result of visiting {@code tree}
      */
     public default T visit(StrictConditionTree tree, Object... data) {
-        return tree.condition().accept(this, data);
+        throw new UnsupportedOperationException(
+                "This Visitor does not handle StrictConditionTree. Override "
+                        + "visit(StrictConditionTree) to honor or explicitly "
+                        + "delegate its semantics.");
     }
 }
