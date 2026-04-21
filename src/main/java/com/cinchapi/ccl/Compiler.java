@@ -29,6 +29,8 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.ScopeEndSymbol;
+import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
@@ -114,6 +116,10 @@ public abstract class Compiler {
                     else if(symbol instanceof KeyTokenSymbol) {
                         keys.add(((KeyTokenSymbol<?>) symbol).key().toString());
                     }
+                    else if(symbol instanceof ScopeSymbol) {
+                        keys.add(((ScopeSymbol) symbol).prefix().key()
+                                .toString());
+                    }
                 });
                 return Collections.unmodifiableSet(keys);
             }
@@ -192,6 +198,17 @@ public abstract class Compiler {
                     Object... data) {
                 Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>) data[0];
                 queue.add((ExpressionSymbol) tree.root());
+                return queue;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Queue<PostfixNotationSymbol> visit(ScopedConditionTree tree,
+                    Object... data) {
+                Queue<PostfixNotationSymbol> queue = (Queue<PostfixNotationSymbol>) data[0];
+                queue.add((ScopeSymbol) tree.root());
+                tree.condition().accept(this, data);
+                queue.add(ScopeEndSymbol.INSTANCE);
                 return queue;
             }
 
@@ -289,6 +306,16 @@ public abstract class Compiler {
                         .filter(value -> Boolean.TRUE.equals(value)).findFirst()
                         .orElse(false);
 
+            }
+
+            @Override
+            public Boolean visit(ScopedConditionTree tree, Object... data) {
+                throw new UnsupportedOperationException(
+                        "Local evaluation cannot honor scoped "
+                                + "same-destination semantics for a "
+                                + "prefix-scoped condition; scoped "
+                                + "navigation evaluation is the "
+                                + "engine's responsibility.");
             }
 
         };
@@ -454,6 +481,17 @@ public abstract class Compiler {
             public List<Symbol> visit(PageTree tree, Object... data) {
                 List<Symbol> symbols = (List<Symbol>) data[0];
                 symbols.add(tree.root());
+                return symbols;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public List<Symbol> visit(ScopedConditionTree tree,
+                    Object... data) {
+                List<Symbol> symbols = (List<Symbol>) data[0];
+                symbols.add(tree.root());
+                tree.condition().accept(this, data);
+                symbols.add(ScopeEndSymbol.INSTANCE);
                 return symbols;
             }
 

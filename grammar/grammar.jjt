@@ -306,6 +306,8 @@ TOKEN :
 |
   < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")?)+ >
 |
+  < NAVIGATION_SCOPE_OPEN: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")?)* ".(" >
+|
   < ASTERISK_SUFFIXED_STRING: <ALPHANUMERIC> "*" >
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
@@ -385,7 +387,32 @@ void ConjunctionExpression() : {}
 
 void UnaryExpression() : {}
 {
-   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpression()
+   ScopedExpression()
+   |
+   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>)
+   |
+   RelationalExpression()
+}
+
+void ScopedExpression() #Scoped :
+{
+  Token t;
+  KeyTokenSymbol prefix;
+}
+{
+  t=<NAVIGATION_SCOPE_OPEN>
+  {
+    String raw = t.image;
+    String path = raw.substring(0, raw.length() - 2); // strip trailing ".("
+    if(path.indexOf('.') >= 0 || path.indexOf('*') >= 0) {
+      prefix = new NavigationKeySymbol(path);
+    }
+    else {
+      prefix = new KeySymbol(path);
+    }
+    jjtThis.prefix(prefix);
+  }
+  DisjunctionExpression() <CLOSE_PARENTHESES>
 }
 
 void RelationalExpression() #Expression :
@@ -452,7 +479,11 @@ void ConjunctionExpressionNoTimestamp() : {}
 
 void UnaryExpressionNoTimestamp() : {}
 {
-   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpressionNoTimestamp()
+   ScopedExpression()
+   |
+   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>)
+   |
+   RelationalExpressionNoTimestamp()
 }
 
 void RelationalExpressionNoTimestamp() #Expression :

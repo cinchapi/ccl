@@ -7,11 +7,12 @@ public interface GrammarTreeConstants
   public int JJTVOID = 1;
   public int JJTOR = 2;
   public int JJTAND = 3;
-  public int JJTEXPRESSION = 4;
-  public int JJTPAGE = 5;
-  public int JJTORDER = 6;
-  public int JJTFUNCTION = 7;
-  public int JJTCOMMAND = 8;
+  public int JJTSCOPED = 4;
+  public int JJTEXPRESSION = 5;
+  public int JJTPAGE = 6;
+  public int JJTORDER = 7;
+  public int JJTFUNCTION = 8;
+  public int JJTCOMMAND = 9;
 
 
   public String[] jjtNodeName = {
@@ -19,6 +20,7 @@ public interface GrammarTreeConstants
     "void",
     "Or",
     "And",
+    "Scoped",
     "Expression",
     "Page",
     "Order",
@@ -26,4 +28,4 @@ public interface GrammarTreeConstants
     "Command",
   };
 }
-/* JavaCC - OriginalChecksum=d446f271512c22f38838e63d1e478959 (do not edit this line) */
+/* JavaCC - OriginalChecksum=cb55ffc87ab029bb42505ee854b6480b (do not edit this line) */

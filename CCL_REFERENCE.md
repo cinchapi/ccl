@@ -334,6 +334,43 @@ Parentheses override default precedence:
 (a = 1 or b = 2) and (c = 3 or d = 4)
 ```
 
+### Scoped Grouping
+
+`prefix.(...)` opens a **scoped** condition group at an explicit navigation prefix. All conditions inside the group must be satisfied by the **same** destination record reachable via `prefix`. Without scoping, each condition is evaluated independently, which can produce false positives when multiple linked records each satisfy a different condition.
+
+```
+find where friend.(name = "Jeff" AND age > 30)
+```
+
+Matches only records whose `friend` links to a **single** record that satisfies both inner conditions. By contrast, the non-scoped form:
+
+```
+find where friend.name = "Jeff" AND friend.age > 30
+```
+
+matches records that have *some* friend named Jeff and *some* (possibly different) friend over 30.
+
+The prefix is part of the syntax, not inferred: inner keys are resolved **relative** to the pivot. A deeper pivot uses a multi-segment prefix, and transitive markers are carried through:
+
+```
+a.b.(baz.bang = "A" AND boo = "C")       -- pivot at a.b
+children*.(name = "Jeff")                 -- transitive pivot
+```
+
+Scoped groups nest naturally; the inner group rebases relative to the outer pivot:
+
+```
+a.(foo = "X" AND b.(bar = "Y" AND baz = "Z"))
+```
+
+`prefix.(...)` composes with the usual connectives and participates in normal precedence — no special rules:
+
+```
+name = "Jeff" OR friend.(name = "Bob" AND age > 30) AND age > 20
+```
+
+The parser accepts any valid expression inside `prefix.(...)` — single expressions, conjunctions, disjunctions, nested scopes. OR inside a scope parses cleanly but only meaningfully constrains evaluation when combined with AND (since `∃x: p(x) ∨ q(x)` is equivalent to `(∃x: p(x)) ∨ (∃x: q(x))`).
+
 ### Precedence
 
 `AND` binds tighter than `OR`. Both are left-associative.
@@ -1232,7 +1269,9 @@ Statement         ::= Command
 (* Conditions *)
 Condition         ::= Conjunction (('or' | '||') Conjunction)*
 Conjunction       ::= Unary (('and' | '&&' | '&') Unary)*
-Unary             ::= '(' Condition ')' | Expression
+Unary             ::= Scoped | '(' Condition ')' | Expression
+Scoped            ::= NavigationPrefix '.' '(' Condition ')'
+NavigationPrefix  ::= SimpleKey | PERIOD_SEPARATED_STRING | ASTERISK_SUFFIXED_STRING
 Expression        ::= Key Operator Value [Timestamp]
                     | Key BinaryOperator Value Value [Timestamp]
                     | Key SearchOperator Value
@@ -1394,6 +1433,7 @@ The compiler produces these abstract syntax tree types (in `com.cinchapi.ccl.syn
 | `ConditionTree` | Condition/where statements |
 | `ExpressionTree` | Individual relational expressions |
 | `ConjunctionTree` | AND/OR combinations |
+| `ScopedConditionTree` | `prefix.(...)` scoped groups |
 | `OrderTree` | ORDER BY clauses |
 | `PageTree` | SKIP/OFFSET/LIMIT clauses |
 | `CommandTree` | All command statements |

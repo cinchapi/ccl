@@ -28,6 +28,8 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.ScopeEndSymbol;
+import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
@@ -157,6 +159,45 @@ public final class Parsing {
                     stack.pop();
                 }
             }
+            else if(symbol instanceof ScopeSymbol) {
+                // A ScopeSymbol acts as a precedence boundary (like
+                // LEFT_PAREN) so operators inside the scoped group cannot
+                // be popped out by later operators of lower precedence,
+                // while still flowing into the output queue in structural
+                // position.
+                stack.push(symbol);
+                queue.add((PostfixNotationSymbol) symbol);
+            }
+            else if(symbol == ScopeEndSymbol.INSTANCE) {
+                boolean foundBegin = false;
+                while (!stack.isEmpty()) {
+                    Symbol top = stack.peek();
+                    if(top instanceof ScopeSymbol) {
+                        foundBegin = true;
+                        break;
+                    }
+                    else if(top instanceof ParenthesisSymbol) {
+                        // An unmatched LEFT paren inside a scope means the
+                        // scope bracket closes before the paren group does;
+                        // report as a scope mismatch rather than letting the
+                        // subsequent PostfixNotationSymbol cast fail with
+                        // ClassCastException.
+                        throw new SyntaxException(AnyStrings.format(
+                                "Syntax error in {}: Mismatched scope bracket",
+                                symbols));
+                    }
+                    else {
+                        queue.add((PostfixNotationSymbol) stack.pop());
+                    }
+                }
+                if(!foundBegin) {
+                    throw new SyntaxException(AnyStrings.format(
+                            "Syntax error in {}: Mismatched scope bracket",
+                            symbols));
+                }
+                stack.pop();
+                queue.add((PostfixNotationSymbol) symbol);
+            }
             else {
                 queue.add((PostfixNotationSymbol) symbol);
             }
@@ -166,6 +207,11 @@ public final class Parsing {
             if(top instanceof ParenthesisSymbol) {
                 throw new SyntaxException(AnyStrings.format(
                         "Syntax error in {}: Mismatched parenthesis", symbols));
+            }
+            else if(top instanceof ScopeSymbol) {
+                throw new SyntaxException(AnyStrings.format(
+                        "Syntax error in {}: Mismatched scope bracket",
+                        symbols));
             }
             else {
                 queue.add((PostfixNotationSymbol) stack.pop());
