@@ -1185,6 +1185,96 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         Assert.assertFalse(scoped.prefix() instanceof TemporalKeySymbol);
     }
 
+    /**
+     * <strong>Goal:</strong> Verify that {@link Compiler#tokenize(AbstractSyntaxTree)}
+     * emits a {@link TemporalKeySymbol} directly into the symbol list
+     * for a bracket-stamped leaf key.
+     */
+    @Test
+    public void testTokenizeEmitsTemporalKeySymbolForLeafBracket() {
+        String ccl = "foo[1700000000] = \"X\"";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+        List<Symbol> symbols = compiler.tokenize(tree);
+        boolean found = symbols.stream()
+                .anyMatch(s -> s instanceof TemporalKeySymbol);
+        Assert.assertTrue(
+                "tokenize must emit TemporalKeySymbol for bracket-stamped leaf",
+                found);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip
+     * (parse -> tokenize -> joined toString -> re-parse) for a
+     * bracket-stamped leaf.
+     */
+    @Test
+    public void testRoundTripLeafBracket() {
+        assertRoundTripStable("foo[1700000000] = \"X\"");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip for a
+     * navigation key with per-stop brackets.
+     */
+    @Test
+    public void testRoundTripNavigationPerStopBrackets() {
+        assertRoundTripStable("a[111].b[222].foo[333] = \"X\"");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip for a
+     * single-key scope prefix bracket.
+     */
+    @Test
+    public void testRoundTripScopedSingleKeyBracket() {
+        assertRoundTripStable("A[111].(foo = \"X\")");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip for a multi-stop
+     * scope prefix with per-stop brackets.
+     */
+    @Test
+    public void testRoundTripScopedMultiStopBrackets() {
+        assertRoundTripStable("a[111].b[222].(foo = \"X\")");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip for a scope
+     * prefix bracket combined with a per-leaf bracket inside the scope.
+     */
+    @Test
+    public void testRoundTripScopedPrefixAndLeafBrackets() {
+        assertRoundTripStable("A[111].(foo[222] = \"X\")");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the legacy trailing-{@code at}
+     * form (outside brackets) still round-trips without regression.
+     */
+    @Test
+    public void testRoundTripLegacyTrailingAt() {
+        assertRoundTripStable("foo = \"X\" at 1700000000");
+    }
+
+    /**
+     * Assert that {@code ccl} parses, tokenizes, re-emits, and re-parses
+     * to an equal {@link AbstractSyntaxTree}.
+     *
+     * @param ccl the CCL string
+     */
+    private void assertRoundTripStable(String ccl) {
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree first = compiler.parse(ccl);
+        String reemitted = compiler.tokenize(first).stream()
+                .map(Symbol::toString)
+                .collect(Collectors.joining(" "));
+        AbstractSyntaxTree second = compiler.parse(reemitted);
+        Assert.assertEquals("round-trip failed for: " + ccl
+                + " (re-emitted as: " + reemitted + ")", first, second);
+    }
+
     @Override
     protected Compiler createCompiler(
             Function<String, Object> valueTransformFunction,
