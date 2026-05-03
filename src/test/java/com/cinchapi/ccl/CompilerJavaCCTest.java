@@ -32,6 +32,8 @@ import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ScopeEndSymbol;
 import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.TemporalKeySymbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
@@ -979,6 +981,62 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
                 operator, values) -> false;
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
         compiler.evaluate(tree, ImmutableMultimap.of(), evaluator);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@code foo[1700000000] = "X"}
+     * parses into a leaf {@link ExpressionTree} whose key is a
+     * {@link TemporalKeySymbol} wrapping a {@link KeySymbol} and carrying
+     * the bracket-derived {@link TimestampSymbol}.
+     */
+    @Test
+    public void testParseLeafBracketTimestamp() {
+        String ccl = "foo[1700000000] = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof TemporalKeySymbol);
+        TemporalKeySymbol temporal = (TemporalKeySymbol) expr.key();
+        Assert.assertTrue(temporal.key() instanceof KeySymbol);
+        Assert.assertEquals("foo",
+                ((KeySymbol) temporal.key()).key().toString());
+        Assert.assertEquals(1700000000L,
+                temporal.timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the legacy keyworded bracket
+     * forms ({@code foo[at t]}, {@code foo[on t]}, {@code foo[during t]})
+     * produce ASTs equal to the canonical keyword-less form
+     * ({@code foo[t]}).
+     */
+    @Test
+    public void testParseLeafBracketKeywordEquivalence() {
+        Compiler compiler = createCompiler();
+        ConditionTree canonical = (ConditionTree) compiler
+                .parse("foo[1700000000] = \"X\"");
+        for (String keyword : new String[] { "at", "on", "during" }) {
+            String ccl = "foo[" + keyword + " 1700000000] = \"X\"";
+            ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+            Assert.assertEquals("keyword form '" + keyword
+                    + "' must equal canonical", canonical, tree);
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an unbracketed key still parses
+     * to a plain {@link KeySymbol} rather than a {@link TemporalKeySymbol}.
+     */
+    @Test
+    public void testParseLeafWithoutBracketUnchanged() {
+        String ccl = "foo = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof KeySymbol);
+        Assert.assertFalse(expr.key() instanceof TemporalKeySymbol);
     }
 
     @Override
