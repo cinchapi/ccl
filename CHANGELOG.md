@@ -1,25 +1,6 @@
 # Changelog
 
 #### Version 4.0.0 (TBD)
-##### Bracket Timestamp Syntax
-Every key in CCL now accepts an optional bracket annotation `[<timestamp>]` that pins the read it represents. The brackets are the timestamp pivot — no leading `at`/`on`/`during` keyword is required inside (the keyword form is accepted for backward compatibility, but the canonical serialization is keyword-less).
-
-```
-name["last week"] = "Jeff"
-a[t1].b[t2].foo[t3] = "X"
-A[t].(foo = "X" AND bar = "Y")
-A[t1].(foo[t2] = "X")
-```
-
-Each bracket binds exactly the read it is adjacent to:
-* Bracket on a leaf key pins the leaf's evaluation timestamp.
-* Bracket on a navigation stop pins that stop's traversal timestamp.
-* Bracket on a scope prefix pins the scope's traversal timestamp.
-
-Without an annotation a key reads at the present moment. The trailing `at <timestamp>` form on a relational expression (`name = "X" at t`) continues to parse indefinitely but is now considered the deprecated equivalent of a per-key bracket annotation. For a navigation key the legacy form pins every stop in the chain to the same time — the new bracket syntax is the only way to express per-stop differences.
-
-A new `TemporalKeySymbol` AST type wraps any `KeyTokenSymbol` with the bracket-derived `TimestampSymbol`. `NavigationKeySymbol` carries per-stop timestamps via the `stops()` accessor. Existing CCL strings without brackets parse identically to before.
-
 ##### Command Support
 The CCL grammar has been expanded to support parsing **Concourse commands** in addition to conditions, orders, and pages. A command string (e.g., `select name from 1 where age > 30`) is parsed into a `CommandTree` containing a `CommandSymbol` that represents the operation, along with optional `ConditionTree`, `OrderTree`, and `PageTree` children.
 
@@ -77,6 +58,23 @@ Each command is represented by a dedicated `CommandSymbol` implementation: `AddS
 Added support for parsing multiple semicolon-delimited CCL statements in a single call, similar to SQL. The new `Compiler#compile(String)` and `Compiler#compile(String, Multimap)` methods accept a CCL string containing one or more statements separated by `;` and return a `List<AbstractSyntaxTree>` with one tree per statement.
 * Semicolons (`;`) are now a reserved token in the grammar. Unquoted semicolons in values are no longer permitted (use quoted strings instead).
 
+##### Bracket Timestamp Syntax
+Every key in CCL now accepts an optional bracket annotation `[<timestamp>]` that pins the read it represents. The brackets are the timestamp pivot — no leading `at`/`on`/`during` keyword is required inside (the keyword form is accepted for backward compatibility, but the canonical serialization is keyword-less).
+
+```
+name["last week"] = "Jeff"
+a[t1].b[t2].foo[t3] = "X"
+A[t].(foo = "X" AND bar = "Y")
+A[t1].(foo[t2] = "X")
+```
+
+Each bracket binds exactly the read it is adjacent to:
+* Bracket on a leaf key pins the leaf's evaluation timestamp.
+* Bracket on a navigation stop pins that stop's traversal timestamp.
+* Bracket on a scope prefix pins the scope's traversal timestamp.
+
+Without an annotation a key reads at the present moment. A new `TemporalKeySymbol` AST type wraps any `KeyTokenSymbol` with the bracket-derived `TimestampSymbol`. `NavigationKeySymbol` carries per-stop timestamps via the `stops()` accessor. Existing CCL strings without brackets parse identically to before.
+
 ##### Other Grammar Updates
 * [GH-51](https://github.com/cinchapi/ccl/issues/51): Allow an optional `*` suffix on navigation key segments to mark them as transitive (e.g., `children*.name`, `a.b*.c.d*.e`, `children*`). Transitive segments instruct Concourse to follow links recursively until exhaustion, supporting the Transitive Navigation feature in [cinchapi/concourse#632](https://github.com/cinchapi/concourse/issues/632). A standalone transitive stop (e.g., `children*`) is also accepted as a navigation key and is equivalent to a single-stop path whose terminal stop is transitive. Added `NavigationKeyStop` to model each segment as a structured `(name, transitive)` pair, and `NavigationKeySymbol#stops()` to expose them; the existing `components()` method is unchanged.
 * [GH-52](https://github.com/cinchapi/ccl/issues/52): Added **scoped condition groups** via the `prefix.(...)` syntax. Tells the engine that all conditions inside the group must be satisfied by the **same** destination record reachable through the explicit navigation `prefix`, rather than being evaluated independently (which can produce false positives on multi-valued links). Supports [cinchapi/concourse#533](https://github.com/cinchapi/concourse/issues/533).
@@ -89,6 +87,11 @@ Added support for parsing multiple semicolon-delimited CCL statements in a singl
 * Changed pagination to use canonical offset-based forms only: `limit n`, `skip n`, `offset n`, `skip n limit m`, `offset n limit m`, `limit m skip n`, and `limit m offset n`.
 * Updated `PageSymbol` to model pagination as a required skip and an optional limit, with factories for `fromSkip(int)`, `fromLimit(int)`, and `fromSkipLimit(int, Integer)`.
 * Removed page-number pagination syntax such as `page n`, `size n`, and `page n size m`.
+
+###### Trailing `at <timestamp>` on Relational Expressions
+* The trailing `at <timestamp>` form on a relational expression (`name = "X" at t`) is now **deprecated** in favor of the per-key bracket annotation (`name[t] = "X"`). The legacy form continues to parse indefinitely, but new code should prefer brackets.
+* For a navigation key the trailing form pins every stop in the chain to the same time, with no way to express per-stop differences — the bracket syntax is the only way to do so.
+* The canonical CCL emitted by the compiler always uses the bracket form.
 
 #### Version 3.2.2 (March 31, 2026)
 * Fixed a bug that caused the `Compiler`'s local evaluation to fail when the condition contained navigation keys (e.g., `friend.name = jeff`). The `evaluate` method now accepts an `Association` whose `fetch` method natively resolves dot-separated key paths by traversing nested data structures. The existing `Multimap`-based `evaluate` method is still supported and automatically converts to an `Association` for interoperability, but callers are encouraged to use the `Association` overload directly for better performance.
