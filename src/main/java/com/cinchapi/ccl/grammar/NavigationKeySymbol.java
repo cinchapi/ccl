@@ -73,53 +73,14 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     }
 
     /**
-     * Construct a new {@link NavigationKeySymbol}.
+     * Split {@code raw} on top-level periods (those outside any bracket
+     * annotation) and parse each piece into a {@link NavigationKeyStop}.
      *
-     * @param key the raw key string
+     * @param raw the raw key string
+     * @return the parsed stops, in path order
      */
-    public NavigationKeySymbol(String key) {
-        super(key);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(this == obj) {
-            return true;
-        }
-        else if(!(obj instanceof NavigationKeySymbol)) {
-            return false;
-        }
-        return stops().equals(((NavigationKeySymbol) obj).stops());
-    }
-
-    @Override
-    public int hashCode() {
-        return stops().hashCode();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (NavigationKeyStop stop : stops()) {
-            if(sb.length() > 0) {
-                sb.append('.');
-            }
-            sb.append(stop.value());
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Return the raw component strings that make up this
-     * {@link NavigationKeySymbol}, in path order. Any transitive marker
-     * or bracket-timestamp annotation is preserved in the returned
-     * component (e.g. {@code "children*[123]"}).
-     *
-     * @return the key components
-     */
-    public String[] components() {
-        String raw = key();
-        List<String> parts = new ArrayList<>();
+    private static List<NavigationKeyStop> parseStops(String raw) {
+        List<NavigationKeyStop> stops = new ArrayList<>();
         int start = 0;
         int depth = 0;
         for (int i = 0; i < raw.length(); i++) {
@@ -131,12 +92,73 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
                 depth--;
             }
             else if(c == '.' && depth == 0) {
-                parts.add(raw.substring(start, i));
+                stops.add(NavigationKeyStop.parse(raw.substring(start, i)));
                 start = i + 1;
             }
         }
-        parts.add(raw.substring(start));
-        return parts.toArray(new String[0]);
+        stops.add(NavigationKeyStop.parse(raw.substring(start)));
+        return Collections.unmodifiableList(stops);
+    }
+
+    /**
+     * The parsed {@link NavigationKeyStop NavigationKeyStops} that make
+     * up this {@link NavigationKeySymbol}, in path order.
+     */
+    private final List<NavigationKeyStop> stops;
+
+    /**
+     * Construct a new {@link NavigationKeySymbol}.
+     *
+     * @param key the raw key string
+     */
+    public NavigationKeySymbol(String key) {
+        super(key);
+        this.stops = parseStops(key);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) {
+            return true;
+        }
+        else if(!(obj instanceof NavigationKeySymbol)) {
+            return false;
+        }
+        return stops.equals(((NavigationKeySymbol) obj).stops);
+    }
+
+    @Override
+    public int hashCode() {
+        return stops.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (NavigationKeyStop stop : stops) {
+            if(sb.length() > 0) {
+                sb.append('.');
+            }
+            sb.append(stop.value());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Return the canonical component strings that make up this
+     * {@link NavigationKeySymbol}, in path order. Any transitive marker
+     * or bracket-timestamp annotation is rendered in canonical form
+     * (e.g. {@code "children*[123]"} regardless of whether the input
+     * used {@code [at 123]}).
+     *
+     * @return the key components
+     */
+    public String[] components() {
+        String[] result = new String[stops.size()];
+        for (int i = 0; i < stops.size(); i++) {
+            result[i] = stops.get(i).value();
+        }
+        return result;
     }
 
     /**
@@ -146,12 +168,7 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
      * @return the stops
      */
     public List<NavigationKeyStop> stops() {
-        String[] parts = components();
-        List<NavigationKeyStop> stops = new ArrayList<>(parts.length);
-        for (String part : parts) {
-            stops.add(NavigationKeyStop.parse(part));
-        }
-        return Collections.unmodifiableList(stops);
+        return stops;
     }
 
 }
