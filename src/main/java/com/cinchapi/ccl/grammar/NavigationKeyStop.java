@@ -105,7 +105,7 @@ public final class NavigationKeyStop {
                 && value.charAt(value.length() - 1) == BRACKET_CLOSE) {
             int open = value.lastIndexOf(BRACKET_OPEN);
             if(open >= 0) {
-                return value.substring(0, open);
+                value = value.substring(0, open);
             }
         }
         return value;
