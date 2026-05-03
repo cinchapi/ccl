@@ -30,6 +30,49 @@ import java.util.List;
 public class NavigationKeySymbol extends KeyTokenSymbol<String> {
 
     /**
+     * Return the {@link KeyTokenSymbol} that represents the scope prefix
+     * encoded by {@code path} (the navigation portion of a
+     * {@code prefix.(inner)} construct, with the trailing {@code .(}
+     * already stripped). A multi-stop or transitive path yields a
+     * {@link NavigationKeySymbol}; a single non-transitive stop with a
+     * bracket annotation yields a {@link TemporalKeySymbol} wrapping a
+     * {@link KeySymbol}; a single non-transitive stop without an
+     * annotation yields a plain {@link KeySymbol}.
+     *
+     * @param path the raw scope-prefix path
+     * @return the {@link KeyTokenSymbol}
+     */
+    public static KeyTokenSymbol<?> parseScopePrefix(String path) {
+        int dots = 0;
+        boolean hasTransitive = false;
+        int depth = 0;
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
+            if(c == '[') {
+                depth++;
+            }
+            else if(c == ']') {
+                depth--;
+            }
+            else if(depth == 0) {
+                if(c == '.') {
+                    dots++;
+                }
+                else if(c == '*') {
+                    hasTransitive = true;
+                }
+            }
+        }
+        if(dots > 0 || hasTransitive) {
+            return new NavigationKeySymbol(path);
+        }
+        NavigationKeyStop stop = NavigationKeyStop.parse(path);
+        KeySymbol base = new KeySymbol(stop.key());
+        return stop.timestamp() == null ? base
+                : new TemporalKeySymbol(base, stop.timestamp());
+    }
+
+    /**
      * Construct a new {@link NavigationKeySymbol}.
      *
      * @param key the raw key string

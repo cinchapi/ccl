@@ -1106,6 +1106,85 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         }
     }
 
+    /**
+     * <strong>Goal:</strong> Verify that {@code A[t].(foo = "X")} parses
+     * into a {@link ScopedConditionTree} whose
+     * {@link ScopedConditionTree#prefix() prefix} is a
+     * {@link TemporalKeySymbol} wrapping a {@link KeySymbol}.
+     */
+    @Test
+    public void testParseScopedSingleKeyBracketPrefix() {
+        String ccl = "A[1700000000].(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof TemporalKeySymbol);
+        TemporalKeySymbol temporal = (TemporalKeySymbol) scoped.prefix();
+        Assert.assertTrue(temporal.key() instanceof KeySymbol);
+        Assert.assertEquals("A",
+                ((KeySymbol) temporal.key()).key().toString());
+        Assert.assertEquals(1700000000L,
+                temporal.timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the legacy keyword forms inside
+     * a scope-prefix bracket ({@code A[at t].(...)}) produce ASTs equal
+     * to the canonical keyword-less form ({@code A[t].(...)}).
+     */
+    @Test
+    public void testParseScopedSingleKeyBracketKeywordEquivalence() {
+        Compiler compiler = createCompiler();
+        ConditionTree canonical = (ConditionTree) compiler
+                .parse("A[1700000000].(foo = \"X\")");
+        for (String keyword : new String[] { "at", "on", "during" }) {
+            String ccl = "A[" + keyword + " 1700000000].(foo = \"X\")";
+            ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+            Assert.assertEquals(canonical, tree);
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a multi-stop scope prefix with
+     * per-stop brackets ({@code a[t1].b[t2].(...)}) parses to a
+     * {@link NavigationKeySymbol} whose
+     * {@link NavigationKeySymbol#stops() stops} carry the per-stop
+     * timestamps.
+     */
+    @Test
+    public void testParseScopedMultiStopBracketPrefix() {
+        String ccl = "a[111].b[222].(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) scoped.prefix();
+        List<NavigationKeyStop> stops = nav.stops();
+        Assert.assertEquals(2, stops.size());
+        Assert.assertEquals("a", stops.get(0).key());
+        Assert.assertEquals(111L, stops.get(0).timestamp().timestamp());
+        Assert.assertEquals("b", stops.get(1).key());
+        Assert.assertEquals(222L, stops.get(1).timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an unbracketed scope prefix
+     * still parses to a plain {@link KeySymbol} (single key) or
+     * {@link NavigationKeySymbol} (multi-stop), preserving pre-bracket
+     * behavior.
+     */
+    @Test
+    public void testParseScopedWithoutBracketsUnchanged() {
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler
+                .parse("A.(foo = \"X\")");
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof KeySymbol);
+        Assert.assertFalse(scoped.prefix() instanceof TemporalKeySymbol);
+    }
+
     @Override
     protected Compiler createCompiler(
             Function<String, Object> valueTransformFunction,

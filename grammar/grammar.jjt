@@ -407,12 +407,7 @@ void ScopedExpression() #Scoped :
   {
     String raw = t.image;
     String path = raw.substring(0, raw.length() - 2); // strip trailing ".("
-    if(path.indexOf('.') >= 0 || path.indexOf('*') >= 0) {
-      prefix = new NavigationKeySymbol(path);
-    }
-    else {
-      prefix = new KeySymbol(path);
-    }
+    prefix = NavigationKeySymbol.parseScopePrefix(path);
     jjtThis.prefix(prefix);
   }
   DisjunctionExpression() <CLOSE_PARENTHESES>
