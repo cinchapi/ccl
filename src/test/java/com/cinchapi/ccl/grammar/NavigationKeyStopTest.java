@@ -105,7 +105,7 @@ public class NavigationKeyStopTest {
 
     @Test
     public void testParseStampedTransitive() {
-        NavigationKeyStop stop = NavigationKeyStop.parse("children*[456]");
+        NavigationKeyStop stop = NavigationKeyStop.parse("children[456]*");
         Assert.assertEquals("children", stop.key());
         Assert.assertTrue(stop.isTransitive());
         Assert.assertEquals(456L, stop.timestamp().timestamp());
@@ -131,8 +131,8 @@ public class NavigationKeyStopTest {
     public void testValueRoundTripStamped() {
         Assert.assertEquals("name[123]",
                 NavigationKeyStop.parse("name[123]").value());
-        Assert.assertEquals("children*[456]",
-                NavigationKeyStop.parse("children*[456]").value());
+        Assert.assertEquals("children[456]*",
+                NavigationKeyStop.parse("children[456]*").value());
     }
 
     @Test
@@ -156,6 +156,14 @@ public class NavigationKeyStopTest {
     public void testNotEqualsWhenOneStampedAndOtherNot() {
         Assert.assertNotEquals(NavigationKeyStop.parse("name[123]"),
                 NavigationKeyStop.parse("name"));
+    }
+
+    @Test
+    public void testParseStampedTransitivePutsBracketBeforeAsterisk() {
+        NavigationKeyStop stop = NavigationKeyStop.parse("children[456]*");
+        Assert.assertEquals("children", stop.key());
+        Assert.assertTrue(stop.isTransitive());
+        Assert.assertEquals(456L, stop.timestamp().timestamp());
     }
 
 }

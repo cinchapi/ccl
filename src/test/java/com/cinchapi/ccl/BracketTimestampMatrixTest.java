@@ -252,19 +252,79 @@ public class BracketTimestampMatrixTest {
 
     /**
      * <strong>Goal:</strong> Verify that a transitive marker and a
-     * bracket annotation ({@code a*[t].foo = X}) coexist on the same
+     * bracket annotation ({@code a[t]*.foo = X}) coexist on the same
      * stop, with both flags reflected on the resulting
      * {@link NavigationKeyStop}.
      */
     @Test
     public void testN8_TransitiveAndBracket() {
         NavigationKeySymbol nav = parseNavigationKeyOf(
-                String.format("a*[%d].foo = \"X\"", T));
+                String.format("a[%d]*.foo = \"X\"", T));
         List<NavigationKeyStop> stops = nav.stops();
         Assert.assertTrue(stops.get(0).isTransitive());
         Assert.assertEquals(T, stops.get(0).timestamp().timestamp());
         Assert.assertFalse(stops.get(1).isTransitive());
         Assert.assertNull(stops.get(1).timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a standalone transitive stop
+     * with a bracket annotation ({@code children[t]* = "X"}) folds the
+     * bracket onto the sole {@link NavigationKeyStop} rather than
+     * wrapping the {@link NavigationKeySymbol} in an outer
+     * {@link TemporalKeySymbol}. Per-stop consumers reading
+     * {@link NavigationKeySymbol#stops() stops()} must see the
+     * timestamp.
+     */
+    @Test
+    public void testN9_StandaloneTransitiveBracketFolds() {
+        NavigationKeySymbol nav = parseNavigationKeyOf(
+                String.format("children[%d]* = \"X\"", T));
+        List<NavigationKeyStop> stops = nav.stops();
+        Assert.assertEquals(1, stops.size());
+        Assert.assertEquals("children", stops.get(0).key());
+        Assert.assertTrue(stops.get(0).isTransitive());
+        Assert.assertEquals(T, stops.get(0).timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that two adjacent bracket
+     * annotations on a navigation key ({@code a.b[t1][t2] = X}) are
+     * rejected at parse time. A single key carries at most one
+     * bracket-timestamp annotation.
+     */
+    @Test
+    public void testN10_DoubleBracketOnNavigationRejected() {
+        try {
+            compiler().parse(
+                    String.format("a.b[%d][%d] = \"X\"", T1, T2));
+            Assert.fail("expected parse failure for double bracket "
+                    + "annotation on navigation key");
+        }
+        catch (Exception e) {
+            // Expected — the fold path detects that the last stop
+            // already carries a timestamp and refuses to attach a
+            // second one.
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that two adjacent bracket
+     * annotations on a single transitive key
+     * ({@code children[t1]*[t2] = X}) are rejected at parse time.
+     */
+    @Test
+    public void testN11_DoubleBracketOnTransitiveRejected() {
+        try {
+            compiler().parse(String
+                    .format("children[%d]*[%d] = \"X\"", T1, T2));
+            Assert.fail("expected parse failure for double bracket "
+                    + "annotation on transitive navigation key");
+        }
+        catch (Exception e) {
+            // Expected — the transitive token captures the first
+            // bracket; the fold path rejects the trailing one.
+        }
     }
 
     /**
@@ -641,7 +701,16 @@ public class BracketTimestampMatrixTest {
      */
     @Test
     public void testRoundTripN8() {
-        assertRoundTrip(String.format("a*[%d].foo = \"X\"", T));
+        assertRoundTrip(String.format("a[%d]*.foo = \"X\"", T));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N9
+     * shape (standalone single transitive stop with a bracket).
+     */
+    @Test
+    public void testRoundTripN9() {
+        assertRoundTrip(String.format("children[%d]* = \"X\"", T));
     }
 
     /**

@@ -1067,13 +1067,13 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
 
     /**
      * <strong>Goal:</strong> Verify that a navigation key with a
-     * transitive-and-bracketed first stop ({@code a*[t].foo}) parses
+     * transitive-and-bracketed first stop ({@code a[t]*.foo}) parses
      * with both the transitive marker and the timestamp on the same
      * stop.
      */
     @Test
     public void testParseNavigationKeyTransitiveAndBracketed() {
-        String ccl = "a*[111].foo = \"X\"";
+        String ccl = "a[111]*.foo = \"X\"";
         Compiler compiler = createCompiler();
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
         ExpressionSymbol expr = (ExpressionSymbol) tree.root();

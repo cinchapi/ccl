@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 /**
  * A {@link NavigationKeySymbol} is a {@link KeyTokenSymbol} whose value
  * is a dotted path that traverses linked records. Any segment of the
@@ -70,6 +72,49 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
         KeySymbol base = new KeySymbol(stop.key());
         return stop.timestamp() == null ? base
                 : new TemporalKeySymbol(base, stop.timestamp());
+    }
+
+    /**
+     * Return a new {@link NavigationKeySymbol} that mirrors {@code nav}
+     * but folds {@code ts} onto the last stop. Used by the parser when a
+     * trailing bracket-timestamp suffix follows a navigation token whose
+     * last stop carried no inline annotation.
+     *
+     * @param nav the existing {@link NavigationKeySymbol}
+     * @param ts the {@link TimestampSymbol} to fold onto the last stop
+     * @return a new {@link NavigationKeySymbol} with the timestamp on
+     *         the last stop
+     * @throws IllegalArgumentException if the last stop already carries a
+     *             bracket-timestamp annotation (no key may carry two
+     *             timestamps)
+     */
+    public static NavigationKeySymbol withTimestampOnLastStop(
+            NavigationKeySymbol nav, TimestampSymbol ts) {
+        Preconditions.checkNotNull(nav,
+                "navigation key symbol cannot be null");
+        Preconditions.checkNotNull(ts,
+                "timestamp symbol cannot be null");
+        List<NavigationKeyStop> stops = nav.stops();
+        NavigationKeyStop last = stops.get(stops.size() - 1);
+        Preconditions.checkArgument(last.timestamp() == null,
+                "navigation key cannot carry two bracket-timestamp "
+                        + "annotations on the same stop");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < stops.size() - 1; i++) {
+            if(i > 0) {
+                sb.append('.');
+            }
+            sb.append(stops.get(i).value());
+        }
+        if(stops.size() > 1) {
+            sb.append('.');
+        }
+        sb.append(last.key());
+        sb.append('[').append(ts.timestamp()).append(']');
+        if(last.isTransitive()) {
+            sb.append('*');
+        }
+        return new NavigationKeySymbol(sb.toString());
     }
 
     /**
@@ -148,7 +193,7 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
      * Return the canonical component strings that make up this
      * {@link NavigationKeySymbol}, in path order. Any transitive marker
      * or bracket-timestamp annotation is rendered in canonical form
-     * (e.g. {@code "children*[123]"} regardless of whether the input
+     * (e.g. {@code "children[123]*"} regardless of whether the input
      * used {@code [at 123]}).
      *
      * @return the key components

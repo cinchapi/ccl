@@ -440,11 +440,17 @@ a.foo[t] = "X"             -- only the leaf eval is pinned
 ```
 
 The transitive marker `*` and the bracket annotation can coexist on
-the same stop:
+the same stop. The bracket is adjacent to the key it qualifies and
+the transitive marker terminates the stop:
 
 ```
-children*[t].name = "Jeff"
+children[t]*.name = "Jeff"
+a[t1]*.b[t2]*.foo = "X"
 ```
+
+A key carries at most one bracket-timestamp annotation; double
+annotations such as `a.b[t1][t2]` or `children[t1]*[t2]` are rejected
+at parse time.
 
 #### Scope prefix
 

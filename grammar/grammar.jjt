@@ -305,13 +305,13 @@ TOKEN :
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
-  < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? (<KEY_BRACKET>)? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? (<KEY_BRACKET>)?)+ >
+  < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")?)+ >
 |
-  < NAVIGATION_SCOPE_OPEN: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? (<KEY_BRACKET>)? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? (<KEY_BRACKET>)?)* ".(" >
+  < NAVIGATION_SCOPE_OPEN: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")?)* ".(" >
 |
   < #KEY_BRACKET: "[" ( ~["]", "[", "\n", "\r"] )+ "]" >
 |
-  < ASTERISK_SUFFIXED_STRING: <ALPHANUMERIC> "*" >
+  < ASTERISK_SUFFIXED_STRING: <ALPHANUMERIC> (<KEY_BRACKET>)? "*" >
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
@@ -550,7 +550,16 @@ KeyTokenSymbol Key() :
     { result = new NavigationKeySymbol(key.image); }
   )
   ( LOOKAHEAD(2) <OPEN_BRACKET> ts=BracketedTimestamp() <CLOSE_BRACKET> )?
-  { return ts == null ? result : new TemporalKeySymbol(result, ts); }
+  {
+    if(ts == null) {
+      return result;
+    }
+    if(result instanceof NavigationKeySymbol) {
+      return NavigationKeySymbol.withTimestampOnLastStop(
+          (NavigationKeySymbol) result, ts);
+    }
+    return new TemporalKeySymbol(result, ts);
+  }
 }
 
 ValueTokenSymbol UnaryValue() :

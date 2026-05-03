@@ -43,12 +43,7 @@ public final class NavigationKeyStop {
      * @return the key
      */
     public static String extractBaseKey(String value) {
-        String stripped = stripBracketAnnotation(value);
-        int length = stripped.length();
-        if(length > 0 && stripped.charAt(length - 1) == TRANSITIVE_SUFFIX) {
-            return stripped.substring(0, length - 1);
-        }
-        return stripped;
+        return stripBracketAnnotation(stripTransitiveSuffix(value));
     }
 
     /**
@@ -59,32 +54,38 @@ public final class NavigationKeyStop {
      * @return {@code true} if {@code value} is a transitive stop
      */
     public static boolean isTransitiveStop(String value) {
-        return !extractBaseKey(value).equals(stripBracketAnnotation(value));
+        return !value.isEmpty()
+                && value.charAt(value.length() - 1) == TRANSITIVE_SUFFIX;
     }
 
     /**
      * Return the {@link NavigationKeyStop} that corresponds to the given
-     * raw {@code value} (e.g. {@code "children*"}, {@code "name"},
-     * {@code "a[123]"}, {@code "a*[at \"yesterday\"]"}).
+     * raw {@code value}. The canonical shape is
+     * {@code key (BracketAnnotation)? TransitiveSuffix?} — for example
+     * {@code "name"}, {@code "children*"}, {@code "a[123]"}, or
+     * {@code "a[at \"yesterday\"]*"}.
      *
      * @param value the raw value string; must be non-{@code null},
      *            non-empty, and must contain at least one character
-     *            before any trailing {@link #TRANSITIVE_SUFFIX}
+     *            before any trailing {@link #TRANSITIVE_SUFFIX} or
+     *            bracket annotation
      * @return the {@link NavigationKeyStop}
      * @throws NullPointerException if {@code value} is {@code null}
      * @throws IllegalArgumentException if {@code value} is empty,
-     *             consists solely of the {@link #TRANSITIVE_SUFFIX}, or
-     *             carries a malformed bracket-timestamp annotation
+     *             consists solely of the {@link #TRANSITIVE_SUFFIX}
+     *             and/or a bracket annotation, or carries a malformed
+     *             bracket-timestamp annotation
      */
     public static NavigationKeyStop parse(String value) {
         Preconditions.checkNotNull(value,
                 "navigation key stop value cannot be null");
         Preconditions.checkArgument(!value.isEmpty(),
                 "navigation key stop value cannot be empty");
-        TimestampSymbol timestamp = parseTrailingBracketTimestamp(value);
-        String stripped = stripBracketAnnotation(value);
-        String key = extractBaseKey(stripped);
-        boolean isTransitive = !key.equals(stripped);
+        boolean isTransitive = isTransitiveStop(value);
+        String afterAsterisk = stripTransitiveSuffix(value);
+        TimestampSymbol timestamp = parseTrailingBracketTimestamp(
+                afterAsterisk);
+        String key = stripBracketAnnotation(afterAsterisk);
         Preconditions.checkArgument(!isTransitive || !key.isEmpty(),
                 "navigation key stop value cannot consist solely of the "
                         + "transitive suffix '%s'",
@@ -93,6 +94,21 @@ public final class NavigationKeyStop {
                 "navigation key stop value cannot consist solely of a "
                         + "bracket annotation");
         return new NavigationKeyStop(key, isTransitive, timestamp);
+    }
+
+    /**
+     * Return {@code value} with any trailing {@link #TRANSITIVE_SUFFIX}
+     * removed.
+     *
+     * @param value the raw value
+     * @return {@code value} without its transitive suffix
+     */
+    private static String stripTransitiveSuffix(String value) {
+        int length = value.length();
+        if(length > 0 && value.charAt(length - 1) == TRANSITIVE_SUFFIX) {
+            return value.substring(0, length - 1);
+        }
+        return value;
     }
 
     /**
@@ -279,22 +295,22 @@ public final class NavigationKeyStop {
 
     /**
      * Return the canonical raw value of this {@link NavigationKeyStop} —
-     * the {@link #key() key}, optionally followed by the
-     * {@link #TRANSITIVE_SUFFIX} when the stop
-     * {@link #isTransitive() is transitive}, and a keyword-less bracket
-     * annotation when the stop carries a {@link #timestamp() timestamp}.
+     * the {@link #key() key}, followed by a keyword-less bracket
+     * annotation when the stop carries a {@link #timestamp() timestamp},
+     * and optionally followed by the {@link #TRANSITIVE_SUFFIX} when
+     * the stop {@link #isTransitive() is transitive}.
      *
      * @return the value
      */
     public String value() {
         StringBuilder sb = new StringBuilder(key);
-        if(isTransitive) {
-            sb.append(TRANSITIVE_SUFFIX);
-        }
         if(timestamp != null) {
             sb.append(BRACKET_OPEN);
             sb.append(timestamp.timestamp());
             sb.append(BRACKET_CLOSE);
+        }
+        if(isTransitive) {
+            sb.append(TRANSITIVE_SUFFIX);
         }
         return sb.toString();
     }
