@@ -33,14 +33,14 @@ import com.google.common.base.Preconditions;
 public final class NavigationKeyStop {
 
     /**
-     * Return the {@link #key() key} of the {@link NavigationKeyStop}
-     * represented by {@code value}, ignoring any
-     * {@link #TRANSITIVE_SUFFIX} or bracket-timestamp annotation.
+     * Return the bare key of the {@link NavigationKeyStop} represented
+     * by {@code value}, with any {@link #TRANSITIVE_SUFFIX} or
+     * bracket-timestamp annotation stripped off.
      *
      * @param value the raw value
      * @return the key
      */
-    public static String extractKeyAtPossiblyTransitiveStop(String value) {
+    public static String extractBaseKey(String value) {
         String stripped = stripBracketAnnotation(value);
         int length = stripped.length();
         if(length > 0 && stripped.charAt(length - 1) == TRANSITIVE_SUFFIX) {
@@ -57,8 +57,7 @@ public final class NavigationKeyStop {
      * @return {@code true} if {@code value} is a transitive stop
      */
     public static boolean isTransitiveStop(String value) {
-        return !extractKeyAtPossiblyTransitiveStop(value).equals(
-                stripBracketAnnotation(value));
+        return !extractBaseKey(value).equals(stripBracketAnnotation(value));
     }
 
     /**
@@ -82,8 +81,7 @@ public final class NavigationKeyStop {
                 "navigation key stop value cannot be empty");
         TimestampSymbol timestamp = parseTrailingBracketTimestamp(value);
         String stripped = stripBracketAnnotation(value);
-        String key = NavigationKeyStop
-                .extractKeyAtPossiblyTransitiveStop(stripped);
+        String key = extractBaseKey(stripped);
         boolean isTransitive = !key.equals(stripped);
         Preconditions.checkArgument(!isTransitive || !key.isEmpty(),
                 "navigation key stop value cannot consist solely of the "
