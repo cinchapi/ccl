@@ -30,6 +30,7 @@ import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ScopeEndSymbol;
+import com.cinchapi.ccl.grammar.NavigationKeyStop;
 import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
@@ -1037,6 +1038,72 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
         ExpressionSymbol expr = (ExpressionSymbol) tree.root();
         Assert.assertTrue(expr.key() instanceof KeySymbol);
         Assert.assertFalse(expr.key() instanceof TemporalKeySymbol);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a navigation key with per-stop
+     * bracket annotations parses to a {@link NavigationKeySymbol} whose
+     * {@link NavigationKeySymbol#stops() stops} carry the per-stop
+     * timestamps.
+     */
+    @Test
+    public void testParseNavigationKeyWithPerStopBrackets() {
+        String ccl = "a[111].b[222].foo[333] = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
+        List<NavigationKeyStop> stops = nav.stops();
+        Assert.assertEquals(3, stops.size());
+        Assert.assertEquals("a", stops.get(0).key());
+        Assert.assertEquals(111L, stops.get(0).timestamp().timestamp());
+        Assert.assertEquals("b", stops.get(1).key());
+        Assert.assertEquals(222L, stops.get(1).timestamp().timestamp());
+        Assert.assertEquals("foo", stops.get(2).key());
+        Assert.assertEquals(333L, stops.get(2).timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a navigation key with a
+     * transitive-and-bracketed first stop ({@code a*[t].foo}) parses
+     * with both the transitive marker and the timestamp on the same
+     * stop.
+     */
+    @Test
+    public void testParseNavigationKeyTransitiveAndBracketed() {
+        String ccl = "a*[111].foo = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
+        List<NavigationKeyStop> stops = nav.stops();
+        Assert.assertEquals(2, stops.size());
+        Assert.assertEquals("a", stops.get(0).key());
+        Assert.assertTrue(stops.get(0).isTransitive());
+        Assert.assertEquals(111L, stops.get(0).timestamp().timestamp());
+        Assert.assertEquals("foo", stops.get(1).key());
+        Assert.assertFalse(stops.get(1).isTransitive());
+        Assert.assertNull(stops.get(1).timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an unbracketed navigation key
+     * still parses identically to the pre-bracket era.
+     */
+    @Test
+    public void testParseNavigationKeyWithoutBracketsUnchanged() {
+        String ccl = "a.b.foo = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
+        for (NavigationKeyStop stop : nav.stops()) {
+            Assert.assertNull(stop.timestamp());
+        }
     }
 
     @Override

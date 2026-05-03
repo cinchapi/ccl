@@ -20,9 +20,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@link NavigationKeySymbol} is a {@link KeyTokenSymbol} whose value is
- * a dotted path that traverses linked records. Any segment of the path may
- * be marked as transitive.
+ * A {@link NavigationKeySymbol} is a {@link KeyTokenSymbol} whose value
+ * is a dotted path that traverses linked records. Any segment of the
+ * path may be marked as transitive and may carry a bracket-timestamp
+ * annotation that pins that segment's read.
  *
  * @author Jeff Nelson
  */
@@ -39,18 +40,37 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
 
     /**
      * Return the raw component strings that make up this
-     * {@link NavigationKeySymbol}, in path order. Any transitive marker is
-     * preserved in the returned component (e.g. {@code "children*"}).
+     * {@link NavigationKeySymbol}, in path order. Any transitive marker
+     * or bracket-timestamp annotation is preserved in the returned
+     * component (e.g. {@code "children*[123]"}).
      *
      * @return the key components
      */
     public String[] components() {
-        return key().split("\\.");
+        String raw = key();
+        List<String> parts = new ArrayList<>();
+        int start = 0;
+        int depth = 0;
+        for (int i = 0; i < raw.length(); i++) {
+            char c = raw.charAt(i);
+            if(c == '[') {
+                depth++;
+            }
+            else if(c == ']') {
+                depth--;
+            }
+            else if(c == '.' && depth == 0) {
+                parts.add(raw.substring(start, i));
+                start = i + 1;
+            }
+        }
+        parts.add(raw.substring(start));
+        return parts.toArray(new String[0]);
     }
 
     /**
-     * Return the {@link NavigationKeyStop NavigationKeyStops} that make up
-     * this {@link NavigationKeySymbol}, in path order.
+     * Return the {@link NavigationKeyStop NavigationKeyStops} that make
+     * up this {@link NavigationKeySymbol}, in path order.
      *
      * @return the stops
      */
