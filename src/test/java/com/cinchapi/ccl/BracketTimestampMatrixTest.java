@@ -52,12 +52,10 @@ public class BracketTimestampMatrixTest {
     private static final long T2 = 1700000002L;
     private static final long T3 = 1700000003L;
 
-    // ---------------------------------------------------------------
-    // Flat criteria, simple keys (F1-F6)
-    // ---------------------------------------------------------------
-
     /**
-     * F1: {@code foo = X AND bar = Y} - both leaves unstamped.
+     * <strong>Goal:</strong> Verify that {@code foo = X AND bar = Y}
+     * parses with both leaves unstamped (no bracket annotation and no
+     * expression-level timestamp).
      */
     @Test
     public void testF1_NoBrackets() {
@@ -67,7 +65,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * F2: {@code foo[t] = X AND bar[t] = Y} - both leaves bracket-stamped.
+     * <strong>Goal:</strong> Verify that
+     * {@code foo[t] = X AND bar[t] = Y} parses with both leaves
+     * carrying a {@link TemporalKeySymbol} stamped at {@code t}.
      */
     @Test
     public void testF2_BothLeavesBracketed() {
@@ -79,7 +79,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * F3: {@code foo = X at t AND bar = Y at t} (legacy trailing-at).
+     * <strong>Goal:</strong> Verify that the legacy trailing-{@code at}
+     * form ({@code foo = X at t AND bar = Y at t}) parses with both
+     * leaves carrying an expression-level {@link TimestampSymbol}.
      */
     @Test
     public void testF3_LegacyTrailingAt() {
@@ -91,7 +93,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * F4: {@code foo[t1] = X AND bar[t2] = Y} - distinct bracket stamps.
+     * <strong>Goal:</strong> Verify that distinct per-leaf bracket
+     * timestamps ({@code foo[t1] = X AND bar[t2] = Y}) parse to
+     * independent {@link TemporalKeySymbol TemporalKeySymbols}.
      */
     @Test
     public void testF4_DistinctBrackets() {
@@ -103,7 +107,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * F5: {@code foo = X at t1 AND bar = Y at t2} (legacy distinct).
+     * <strong>Goal:</strong> Verify that the legacy trailing-{@code at}
+     * form with distinct per-leaf timestamps
+     * ({@code foo = X at t1 AND bar = Y at t2}) parses to independent
+     * expression-level {@link TimestampSymbol TimestampSymbols}.
      */
     @Test
     public void testF5_LegacyTrailingAtDistinct() {
@@ -115,8 +122,11 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * F6: {@code foo[t1] = X AND bar = Y at t2} - mixed bracket and
-     * legacy trailing-at.
+     * <strong>Goal:</strong> Verify that a bracket annotation on one
+     * leaf and a legacy trailing-{@code at} on the other
+     * ({@code foo[t1] = X AND bar = Y at t2}) coexist, producing the
+     * expected mix of {@link TemporalKeySymbol} key and
+     * expression-level {@link TimestampSymbol}.
      */
     @Test
     public void testF6_MixedBracketAndLegacy() {
@@ -127,12 +137,10 @@ public class BracketTimestampMatrixTest {
         assertLeafExpressionTimestamp(and.right(), T2);
     }
 
-    // ---------------------------------------------------------------
-    // Flat criteria, navigation keys (N1-N8)
-    // ---------------------------------------------------------------
-
     /**
-     * N1: {@code a.foo = X} - no brackets, no per-stop timestamps.
+     * <strong>Goal:</strong> Verify that an unbracketed navigation key
+     * ({@code a.foo = X}) parses to a {@link NavigationKeySymbol}
+     * whose stops carry no timestamps.
      */
     @Test
     public void testN1_NavigationNoBrackets() {
@@ -144,7 +152,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * N2: {@code a[t].foo = X} - first stop bracketed.
+     * <strong>Goal:</strong> Verify that a bracket on the first stop
+     * ({@code a[t].foo = X}) pins only that stop, leaving the leaf
+     * stop unstamped.
      */
     @Test
     public void testN2_FirstStopBracketed() {
@@ -157,7 +167,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * N3: {@code a.foo[t] = X} - last stop bracketed.
+     * <strong>Goal:</strong> Verify that a bracket on the last stop
+     * ({@code a.foo[t] = X}) pins only the leaf, leaving the first
+     * stop unstamped.
      */
     @Test
     public void testN3_LastStopBracketed() {
@@ -170,7 +182,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * N4: {@code a[t1].foo[t2] = X} - both stops bracketed, distinct.
+     * <strong>Goal:</strong> Verify that distinct brackets on both
+     * stops ({@code a[t1].foo[t2] = X}) parse to a
+     * {@link NavigationKeySymbol} whose two stops carry independent
+     * timestamps.
      */
     @Test
     public void testN4_BothStopsBracketed() {
@@ -183,7 +198,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * N5: {@code a[t1].b[t2].foo[t3] = X} - three stops bracketed.
+     * <strong>Goal:</strong> Verify that a three-stop navigation key
+     * with distinct brackets ({@code a[t1].b[t2].foo[t3] = X}) parses
+     * with a per-stop timestamp on every stop.
      */
     @Test
     public void testN5_ThreeStopsBracketed() {
@@ -197,8 +214,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * N6: {@code a.b.foo at t} (legacy) - whole-chain stamping via
-     * expression-level trailing-at.
+     * <strong>Goal:</strong> Verify that the legacy trailing-{@code at}
+     * form on a navigation key ({@code a.b.foo = X at t}) leaves the
+     * navigation stops unstamped and pins the timestamp on the
+     * expression instead.
      */
     @Test
     public void testN6_LegacyWholeChain() {
@@ -215,8 +234,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * N7: {@code a[t1].foo = X at t2} - bracket on stop, legacy
-     * trailing-at on expression.
+     * <strong>Goal:</strong> Verify that a per-stop bracket coexists
+     * with a legacy trailing-{@code at}
+     * ({@code a[t1].foo = X at t2}): the bracket pins the first stop,
+     * the trailing-{@code at} pins the expression.
      */
     @Test
     public void testN7_MixedBracketAndLegacy() {
@@ -232,8 +253,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * N8: {@code a*[t].foo = X} - transitive marker plus bracket on the
-     * same stop.
+     * <strong>Goal:</strong> Verify that a transitive marker and a
+     * bracket annotation ({@code a*[t].foo = X}) coexist on the same
+     * stop, with both flags reflected on the resulting
+     * {@link NavigationKeyStop}.
      */
     @Test
     public void testN8_TransitiveAndBracket() {
@@ -246,12 +269,11 @@ public class BracketTimestampMatrixTest {
         Assert.assertNull(stops.get(1).timestamp());
     }
 
-    // ---------------------------------------------------------------
-    // Scoped queries (S1-S10)
-    // ---------------------------------------------------------------
-
     /**
-     * S1: {@code A.(foo = X AND bar = Y)} - no brackets anywhere.
+     * <strong>Goal:</strong> Verify that an unbracketed scope
+     * ({@code A.(foo = X AND bar = Y)}) parses to a
+     * {@link ScopedConditionTree} with a plain {@link KeySymbol}
+     * prefix and unstamped inner leaves.
      */
     @Test
     public void testS1_ScopedNoBrackets() {
@@ -264,8 +286,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S2: {@code A.(foo[t] = X AND bar[t] = Y)} - leaves bracketed,
-     * prefix unstamped.
+     * <strong>Goal:</strong> Verify that bracket annotations on inner
+     * leaves ({@code A.(foo[t] = X AND bar[t] = Y)}) pin the leaves
+     * while leaving the scope prefix unstamped.
      */
     @Test
     public void testS2_ScopedLeafBrackets() {
@@ -278,7 +301,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S3: {@code A[t].(foo = X AND bar = Y)} - prefix bracketed.
+     * <strong>Goal:</strong> Verify that a bracket on the scope
+     * prefix ({@code A[t].(foo = X AND bar = Y)}) pins the prefix's
+     * traversal time while leaving inner leaves unstamped.
      */
     @Test
     public void testS3_ScopedPrefixBracketed() {
@@ -291,8 +316,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S4: {@code A[t].(foo[t] = X AND bar[t] = Y)} - scope and leaves
-     * all stamped at the same time.
+     * <strong>Goal:</strong> Verify that a bracket on both the scope
+     * prefix and every inner leaf
+     * ({@code A[t].(foo[t] = X AND bar[t] = Y)}) pins all three
+     * positions independently at the same time.
      */
     @Test
     public void testS4_ScopedPrefixAndLeavesBracketed() {
@@ -305,8 +332,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S5: {@code A.(foo = X at t AND bar = Y at t)} - legacy
-     * trailing-at per leaf.
+     * <strong>Goal:</strong> Verify that the legacy trailing-{@code at}
+     * form survives inside a scope
+     * ({@code A.(foo = X at t AND bar = Y at t)}): the inner leaves
+     * carry expression-level timestamps and the prefix is unstamped.
      */
     @Test
     public void testS5_ScopedLegacyTrailingAt() {
@@ -319,8 +348,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S6: {@code A.(foo[t1] = X AND bar[t2] = Y)} - leaves with
-     * distinct brackets.
+     * <strong>Goal:</strong> Verify that distinct per-leaf brackets
+     * inside an unbracketed scope
+     * ({@code A.(foo[t1] = X AND bar[t2] = Y)}) parse to independent
+     * leaf-level timestamps with no prefix stamp.
      */
     @Test
     public void testS6_ScopedLeavesDistinctBrackets() {
@@ -333,8 +364,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S7: {@code A[t3].(foo[t1] = X AND bar[t2] = Y)} - scope and
-     * per-leaf brackets all distinct.
+     * <strong>Goal:</strong> Verify that distinct brackets at the
+     * scope prefix and at each inner leaf
+     * ({@code A[t3].(foo[t1] = X AND bar[t2] = Y)}) all parse to
+     * independent timestamps with no leakage between positions.
      */
     @Test
     public void testS7_ScopedAllDistinct() {
@@ -348,8 +381,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S8: {@code a[t1].b[t2].(foo = X)} - multi-stop scope prefix with
-     * per-stop brackets.
+     * <strong>Goal:</strong> Verify that a multi-stop scope prefix
+     * with per-stop brackets ({@code a[t1].b[t2].(foo = X)}) parses to
+     * a {@link NavigationKeySymbol} prefix carrying per-stop
+     * timestamps.
      */
     @Test
     public void testS8_ScopedMultiStopPrefix() {
@@ -364,8 +399,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S9: {@code A.(B[t].(foo = X) AND bar = Y)} - nested scope with
-     * inner-scope bracket.
+     * <strong>Goal:</strong> Verify that a nested scope whose inner
+     * prefix is bracketed ({@code A.(B[t].(foo = X) AND bar = Y)})
+     * pins the inner scope's traversal time without affecting the
+     * outer scope.
      */
     @Test
     public void testS9_NestedScopeInnerBracket() {
@@ -378,8 +415,9 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * S10: {@code A[t1].(B[t2].(foo = X) AND bar = Y)} - nested scopes
-     * with brackets at both levels.
+     * <strong>Goal:</strong> Verify that nested scopes with brackets
+     * at both levels ({@code A[t1].(B[t2].(foo = X) AND bar = Y)})
+     * carry independent prefix timestamps on each scope.
      */
     @Test
     public void testS10_NestedScopeBothBracketed() {
@@ -391,13 +429,11 @@ public class BracketTimestampMatrixTest {
         assertScopePrefixTemporal(inner, "B", T2);
     }
 
-    // ---------------------------------------------------------------
-    // Bracket keyword equivalence (K1-K3)
-    // ---------------------------------------------------------------
-
     /**
-     * K1: {@code foo[t]}, {@code foo[at t]}, {@code foo[on t]},
-     * {@code foo[during t]} all produce equal ASTs.
+     * <strong>Goal:</strong> Verify that the legacy keyword forms
+     * inside a leaf bracket ({@code foo[at t]}, {@code foo[on t]},
+     * {@code foo[during t]}) produce ASTs equal to the canonical
+     * keyword-less form ({@code foo[t]}).
      */
     @Test
     public void testK1_FlatKeywordEquivalence() {
@@ -411,7 +447,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * K2: navigation per-stop keyword equivalence.
+     * <strong>Goal:</strong> Verify that the legacy keyword form on a
+     * navigation key's per-stop brackets
+     * ({@code a[at t1].foo[at t2]}) produces an AST equal to the
+     * canonical keyword-less form ({@code a[t1].foo[t2]}).
      */
     @Test
     public void testK2_NavigationKeywordEquivalence() {
@@ -423,7 +462,10 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * K3: scope-prefix keyword equivalence.
+     * <strong>Goal:</strong> Verify that the legacy keyword form on a
+     * scope-prefix bracket ({@code A[at t].(foo = X)}) produces an
+     * AST equal to the canonical keyword-less form
+     * ({@code A[t].(foo = X)}).
      */
     @Test
     public void testK3_ScopeKeywordEquivalence() {
@@ -434,123 +476,206 @@ public class BracketTimestampMatrixTest {
         Assert.assertEquals(canonical, withKeyword);
     }
 
-    // ---------------------------------------------------------------
-    // Round-trip stability for every matrix row
-    // ---------------------------------------------------------------
-
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the F1
+     * shape (no brackets, no trailing-{@code at}).
+     */
     @Test
     public void testRoundTripF1() {
         assertRoundTrip("foo = \"X\" AND bar = \"Y\"");
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the F2
+     * shape (per-leaf brackets at the same timestamp).
+     */
     @Test
     public void testRoundTripF2() {
         assertRoundTrip(String
                 .format("foo[%d] = \"X\" AND bar[%d] = \"Y\"", T, T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the F3
+     * shape (legacy trailing-{@code at} on both leaves).
+     */
     @Test
     public void testRoundTripF3() {
         assertRoundTrip(String.format(
                 "foo = \"X\" at %d AND bar = \"Y\" at %d", T, T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the F4
+     * shape (per-leaf brackets with distinct timestamps).
+     */
     @Test
     public void testRoundTripF4() {
         assertRoundTrip(String
                 .format("foo[%d] = \"X\" AND bar[%d] = \"Y\"", T1, T2));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the F5
+     * shape (legacy trailing-{@code at} with distinct timestamps).
+     */
     @Test
     public void testRoundTripF5() {
         assertRoundTrip(String.format(
                 "foo = \"X\" at %d AND bar = \"Y\" at %d", T1, T2));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the F6
+     * shape (one leaf bracketed, the other carrying a legacy
+     * trailing-{@code at}).
+     */
     @Test
     public void testRoundTripF6() {
         assertRoundTrip(String.format(
                 "foo[%d] = \"X\" AND bar = \"Y\" at %d", T1, T2));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N1
+     * shape (unbracketed two-stop navigation key).
+     */
     @Test
     public void testRoundTripN1() {
         assertRoundTrip("a.foo = \"X\"");
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N2
+     * shape (bracket on the first navigation stop).
+     */
     @Test
     public void testRoundTripN2() {
         assertRoundTrip(String.format("a[%d].foo = \"X\"", T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N3
+     * shape (bracket on the leaf navigation stop).
+     */
     @Test
     public void testRoundTripN3() {
         assertRoundTrip(String.format("a.foo[%d] = \"X\"", T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N4
+     * shape (distinct brackets on both stops of a two-stop
+     * navigation key).
+     */
     @Test
     public void testRoundTripN4() {
         assertRoundTrip(
                 String.format("a[%d].foo[%d] = \"X\"", T1, T2));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N5
+     * shape (distinct brackets on three navigation stops).
+     */
     @Test
     public void testRoundTripN5() {
         assertRoundTrip(String
                 .format("a[%d].b[%d].foo[%d] = \"X\"", T1, T2, T3));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N6
+     * shape (legacy trailing-{@code at} on a navigation key).
+     */
     @Test
     public void testRoundTripN6() {
         assertRoundTrip(String.format("a.b.foo = \"X\" at %d", T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N7
+     * shape (per-stop bracket combined with legacy trailing-{@code at}).
+     */
     @Test
     public void testRoundTripN7() {
         assertRoundTrip(
                 String.format("a[%d].foo = \"X\" at %d", T1, T2));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the N8
+     * shape (transitive marker plus bracket on the same stop).
+     */
     @Test
     public void testRoundTripN8() {
         assertRoundTrip(String.format("a*[%d].foo = \"X\"", T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the S1
+     * shape (scope with no brackets).
+     */
     @Test
     public void testRoundTripS1() {
         assertRoundTrip("A.(foo = \"X\" AND bar = \"Y\")");
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the S2
+     * shape (per-leaf brackets inside an unbracketed scope).
+     */
     @Test
     public void testRoundTripS2() {
         assertRoundTrip(String.format(
                 "A.(foo[%d] = \"X\" AND bar[%d] = \"Y\")", T, T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the S3
+     * shape (bracket on a single-key scope prefix).
+     */
     @Test
     public void testRoundTripS3() {
         assertRoundTrip(String
                 .format("A[%d].(foo = \"X\" AND bar = \"Y\")", T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the S4
+     * shape (brackets on the scope prefix and on every inner leaf).
+     */
     @Test
     public void testRoundTripS4() {
         assertRoundTrip(String.format(
                 "A[%d].(foo[%d] = \"X\" AND bar[%d] = \"Y\")", T, T, T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the S5
+     * shape (legacy trailing-{@code at} per leaf inside a scope).
+     */
     @Test
     public void testRoundTripS5() {
         assertRoundTrip(String.format(
                 "A.(foo = \"X\" at %d AND bar = \"Y\" at %d)", T, T));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the S6
+     * shape (distinct per-leaf brackets inside an unbracketed scope).
+     */
     @Test
     public void testRoundTripS6() {
         assertRoundTrip(String.format(
                 "A.(foo[%d] = \"X\" AND bar[%d] = \"Y\")", T1, T2));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the S7
+     * shape (distinct brackets on the scope prefix and on each inner
+     * leaf).
+     */
     @Test
     public void testRoundTripS7() {
         assertRoundTrip(String.format(
@@ -558,15 +683,15 @@ public class BracketTimestampMatrixTest {
                 T2));
     }
 
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the S8
+     * shape (multi-stop scope prefix with per-stop brackets).
+     */
     @Test
     public void testRoundTripS8() {
         assertRoundTrip(
                 String.format("a[%d].b[%d].(foo = \"X\")", T1, T2));
     }
-
-    // ---------------------------------------------------------------
-    // Helpers
-    // ---------------------------------------------------------------
 
     private Compiler compiler() {
         return Compiler.create(VALUE_FN, OP_FN);

@@ -137,14 +137,13 @@ public final class NavigationKeyStop {
 
     /**
      * Parse the {@code content} between {@code [} and {@code ]} into a
-     * {@link TimestampSymbol}. Mirrors the grammar's
-     * {@code BracketedTimestamp()} production: the leading
-     * {@code at}/{@code on}/{@code during} keyword is optional, remaining
-     * tokens are joined with single spaces, and the result is fed to
-     * {@link NaturalLanguage#parseMicros(String)}.
+     * {@link TimestampSymbol}. The leading {@code at} / {@code on} /
+     * {@code during} keyword is optional.
      *
      * @param content the bracket content
      * @return the {@link TimestampSymbol}
+     * @throws IllegalArgumentException if {@code content} is empty or
+     *             carries a keyword with no following value
      */
     private static TimestampSymbol parseBracketContent(String content) {
         String trimmed = content.trim();
