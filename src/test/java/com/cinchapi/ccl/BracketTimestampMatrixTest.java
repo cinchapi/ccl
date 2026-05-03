@@ -278,8 +278,15 @@ public class BracketTimestampMatrixTest {
      */
     @Test
     public void testN9_StandaloneTransitiveBracketFolds() {
-        NavigationKeySymbol nav = parseNavigationKeyOf(
+        ExpressionSymbol expr = parseExpression(
                 String.format("children[%d]* = \"X\"", T));
+        Assert.assertFalse(
+                "standalone transitive bracket must fold onto the stop "
+                        + "rather than wrap the navigation symbol in a "
+                        + "TemporalKeySymbol",
+                expr.key() instanceof TemporalKeySymbol);
+        Assert.assertTrue(expr.key() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
         List<NavigationKeyStop> stops = nav.stops();
         Assert.assertEquals(1, stops.size());
         Assert.assertEquals("children", stops.get(0).key());
@@ -295,17 +302,8 @@ public class BracketTimestampMatrixTest {
      */
     @Test
     public void testN10_DoubleBracketOnNavigationRejected() {
-        try {
-            compiler().parse(
-                    String.format("a.b[%d][%d] = \"X\"", T1, T2));
-            Assert.fail("expected parse failure for double bracket "
-                    + "annotation on navigation key");
-        }
-        catch (Exception e) {
-            // Expected — the fold path detects that the last stop
-            // already carries a timestamp and refuses to attach a
-            // second one.
-        }
+        assertDoubleBracketRejected(
+                String.format("a.b[%d][%d] = \"X\"", T1, T2));
     }
 
     /**
@@ -315,16 +313,8 @@ public class BracketTimestampMatrixTest {
      */
     @Test
     public void testN11_DoubleBracketOnTransitiveRejected() {
-        try {
-            compiler().parse(String
-                    .format("children[%d]*[%d] = \"X\"", T1, T2));
-            Assert.fail("expected parse failure for double bracket "
-                    + "annotation on transitive navigation key");
-        }
-        catch (Exception e) {
-            // Expected — the transitive token captures the first
-            // bracket; the fold path rejects the trailing one.
-        }
+        assertDoubleBracketRejected(
+                String.format("children[%d]*[%d] = \"X\"", T1, T2));
     }
 
     /**
@@ -862,6 +852,22 @@ public class BracketTimestampMatrixTest {
                 ((KeySymbol) temporal.key()).key().toString());
         Assert.assertEquals(expectedTs,
                 temporal.timestamp().timestamp());
+    }
+
+    private void assertDoubleBracketRejected(String ccl) {
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for double "
+                    + "bracket-timestamp annotation in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            Assert.assertTrue(
+                    "expected rejection message to mention 'two "
+                            + "bracket-timestamp annotations' but was: "
+                            + e.getMessage(),
+                    e.getMessage().contains(
+                            "two bracket-timestamp annotations"));
+        }
     }
 
     private void assertRoundTrip(String ccl) {
