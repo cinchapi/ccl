@@ -3177,4 +3177,49 @@ public class GrammarTest {
         }
     };
 
+    @Test
+    public void testSelectSingleKeyWithBracketTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "select name[1700000000] from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testSelectSingleKeyWithNaturalLanguageBracket() throws UnsupportedEncodingException, ParseException {
+        String ccl = "select name[\"last week\"] from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testSelectKeyCollectionWithBracketTimestamps() throws UnsupportedEncodingException, ParseException {
+        String ccl = "select [name[1700000000], age[1700000001]] from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testSelectNavigationKeyWithBracketTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "select friends.name[1700000000] from 1";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void testGetSingleKeyWithBracketTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "get age[1700000000] from [1, 2, 3]";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
 }
