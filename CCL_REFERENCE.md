@@ -387,36 +387,105 @@ a = 1 or (b = 2 and c = 3)
 
 ## 8. Timestamps
 
-Timestamps specify a point in time for historical queries. They are introduced by one of these keywords (all synonyms):
-
-| Keyword |
-|---------|
-| `at` |
-| `on` |
-| `during` |
-| `in` |
-
-Additionally, `as of` is accepted in command contexts (read commands).
+Timestamps specify a point in time for historical queries. CCL pins
+timestamps to keys via **bracket annotations** and to commands via the
+`at` / `on` / `during` / `in` / `as of` keyword forms.
 
 ### Timestamp Values
 
-Timestamps can be:
+Inside a bracket annotation or following a timestamp keyword, a
+timestamp can be:
 
 - **Natural language:** `"yesterday"`, `"last week"`, `"last christmas"`, `"3 days ago"`
 - **Date strings:** `"2024-01-15"`, `"2024-01-15 10:30:00"`
-- **Microsecond epoch:** A numeric value representing microseconds since Unix epoch
+- **Microsecond epoch:** a numeric value representing microseconds since the Unix epoch
 
-Timestamp values are typically quoted. They are parsed by the `NaturalLanguage.parseMicros()` utility.
+Multi-word natural-language values are typically quoted. They are
+parsed by `NaturalLanguage.parseMicros()`.
 
-### Usage in Expressions
+### Bracket Annotation on Keys
+
+Every key in CCL accepts an optional bracket annotation that pins the
+read which the key represents. The brackets are the timestamp pivot,
+so no `at` / `on` / `during` keyword is required inside (the keyword
+form is accepted for backward compatibility).
+
+Each bracket binds **exactly the read it is adjacent to**:
+
+| Position | Pins |
+|---|---|
+| Bracket on a leaf key | the leaf's evaluation timestamp |
+| Bracket on a navigation stop | that stop's traversal timestamp |
+| Bracket on a scope prefix | the scope's traversal timestamp |
+
+Without an annotation, a key reads at the present moment.
+
+#### Leaf evaluation
 
 ```
-name = jeff at "yesterday"
-age > 30 on "2024-01-01"
-score >= 90 during "last week"
+name["last week"] = "Jeff"
+score[1700000000] >= 90
 ```
 
-### Usage in Commands
+#### Per-stop navigation
+
+Navigation keys carry one bracket per stop. Each annotation binds only
+that stop's traversal time; later stops continue at the present moment
+unless they have their own annotation.
+
+```
+a[t1].b[t2].foo[t3] = "X"
+a[t1].foo = "X"            -- only the first stop is pinned
+a.foo[t] = "X"             -- only the leaf eval is pinned
+```
+
+The transitive marker `*` and the bracket annotation can coexist on
+the same stop:
+
+```
+children*[t].name = "Jeff"
+```
+
+#### Scope prefix
+
+A bracket on a scope prefix pins the scope's traversal time:
+
+```
+A[t].(foo = "X" AND bar = "Y")
+```
+
+Multi-stop scope prefixes annotate each stop independently:
+
+```
+a[t1].b[t2].(foo = "X")
+```
+
+#### Keyword equivalence
+
+For backward compatibility, the `at` / `on` / `during` keyword may
+appear inside a bracket. All four forms produce identical ASTs:
+
+```
+name[t]
+name[at t]
+name[on t]
+name[during t]
+```
+
+The canonical serialization always omits the keyword.
+
+#### Bracket syntax in commands
+
+Read commands accept the same bracket annotation on the keys they
+reference:
+
+```
+select name[t] from 1
+get age[t] from [1, 2, 3]
+```
+
+The command-level timestamp keyword (`at` / `on` / `during` / `as of`)
+remains the way to pin an entire command:
 
 ```
 select name from 1 at "yesterday"
@@ -431,6 +500,30 @@ diff 1 from "yesterday" to "today"
 chronicle name in 1 from "2024-01-01" to "2024-06-01"
 audit 1 from "last month" to "today"
 ```
+
+### Deprecated: trailing `at <timestamp>` outside brackets
+
+The legacy form attaches a timestamp to the trailing edge of a leaf
+condition:
+
+```
+name = "Jeff" at "yesterday"
+age > 30 on "2024-01-01"
+score >= 90 during "last week"
+```
+
+This syntax continues to parse indefinitely. For a navigation key it
+pins **every stop in the chain** to the same time, with no way to
+express per-stop differences:
+
+```
+a.b.foo = "X" at t        -- legacy: a, b, and foo all read at t
+a[t1].b[t2].foo[t3] = "X" -- preferred: per-stop control
+```
+
+New code should prefer bracket annotations for explicit per-read
+control; the canonical CCL emitted by the compiler always uses the
+bracket form.
 
 ---
 

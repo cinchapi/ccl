@@ -1,6 +1,25 @@
 # Changelog
 
 #### Version 4.0.0 (TBD)
+##### Bracket Timestamp Syntax
+Every key in CCL now accepts an optional bracket annotation `[<timestamp>]` that pins the read it represents. The brackets are the timestamp pivot — no leading `at`/`on`/`during` keyword is required inside (the keyword form is accepted for backward compatibility, but the canonical serialization is keyword-less).
+
+```
+name["last week"] = "Jeff"
+a[t1].b[t2].foo[t3] = "X"
+A[t].(foo = "X" AND bar = "Y")
+A[t1].(foo[t2] = "X")
+```
+
+Each bracket binds exactly the read it is adjacent to:
+* Bracket on a leaf key pins the leaf's evaluation timestamp.
+* Bracket on a navigation stop pins that stop's traversal timestamp.
+* Bracket on a scope prefix pins the scope's traversal timestamp.
+
+Without an annotation a key reads at the present moment. The trailing `at <timestamp>` form on a relational expression (`name = "X" at t`) continues to parse indefinitely but is now considered the deprecated equivalent of a per-key bracket annotation. For a navigation key the legacy form pins every stop in the chain to the same time — the new bracket syntax is the only way to express per-stop differences.
+
+A new `TemporalKeySymbol` AST type wraps any `KeyTokenSymbol` with the bracket-derived `TimestampSymbol`. `NavigationKeySymbol` carries per-stop timestamps via the `stops()` accessor. Existing CCL strings without brackets parse identically to before.
+
 ##### Command Support
 The CCL grammar has been expanded to support parsing **Concourse commands** in addition to conditions, orders, and pages. A command string (e.g., `select name from 1 where age > 30`) is parsed into a `CommandTree` containing a `CommandSymbol` that represents the operation, along with optional `ConditionTree`, `OrderTree`, and `PageTree` children.
 
