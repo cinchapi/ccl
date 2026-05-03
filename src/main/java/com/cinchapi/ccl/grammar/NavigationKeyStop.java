@@ -17,6 +17,8 @@ package com.cinchapi.ccl.grammar;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.google.common.base.Preconditions;
 
@@ -200,6 +202,7 @@ public final class NavigationKeyStop {
      * {@link NavigationKeyStop}'s read, or {@code null} if the stop is
      * unstamped.
      */
+    @Nullable
     private final TimestampSymbol timestamp;
 
     /**
@@ -212,7 +215,7 @@ public final class NavigationKeyStop {
      *            {@code null}
      */
     private NavigationKeyStop(String key, boolean isTransitive,
-            TimestampSymbol timestamp) {
+            @Nullable TimestampSymbol timestamp) {
         this.key = key;
         this.isTransitive = isTransitive;
         this.timestamp = timestamp;
@@ -264,6 +267,7 @@ public final class NavigationKeyStop {
      *
      * @return the {@link TimestampSymbol} or {@code null}
      */
+    @Nullable
     public TimestampSymbol timestamp() {
         return timestamp;
     }
