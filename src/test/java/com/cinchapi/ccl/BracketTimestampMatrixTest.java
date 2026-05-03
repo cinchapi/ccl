@@ -16,6 +16,7 @@
 package com.cinchapi.ccl;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,7 @@ import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.ScopedConditionTree;
 import com.cinchapi.ccl.type.Operator;
+import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.concourse.util.Convert;
 
 /**
@@ -222,9 +224,7 @@ public class BracketTimestampMatrixTest {
     @Test
     public void testN6_LegacyWholeChain() {
         String ccl = String.format("a.b.foo = \"X\" at %d", T);
-        ConditionTree tree = (ConditionTree) compiler().parse(ccl);
-        ExpressionTree leaf = (ExpressionTree) tree;
-        ExpressionSymbol expr = (ExpressionSymbol) leaf.root();
+        ExpressionSymbol expr = parseExpression(ccl);
         Assert.assertTrue(expr.key() instanceof NavigationKeySymbol);
         for (NavigationKeyStop stop : ((NavigationKeySymbol) expr.key())
                 .stops()) {
@@ -242,9 +242,7 @@ public class BracketTimestampMatrixTest {
     @Test
     public void testN7_MixedBracketAndLegacy() {
         String ccl = String.format("a[%d].foo = \"X\" at %d", T1, T2);
-        ConditionTree tree = (ConditionTree) compiler().parse(ccl);
-        ExpressionTree leaf = (ExpressionTree) tree;
-        ExpressionSymbol expr = (ExpressionSymbol) leaf.root();
+        ExpressionSymbol expr = parseExpression(ccl);
         NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
         Assert.assertEquals(T1,
                 nav.stops().get(0).timestamp().timestamp());
@@ -474,6 +472,40 @@ public class BracketTimestampMatrixTest {
         AbstractSyntaxTree withKeyword = compiler()
                 .parse(String.format("A[at %d].(foo = \"X\")", T));
         Assert.assertEquals(canonical, withKeyword);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a natural-language timestamp on
+     * a leaf bracket ({@code foo[last week] = "X"}) routes through the
+     * grammar's {@code BracketedTimestamp} production to
+     * {@link NaturalLanguage#parseMicros}. Compared at day precision
+     * because natural-language phrases are anchored to the current
+     * instant.
+     */
+    @Test
+    public void testL1_LeafNaturalLanguageBracket() {
+        TimestampSymbol expected = new TimestampSymbol(
+                NaturalLanguage.parseMicros("last week"), TimeUnit.DAYS);
+        ExpressionSymbol expr = parseExpression("foo[last week] = \"X\"");
+        TemporalKeySymbol temporal = (TemporalKeySymbol) expr.key();
+        Assert.assertEquals(expected, temporal.timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a natural-language timestamp on
+     * a navigation stop ({@code a[last week].foo = "X"}) — where the
+     * lexer captures the bracket inside a {@code PERIOD_SEPARATED_STRING}
+     * and {@link NavigationKeyStop} parses the content — routes to
+     * {@link NaturalLanguage#parseMicros}. Compared at day precision.
+     */
+    @Test
+    public void testL2_NavigationStopNaturalLanguageBracket() {
+        TimestampSymbol expected = new TimestampSymbol(
+                NaturalLanguage.parseMicros("last week"), TimeUnit.DAYS);
+        NavigationKeySymbol nav = parseNavigationKeyOf(
+                "a[last week].foo = \"X\"");
+        Assert.assertEquals(expected, nav.stops().get(0).timestamp());
+        Assert.assertNull(nav.stops().get(1).timestamp());
     }
 
     /**
@@ -708,10 +740,12 @@ public class BracketTimestampMatrixTest {
     }
 
     private NavigationKeySymbol parseNavigationKeyOf(String ccl) {
-        ConditionTree tree = (ConditionTree) compiler().parse(ccl);
-        ExpressionTree leaf = (ExpressionTree) tree;
-        ExpressionSymbol expr = (ExpressionSymbol) leaf.root();
-        return (NavigationKeySymbol) expr.key();
+        return (NavigationKeySymbol) parseExpression(ccl).key();
+    }
+
+    private ExpressionSymbol parseExpression(String ccl) {
+        ExpressionTree leaf = (ExpressionTree) compiler().parse(ccl);
+        return (ExpressionSymbol) leaf.root();
     }
 
     private void assertLeafKeyTemporal(AbstractSyntaxTree leaf,
