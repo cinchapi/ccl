@@ -81,6 +81,34 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
         super(key);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) {
+            return true;
+        }
+        else if(!(obj instanceof NavigationKeySymbol)) {
+            return false;
+        }
+        return stops().equals(((NavigationKeySymbol) obj).stops());
+    }
+
+    @Override
+    public int hashCode() {
+        return stops().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (NavigationKeyStop stop : stops()) {
+            if(sb.length() > 0) {
+                sb.append('.');
+            }
+            sb.append(stop.value());
+        }
+        return sb.toString();
+    }
+
     /**
      * Return the raw component strings that make up this
      * {@link NavigationKeySymbol}, in path order. Any transitive marker

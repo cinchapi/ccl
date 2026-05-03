@@ -533,6 +533,51 @@ public class GrammarTest {
     }
 
     @Test
+    public void validBracketTimestamp() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name[1700000000] = jeff";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
+    public void validBracketTimestampWithKeyword() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name[at 1700000000] = jeff";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test (expected = Exception.class)
+    public void invalidEmptyBracket() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name[] = jeff";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test (expected = Exception.class)
+    public void invalidUnclosedBracket() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name[1700000000 = jeff";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test (expected = Exception.class)
+    public void invalidWhitespaceOnlyBracket() throws UnsupportedEncodingException, ParseException {
+        String ccl = "name[ ] = jeff";
+        InputStream stream = new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8.name()));
+        Grammar grammar = new Grammar(stream, PARSER_TRANSFORM_VALUE_FUNCTION,
+                PARSER_TRANSFORM_OPERATOR_FUNCTION, visitor);
+        grammar.generateAST();
+    }
+
+    @Test
     public void testWithOffset() throws UnsupportedEncodingException, ParseException {
         String input = OFFSET + " 3";
 
