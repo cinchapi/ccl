@@ -140,6 +140,26 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
+     * <strong>Goal:</strong> Verify that two adjacent bracket
+     * annotations on a single flat leaf key
+     * ({@code foo[t1][t2] = X}) are rejected at parse time. The
+     * grammar's {@code Key()} production accepts at most one optional
+     * trailing bracket, so a second adjacent bracket fails the parse.
+     */
+    @Test
+    public void testF7_DoubleBracketOnLeafRejected() {
+        String ccl = String.format("foo[%d][%d] = \"X\"", T1, T2);
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for double "
+                    + "bracket-timestamp on flat leaf in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            // Pass — Key()'s optional bracket cannot fire twice.
+        }
+    }
+
+    /**
      * <strong>Goal:</strong> Verify that an unbracketed navigation key
      * ({@code a.foo = X}) parses to a {@link NavigationKeySymbol}
      * whose stops carry no timestamps.
