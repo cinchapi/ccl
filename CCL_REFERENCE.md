@@ -387,36 +387,134 @@ a = 1 or (b = 2 and c = 3)
 
 ## 8. Timestamps
 
-Timestamps specify a point in time for historical queries. They are introduced by one of these keywords (all synonyms):
+CCL supports historical reads at any point in time. The **bracket
+annotation** form (`name[t]`) attaches a timestamp directly to a key,
+and the legacy keyword form (`at` / `on` / `during` / `as of`) attaches
+a timestamp to a whole condition or command.
 
-| Keyword |
-|---------|
-| `at` |
-| `on` |
-| `during` |
-| `in` |
+### 8.1 Mixed-time reads (the new paradigm)
 
-Additionally, `as of` is accepted in command contexts (read commands).
+A single CCL operation can read each of its keys at a different point
+in time. This is the headline capability bracket annotations enable —
+no other syntax in CCL or in the command languages of comparable
+databases lets you express it.
 
-### Timestamp Values
+```
+select [name[t1], age[t2], score[t3]] from 1
+find name[t1] = "Jeff" AND age[t2] >= 30
+calculate sum revenue[t1] from 1
+A[t1].(foo[t2] = "X" AND bar[t3] = "Y")
+```
 
-Timestamps can be:
+Each bracket binds **exactly the read it is adjacent to** — the leaf,
+the navigation stop, or the scope prefix it follows. Unbracketed keys
+read at the present moment.
+
+| Position | Pins |
+|---|---|
+| Bracket on a leaf key | the leaf's evaluation timestamp |
+| Bracket on a navigation stop | that stop's traversal timestamp |
+| Bracket on a scope prefix | the scope's traversal timestamp |
+
+### 8.2 Where brackets are accepted
+
+Bracket annotations are valid on keys in any **read** that pins data at
+a single point in time. They are **rejected at parse time** on writes
+and on history-range commands.
+
+| Command | Brackets on keys? |
+|---|---|
+| `select`, `get`, `find`, `browse`, `navigate`, `calculate`, `search`, `verify` | accepted |
+| `findOrInsert` | accepted on the criterion (the read half of the command); the JSON insert payload carries no key |
+| `order by` | accepted |
+| `find` (in the `WHERE` condition) | accepted |
+| `add`, `set`, `remove`, `clear`, `link`, `unlink`, `reconcile`, `verify_and_swap`, `verify_or_set`, `find_or_add`, `revert` | rejected (writes) |
+| `audit`, `chronicle`, `diff` | rejected (range-history reads — they take a `from … to …` window, not a point) |
+
+A rejection produces a `SyntaxException` at parse time. The exception
+message names the offending command and the offending key.
+
+### 8.3 Timestamp values
+
+Inside a bracket annotation or following a timestamp keyword, a
+timestamp can be:
 
 - **Natural language:** `"yesterday"`, `"last week"`, `"last christmas"`, `"3 days ago"`
 - **Date strings:** `"2024-01-15"`, `"2024-01-15 10:30:00"`
-- **Microsecond epoch:** A numeric value representing microseconds since Unix epoch
+- **Microsecond epoch:** a numeric value representing microseconds since the Unix epoch
 
-Timestamp values are typically quoted. They are parsed by the `NaturalLanguage.parseMicros()` utility.
+Multi-word natural-language values are typically quoted. They are
+parsed by `NaturalLanguage.parseMicros()`.
 
-### Usage in Expressions
+### 8.4 Bracket annotation, in detail
+
+#### Leaf evaluation
 
 ```
-name = jeff at "yesterday"
-age > 30 on "2024-01-01"
-score >= 90 during "last week"
+name["last week"] = "Jeff"
+score[1700000000] >= 90
 ```
 
-### Usage in Commands
+#### Per-stop navigation
+
+Navigation keys carry one bracket per stop. Each annotation binds only
+that stop's traversal time; later stops continue at the present moment
+unless they have their own annotation.
+
+```
+a[t1].b[t2].foo[t3] = "X"
+a[t1].foo = "X"            -- only the first stop is pinned
+a.foo[t] = "X"             -- only the leaf eval is pinned
+```
+
+The transitive marker `*` and the bracket annotation can coexist on
+the same stop. The bracket is adjacent to the key it qualifies and
+the transitive marker terminates the stop:
+
+```
+children[t]*.name = "Jeff"
+a[t1]*.b[t2]*.foo = "X"
+```
+
+The reverse order `key*[t]` is rejected at parse time — only
+`key[t]*` is accepted.
+
+A key carries at most one bracket-timestamp annotation; double
+annotations such as `a.b[t1][t2]` or `children[t1]*[t2]` are rejected
+at parse time.
+
+#### Scope prefix
+
+A bracket on a scope prefix pins the scope's traversal time:
+
+```
+A[t].(foo = "X" AND bar = "Y")
+```
+
+Multi-stop scope prefixes annotate each stop independently:
+
+```
+a[t1].b[t2].(foo = "X")
+```
+
+#### Keyword equivalence
+
+For backward compatibility, the `at` / `on` / `during` keyword may
+appear inside a bracket. All four forms produce identical ASTs:
+
+```
+name[t]
+name[at t]
+name[on t]
+name[during t]
+```
+
+The canonical serialization always omits the keyword.
+
+### 8.5 Command-level timestamps
+
+The command-level timestamp keyword (`at` / `on` / `during` / `as of`)
+remains the way to pin an entire command:
 
 ```
 select name from 1 at "yesterday"
@@ -431,6 +529,61 @@ diff 1 from "yesterday" to "today"
 chronicle name in 1 from "2024-01-01" to "2024-06-01"
 audit 1 from "last month" to "today"
 ```
+
+### 8.6 Precedence: bracket beats trailing-`at`
+
+When both forms appear on the same operation, **the more-specific form
+wins**. A bracket on a key pins that key's read; the trailing-`at`
+(or `as of`) at the operation level fills in a default for keys that
+have no bracket of their own:
+
+| Input | Effective per-read timestamps |
+|---|---|
+| `name[t1] = "X" at t2` | `name` reads at `t1`; the trailing `at t2` is ignored because the bracket already pinned the read |
+| `a[t1].foo[t2] = "X" at t3` | `a` traverses at `t1`, `foo` evaluates at `t2`; `t3` would fill in any unpinned stop |
+| `select [name[t1], age[t2]] from 1 at t3` | `name` at `t1`, `age` at `t2` |
+| `select [name[t1], age, score] from 1 at t2` | `name` at `t1`; `age` and `score` at `t2` (filled in) |
+| `order by name[t1] asc at t2` | `name` at `t1`; `t2` would fill in if absent |
+
+The AST preserves both pieces of information — bracketed keys keep
+their per-read timestamp, and the operation carries its trailing
+timestamp untouched. Downstream consumers (engine, drivers) apply the
+precedence rule at evaluation time.
+
+> **Engine note for downstream Concourse implementations:** for any
+> read whose key has no bracket annotation, fall back to the
+> command-level / leaf-level / order-level timestamp; for any read
+> whose key has a bracket annotation, use it. The parser guarantees
+> the AST exposes both via `KeyTokenSymbol.isTemporal()` /
+> `TemporalKeySymbol.timestamp()` (per-key) and the symbol's own
+> `timestamp()` accessor (operation-level). See
+> [cinchapi/concourse#696](https://github.com/cinchapi/concourse/issues/696).
+
+### 8.7 Deprecated: trailing `at <timestamp>` outside brackets
+
+The legacy form attaches a timestamp to the trailing edge of a leaf
+condition:
+
+```
+name = "Jeff" at "yesterday"
+age > 30 on "2024-01-01"
+score >= 90 during "last week"
+```
+
+This syntax continues to parse indefinitely. For a navigation key it
+pins **every stop in the chain** to the same time, with no way to
+express per-stop differences:
+
+```
+a.b.foo = "X" at t        -- legacy: a, b, and foo all read at t
+a[t1].b[t2].foo[t3] = "X" -- preferred: per-stop control
+```
+
+New code should prefer bracket annotations for explicit per-read
+control. The compiler preserves whichever form a CCL string uses, so
+existing trailing-`at` strings round-trip unchanged. Within a bracket
+the keyword is canonicalized away — `name[at 123]` and `name[123]`
+parse to identical ASTs and both serialize as `name[123]`.
 
 ---
 

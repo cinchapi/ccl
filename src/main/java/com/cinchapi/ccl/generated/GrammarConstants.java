@@ -195,17 +195,19 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int NAVIGATION_SCOPE_OPEN = 94;
   /** RegularExpression Id. */
-  int ASTERISK_SUFFIXED_STRING = 95;
+  int KEY_BRACKET = 95;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 96;
+  int ASTERISK_SUFFIXED_STRING = 96;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 97;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 97;
   /** RegularExpression Id. */
-  int LETTER = 98;
+  int NON_ALPHANUMERIC = 98;
   /** RegularExpression Id. */
-  int DIGIT = 99;
+  int LETTER = 99;
   /** RegularExpression Id. */
-  int PERIOD = 100;
+  int DIGIT = 100;
+  /** RegularExpression Id. */
+  int PERIOD = 101;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -307,6 +309,7 @@ public interface GrammarConstants {
     "<ALPHANUMERIC>",
     "<PERIOD_SEPARATED_STRING>",
     "<NAVIGATION_SCOPE_OPEN>",
+    "<KEY_BRACKET>",
     "<ASTERISK_SUFFIXED_STRING>",
     "<NON_ALPHANUMERIC_AND_ALPHANUMERIC>",
     "<NON_ALPHANUMERIC>",

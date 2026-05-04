@@ -41,6 +41,7 @@ import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
+import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
@@ -304,11 +305,13 @@ TOKEN :
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
-  < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")?)+ >
+  < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")?)+ >
 |
-  < NAVIGATION_SCOPE_OPEN: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("*")?)* ".(" >
+  < NAVIGATION_SCOPE_OPEN: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")?)* ".(" >
 |
-  < ASTERISK_SUFFIXED_STRING: <ALPHANUMERIC> "*" >
+  < #KEY_BRACKET: "[" ( ~["]", "[", "\n", "\r"] )+ "]" >
+|
+  < ASTERISK_SUFFIXED_STRING: <ALPHANUMERIC> (<KEY_BRACKET>)? "*" >
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
@@ -404,12 +407,7 @@ void ScopedExpression() #Scoped :
   {
     String raw = t.image;
     String path = raw.substring(0, raw.length() - 2); // strip trailing ".("
-    if(path.indexOf('.') >= 0 || path.indexOf('*') >= 0) {
-      prefix = new NavigationKeySymbol(path);
-    }
-    else {
-      prefix = new KeySymbol(path);
-    }
+    prefix = NavigationKeySymbol.parseScopePrefix(path);
     jjtThis.prefix(prefix);
   }
   DisjunctionExpression() <CLOSE_PARENTHESES>
@@ -437,6 +435,14 @@ void RelationalExpression() #Expression :
         operator=UnaryOperator() value1=UnaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
+      |
+        // Search operators are reachable here only when the Search-side
+        // LOOKAHEAD(2) above fell through — typically because a bracket
+        // annotation sits between the key and the search operator
+        // (e.g. `name[t] contains "X"`). The bracket-less form
+        // `name contains "X"` is consumed by the SearchKey/SearchOperator
+        // alternative.
+        operator=SearchOperator() value1=SearchValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       )
     )
     {
@@ -507,6 +513,11 @@ void RelationalExpressionNoTimestamp() #Expression :
         operator=UnaryOperator() value1=UnaryValue()
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue()
+      |
+        // See RelationalExpression — the Search alternative covers the
+        // bracket-between-key-and-operator case the LOOKAHEAD above
+        // can't see past.
+        operator=SearchOperator() value1=SearchValue()
       )
     )
     {
@@ -535,20 +546,33 @@ KeyTokenSymbol Key() :
 {
   FunctionKeySymbol function;
   Token key;
+  KeyTokenSymbol result;
+  TimestampSymbol ts = null;
 }
 {
   (
     LOOKAHEAD(2)
 
     (function=KeyFunction())
-    { return function; }
+    { result = function; }
   |
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
-    { return new KeySymbol(key.image); }
+    { result = new KeySymbol(key.image); }
   |
     (key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
-    { return new NavigationKeySymbol(key.image); }
+    { result = new NavigationKeySymbol(key.image); }
   )
+  ( LOOKAHEAD(2) <OPEN_BRACKET> ts=BracketedTimestamp() <CLOSE_BRACKET> )?
+  {
+    if(ts == null) {
+      return result;
+    }
+    if(result instanceof NavigationKeySymbol) {
+      return NavigationKeySymbol.withTimestampOnLastStop(
+          (NavigationKeySymbol) result, ts);
+    }
+    return new TemporalKeySymbol(result, ts);
+  }
 }
 
 ValueTokenSymbol UnaryValue() :
@@ -782,6 +806,20 @@ TimestampSymbol Timestamp() :
 }
 {
   (<TIMESTAMP>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+}
+
+// Bracket-form timestamp: the brackets themselves are the timestamp pivot,
+// so the leading at/on/during keyword is optional. The keyword form is
+// accepted for backward compatibility.
+TimestampSymbol BracketedTimestamp() :
+{
+  Token word;
+  String timestamp = "";
+}
+{
+  (<TIMESTAMP>)?
+  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
@@ -1062,7 +1100,7 @@ CommandSymbol AddCommand() : {
     Collection records = null;
 }
 {
-    <ADD> key=Key() <AS> value=UnaryValue()
+    <ADD> key=Key() { KeyTokenSymbol.requireStorageKey(key, "add command"); } <AS> value=UnaryValue()
     (
         ((<IN> | <TO> | <WITHIN>)
         (
@@ -1084,7 +1122,7 @@ CommandSymbol SetCommand() : {
     Collection records = null;
 }
 {
-    <SET> key=Key() <AS> value=UnaryValue() (<IN> | <WITHIN>)
+    <SET> key=Key() { KeyTokenSymbol.requireStorageKey(key, "set command"); } <AS> value=UnaryValue() (<IN> | <WITHIN>)
     (
         LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection()
@@ -1102,7 +1140,7 @@ CommandSymbol RemoveCommand() : {
     Collection records = null;
 }
 {
-    <REMOVE> key=Key() <AS> value=UnaryValue() (<FROM> | <IN> | <WITHIN>)
+    <REMOVE> key=Key() { KeyTokenSymbol.requireStorageKey(key, "remove command"); } <AS> value=UnaryValue() (<FROM> | <IN> | <WITHIN>)
     (
         LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection() { return new RemoveSymbol(key, value, records); }
@@ -1127,7 +1165,7 @@ CommandSymbol ClearCommand() : {
       |
         // Key collection + preposition — clear [name, age] from 1 / clear name, age from 1
         LOOKAHEAD(KeyCollection() (<FROM> | <IN> | <WITHIN>))
-        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>)
+        keys=KeyCollection() { KeyTokenSymbol.requireStorageKeys(keys, "clear command"); } (<FROM> | <IN> | <WITHIN>)
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()
@@ -1139,7 +1177,7 @@ CommandSymbol ClearCommand() : {
       |
         // Single key + preposition — clear name from 1
         LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN>))
-        key=Key() (<FROM> | <IN> | <WITHIN>)
+        key=Key() { KeyTokenSymbol.requireStorageKey(key, "clear command"); } (<FROM> | <IN> | <WITHIN>)
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()
@@ -1167,7 +1205,7 @@ CommandSymbol VerifyAndSwapCommand() : {
     Token record;
 }
 {
-    <VERIFY_AND_SWAP> key=Key() <AS> expected=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
+    <VERIFY_AND_SWAP> key=Key() { KeyTokenSymbol.requireStorageKey(key, "verify_and_swap command"); } <AS> expected=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
     <WITH> replacement=UnaryValue()
     { return new VerifyAndSwapSymbol(key, expected, replacement, Long.parseLong(record.image)); }
 }
@@ -1178,7 +1216,7 @@ CommandSymbol VerifyOrSetCommand() : {
     Token record;
 }
 {
-    <VERIFY_OR_SET> key=Key() <AS> value=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
+    <VERIFY_OR_SET> key=Key() { KeyTokenSymbol.requireStorageKey(key, "verify_or_set command"); } <AS> value=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
     { return new VerifyOrSetSymbol(key, value, Long.parseLong(record.image)); }
 }
 
@@ -1236,7 +1274,7 @@ CommandSymbol LinkCommand() : {
     Collection destinations = null;
 }
 {
-    <LINK> key=Key() <FROM> source=<NUMERIC> <TO>
+    <LINK> key=Key() { KeyTokenSymbol.requireStorageKey(key, "link command"); } <FROM> source=<NUMERIC> <TO>
     (
         LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         destinations=RecordCollection()
@@ -1257,7 +1295,7 @@ CommandSymbol UnlinkCommand() : {
     Token destination;
 }
 {
-    <UNLINK> key=Key() <FROM> source=<NUMERIC> <TO> destination=<NUMERIC>
+    <UNLINK> key=Key() { KeyTokenSymbol.requireStorageKey(key, "unlink command"); } <FROM> source=<NUMERIC> <TO> destination=<NUMERIC>
     { return new UnlinkSymbol(key, Long.parseLong(source.image), Long.parseLong(destination.image)); }
 }
 
@@ -1505,7 +1543,7 @@ CommandSymbol FindOrAddCommand() : {
     ValueTokenSymbol<?> value;
 }
 {
-    <FIND_OR_ADD> key=Key() <AS> value=UnaryValue()
+    <FIND_OR_ADD> key=Key() { KeyTokenSymbol.requireStorageKey(key, "find_or_add command"); } <AS> value=UnaryValue()
     { return new FindOrAddSymbol(key, value); }
 }
 
@@ -1598,7 +1636,7 @@ CommandSymbol ChronicleCommand() : {
     TimestampSymbol end = null;
 }
 {
-    <CHRONICLE> key=Key() (<IN> | <WITHIN>) record=<NUMERIC>
+    <CHRONICLE> key=Key() { KeyTokenSymbol.requireStorageKey(key, "chronicle command"); } (<IN> | <WITHIN>) record=<NUMERIC>
     (
         <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
     )?
@@ -1615,14 +1653,14 @@ CommandSymbol DiffCommand() : {
     <DIFF>
     (
         LOOKAHEAD(4)
-        key=Key() (<IN> | <WITHIN>) record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+        key=Key() { KeyTokenSymbol.requireStorageKey(key, "diff command"); } (<IN> | <WITHIN>) record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(key, Long.parseLong(record.image), start, end); }
       |
         LOOKAHEAD(2)
         record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(null, Long.parseLong(record.image), start, end); }
       |
-        key=Key() <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+        key=Key() { KeyTokenSymbol.requireStorageKey(key, "diff command"); } <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(key, start, end); }
     )
 }
@@ -1699,7 +1737,7 @@ CommandSymbol ReconcileCommand() : {
     Collection<ValueTokenSymbol<?>> values;
 }
 {
-    <RECONCILE> key=Key() (<IN> | <WITHIN>) record=<NUMERIC> <WITH> values=ValueCollection()
+    <RECONCILE> key=Key() { KeyTokenSymbol.requireStorageKey(key, "reconcile command"); } (<IN> | <WITHIN>) record=<NUMERIC> <WITH> values=ValueCollection()
     { return new ReconcileSymbol(key, Long.parseLong(record.image), values); }
 }
 
@@ -1713,7 +1751,7 @@ CommandSymbol AuditCommand() : {
     <AUDIT>
     (
         LOOKAHEAD(2)
-        key=Key() (<IN> | <WITHIN>)
+        key=Key() { KeyTokenSymbol.requireStorageKey(key, "audit command"); } (<IN> | <WITHIN>)
     )?
     record=<NUMERIC>
     (
@@ -1783,7 +1821,7 @@ CommandSymbol RevertCommand() : {
     <REVERT>
     (
         LOOKAHEAD(KeyCollection() (<IN> | <WITHIN>))
-        keys=KeyCollection() (<IN> | <WITHIN>)
+        keys=KeyCollection() { KeyTokenSymbol.requireStorageKeys(keys, "revert command"); } (<IN> | <WITHIN>)
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()
@@ -1795,7 +1833,7 @@ CommandSymbol RevertCommand() : {
             { return new RevertSymbol(keys, Long.parseLong(record.image), timestamp); }
         )
       |
-        key=Key() (<IN> | <WITHIN>)
+        key=Key() { KeyTokenSymbol.requireStorageKey(key, "revert command"); } (<IN> | <WITHIN>)
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()

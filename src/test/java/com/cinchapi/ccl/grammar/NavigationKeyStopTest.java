@@ -94,4 +94,164 @@ public class NavigationKeyStopTest {
         NavigationKeyStop.parse("*");
     }
 
+    @Test
+    public void testParseStampedNonTransitive() {
+        NavigationKeyStop stop = NavigationKeyStop.parse("name[123]");
+        Assert.assertEquals("name", stop.key());
+        Assert.assertFalse(stop.isTransitive());
+        Assert.assertNotNull(stop.timestamp());
+        Assert.assertEquals(123L, stop.timestamp().timestamp());
+    }
+
+    @Test
+    public void testParseStampedTransitive() {
+        NavigationKeyStop stop = NavigationKeyStop.parse("children[456]*");
+        Assert.assertEquals("children", stop.key());
+        Assert.assertTrue(stop.isTransitive());
+        Assert.assertEquals(456L, stop.timestamp().timestamp());
+    }
+
+    @Test
+    public void testParseStampedWithKeywordEqualsKeywordless() {
+        Assert.assertEquals(NavigationKeyStop.parse("name[123]"),
+                NavigationKeyStop.parse("name[at 123]"));
+        Assert.assertEquals(NavigationKeyStop.parse("name[123]"),
+                NavigationKeyStop.parse("name[on 123]"));
+        Assert.assertEquals(NavigationKeyStop.parse("name[123]"),
+                NavigationKeyStop.parse("name[during 123]"));
+    }
+
+    @Test
+    public void testParseUnstampedTimestampIsNull() {
+        Assert.assertNull(NavigationKeyStop.parse("name").timestamp());
+        Assert.assertNull(NavigationKeyStop.parse("children*").timestamp());
+    }
+
+    @Test
+    public void testValueRoundTripStamped() {
+        Assert.assertEquals("name[123]",
+                NavigationKeyStop.parse("name[123]").value());
+        Assert.assertEquals("children[456]*",
+                NavigationKeyStop.parse("children[456]*").value());
+    }
+
+    @Test
+    public void testValueCanonicalizesKeywordForm() {
+        Assert.assertEquals("name[123]",
+                NavigationKeyStop.parse("name[at 123]").value());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseRejectsBareBracketAnnotation() {
+        NavigationKeyStop.parse("[123]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseRejectsAsteriskBeforeBracket() {
+        NavigationKeyStop.parse("children*[123]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseRejectsTwoBracketsInValue() {
+        NavigationKeyStop.parse("name[1][2]");
+    }
+
+    @Test
+    public void testNotEqualsWhenTimestampDiffers() {
+        Assert.assertNotEquals(NavigationKeyStop.parse("name[123]"),
+                NavigationKeyStop.parse("name[456]"));
+    }
+
+    @Test
+    public void testNotEqualsWhenOneStampedAndOtherNot() {
+        Assert.assertNotEquals(NavigationKeyStop.parse("name[123]"),
+                NavigationKeyStop.parse("name"));
+    }
+
+    @Test
+    public void testParseStampedTransitivePutsBracketBeforeAsterisk() {
+        NavigationKeyStop stop = NavigationKeyStop.parse("children[456]*");
+        Assert.assertEquals("children", stop.key());
+        Assert.assertTrue(stop.isTransitive());
+        Assert.assertEquals(456L, stop.timestamp().timestamp());
+    }
+
+    @Test
+    public void testExtractBaseKeyOnCanonicalInputs() {
+        Assert.assertEquals("name",
+                NavigationKeyStop.extractBaseKey("name"));
+        Assert.assertEquals("children",
+                NavigationKeyStop.extractBaseKey("children*"));
+        Assert.assertEquals("name",
+                NavigationKeyStop.extractBaseKey("name[123]"));
+        Assert.assertEquals("children",
+                NavigationKeyStop.extractBaseKey("children[123]*"));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testExtractBaseKeyRejectsNull() {
+        NavigationKeyStop.extractBaseKey(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtractBaseKeyRejectsEmpty() {
+        NavigationKeyStop.extractBaseKey("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtractBaseKeyRejectsDoubleBracket() {
+        NavigationKeyStop.extractBaseKey("name[1][2]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtractBaseKeyRejectsAsteriskBeforeBracket() {
+        NavigationKeyStop.extractBaseKey("children*[1]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtractBaseKeyRejectsBareBracket() {
+        NavigationKeyStop.extractBaseKey("[1]");
+    }
+
+    @Test
+    public void testIsTransitiveStopOnCanonicalInputs() {
+        Assert.assertFalse(NavigationKeyStop.isTransitiveStop("name"));
+        Assert.assertTrue(NavigationKeyStop.isTransitiveStop("children*"));
+        Assert.assertFalse(NavigationKeyStop.isTransitiveStop("name[123]"));
+        Assert.assertTrue(
+                NavigationKeyStop.isTransitiveStop("children[123]*"));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testIsTransitiveStopRejectsNull() {
+        NavigationKeyStop.isTransitiveStop(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIsTransitiveStopRejectsEmpty() {
+        NavigationKeyStop.isTransitiveStop("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIsTransitiveStopRejectsDoubleBracket() {
+        NavigationKeyStop.isTransitiveStop("name[1][2]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIsTransitiveStopRejectsAsteriskBeforeBracket() {
+        NavigationKeyStop.isTransitiveStop("children*[1]");
+    }
+
+    @Test
+    public void testStorageValueOmitsBracketAnnotation() {
+        Assert.assertEquals("name",
+                NavigationKeyStop.parse("name").storageValue());
+        Assert.assertEquals("children*",
+                NavigationKeyStop.parse("children*").storageValue());
+        Assert.assertEquals("name",
+                NavigationKeyStop.parse("name[123]").storageValue());
+        Assert.assertEquals("children*",
+                NavigationKeyStop.parse("children[123]*").storageValue());
+    }
+
 }

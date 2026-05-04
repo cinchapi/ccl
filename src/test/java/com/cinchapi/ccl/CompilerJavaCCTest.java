@@ -30,8 +30,11 @@ import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ScopeEndSymbol;
+import com.cinchapi.ccl.grammar.NavigationKeyStop;
 import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.TemporalKeySymbol;
+import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
@@ -906,6 +909,69 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
 
     /**
      * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} returns a leaf
+     * key without its bracket-timestamp annotation, so consumers index by
+     * the storage key regardless of when the read is pinned.
+     */
+    @Test
+    public void testAnalyzeKeysStripsBracketOnLeaf() {
+        String ccl = "foo[1700000000] = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("foo"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} strips
+     * per-stop bracket annotations from a navigation key while preserving
+     * the dotted path and any transitive markers.
+     */
+    @Test
+    public void testAnalyzeKeysStripsBracketsOnNavigation() {
+        String ccl = "a[111].b[222].foo[333] = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("a.b.foo"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} strips a
+     * bracket annotation from a single-key scope prefix.
+     */
+    @Test
+    public void testAnalyzeKeysStripsBracketOnScopePrefix() {
+        String ccl = "A[1700000000].(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("A", "foo"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} strips
+     * bracket annotations from a multi-stop scope prefix while preserving
+     * the dotted path.
+     */
+    @Test
+    public void testAnalyzeKeysStripsBracketsOnMultiStopScopePrefix() {
+        String ccl = "a[111].b[222].(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("a.b", "foo"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
      * {@link Parsing#toPostfixNotation(List) toPostfixNotation} throws a
      * {@link SyntaxException} when a {@link ScopeEndSymbol} is encountered
      * with no opening {@link ScopeSymbol} on the stack. Guards the public
@@ -979,6 +1045,297 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
                 operator, values) -> false;
         ConditionTree tree = (ConditionTree) compiler.parse(ccl);
         compiler.evaluate(tree, ImmutableMultimap.of(), evaluator);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@code foo[1700000000] = "X"}
+     * parses into a leaf {@link ExpressionTree} whose key is a
+     * {@link TemporalKeySymbol} wrapping a {@link KeySymbol} and carrying
+     * the bracket-derived {@link TimestampSymbol}.
+     */
+    @Test
+    public void testParseLeafBracketTimestamp() {
+        String ccl = "foo[1700000000] = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof TemporalKeySymbol);
+        TemporalKeySymbol temporal = (TemporalKeySymbol) expr.key();
+        Assert.assertTrue(temporal.key() instanceof KeySymbol);
+        Assert.assertEquals("foo",
+                ((KeySymbol) temporal.key()).key().toString());
+        Assert.assertEquals(1700000000L,
+                temporal.timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the legacy keyworded bracket
+     * forms ({@code foo[at t]}, {@code foo[on t]}, {@code foo[during t]})
+     * produce ASTs equal to the canonical keyword-less form
+     * ({@code foo[t]}).
+     */
+    @Test
+    public void testParseLeafBracketKeywordEquivalence() {
+        Compiler compiler = createCompiler();
+        ConditionTree canonical = (ConditionTree) compiler
+                .parse("foo[1700000000] = \"X\"");
+        for (String keyword : new String[] { "at", "on", "during" }) {
+            String ccl = "foo[" + keyword + " 1700000000] = \"X\"";
+            ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+            Assert.assertEquals("keyword form '" + keyword
+                    + "' must equal canonical", canonical, tree);
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an unbracketed key still parses
+     * to a plain {@link KeySymbol} rather than a {@link TemporalKeySymbol}.
+     */
+    @Test
+    public void testParseLeafWithoutBracketUnchanged() {
+        String ccl = "foo = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof KeySymbol);
+        Assert.assertFalse(expr.key() instanceof TemporalKeySymbol);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a navigation key with per-stop
+     * bracket annotations parses to a {@link NavigationKeySymbol} whose
+     * {@link NavigationKeySymbol#stops() stops} carry the per-stop
+     * timestamps.
+     */
+    @Test
+    public void testParseNavigationKeyWithPerStopBrackets() {
+        String ccl = "a[111].b[222].foo[333] = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
+        List<NavigationKeyStop> stops = nav.stops();
+        Assert.assertEquals(3, stops.size());
+        Assert.assertEquals("a", stops.get(0).key());
+        Assert.assertEquals(111L, stops.get(0).timestamp().timestamp());
+        Assert.assertEquals("b", stops.get(1).key());
+        Assert.assertEquals(222L, stops.get(1).timestamp().timestamp());
+        Assert.assertEquals("foo", stops.get(2).key());
+        Assert.assertEquals(333L, stops.get(2).timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a navigation key with a
+     * transitive-and-bracketed first stop ({@code a[t]*.foo}) parses
+     * with both the transitive marker and the timestamp on the same
+     * stop.
+     */
+    @Test
+    public void testParseNavigationKeyTransitiveAndBracketed() {
+        String ccl = "a[111]*.foo = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
+        List<NavigationKeyStop> stops = nav.stops();
+        Assert.assertEquals(2, stops.size());
+        Assert.assertEquals("a", stops.get(0).key());
+        Assert.assertTrue(stops.get(0).isTransitive());
+        Assert.assertEquals(111L, stops.get(0).timestamp().timestamp());
+        Assert.assertEquals("foo", stops.get(1).key());
+        Assert.assertFalse(stops.get(1).isTransitive());
+        Assert.assertNull(stops.get(1).timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an unbracketed navigation key
+     * still parses identically to the pre-bracket era.
+     */
+    @Test
+    public void testParseNavigationKeyWithoutBracketsUnchanged() {
+        String ccl = "a.b.foo = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        ExpressionSymbol expr = (ExpressionSymbol) tree.root();
+        Assert.assertTrue(expr.key() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
+        for (NavigationKeyStop stop : nav.stops()) {
+            Assert.assertNull(stop.timestamp());
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@code A[t].(foo = "X")} parses
+     * into a {@link ScopedConditionTree} whose
+     * {@link ScopedConditionTree#prefix() prefix} is a
+     * {@link TemporalKeySymbol} wrapping a {@link KeySymbol}.
+     */
+    @Test
+    public void testParseScopedSingleKeyBracketPrefix() {
+        String ccl = "A[1700000000].(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof TemporalKeySymbol);
+        TemporalKeySymbol temporal = (TemporalKeySymbol) scoped.prefix();
+        Assert.assertTrue(temporal.key() instanceof KeySymbol);
+        Assert.assertEquals("A",
+                ((KeySymbol) temporal.key()).key().toString());
+        Assert.assertEquals(1700000000L,
+                temporal.timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the legacy keyword forms inside
+     * a scope-prefix bracket ({@code A[at t].(...)}) produce ASTs equal
+     * to the canonical keyword-less form ({@code A[t].(...)}).
+     */
+    @Test
+    public void testParseScopedSingleKeyBracketKeywordEquivalence() {
+        Compiler compiler = createCompiler();
+        ConditionTree canonical = (ConditionTree) compiler
+                .parse("A[1700000000].(foo = \"X\")");
+        for (String keyword : new String[] { "at", "on", "during" }) {
+            String ccl = "A[" + keyword + " 1700000000].(foo = \"X\")";
+            ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+            Assert.assertEquals(canonical, tree);
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a multi-stop scope prefix with
+     * per-stop brackets ({@code a[t1].b[t2].(...)}) parses to a
+     * {@link NavigationKeySymbol} whose
+     * {@link NavigationKeySymbol#stops() stops} carry the per-stop
+     * timestamps.
+     */
+    @Test
+    public void testParseScopedMultiStopBracketPrefix() {
+        String ccl = "a[111].b[222].(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertTrue(tree instanceof ScopedConditionTree);
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof NavigationKeySymbol);
+        NavigationKeySymbol nav = (NavigationKeySymbol) scoped.prefix();
+        List<NavigationKeyStop> stops = nav.stops();
+        Assert.assertEquals(2, stops.size());
+        Assert.assertEquals("a", stops.get(0).key());
+        Assert.assertEquals(111L, stops.get(0).timestamp().timestamp());
+        Assert.assertEquals("b", stops.get(1).key());
+        Assert.assertEquals(222L, stops.get(1).timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an unbracketed scope prefix
+     * still parses to a plain {@link KeySymbol} (single key) or
+     * {@link NavigationKeySymbol} (multi-stop), preserving pre-bracket
+     * behavior.
+     */
+    @Test
+    public void testParseScopedWithoutBracketsUnchanged() {
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler
+                .parse("A.(foo = \"X\")");
+        ScopedConditionTree scoped = (ScopedConditionTree) tree;
+        Assert.assertTrue(scoped.prefix() instanceof KeySymbol);
+        Assert.assertFalse(scoped.prefix() instanceof TemporalKeySymbol);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@link Compiler#tokenize(AbstractSyntaxTree)}
+     * emits a {@link TemporalKeySymbol} directly into the symbol list
+     * for a bracket-stamped leaf key.
+     */
+    @Test
+    public void testTokenizeEmitsTemporalKeySymbolForLeafBracket() {
+        String ccl = "foo[1700000000] = \"X\"";
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree tree = compiler.parse(ccl);
+        List<Symbol> symbols = compiler.tokenize(tree);
+        boolean found = symbols.stream()
+                .anyMatch(s -> s instanceof TemporalKeySymbol);
+        Assert.assertTrue(
+                "tokenize must emit TemporalKeySymbol for bracket-stamped leaf",
+                found);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip
+     * (parse -> tokenize -> joined toString -> re-parse) for a
+     * bracket-stamped leaf.
+     */
+    @Test
+    public void testRoundTripLeafBracket() {
+        assertRoundTripStable("foo[1700000000] = \"X\"");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip for a
+     * navigation key with per-stop brackets.
+     */
+    @Test
+    public void testRoundTripNavigationPerStopBrackets() {
+        assertRoundTripStable("a[111].b[222].foo[333] = \"X\"");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip for a
+     * single-key scope prefix bracket.
+     */
+    @Test
+    public void testRoundTripScopedSingleKeyBracket() {
+        assertRoundTripStable("A[111].(foo = \"X\")");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip for a multi-stop
+     * scope prefix with per-stop brackets.
+     */
+    @Test
+    public void testRoundTripScopedMultiStopBrackets() {
+        assertRoundTripStable("a[111].b[222].(foo = \"X\")");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip for a scope
+     * prefix bracket combined with a per-leaf bracket inside the scope.
+     */
+    @Test
+    public void testRoundTripScopedPrefixAndLeafBrackets() {
+        assertRoundTripStable("A[111].(foo[222] = \"X\")");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the legacy trailing-{@code at}
+     * form (outside brackets) still round-trips without regression.
+     */
+    @Test
+    public void testRoundTripLegacyTrailingAt() {
+        assertRoundTripStable("foo = \"X\" at 1700000000");
+    }
+
+    /**
+     * Assert that {@code ccl} parses, tokenizes, re-emits, and re-parses
+     * to an equal {@link AbstractSyntaxTree}.
+     *
+     * @param ccl the CCL string
+     */
+    private void assertRoundTripStable(String ccl) {
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree first = compiler.parse(ccl);
+        String reemitted = compiler.tokenize(first).stream()
+                .map(Symbol::toString)
+                .collect(Collectors.joining(" "));
+        AbstractSyntaxTree second = compiler.parse(reemitted);
+        Assert.assertEquals("round-trip failed for: " + ccl
+                + " (re-emitted as: " + reemitted + ")", first, second);
     }
 
     @Override
