@@ -58,14 +58,14 @@ Each command is represented by a dedicated `CommandSymbol` implementation: `AddS
 Added support for parsing multiple semicolon-delimited CCL statements in a single call, similar to SQL. The new `Compiler#compile(String)` and `Compiler#compile(String, Multimap)` methods accept a CCL string containing one or more statements separated by `;` and return a `List<AbstractSyntaxTree>` with one tree per statement.
 * Semicolons (`;`) are now a reserved token in the grammar. Unquoted semicolons in values are no longer permitted (use quoted strings instead).
 
-##### Bracket Timestamp Syntax
-Every key in CCL now accepts an optional bracket annotation `[<timestamp>]` that pins the read it represents. The brackets are the timestamp pivot — no leading `at`/`on`/`during` keyword is required inside (the keyword form is accepted for backward compatibility, but the canonical serialization is keyword-less).
+##### Mixed-time reads via bracket-timestamp syntax
+A single CCL operation can now read each of its keys at a different point in time. Every key accepts an optional bracket annotation `[<timestamp>]` that pins the read it represents — the brackets are the timestamp pivot, so no leading `at`/`on`/`during` keyword is required inside (the keyword form is accepted for backward compatibility, but the canonical serialization is keyword-less). This is qualitatively new: previous CCL versions could only express one timestamp per operation.
 
 ```
-name["last week"] = "Jeff"
-a[t1].b[t2].foo[t3] = "X"
-A[t].(foo = "X" AND bar = "Y")
-A[t1].(foo[t2] = "X")
+select [name[t1], age[t2], score[t3]] from 1
+find name[t1] = "Jeff" AND age[t2] >= 30
+calculate sum revenue[t1] from 1
+A[t1].(foo[t2] = "X" AND bar[t3] = "Y")
 children[t]*.name = "Jeff"
 ```
 
@@ -77,6 +77,12 @@ Each bracket binds exactly the read it is adjacent to:
 When a stop also carries the transitive marker `*`, the canonical order is `key[t]*` — the bracket binds to the key, and the asterisk terminates the stop (e.g., `children[t]*.name`). The reverse order `key*[t]` is rejected at parse time. A key carries at most one bracket-timestamp annotation; double annotations such as `a.b[t1][t2]` or `children[t1]*[t2]` are rejected at parse time.
 
 Without an annotation a key reads at the present moment. A new `TemporalKeySymbol` AST type wraps any `KeyTokenSymbol` with the bracket-derived `TimestampSymbol`. `NavigationKeySymbol` carries per-stop timestamps via the `stops()` accessor. Existing CCL strings without brackets parse identically to before.
+
+###### Read vs. write commands
+Brackets are accepted on every command whose semantics map to a single point-in-time read — `select`, `get`, `find`, `browse`, `navigate`, `calculate`, `search`, `verify`, and the `order by` clause. They are **rejected at parse time** for writes (`add`, `set`, `remove`, `clear`, `link`, `unlink`, `reconcile`, `verify_and_swap`, `verify_or_set`, `find_or_add`, `revert`) and for range-history reads (`audit`, `chronicle`, `diff`) whose timestamp parameter is a window rather than a point. Rejection produces a `SyntaxException` that names the offending command and key.
+
+###### Precedence when bracket and trailing-`at` coexist
+When a per-key bracket and a trailing-`at` (or `as of`) appear on the same operation, the more-specific form wins: the bracket pins the keys it covers, and the trailing-`at` provides a default for keys that have no bracket. This lets callers mix per-key control with a sensible operation-wide default (`select [name[t1], age, score] from 1 at t2` reads `name` at `t1` and the rest at `t2`) and keeps gradual migration off the deprecated trailing-`at` form friction-free. The AST preserves both pieces of information so downstream engines and drivers can apply the precedence rule at evaluation time; consult `KeyTokenSymbol.isTemporal()` / `TemporalKeySymbol.timestamp()` for the per-key timestamp and the command/expression symbol's own `timestamp()` accessor for the operation-level fallback.
 
 ##### Other Grammar Updates
 * [GH-51](https://github.com/cinchapi/ccl/issues/51): Allow an optional `*` suffix on navigation key segments to mark them as transitive (e.g., `children*.name`, `a.b*.c.d*.e`, `children*`). Transitive segments instruct Concourse to follow links recursively until exhaustion, supporting the Transitive Navigation feature in [cinchapi/concourse#632](https://github.com/cinchapi/concourse/issues/632). A standalone transitive stop (e.g., `children*`) is also accepted as a navigation key and is equivalent to a single-stop path whose terminal stop is transitive. Added `NavigationKeyStop` to model each segment as a structured `(name, transitive)` pair, and `NavigationKeySymbol#stops()` to expose them; the existing `components()` method is unchanged.

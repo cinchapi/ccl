@@ -80,4 +80,19 @@ public final class TemporalKeySymbol
         return key.toString() + "[" + timestamp.timestamp() + "]";
     }
 
+    @Override
+    public String bareKey() {
+        return key.bareKey();
+    }
+
+    @Override
+    public boolean isTemporal() {
+        return true;
+    }
+
+    @Override
+    public KeyTokenSymbol<?> untemporal() {
+        return key.untemporal();
+    }
+
 }

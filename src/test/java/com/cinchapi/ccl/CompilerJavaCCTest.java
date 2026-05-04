@@ -909,6 +909,69 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
 
     /**
      * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} returns a leaf
+     * key without its bracket-timestamp annotation, so consumers index by
+     * the bare key regardless of when the read is pinned.
+     */
+    @Test
+    public void testAnalyzeKeysStripsBracketOnLeaf() {
+        String ccl = "foo[1700000000] = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("foo"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} strips
+     * per-stop bracket annotations from a navigation key while preserving
+     * the dotted path and any transitive markers.
+     */
+    @Test
+    public void testAnalyzeKeysStripsBracketsOnNavigation() {
+        String ccl = "a[111].b[222].foo[333] = \"X\"";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("a.b.foo"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} strips a
+     * bracket annotation from a single-key scope prefix.
+     */
+    @Test
+    public void testAnalyzeKeysStripsBracketOnScopePrefix() {
+        String ccl = "A[1700000000].(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("A", "foo"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
+     * {@link StatementAnalysis#keys() analyze(tree).keys()} strips
+     * bracket annotations from a multi-stop scope prefix while preserving
+     * the dotted path.
+     */
+    @Test
+    public void testAnalyzeKeysStripsBracketsOnMultiStopScopePrefix() {
+        String ccl = "a[111].b[222].(foo = \"X\")";
+        Compiler compiler = createCompiler();
+        ConditionTree tree = (ConditionTree) compiler.parse(ccl);
+        Assert.assertEquals(
+                com.google.common.collect.Sets.newHashSet("a.b", "foo"),
+                compiler.analyze(tree).keys());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that
      * {@link Parsing#toPostfixNotation(List) toPostfixNotation} throws a
      * {@link SyntaxException} when a {@link ScopeEndSymbol} is encountered
      * with no opening {@link ScopeSymbol} on the stack. Guards the public

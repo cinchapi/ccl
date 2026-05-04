@@ -176,4 +176,82 @@ public class NavigationKeyStopTest {
         Assert.assertEquals(456L, stop.timestamp().timestamp());
     }
 
+    @Test
+    public void testExtractBaseKeyOnCanonicalInputs() {
+        Assert.assertEquals("name",
+                NavigationKeyStop.extractBaseKey("name"));
+        Assert.assertEquals("children",
+                NavigationKeyStop.extractBaseKey("children*"));
+        Assert.assertEquals("name",
+                NavigationKeyStop.extractBaseKey("name[123]"));
+        Assert.assertEquals("children",
+                NavigationKeyStop.extractBaseKey("children[123]*"));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testExtractBaseKeyRejectsNull() {
+        NavigationKeyStop.extractBaseKey(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtractBaseKeyRejectsEmpty() {
+        NavigationKeyStop.extractBaseKey("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtractBaseKeyRejectsDoubleBracket() {
+        NavigationKeyStop.extractBaseKey("name[1][2]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtractBaseKeyRejectsAsteriskBeforeBracket() {
+        NavigationKeyStop.extractBaseKey("children*[1]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtractBaseKeyRejectsBareBracket() {
+        NavigationKeyStop.extractBaseKey("[1]");
+    }
+
+    @Test
+    public void testIsTransitiveStopOnCanonicalInputs() {
+        Assert.assertFalse(NavigationKeyStop.isTransitiveStop("name"));
+        Assert.assertTrue(NavigationKeyStop.isTransitiveStop("children*"));
+        Assert.assertFalse(NavigationKeyStop.isTransitiveStop("name[123]"));
+        Assert.assertTrue(
+                NavigationKeyStop.isTransitiveStop("children[123]*"));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testIsTransitiveStopRejectsNull() {
+        NavigationKeyStop.isTransitiveStop(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIsTransitiveStopRejectsEmpty() {
+        NavigationKeyStop.isTransitiveStop("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIsTransitiveStopRejectsDoubleBracket() {
+        NavigationKeyStop.isTransitiveStop("name[1][2]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIsTransitiveStopRejectsAsteriskBeforeBracket() {
+        NavigationKeyStop.isTransitiveStop("children*[1]");
+    }
+
+    @Test
+    public void testBareValueOmitsBracketAnnotation() {
+        Assert.assertEquals("name",
+                NavigationKeyStop.parse("name").bareValue());
+        Assert.assertEquals("children*",
+                NavigationKeyStop.parse("children*").bareValue());
+        Assert.assertEquals("name",
+                NavigationKeyStop.parse("name[123]").bareValue());
+        Assert.assertEquals("children*",
+                NavigationKeyStop.parse("children[123]*").bareValue());
+    }
+
 }

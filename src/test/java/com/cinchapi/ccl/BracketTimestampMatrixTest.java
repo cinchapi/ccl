@@ -257,7 +257,9 @@ public class BracketTimestampMatrixTest {
      * <strong>Goal:</strong> Verify that a per-stop bracket coexists
      * with a legacy trailing-{@code at}
      * ({@code a[t1].foo = X at t2}): the bracket pins the first stop,
-     * the trailing-{@code at} pins the expression.
+     * the trailing-{@code at} pins the expression. Resolution of the
+     * mix is downstream policy (bracket wins for stops it covers; the
+     * trailing-{@code at} fills in the rest).
      */
     @Test
     public void testN7_MixedBracketAndLegacy() {

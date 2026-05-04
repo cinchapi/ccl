@@ -1087,7 +1087,7 @@ CommandSymbol AddCommand() : {
     Collection records = null;
 }
 {
-    <ADD> key=Key() <AS> value=UnaryValue()
+    <ADD> key=Key() { KeyTokenSymbol.requireBareKey(key, "add command"); } <AS> value=UnaryValue()
     (
         ((<IN> | <TO> | <WITHIN>)
         (
@@ -1109,7 +1109,7 @@ CommandSymbol SetCommand() : {
     Collection records = null;
 }
 {
-    <SET> key=Key() <AS> value=UnaryValue() (<IN> | <WITHIN>)
+    <SET> key=Key() { KeyTokenSymbol.requireBareKey(key, "set command"); } <AS> value=UnaryValue() (<IN> | <WITHIN>)
     (
         LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection()
@@ -1127,7 +1127,7 @@ CommandSymbol RemoveCommand() : {
     Collection records = null;
 }
 {
-    <REMOVE> key=Key() <AS> value=UnaryValue() (<FROM> | <IN> | <WITHIN>)
+    <REMOVE> key=Key() { KeyTokenSymbol.requireBareKey(key, "remove command"); } <AS> value=UnaryValue() (<FROM> | <IN> | <WITHIN>)
     (
         LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection() { return new RemoveSymbol(key, value, records); }
@@ -1152,7 +1152,7 @@ CommandSymbol ClearCommand() : {
       |
         // Key collection + preposition — clear [name, age] from 1 / clear name, age from 1
         LOOKAHEAD(KeyCollection() (<FROM> | <IN> | <WITHIN>))
-        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>)
+        keys=KeyCollection() { KeyTokenSymbol.requireBareKeys(keys, "clear command"); } (<FROM> | <IN> | <WITHIN>)
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()
@@ -1164,7 +1164,7 @@ CommandSymbol ClearCommand() : {
       |
         // Single key + preposition — clear name from 1
         LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN>))
-        key=Key() (<FROM> | <IN> | <WITHIN>)
+        key=Key() { KeyTokenSymbol.requireBareKey(key, "clear command"); } (<FROM> | <IN> | <WITHIN>)
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()
@@ -1192,7 +1192,7 @@ CommandSymbol VerifyAndSwapCommand() : {
     Token record;
 }
 {
-    <VERIFY_AND_SWAP> key=Key() <AS> expected=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
+    <VERIFY_AND_SWAP> key=Key() { KeyTokenSymbol.requireBareKey(key, "verify_and_swap command"); } <AS> expected=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
     <WITH> replacement=UnaryValue()
     { return new VerifyAndSwapSymbol(key, expected, replacement, Long.parseLong(record.image)); }
 }
@@ -1203,7 +1203,7 @@ CommandSymbol VerifyOrSetCommand() : {
     Token record;
 }
 {
-    <VERIFY_OR_SET> key=Key() <AS> value=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
+    <VERIFY_OR_SET> key=Key() { KeyTokenSymbol.requireBareKey(key, "verify_or_set command"); } <AS> value=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
     { return new VerifyOrSetSymbol(key, value, Long.parseLong(record.image)); }
 }
 
@@ -1261,7 +1261,7 @@ CommandSymbol LinkCommand() : {
     Collection destinations = null;
 }
 {
-    <LINK> key=Key() <FROM> source=<NUMERIC> <TO>
+    <LINK> key=Key() { KeyTokenSymbol.requireBareKey(key, "link command"); } <FROM> source=<NUMERIC> <TO>
     (
         LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         destinations=RecordCollection()
@@ -1282,7 +1282,7 @@ CommandSymbol UnlinkCommand() : {
     Token destination;
 }
 {
-    <UNLINK> key=Key() <FROM> source=<NUMERIC> <TO> destination=<NUMERIC>
+    <UNLINK> key=Key() { KeyTokenSymbol.requireBareKey(key, "unlink command"); } <FROM> source=<NUMERIC> <TO> destination=<NUMERIC>
     { return new UnlinkSymbol(key, Long.parseLong(source.image), Long.parseLong(destination.image)); }
 }
 
@@ -1530,7 +1530,7 @@ CommandSymbol FindOrAddCommand() : {
     ValueTokenSymbol<?> value;
 }
 {
-    <FIND_OR_ADD> key=Key() <AS> value=UnaryValue()
+    <FIND_OR_ADD> key=Key() { KeyTokenSymbol.requireBareKey(key, "find_or_add command"); } <AS> value=UnaryValue()
     { return new FindOrAddSymbol(key, value); }
 }
 
@@ -1623,7 +1623,7 @@ CommandSymbol ChronicleCommand() : {
     TimestampSymbol end = null;
 }
 {
-    <CHRONICLE> key=Key() (<IN> | <WITHIN>) record=<NUMERIC>
+    <CHRONICLE> key=Key() { KeyTokenSymbol.requireBareKey(key, "chronicle command"); } (<IN> | <WITHIN>) record=<NUMERIC>
     (
         <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
     )?
@@ -1640,14 +1640,14 @@ CommandSymbol DiffCommand() : {
     <DIFF>
     (
         LOOKAHEAD(4)
-        key=Key() (<IN> | <WITHIN>) record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+        key=Key() { KeyTokenSymbol.requireBareKey(key, "diff command"); } (<IN> | <WITHIN>) record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(key, Long.parseLong(record.image), start, end); }
       |
         LOOKAHEAD(2)
         record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(null, Long.parseLong(record.image), start, end); }
       |
-        key=Key() <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+        key=Key() { KeyTokenSymbol.requireBareKey(key, "diff command"); } <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
         { return new DiffSymbol(key, start, end); }
     )
 }
@@ -1724,7 +1724,7 @@ CommandSymbol ReconcileCommand() : {
     Collection<ValueTokenSymbol<?>> values;
 }
 {
-    <RECONCILE> key=Key() (<IN> | <WITHIN>) record=<NUMERIC> <WITH> values=ValueCollection()
+    <RECONCILE> key=Key() { KeyTokenSymbol.requireBareKey(key, "reconcile command"); } (<IN> | <WITHIN>) record=<NUMERIC> <WITH> values=ValueCollection()
     { return new ReconcileSymbol(key, Long.parseLong(record.image), values); }
 }
 
@@ -1738,7 +1738,7 @@ CommandSymbol AuditCommand() : {
     <AUDIT>
     (
         LOOKAHEAD(2)
-        key=Key() (<IN> | <WITHIN>)
+        key=Key() { KeyTokenSymbol.requireBareKey(key, "audit command"); } (<IN> | <WITHIN>)
     )?
     record=<NUMERIC>
     (
@@ -1808,7 +1808,7 @@ CommandSymbol RevertCommand() : {
     <REVERT>
     (
         LOOKAHEAD(KeyCollection() (<IN> | <WITHIN>))
-        keys=KeyCollection() (<IN> | <WITHIN>)
+        keys=KeyCollection() { KeyTokenSymbol.requireBareKeys(keys, "revert command"); } (<IN> | <WITHIN>)
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()
@@ -1820,7 +1820,7 @@ CommandSymbol RevertCommand() : {
             { return new RevertSymbol(keys, Long.parseLong(record.image), timestamp); }
         )
       |
-        key=Key() (<IN> | <WITHIN>)
+        key=Key() { KeyTokenSymbol.requireBareKey(key, "revert command"); } (<IN> | <WITHIN>)
         (
             LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
             records=RecordCollection()

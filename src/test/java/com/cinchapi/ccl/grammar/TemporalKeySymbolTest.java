@@ -100,4 +100,19 @@ public class TemporalKeySymbolTest {
         Assert.assertNotEquals(a, new KeySymbol("foo"));
     }
 
+    @Test
+    public void testBareKeyDelegatesToWrappedKeySymbol() {
+        TemporalKeySymbol symbol = new TemporalKeySymbol(new KeySymbol("foo"),
+                new TimestampSymbol(123L));
+        Assert.assertEquals("foo", symbol.bareKey());
+    }
+
+    @Test
+    public void testBareKeyDelegatesToWrappedNavigationKeySymbol() {
+        TemporalKeySymbol symbol = new TemporalKeySymbol(
+                new NavigationKeySymbol("a[1].b[2]"),
+                new TimestampSymbol(456L));
+        Assert.assertEquals("a.b", symbol.bareKey());
+    }
+
 }

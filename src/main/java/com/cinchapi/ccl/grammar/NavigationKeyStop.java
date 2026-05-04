@@ -41,8 +41,13 @@ public final class NavigationKeyStop {
      *
      * @param value the raw value
      * @return the key
+     * @throws NullPointerException if {@code value} is {@code null}
+     * @throws IllegalArgumentException if {@code value} does not match
+     *             the canonical {@code key (BracketAnnotation)?
+     *             TransitiveSuffix?} shape
      */
     public static String extractBaseKey(String value) {
+        assertCanonicalShape(value);
         return stripBracketAnnotation(stripTransitiveSuffix(value));
     }
 
@@ -52,10 +57,14 @@ public final class NavigationKeyStop {
      *
      * @param value the raw value
      * @return {@code true} if {@code value} is a transitive stop
+     * @throws NullPointerException if {@code value} is {@code null}
+     * @throws IllegalArgumentException if {@code value} does not match
+     *             the canonical {@code key (BracketAnnotation)?
+     *             TransitiveSuffix?} shape
      */
     public static boolean isTransitiveStop(String value) {
-        return !value.isEmpty()
-                && value.charAt(value.length() - 1) == TRANSITIVE_SUFFIX;
+        assertCanonicalShape(value);
+        return endsWithTransitiveSuffix(value);
     }
 
     /**
@@ -77,22 +86,39 @@ public final class NavigationKeyStop {
      *             bracket-timestamp annotation
      */
     public static NavigationKeyStop parse(String value) {
-        Preconditions.checkNotNull(value,
-                "navigation key stop value cannot be null");
-        Preconditions.checkArgument(!value.isEmpty(),
-                "navigation key stop value cannot be empty");
-        boolean isTransitive = isTransitiveStop(value);
+        assertCanonicalShape(value);
+        boolean isTransitive = endsWithTransitiveSuffix(value);
         String afterAsterisk = stripTransitiveSuffix(value);
         TimestampSymbol timestamp = parseTrailingBracketTimestamp(
                 afterAsterisk);
         String key = stripBracketAnnotation(afterAsterisk);
-        Preconditions.checkArgument(!isTransitive || !key.isEmpty(),
-                "navigation key stop value cannot consist solely of the "
-                        + "transitive suffix '%s'",
-                TRANSITIVE_SUFFIX);
+        return new NavigationKeyStop(key, isTransitive, timestamp);
+    }
+
+    /**
+     * Verify that {@code value} matches the canonical
+     * {@code key (BracketAnnotation)? TransitiveSuffix?} shape that the
+     * lexer enforces. Public static entry points call this so external
+     * callers fail loud rather than silently misparse.
+     *
+     * @param value the raw value to verify
+     * @throws NullPointerException if {@code value} is {@code null}
+     * @throws IllegalArgumentException if {@code value} is empty,
+     *             consists solely of bracket and/or transitive
+     *             punctuation, or has a {@code [} / {@code ]} /
+     *             {@code *} embedded in the key portion
+     */
+    private static void assertCanonicalShape(String value) {
+        Preconditions.checkNotNull(value,
+                "navigation key stop value cannot be null");
+        Preconditions.checkArgument(!value.isEmpty(),
+                "navigation key stop value cannot be empty");
+        String key = stripBracketAnnotation(stripTransitiveSuffix(value));
         Preconditions.checkArgument(!key.isEmpty(),
                 "navigation key stop value cannot consist solely of a "
-                        + "bracket annotation");
+                        + "bracket annotation or the transitive "
+                        + "suffix '%s'",
+                TRANSITIVE_SUFFIX);
         Preconditions.checkArgument(
                 key.indexOf(TRANSITIVE_SUFFIX) < 0
                         && key.indexOf(BRACKET_OPEN) < 0
@@ -100,7 +126,18 @@ public final class NavigationKeyStop {
                 "navigation key stop value must use canonical "
                         + "'key[t]*' shape; got non-canonical: %s",
                 value);
-        return new NavigationKeyStop(key, isTransitive, timestamp);
+    }
+
+    /**
+     * Return {@code true} when {@code value}'s last character is the
+     * {@link #TRANSITIVE_SUFFIX}, used after
+     * {@link #assertCanonicalShape} has already validated the input.
+     *
+     * @param value the validated raw value
+     * @return {@code true} if {@code value} ends with the suffix
+     */
+    private static boolean endsWithTransitiveSuffix(String value) {
+        return value.charAt(value.length() - 1) == TRANSITIVE_SUFFIX;
     }
 
     /**
@@ -334,6 +371,18 @@ public final class NavigationKeyStop {
             sb.append(TRANSITIVE_SUFFIX);
         }
         return sb.toString();
+    }
+
+    /**
+     * Return the bare canonical value of this {@link NavigationKeyStop} —
+     * the {@link #key() key} optionally followed by the
+     * {@link #TRANSITIVE_SUFFIX}, but never a bracket-timestamp
+     * annotation. Mirrors {@link #value()} minus the temporal pin.
+     *
+     * @return the bare value
+     */
+    public String bareValue() {
+        return isTransitive ? key + TRANSITIVE_SUFFIX : key;
     }
 
 }

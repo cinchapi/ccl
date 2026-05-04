@@ -163,13 +163,17 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     private final List<NavigationKeyStop> stops;
 
     /**
-     * Construct a new {@link NavigationKeySymbol}.
+     * Construct a new {@link NavigationKeySymbol}. The stored
+     * {@link #key()} is the canonical join of the parsed stops, so two
+     * {@link NavigationKeySymbol NavigationKeySymbols} built from
+     * different but semantically equivalent raw strings (e.g.
+     * {@code "a[at 123].foo"} vs {@code "a[123].foo"}) expose the same
+     * {@code key()}.
      *
      * @param key the raw key string
      */
     public NavigationKeySymbol(String key) {
-        super(key);
-        this.stops = parseStops(key);
+        this(parseStops(key));
     }
 
     /**
@@ -229,6 +233,41 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
             result[i] = stops.get(i).value();
         }
         return result;
+    }
+
+    @Override
+    public String bareKey() {
+        StringBuilder sb = new StringBuilder();
+        for (NavigationKeyStop stop : stops) {
+            if(sb.length() > 0) {
+                sb.append('.');
+            }
+            sb.append(stop.bareValue());
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean isTemporal() {
+        for (NavigationKeyStop stop : stops) {
+            if(stop.timestamp() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public KeyTokenSymbol<?> untemporal() {
+        if(!isTemporal()) {
+            return this;
+        }
+        List<NavigationKeyStop> bare = new ArrayList<>(stops.size());
+        for (NavigationKeyStop stop : stops) {
+            bare.add(stop.timestamp() != null ? stop.withTimestamp(null)
+                    : stop);
+        }
+        return new NavigationKeySymbol(bare);
     }
 
     /**
