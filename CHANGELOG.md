@@ -74,7 +74,7 @@ Each bracket binds exactly the read it is adjacent to:
 * Bracket on a navigation stop pins that stop's traversal timestamp.
 * Bracket on a scope prefix pins the scope's traversal timestamp.
 
-When a stop also carries the transitive marker `*`, the canonical order is `key[t]*` — the bracket binds to the key, and the asterisk terminates the stop (e.g., `children[t]*.name`). A key carries at most one bracket-timestamp annotation; double annotations such as `a.b[t1][t2]` or `children[t1]*[t2]` are rejected at parse time.
+When a stop also carries the transitive marker `*`, the canonical order is `key[t]*` — the bracket binds to the key, and the asterisk terminates the stop (e.g., `children[t]*.name`). The reverse order `key*[t]` is rejected at parse time. A key carries at most one bracket-timestamp annotation; double annotations such as `a.b[t1][t2]` or `children[t1]*[t2]` are rejected at parse time.
 
 Without an annotation a key reads at the present moment. A new `TemporalKeySymbol` AST type wraps any `KeyTokenSymbol` with the bracket-derived `TimestampSymbol`. `NavigationKeySymbol` carries per-stop timestamps via the `stops()` accessor. Existing CCL strings without brackets parse identically to before.
 

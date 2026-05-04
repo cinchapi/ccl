@@ -318,6 +318,30 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
+     * <strong>Goal:</strong> Verify that the non-canonical
+     * asterisk-then-bracket order on a standalone transitive key
+     * ({@code children*[t] = X}) is rejected at parse time. The
+     * canonical form binds the bracket to the key and lets the
+     * transitive marker terminate the stop ({@code children[t]*}).
+     */
+    @Test
+    public void testN12_NonCanonicalAsteriskBracketOnSingleStopRejected() {
+        assertNonCanonicalAsteriskBracketRejected(
+                String.format("children*[%d] = \"X\"", T));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the non-canonical
+     * asterisk-then-bracket order on a multi-stop navigation key
+     * ({@code a.b*[t] = X}) is rejected at parse time.
+     */
+    @Test
+    public void testN13_NonCanonicalAsteriskBracketOnNavigationRejected() {
+        assertNonCanonicalAsteriskBracketRejected(
+                String.format("a.b*[%d] = \"X\"", T));
+    }
+
+    /**
      * <strong>Goal:</strong> Verify that an unbracketed scope
      * ({@code A.(foo = X AND bar = Y)}) parses to a
      * {@link ScopedConditionTree} with a plain {@link KeySymbol}
@@ -867,6 +891,20 @@ public class BracketTimestampMatrixTest {
                             + e.getMessage(),
                     e.getMessage().contains(
                             "two bracket-timestamp annotations"));
+        }
+    }
+
+    private void assertNonCanonicalAsteriskBracketRejected(String ccl) {
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for non-canonical "
+                    + "'key*[t]' order in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            Assert.assertTrue(
+                    "expected rejection message to mention 'key*[t]' "
+                            + "but was: " + e.getMessage(),
+                    e.getMessage().contains("key*[t]"));
         }
     }
 

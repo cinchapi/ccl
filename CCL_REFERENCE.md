@@ -448,6 +448,9 @@ children[t]*.name = "Jeff"
 a[t1]*.b[t2]*.foo = "X"
 ```
 
+The reverse order `key*[t]` is rejected at parse time — only
+`key[t]*` is accepted.
+
 A key carries at most one bracket-timestamp annotation; double
 annotations such as `a.b[t1][t2]` or `children[t1]*[t2]` are rejected
 at parse time.

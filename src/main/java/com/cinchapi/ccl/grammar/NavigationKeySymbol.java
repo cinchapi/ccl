@@ -85,8 +85,9 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
      * @return a new {@link NavigationKeySymbol} with the timestamp on
      *         the last stop
      * @throws IllegalArgumentException if the last stop already carries a
-     *             bracket-timestamp annotation (no key may carry two
-     *             timestamps)
+     *             bracket-timestamp annotation, or if the last stop is
+     *             transitive (the canonical form is {@code key[t]*}, not
+     *             {@code key*[t]})
      */
     public static NavigationKeySymbol withTimestampOnLastStop(
             NavigationKeySymbol nav, TimestampSymbol ts) {
@@ -99,6 +100,12 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
         Preconditions.checkArgument(last.timestamp() == null,
                 "navigation key cannot carry two bracket-timestamp "
                         + "annotations on the same stop");
+        Preconditions.checkArgument(!last.isTransitive(),
+                "navigation key cannot use the non-canonical "
+                        + "'key*[t]' order; the canonical form binds "
+                        + "the bracket to the key and lets the "
+                        + "transitive marker terminate the stop "
+                        + "('key[t]*')");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < stops.size() - 1; i++) {
             if(i > 0) {
