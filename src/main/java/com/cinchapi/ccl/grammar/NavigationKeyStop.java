@@ -93,6 +93,13 @@ public final class NavigationKeyStop {
         Preconditions.checkArgument(!key.isEmpty(),
                 "navigation key stop value cannot consist solely of a "
                         + "bracket annotation");
+        Preconditions.checkArgument(
+                key.indexOf(TRANSITIVE_SUFFIX) < 0
+                        && key.indexOf(BRACKET_OPEN) < 0
+                        && key.indexOf(BRACKET_CLOSE) < 0,
+                "navigation key stop value must use canonical "
+                        + "'key[t]*' shape; got non-canonical: %s",
+                value);
         return new NavigationKeyStop(key, isTransitive, timestamp);
     }
 

@@ -146,6 +146,16 @@ public class NavigationKeyStopTest {
         NavigationKeyStop.parse("[123]");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseRejectsAsteriskBeforeBracket() {
+        NavigationKeyStop.parse("children*[123]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseRejectsTwoBracketsInValue() {
+        NavigationKeyStop.parse("name[1][2]");
+    }
+
     @Test
     public void testNotEqualsWhenTimestampDiffers() {
         Assert.assertNotEquals(NavigationKeyStop.parse("name[123]"),
