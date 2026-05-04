@@ -51,6 +51,7 @@ import com.cinchapi.ccl.grammar.command.CalculateSymbol;
 import com.cinchapi.ccl.grammar.command.ChronicleSymbol;
 import com.cinchapi.ccl.grammar.command.ClearSymbol;
 import com.cinchapi.ccl.grammar.command.CommandSymbol;
+import com.cinchapi.ccl.grammar.command.ConsolidateSymbol;
 import com.cinchapi.ccl.grammar.command.DescribeSymbol;
 import com.cinchapi.ccl.grammar.command.DiffSymbol;
 import com.cinchapi.ccl.grammar.command.FindOrAddSymbol;
@@ -1345,6 +1346,21 @@ public abstract class Compiler {
         }
         else if(command instanceof VerifyOrSetSymbol) {
             result.add(((VerifyOrSetSymbol) command).record());
+        }
+        else if(command instanceof LinkSymbol) {
+            LinkSymbol l = (LinkSymbol) command;
+            result.add(l.source());
+            addAll(result, l.destinations());
+        }
+        else if(command instanceof UnlinkSymbol) {
+            UnlinkSymbol u = (UnlinkSymbol) command;
+            result.add(u.source());
+            result.add(u.destination());
+        }
+        else if(command instanceof ConsolidateSymbol) {
+            ConsolidateSymbol c = (ConsolidateSymbol) command;
+            result.add(c.first());
+            addAll(result, c.remaining());
         }
         return Collections.unmodifiableSet(result);
     }

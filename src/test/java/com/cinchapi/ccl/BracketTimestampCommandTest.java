@@ -372,6 +372,41 @@ public class BracketTimestampCommandTest {
     }
 
     @Test
+    public void testFlatSearchKeyWithBracket() {
+        AbstractSyntaxTree tree = compiler().parse(
+                String.format("find name[%d] contains \"jeff\"", T));
+        Assert.assertTrue(tree instanceof CommandTree);
+        com.cinchapi.ccl.syntax.ConditionTree cond =
+                ((CommandTree) tree).conditionTree();
+        com.cinchapi.ccl.grammar.ExpressionSymbol expr =
+                (com.cinchapi.ccl.grammar.ExpressionSymbol)
+                        ((com.cinchapi.ccl.syntax.ExpressionTree) cond).root();
+        assertTemporalKey(expr.key(), "name", T);
+    }
+
+    @Test
+    public void testNavigationSearchKeyWithBracket() {
+        AbstractSyntaxTree tree = compiler().parse(
+                String.format("find friends.name[%d] contains \"jeff\"", T));
+        Assert.assertTrue(tree instanceof CommandTree);
+        com.cinchapi.ccl.syntax.ConditionTree cond =
+                ((CommandTree) tree).conditionTree();
+        com.cinchapi.ccl.grammar.ExpressionSymbol expr =
+                (com.cinchapi.ccl.grammar.ExpressionSymbol)
+                        ((com.cinchapi.ccl.syntax.ExpressionTree) cond).root();
+        NavigationKeySymbol nav = (NavigationKeySymbol) expr.key();
+        Assert.assertEquals(T,
+                nav.stops().get(1).timestamp().timestamp());
+    }
+
+    @Test
+    public void testFlatSearchKeyWithoutBracketStillParses() {
+        AbstractSyntaxTree tree = compiler()
+                .parse("find name contains \"jeff\"");
+        Assert.assertTrue(tree instanceof CommandTree);
+    }
+
+    @Test
     public void testRelationalLeafMixedCoexists() {
         AbstractSyntaxTree tree = compiler().parse(
                 String.format("name[%d] = \"jeff\" at %d", T1, T2));

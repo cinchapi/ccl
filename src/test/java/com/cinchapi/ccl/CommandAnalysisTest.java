@@ -230,6 +230,26 @@ public class CommandAnalysisTest {
     }
 
     @Test
+    public void testReferencedRecordsForLinkCommand() {
+        Assert.assertEquals(ImmutableSet.of(1L, 2L, 3L),
+                analyze("link friends from 1 to [2, 3]")
+                        .referencedRecords());
+    }
+
+    @Test
+    public void testReferencedRecordsForUnlinkCommand() {
+        Assert.assertEquals(ImmutableSet.of(1L, 2L),
+                analyze("unlink friends from 1 to 2")
+                        .referencedRecords());
+    }
+
+    @Test
+    public void testReferencedRecordsForConsolidateCommand() {
+        Assert.assertEquals(ImmutableSet.of(1L, 2L, 3L),
+                analyze("consolidate 1 [2, 3]").referencedRecords());
+    }
+
+    @Test
     public void testKeysWithOperatorFiltersCondition() {
         CommandAnalysis analysis = analyze(
                 "select name where age > 30 AND active = true");

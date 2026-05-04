@@ -435,6 +435,14 @@ void RelationalExpression() #Expression :
         operator=UnaryOperator() value1=UnaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
+      |
+        // Search operators are reachable here only when the Search-side
+        // LOOKAHEAD(2) above fell through — typically because a bracket
+        // annotation sits between the key and the search operator
+        // (e.g. `name[t] contains "X"`). The bracket-less form
+        // `name contains "X"` is consumed by the SearchKey/SearchOperator
+        // alternative.
+        operator=SearchOperator() value1=SearchValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       )
     )
     {
@@ -505,6 +513,11 @@ void RelationalExpressionNoTimestamp() #Expression :
         operator=UnaryOperator() value1=UnaryValue()
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue()
+      |
+        // See RelationalExpression — the Search alternative covers the
+        // bracket-between-key-and-operator case the LOOKAHEAD above
+        // can't see past.
+        operator=SearchOperator() value1=SearchValue()
       )
     )
     {
