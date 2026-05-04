@@ -106,22 +106,26 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
                         + "the bracket to the key and lets the "
                         + "transitive marker terminate the stop "
                         + "('key[t]*')");
+        List<NavigationKeyStop> updated = new ArrayList<>(stops);
+        updated.set(updated.size() - 1, last.withTimestamp(ts));
+        return new NavigationKeySymbol(updated);
+    }
+
+    /**
+     * Return the canonical string representation of {@code stops}.
+     *
+     * @param stops the {@link NavigationKeyStop NavigationKeyStops}
+     * @return the canonical raw string
+     */
+    private static String joinStops(List<NavigationKeyStop> stops) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < stops.size() - 1; i++) {
-            if(i > 0) {
+        for (NavigationKeyStop stop : stops) {
+            if(sb.length() > 0) {
                 sb.append('.');
             }
-            sb.append(stops.get(i).value());
+            sb.append(stop.value());
         }
-        if(stops.size() > 1) {
-            sb.append('.');
-        }
-        sb.append(last.key());
-        sb.append('[').append(ts.timestamp()).append(']');
-        if(last.isTransitive()) {
-            sb.append('*');
-        }
-        return new NavigationKeySymbol(sb.toString());
+        return sb.toString();
     }
 
     /**
@@ -166,6 +170,20 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     public NavigationKeySymbol(String key) {
         super(key);
         this.stops = parseStops(key);
+    }
+
+    /**
+     * Construct a new {@link NavigationKeySymbol} from already-parsed
+     * {@link NavigationKeyStop NavigationKeyStops}, without re-parsing
+     * a string. The raw {@link #key()} is the canonical join of
+     * {@code stops}.
+     *
+     * @param stops the {@link NavigationKeyStop NavigationKeyStops}
+     */
+    private NavigationKeySymbol(List<NavigationKeyStop> stops) {
+        super(joinStops(stops));
+        this.stops = Collections
+                .unmodifiableList(new ArrayList<>(stops));
     }
 
     @Override

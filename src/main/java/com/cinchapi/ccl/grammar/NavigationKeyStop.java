@@ -274,6 +274,20 @@ public final class NavigationKeyStop {
     }
 
     /**
+     * Return a copy of this {@link NavigationKeyStop} whose
+     * {@link #timestamp() timestamp} is {@code timestamp}. The
+     * {@link #key() key} and {@link #isTransitive() transitive} flag
+     * are preserved.
+     *
+     * @param timestamp the {@link TimestampSymbol} to pin, or
+     *            {@code null} to clear
+     * @return a new {@link NavigationKeyStop}
+     */
+    NavigationKeyStop withTimestamp(@Nullable TimestampSymbol timestamp) {
+        return new NavigationKeyStop(key, isTransitive, timestamp);
+    }
+
+    /**
      * Return the key of this {@link NavigationKeyStop}, without any
      * trailing {@link #TRANSITIVE_SUFFIX} or bracket annotation.
      *
