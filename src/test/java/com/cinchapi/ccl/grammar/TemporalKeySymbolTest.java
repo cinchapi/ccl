@@ -58,11 +58,10 @@ public class TemporalKeySymbolTest {
         Assert.assertEquals("foo[123]", symbol.toString());
     }
 
-    @Test
-    public void testToStringWrappingNavigationKeySymbol() {
-        TemporalKeySymbol symbol = new TemporalKeySymbol(
-                new NavigationKeySymbol("a.b"), new TimestampSymbol(456L));
-        Assert.assertEquals("a.b[456]", symbol.toString());
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructRejectsNavigationKeySymbolWrapping() {
+        new TemporalKeySymbol(new NavigationKeySymbol("a.b"),
+                new TimestampSymbol(456L));
     }
 
     @Test
@@ -107,12 +106,5 @@ public class TemporalKeySymbolTest {
         Assert.assertEquals("foo", symbol.bareKey());
     }
 
-    @Test
-    public void testBareKeyDelegatesToWrappedNavigationKeySymbol() {
-        TemporalKeySymbol symbol = new TemporalKeySymbol(
-                new NavigationKeySymbol("a[1].b[2]"),
-                new TimestampSymbol(456L));
-        Assert.assertEquals("a.b", symbol.bareKey());
-    }
 
 }

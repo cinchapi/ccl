@@ -974,7 +974,11 @@ public abstract class Compiler {
 
     /**
      * Append every (storage key, microsecond) pair carried by a bracket
-     * annotation inside {@code key} to {@code result}.
+     * annotation inside {@code key} to {@code result}. A
+     * {@link TemporalKeySymbol} is guaranteed to wrap a non-navigation
+     * inner key (see the {@link TemporalKeySymbol} constructor
+     * contract); a {@link NavigationKeySymbol} carries its temporal pins
+     * directly on its {@link NavigationKeyStop stops}.
      *
      * @param key the {@link KeyTokenSymbol} to walk
      * @param result the {@link Map} to append to
@@ -983,21 +987,8 @@ public abstract class Compiler {
             Map<String, Set<Long>> result) {
         if(key instanceof TemporalKeySymbol) {
             TemporalKeySymbol temporal = (TemporalKeySymbol) key;
-            long ts = temporal.timestamp().timestamp();
-            KeyTokenSymbol<?> wrapped = temporal.key();
-            if(wrapped instanceof NavigationKeySymbol) {
-                for (NavigationKeyStop stop : ((NavigationKeySymbol) wrapped)
-                        .stops()) {
-                    addTemporalEntry(stop.key(), ts, result);
-                    if(stop.timestamp() != null) {
-                        addTemporalEntry(stop.key(),
-                                stop.timestamp().timestamp(), result);
-                    }
-                }
-            }
-            else {
-                addTemporalEntry(wrapped.bareKey(), ts, result);
-            }
+            addTemporalEntry(temporal.key().bareKey(),
+                    temporal.timestamp().timestamp(), result);
         }
         else if(key instanceof NavigationKeySymbol) {
             for (NavigationKeyStop stop : ((NavigationKeySymbol) key)

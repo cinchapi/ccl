@@ -31,8 +31,9 @@ public interface StatementAnalysis {
 
     /**
      * Return an ordered collection of keys that are included in the CCL
-     * statement, each rendered as the user wrote it (a flat key, a
-     * navigation path, or a scope-pivot path).
+     * statement (a flat key, a navigation path, or a scope-pivot path),
+     * each rendered without bracket-timestamp annotations. To recover
+     * the per-key bracket annotations, use {@link #temporalKeys()}.
      *
      * @return the included keys
      */
@@ -41,7 +42,8 @@ public interface StatementAnalysis {
     /**
      * Return an ordered collection of keys that are included in the CCL
      * statement in an expression that contains the specified
-     * {@code operator}.
+     * {@code operator}, each rendered without bracket-timestamp
+     * annotations.
      *
      * @return the included keys that are evaluated against the
      *         {@code operator}

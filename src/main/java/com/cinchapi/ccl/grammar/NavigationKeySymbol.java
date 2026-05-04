@@ -168,7 +168,12 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
      * {@link NavigationKeySymbol NavigationKeySymbols} built from
      * different but semantically equivalent raw strings (e.g.
      * {@code "a[at 123].foo"} vs {@code "a[123].foo"}) expose the same
-     * {@code key()}.
+     * {@code key()} and therefore compare equal under the inherited
+     * {@link KeyTokenSymbol#equals} contract. A single-stop
+     * {@link NavigationKeySymbol} whose stop carries no timestamp or
+     * transitive marker compares equal to a {@link KeySymbol} of the
+     * same name for the same reason — both carry the same canonical
+     * key string.
      *
      * @param key the raw key string
      */
@@ -188,34 +193,6 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
         super(joinStops(stops));
         this.stops = Collections
                 .unmodifiableList(new ArrayList<>(stops));
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(this == obj) {
-            return true;
-        }
-        else if(!(obj instanceof NavigationKeySymbol)) {
-            return false;
-        }
-        return stops.equals(((NavigationKeySymbol) obj).stops);
-    }
-
-    @Override
-    public int hashCode() {
-        return stops.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (NavigationKeyStop stop : stops) {
-            if(sb.length() > 0) {
-                sb.append('.');
-            }
-            sb.append(stop.value());
-        }
-        return sb.toString();
     }
 
     /**

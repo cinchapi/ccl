@@ -84,6 +84,25 @@ Brackets are accepted on every command whose semantics map to a single point-in-
 ###### Precedence when bracket and trailing-`at` coexist
 When a per-key bracket and a trailing-`at` (or `as of`) appear on the same operation, the more-specific form wins: the bracket pins the keys it covers, and the trailing-`at` provides a default for keys that have no bracket. This lets callers mix per-key control with a sensible operation-wide default (`select [name[t1], age, score] from 1 at t2` reads `name` at `t1` and the rest at `t2`) and keeps gradual migration off the deprecated trailing-`at` form friction-free. The AST preserves both pieces of information so downstream engines and drivers can apply the precedence rule at evaluation time; consult `KeyTokenSymbol.isTemporal()` / `TemporalKeySymbol.timestamp()` for the per-key timestamp and the command/expression symbol's own `timestamp()` accessor for the operation-level fallback.
 
+##### Statement and Command Analysis API
+[GH-67](https://github.com/cinchapi/ccl/issues/67): Expanded `Compiler#analyze(ConditionTree)` and added `Compiler#analyze(CommandTree)` so consumers can introspect the bracket-timestamp-aware shape of a parsed CCL statement without walking the AST by hand.
+
+`StatementAnalysis` gains six bracket-aware accessors — each with an `(Operator)` overload that scopes the result to condition leaves evaluated against that operator:
+* `storageKeys()` — every distinct storage-level key the statement touches; navigation paths are exploded into stops, and bracket annotations / transitive markers are stripped.
+* `temporalKeys()` — `Map<String, Set<Long>>` from storage key to the distinct microsecond timestamps it is bracket-pinned at. Reports bracket annotations only; the legacy trailing-`at` is reachable via `ExpressionSymbol#timestamp()`.
+* `transitiveNavigationKeys()` — storage keys that appear as a transitive (`key*`) navigation stop.
+* `navigationKeys()` — distinct navigation paths in canonical bare form (no brackets, no transitive markers).
+* `navigationKeyStops()` — storage keys that participate in any navigation path.
+* `scopedKeys()` — `Map<String, List<String>>` from each scope-pivot key to the direct child keys evaluated within that scope.
+
+The existing `keys()` accessor now returns bare-form keys (bracket annotations stripped) so per-key timestamps don't leak into general key listings; use `temporalKeys()` to recover them. `keys(Operator)` and `operators()` are otherwise unchanged.
+
+A new `Compiler#analyze(CommandTree)` returns `CommandAnalysis extends StatementAnalysis`, aggregating selection-side and condition-side keys under the inherited accessors and adding:
+* `commandType()` — the parsed command name (`"SELECT"`, `"FIND"`, `"ADD"`, ...).
+* `commandTimestamp()` — command-level `at` / `as of` as `Long` micros, or `null`.
+* `rangeStart()` / `rangeEnd()` — for `audit`, `chronicle`, `diff`.
+* `referencedRecords()` — `Set<Long>` of record ids the command directly touches.
+
 ##### Other Grammar Updates
 * [GH-51](https://github.com/cinchapi/ccl/issues/51): Allow an optional `*` suffix on navigation key segments to mark them as transitive (e.g., `children*.name`, `a.b*.c.d*.e`, `children*`). Transitive segments instruct Concourse to follow links recursively until exhaustion, supporting the Transitive Navigation feature in [cinchapi/concourse#632](https://github.com/cinchapi/concourse/issues/632). A standalone transitive stop (e.g., `children*`) is also accepted as a navigation key and is equivalent to a single-stop path whose terminal stop is transitive. Added `NavigationKeyStop` to model each segment as a structured `(name, transitive)` pair, and `NavigationKeySymbol#stops()` to expose them; the existing `components()` method is unchanged.
 * [GH-52](https://github.com/cinchapi/ccl/issues/52): Added **scoped condition groups** via the `prefix.(...)` syntax. Tells the engine that all conditions inside the group must be satisfied by the **same** destination record reachable through the explicit navigation `prefix`, rather than being evaluated independently (which can produce false positives on multi-valued links). Supports [cinchapi/concourse#533](https://github.com/cinchapi/concourse/issues/533).

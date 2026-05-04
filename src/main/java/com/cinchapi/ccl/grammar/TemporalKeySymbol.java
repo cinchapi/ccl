@@ -23,8 +23,15 @@ import com.google.common.base.Preconditions;
  * A {@link TemporalKeySymbol} pairs a {@link KeyTokenSymbol} with a
  * {@link TimestampSymbol} that pins the read which the wrapped key
  * represents. The pinned read is leaf evaluation when the wrapped key is
- * a leaf, traversal when the wrapped key is a navigation stop or scope
- * prefix.
+ * a leaf, traversal when the wrapped key is a scope prefix.
+ *
+ * <p>A {@link NavigationKeySymbol} is never wrapped: a navigation path
+ * carries per-stop timestamps directly on its {@link NavigationKeyStop
+ * stops}, so the parser folds any trailing bracket onto the last stop
+ * via {@link NavigationKeySymbol#withTimestampOnLastStop}. Constructing
+ * {@code TemporalKeySymbol(NavigationKeySymbol, t)} would produce an
+ * ambiguous tree (outer stamp vs. per-stop stamp), so the constructor
+ * rejects it.
  *
  * @author Jeff Nelson
  */
@@ -39,12 +46,21 @@ public final class TemporalKeySymbol
     /**
      * Construct a new {@link TemporalKeySymbol}.
      *
-     * @param key the wrapped {@link KeyTokenSymbol}
+     * @param key the wrapped {@link KeyTokenSymbol}; must not be a
+     *            {@link NavigationKeySymbol} — navigation timestamps
+     *            live on the path's stops
      * @param timestamp the {@link TimestampSymbol} pinned to {@code key}
+     * @throws IllegalArgumentException if {@code key} is a
+     *             {@link NavigationKeySymbol}
      */
     public TemporalKeySymbol(KeyTokenSymbol<?> key,
             TimestampSymbol timestamp) {
         super(Preconditions.checkNotNull(key));
+        Preconditions.checkArgument(!(key instanceof NavigationKeySymbol),
+                "TemporalKeySymbol cannot wrap a NavigationKeySymbol; "
+                        + "fold the timestamp onto a NavigationKeyStop "
+                        + "instead (see "
+                        + "NavigationKeySymbol.withTimestampOnLastStop)");
         this.timestamp = Preconditions.checkNotNull(timestamp);
     }
 

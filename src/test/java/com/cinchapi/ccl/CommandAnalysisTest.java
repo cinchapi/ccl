@@ -182,6 +182,23 @@ public class CommandAnalysisTest {
     }
 
     @Test
+    public void testRangeStartAndEndOnDiff() {
+        CommandAnalysis analysis = analyze(
+                String.format("diff name in 1 from %d to %d", T1, T2));
+        Assert.assertNull(analysis.commandTimestamp());
+        Assert.assertEquals(Long.valueOf(T1), analysis.rangeStart());
+        Assert.assertEquals(Long.valueOf(T2), analysis.rangeEnd());
+    }
+
+    @Test
+    public void testRangeOpenEndedOnDiff() {
+        CommandAnalysis analysis = analyze(
+                String.format("diff name in 1 from %d", T1));
+        Assert.assertEquals(Long.valueOf(T1), analysis.rangeStart());
+        Assert.assertNull(analysis.rangeEnd());
+    }
+
+    @Test
     public void testReferencedRecordsSingle() {
         Assert.assertEquals(ImmutableSet.of(1L),
                 analyze("select name from 1").referencedRecords());

@@ -538,7 +538,7 @@ have no bracket of their own:
 
 | Input | Effective per-read timestamps |
 |---|---|
-| `name[t1] = "X" at t2` | `name` reads at `t1`; the leaf's effective timestamp is `t2` only because `t1` already pinned the read |
+| `name[t1] = "X" at t2` | `name` reads at `t1`; the trailing `at t2` is ignored because the bracket already pinned the read |
 | `a[t1].foo[t2] = "X" at t3` | `a` traverses at `t1`, `foo` evaluates at `t2`; `t3` would fill in any unpinned stop |
 | `select [name[t1], age[t2]] from 1 at t3` | `name` at `t1`, `age` at `t2` |
 | `select [name[t1], age, score] from 1 at t2` | `name` at `t1`; `age` and `score` at `t2` (filled in) |
