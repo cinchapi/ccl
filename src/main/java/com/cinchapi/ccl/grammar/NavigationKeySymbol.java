@@ -213,13 +213,13 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     }
 
     @Override
-    public String bareKey() {
+    public String storageKey() {
         StringBuilder sb = new StringBuilder();
         for (NavigationKeyStop stop : stops) {
             if(sb.length() > 0) {
                 sb.append('.');
             }
-            sb.append(stop.bareValue());
+            sb.append(stop.storageValue());
         }
         return sb.toString();
     }
@@ -239,12 +239,12 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
         if(!isTemporal()) {
             return this;
         }
-        List<NavigationKeyStop> bare = new ArrayList<>(stops.size());
+        List<NavigationKeyStop> stripped = new ArrayList<>(stops.size());
         for (NavigationKeyStop stop : stops) {
-            bare.add(stop.timestamp() != null ? stop.withTimestamp(null)
-                    : stop);
+            stripped.add(stop.timestamp() != null
+                    ? stop.withTimestamp(null) : stop);
         }
-        return new NavigationKeySymbol(bare);
+        return new NavigationKeySymbol(stripped);
     }
 
     /**

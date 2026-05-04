@@ -31,7 +31,8 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
      *            the exception message
      * @throws IllegalArgumentException when {@code key} is temporal
      */
-    public static void requireBareKey(KeyTokenSymbol<?> key, String context) {
+    public static void requireStorageKey(KeyTokenSymbol<?> key,
+            String context) {
         if(key.isTemporal()) {
             throw new IllegalArgumentException(String.format(
                     "%s does not accept a bracket-timestamp annotation on "
@@ -41,17 +42,17 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
     }
 
     /**
-     * Apply {@link #requireBareKey} to every {@link KeyTokenSymbol} in
+     * Apply {@link #requireStorageKey} to every {@link KeyTokenSymbol} in
      * {@code keys}.
      *
      * @param keys the {@link KeyTokenSymbol KeyTokenSymbols} to verify
      * @param context a short label naming the rejecting context
      * @throws IllegalArgumentException when any element is temporal
      */
-    public static void requireBareKeys(
+    public static void requireStorageKeys(
             Iterable<? extends KeyTokenSymbol<?>> keys, String context) {
         for (KeyTokenSymbol<?> key : keys) {
-            requireBareKey(key, context);
+            requireStorageKey(key, context);
         }
     }
 
@@ -95,14 +96,15 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
     }
 
     /**
-     * Return the bare key string this {@link KeyTokenSymbol} represents,
-     * stripped of any bracket-timestamp annotation. Subclasses that
-     * carry annotations override to return the annotation-free form;
-     * the default returns {@link #key()} as a string.
+     * Return the storage-form key string this {@link KeyTokenSymbol}
+     * represents, stripped of any bracket-timestamp annotation.
+     * Subclasses that carry annotations override to return the
+     * annotation-free form; the default returns {@link #key()} as a
+     * string.
      *
-     * @return the bare key string
+     * @return the storage-form key string
      */
-    public String bareKey() {
+    public String storageKey() {
         return key.toString();
     }
 
@@ -124,7 +126,7 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
      * bracket-timestamp annotation removed. Returns {@code this} when
      * there is no annotation to strip.
      *
-     * @return the bare {@link KeyTokenSymbol}
+     * @return the storage-form {@link KeyTokenSymbol}
      */
     public KeyTokenSymbol<?> untemporal() {
         return this;

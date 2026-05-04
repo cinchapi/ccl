@@ -31,7 +31,9 @@ import com.google.common.base.Preconditions;
  * via {@link NavigationKeySymbol#withTimestampOnLastStop}. Constructing
  * {@code TemporalKeySymbol(NavigationKeySymbol, t)} would produce an
  * ambiguous tree (outer stamp vs. per-stop stamp), so the constructor
- * rejects it.
+ * rejects it. The constructor likewise rejects an already-temporal
+ * inner key to enforce the "at most one bracket-timestamp annotation
+ * per key" invariant the rest of the AST relies on.
  *
  * @author Jeff Nelson
  */
@@ -47,11 +49,14 @@ public final class TemporalKeySymbol
      * Construct a new {@link TemporalKeySymbol}.
      *
      * @param key the wrapped {@link KeyTokenSymbol}; must not be a
-     *            {@link NavigationKeySymbol} — navigation timestamps
-     *            live on the path's stops
+     *            {@link NavigationKeySymbol} (navigation timestamps
+     *            live on the path's stops) and must not itself be a
+     *            {@link TemporalKeySymbol} (a key carries at most one
+     *            bracket-timestamp annotation)
      * @param timestamp the {@link TimestampSymbol} pinned to {@code key}
      * @throws IllegalArgumentException if {@code key} is a
-     *             {@link NavigationKeySymbol}
+     *             {@link NavigationKeySymbol} or a
+     *             {@link TemporalKeySymbol}
      */
     public TemporalKeySymbol(KeyTokenSymbol<?> key,
             TimestampSymbol timestamp) {
@@ -61,6 +66,10 @@ public final class TemporalKeySymbol
                         + "fold the timestamp onto a NavigationKeyStop "
                         + "instead (see "
                         + "NavigationKeySymbol.withTimestampOnLastStop)");
+        Preconditions.checkArgument(!(key instanceof TemporalKeySymbol),
+                "TemporalKeySymbol cannot wrap another "
+                        + "TemporalKeySymbol; a key carries at most one "
+                        + "bracket-timestamp annotation");
         this.timestamp = Preconditions.checkNotNull(timestamp);
     }
 
@@ -97,8 +106,8 @@ public final class TemporalKeySymbol
     }
 
     @Override
-    public String bareKey() {
-        return key.bareKey();
+    public String storageKey() {
+        return key.storageKey();
     }
 
     @Override

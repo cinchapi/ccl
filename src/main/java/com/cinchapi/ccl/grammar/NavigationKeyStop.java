@@ -35,9 +35,9 @@ import com.google.common.base.Preconditions;
 public final class NavigationKeyStop {
 
     /**
-     * Return the bare key of the {@link NavigationKeyStop} represented
-     * by {@code value}, with any {@link #TRANSITIVE_SUFFIX} or
-     * bracket-timestamp annotation stripped off.
+     * Return the storage-form key of the {@link NavigationKeyStop}
+     * represented by {@code value}, with any {@link #TRANSITIVE_SUFFIX}
+     * or bracket-timestamp annotation stripped off.
      *
      * @param value the raw value
      * @return the key
@@ -374,14 +374,15 @@ public final class NavigationKeyStop {
     }
 
     /**
-     * Return the bare canonical value of this {@link NavigationKeyStop} —
-     * the {@link #key() key} optionally followed by the
-     * {@link #TRANSITIVE_SUFFIX}, but never a bracket-timestamp
-     * annotation. Mirrors {@link #value()} minus the temporal pin.
+     * Return the storage-form canonical value of this
+     * {@link NavigationKeyStop} — the {@link #key() key} optionally
+     * followed by the {@link #TRANSITIVE_SUFFIX}, but never a
+     * bracket-timestamp annotation. Mirrors {@link #value()} minus the
+     * temporal pin.
      *
-     * @return the bare value
+     * @return the storage-form value
      */
-    public String bareValue() {
+    public String storageValue() {
         return isTransitive ? key + TRANSITIVE_SUFFIX : key;
     }
 

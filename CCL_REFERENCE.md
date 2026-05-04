@@ -425,6 +425,7 @@ and on history-range commands.
 | Command | Brackets on keys? |
 |---|---|
 | `select`, `get`, `find`, `browse`, `navigate`, `calculate`, `search`, `verify` | accepted |
+| `findOrInsert` | accepted on the criterion (the read half of the command); the JSON insert payload carries no key |
 | `order by` | accepted |
 | `find` (in the `WHERE` condition) | accepted |
 | `add`, `set`, `remove`, `clear`, `link`, `unlink`, `reconcile`, `verify_and_swap`, `verify_or_set`, `find_or_add`, `revert` | rejected (writes) |
@@ -579,8 +580,10 @@ a[t1].b[t2].foo[t3] = "X" -- preferred: per-stop control
 ```
 
 New code should prefer bracket annotations for explicit per-read
-control; the canonical CCL emitted by the compiler always uses the
-bracket form.
+control. The compiler preserves whichever form a CCL string uses, so
+existing trailing-`at` strings round-trip unchanged. Within a bracket
+the keyword is canonicalized away — `name[at 123]` and `name[123]`
+parse to identical ASTs and both serialize as `name[123]`.
 
 ---
 

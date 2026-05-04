@@ -243,15 +243,15 @@ public class NavigationKeyStopTest {
     }
 
     @Test
-    public void testBareValueOmitsBracketAnnotation() {
+    public void testStorageValueOmitsBracketAnnotation() {
         Assert.assertEquals("name",
-                NavigationKeyStop.parse("name").bareValue());
+                NavigationKeyStop.parse("name").storageValue());
         Assert.assertEquals("children*",
-                NavigationKeyStop.parse("children*").bareValue());
+                NavigationKeyStop.parse("children*").storageValue());
         Assert.assertEquals("name",
-                NavigationKeyStop.parse("name[123]").bareValue());
+                NavigationKeyStop.parse("name[123]").storageValue());
         Assert.assertEquals("children*",
-                NavigationKeyStop.parse("children[123]*").bareValue());
+                NavigationKeyStop.parse("children[123]*").storageValue());
     }
 
 }

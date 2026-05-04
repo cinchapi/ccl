@@ -91,11 +91,11 @@ When a per-key bracket and a trailing-`at` (or `as of`) appear on the same opera
 * `storageKeys()` — every distinct storage-level key the statement touches; navigation paths are exploded into stops, and bracket annotations / transitive markers are stripped.
 * `temporalKeys()` — `Map<String, Set<Long>>` from storage key to the distinct microsecond timestamps it is bracket-pinned at. Reports bracket annotations only; the legacy trailing-`at` is reachable via `ExpressionSymbol#timestamp()`.
 * `transitiveNavigationKeys()` — storage keys that appear as a transitive (`key*`) navigation stop.
-* `navigationKeys()` — distinct navigation paths in canonical bare form (no brackets, no transitive markers).
+* `navigationKeys()` — distinct navigation paths in canonical storage form (no brackets, no transitive markers).
 * `navigationKeyStops()` — storage keys that participate in any navigation path.
 * `scopedKeys()` — `Map<String, List<String>>` from each scope-pivot key to the direct child keys evaluated within that scope.
 
-The existing `keys()` accessor now returns bare-form keys (bracket annotations stripped) so per-key timestamps don't leak into general key listings; use `temporalKeys()` to recover them. `keys(Operator)` and `operators()` are otherwise unchanged.
+The existing `keys()` accessor now returns storage-form keys (bracket annotations stripped) so per-key timestamps don't leak into general key listings; use `temporalKeys()` to recover them. `keys(Operator)` and `operators()` are otherwise unchanged.
 
 A new `Compiler#analyze(CommandTree)` returns `CommandAnalysis extends StatementAnalysis`, aggregating selection-side and condition-side keys under the inherited accessors and adding:
 * `commandType()` — the parsed command name (`"SELECT"`, `"FIND"`, `"ADD"`, ...).
@@ -119,7 +119,7 @@ A new `Compiler#analyze(CommandTree)` returns `CommandAnalysis extends Statement
 ###### Trailing `at <timestamp>` on Relational Expressions
 * The trailing `at <timestamp>` form on a relational expression (`name = "X" at t`) is now **deprecated** in favor of the per-key bracket annotation (`name[t] = "X"`). The legacy form continues to parse indefinitely, but new code should prefer brackets.
 * For a navigation key the trailing form pins every stop in the chain to the same time, with no way to express per-stop differences — the bracket syntax is the only way to do so.
-* The canonical CCL emitted by the compiler always uses the bracket form.
+* The compiler preserves whichever form a CCL string uses — trailing-`at` strings round-trip unchanged. Within a bracket the optional keyword is canonicalized away, so `name[at 123]` and `name[123]` parse to identical ASTs and both serialize as `name[123]`.
 
 #### Version 3.2.2 (March 31, 2026)
 * Fixed a bug that caused the `Compiler`'s local evaluation to fail when the condition contained navigation keys (e.g., `friend.name = jeff`). The `evaluate` method now accepts an `Association` whose `fetch` method natively resolves dot-separated key paths by traversing nested data structures. The existing `Multimap`-based `evaluate` method is still supported and automatically converts to an `Association` for interoperability, but callers are encouraged to use the `Association` overload directly for better performance.

@@ -911,7 +911,7 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
      * <strong>Goal:</strong> Verify that
      * {@link StatementAnalysis#keys() analyze(tree).keys()} returns a leaf
      * key without its bracket-timestamp annotation, so consumers index by
-     * the bare key regardless of when the read is pinned.
+     * the storage key regardless of when the read is pinned.
      */
     @Test
     public void testAnalyzeKeysStripsBracketOnLeaf() {

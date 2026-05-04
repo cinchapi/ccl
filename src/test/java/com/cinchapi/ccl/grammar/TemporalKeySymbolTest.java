@@ -100,11 +100,17 @@ public class TemporalKeySymbolTest {
     }
 
     @Test
-    public void testBareKeyDelegatesToWrappedKeySymbol() {
+    public void testStorageKeyDelegatesToWrappedKeySymbol() {
         TemporalKeySymbol symbol = new TemporalKeySymbol(new KeySymbol("foo"),
                 new TimestampSymbol(123L));
-        Assert.assertEquals("foo", symbol.bareKey());
+        Assert.assertEquals("foo", symbol.storageKey());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructRejectsTemporalKeySymbolWrapping() {
+        TemporalKeySymbol inner = new TemporalKeySymbol(new KeySymbol("foo"),
+                new TimestampSymbol(123L));
+        new TemporalKeySymbol(inner, new TimestampSymbol(456L));
+    }
 
 }

@@ -32,8 +32,9 @@ public interface StatementAnalysis {
     /**
      * Return an ordered collection of keys that are included in the CCL
      * statement (a flat key, a navigation path, or a scope-pivot path),
-     * each rendered without bracket-timestamp annotations. To recover
-     * the per-key bracket annotations, use {@link #temporalKeys()}.
+     * each rendered in storage form (no bracket-timestamp annotations).
+     * To recover the per-key bracket annotations, use
+     * {@link #temporalKeys()}.
      *
      * @return the included keys
      */
@@ -60,8 +61,9 @@ public interface StatementAnalysis {
     /**
      * Return every distinct storage-level key the statement touches. A
      * flat key contributes itself; a navigation key contributes each
-     * stop's bare key; a scope prefix contributes the prefix's bare
-     * key(s). Bracket annotations and transitive markers are stripped.
+     * stop's storage key; a scope prefix contributes the prefix's
+     * storage key(s). Bracket annotations and transitive markers are
+     * stripped.
      *
      * @return the set of storage keys
      */
@@ -118,8 +120,8 @@ public interface StatementAnalysis {
 
     /**
      * Return the distinct navigation key paths referenced by the
-     * statement, each rendered in canonical bare form (no brackets, no
-     * transitive markers, dot-separated).
+     * statement, each rendered in canonical storage form (no brackets,
+     * no transitive markers, dot-separated).
      *
      * @return the navigation key paths
      */
@@ -157,7 +159,7 @@ public interface StatementAnalysis {
 
     /**
      * Return a {@link Map} from each scope-pivot key (the prefix of a
-     * {@code prefix.(...)} construct, in canonical bare form) to the
+     * {@code prefix.(...)} construct, in canonical storage form) to the
      * direct child keys evaluated within that scope. A nested scope
      * contributes its own pivot to the outer scope's child list and
      * carries its own entry in the {@link Map}.

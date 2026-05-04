@@ -150,14 +150,11 @@ public abstract class Compiler {
                 Set<String> keys = Sets
                         .newLinkedHashSetWithExpectedSize($tokens().size());
                 $tokens().forEach((symbol) -> {
-                    if(symbol instanceof ExpressionSymbol) {
-                        keys.add(((ExpressionSymbol) symbol).key().bareKey());
-                    }
-                    else if(symbol instanceof KeyTokenSymbol) {
-                        keys.add(((KeyTokenSymbol<?>) symbol).bareKey());
+                    if(symbol instanceof KeyTokenSymbol) {
+                        keys.add(((KeyTokenSymbol<?>) symbol).storageKey());
                     }
                     else if(symbol instanceof ScopeSymbol) {
-                        keys.add(((ScopeSymbol) symbol).prefix().bareKey());
+                        keys.add(((ScopeSymbol) symbol).prefix().storageKey());
                     }
                 });
                 return Collections.unmodifiableSet(keys);
@@ -174,7 +171,7 @@ public abstract class Compiler {
                     if(symbol instanceof ExpressionSymbol
                             && (expression = (ExpressionSymbol) symbol).raw()
                                     .operator().equals(operator)) {
-                        keys.add(expression.key().bareKey());
+                        keys.add(expression.key().storageKey());
                     }
                 });
                 return Collections.unmodifiableSet(keys);
@@ -314,7 +311,7 @@ public abstract class Compiler {
                 for (Symbol symbol : grouped) {
                     if(symbol instanceof ScopeSymbol) {
                         String pivot = ((ScopeSymbol) symbol).prefix()
-                                .bareKey();
+                                .storageKey();
                         if(!stack.isEmpty()) {
                             stack.peek().children.add(pivot);
                         }
@@ -445,7 +442,7 @@ public abstract class Compiler {
             public Set<String> keys() {
                 Set<String> result = new LinkedHashSet<>();
                 for (KeyTokenSymbol<?> key : selection) {
-                    result.add(key.bareKey());
+                    result.add(key.storageKey());
                 }
                 if(condition != null) {
                     result.addAll(condition.keys());
@@ -912,8 +909,8 @@ public abstract class Compiler {
 
     /**
      * Append every storage-level key reachable from {@code key} to
-     * {@code result}. A {@link KeySymbol} contributes its bare key; a
-     * {@link NavigationKeySymbol} contributes each stop's bare key; a
+     * {@code result}. A {@link KeySymbol} contributes its storage key; a
+     * {@link NavigationKeySymbol} contributes each stop's storage key; a
      * {@link TemporalKeySymbol} unwraps to its inner
      * {@link KeyTokenSymbol} and contributes its keys.
      *
@@ -930,7 +927,7 @@ public abstract class Compiler {
             }
         }
         else {
-            result.add(unwrapped.bareKey());
+            result.add(unwrapped.storageKey());
         }
     }
 
@@ -988,7 +985,7 @@ public abstract class Compiler {
             Map<String, Set<Long>> result) {
         if(key instanceof TemporalKeySymbol) {
             TemporalKeySymbol temporal = (TemporalKeySymbol) key;
-            addTemporalEntry(temporal.key().bareKey(),
+            addTemporalEntry(temporal.key().storageKey(),
                     temporal.timestamp().timestamp(), result);
         }
         else if(key instanceof NavigationKeySymbol) {
@@ -1034,17 +1031,17 @@ public abstract class Compiler {
     }
 
     /**
-     * Return the canonical bare path string of {@code key} when it (or
-     * the {@link TemporalKeySymbol}-wrapped key) is a
+     * Return the canonical storage path string of {@code key} when it
+     * (or the {@link TemporalKeySymbol}-wrapped key) is a
      * {@link NavigationKeySymbol}; {@code null} otherwise.
      *
      * @param key the {@link KeyTokenSymbol} to inspect
-     * @return the canonical bare path or {@code null}
+     * @return the canonical storage path or {@code null}
      */
     private static String navPathOf(KeyTokenSymbol<?> key) {
         KeyTokenSymbol<?> unwrapped = unwrapTemporal(key);
         return unwrapped instanceof NavigationKeySymbol
-                ? ((NavigationKeySymbol) unwrapped).bareKey() : null;
+                ? ((NavigationKeySymbol) unwrapped).storageKey() : null;
     }
 
     /**

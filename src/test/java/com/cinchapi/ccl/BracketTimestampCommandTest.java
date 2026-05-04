@@ -164,6 +164,17 @@ public class BracketTimestampCommandTest {
     }
 
     @Test
+    public void testFindOrInsertAcceptsBracketInCriterion() {
+        // findOrInsert's criterion is the read half of the command;
+        // brackets pin the historical evaluation just like find. Only
+        // the JSON insert fires on a miss, and it carries no key.
+        AbstractSyntaxTree tree = compiler().parse(
+                String.format("findOrInsert name[%d] = \"jeff\" \"{}\"",
+                        T));
+        Assert.assertTrue(tree instanceof CommandTree);
+    }
+
+    @Test
     public void testAddRejectsBracketKey() {
         assertCommandRejected(
                 String.format("add name[%d] as \"jeff\" in 1", T),
