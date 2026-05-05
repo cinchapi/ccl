@@ -667,7 +667,7 @@ if (jjtc000) {
           case SEARCH_EXCLUDE:{
             // Search operators are reachable here only when the Search-side
                     // LOOKAHEAD(2) above fell through — typically because a bracket
-                    // annotation sits between the key and the search operator
+                    // parameter sits between the key and the search operator
                     // (e.g. `name[t] contains "X"`). The bracket-less form
                     // `name contains "X"` is consumed by the SearchKey/SearchOperator
                     // alternative.

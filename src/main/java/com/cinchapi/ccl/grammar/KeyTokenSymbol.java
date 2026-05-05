@@ -22,8 +22,8 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
 
     /**
      * Throw an {@link IllegalArgumentException} when {@code key} carries any
-     * read-time annotation. Called from grammar actions for commands whose
-     * semantics forbid per-key annotations (writes and range-history reads) so
+     * read-time parameter. Called from grammar actions for commands whose
+     * semantics forbid per-key parameters (writes and range-history reads) so
      * the rejection happens at parse time.
      *
      * @param key the {@link KeyTokenSymbol} to verify
@@ -32,9 +32,9 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
      * @throws IllegalArgumentException when {@code key} is annotated
      */
     public static void requireBaseKey(KeyTokenSymbol<?> key, String context) {
-        if(key.isAnnotated()) {
+        if(key.isParameterized()) {
             throw new IllegalArgumentException(String.format(
-                    "%s does not accept a bracket-timestamp annotation on "
+                    "%s does not accept a bracket-timestamp parameter on "
                             + "the key; got: %s",
                     context, key));
         }
@@ -96,8 +96,8 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
 
     /**
      * Return the canonical key string this {@link KeyTokenSymbol} represents
-     * with all read-time annotations stripped. Subclasses that carry
-     * annotations override to return the annotation-free form; the default
+     * with all read-time parameters stripped. Subclasses that carry
+     * parameters override to return the parameter-free form; the default
      * returns {@link #key()} as a string.
      *
      * @return the base key string
@@ -108,25 +108,25 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
 
     /**
      * Return {@code true} when this {@link KeyTokenSymbol} carries a read-time
-     * annotation anywhere in its structure (the leaf, a navigation stop, or a
-     * wrapped key). Used by command grammars to reject annotations where they
+     * parameter anywhere in its structure (the leaf, a navigation stop, or a
+     * wrapped key). Used by command grammars to reject parameters where they
      * are semantically invalid (writes) and by analysis tools that surface
      * which keys are annotated.
      *
-     * @return {@code true} if any annotation is present
+     * @return {@code true} if any parameter is present
      */
-    public boolean isAnnotated() {
+    public boolean isParameterized() {
         return false;
     }
 
     /**
      * Return a {@link KeyTokenSymbol} equivalent to this one with every
-     * read-time annotation removed. Returns {@code this} when there is no
-     * annotation to strip.
+     * read-time parameter removed. Returns {@code this} when there is no
+     * parameter to strip.
      *
      * @return the {@link KeyTokenSymbol} in its base form
      */
-    public KeyTokenSymbol<?> unannotated() {
+    public KeyTokenSymbol<?> stripParameters() {
         return this;
     }
 

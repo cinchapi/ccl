@@ -910,7 +910,7 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
     /**
      * <strong>Goal:</strong> Verify that
      * {@link StatementAnalysis#keys() analyze(tree).keys()} returns a leaf
-     * key without its bracket-timestamp annotation, so consumers index by
+     * key without its bracket-timestamp parameter, so consumers index by
      * the storage key regardless of when the read is pinned.
      */
     @Test
@@ -926,7 +926,7 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
     /**
      * <strong>Goal:</strong> Verify that
      * {@link StatementAnalysis#keys() analyze(tree).keys()} strips
-     * per-stop bracket annotations from a navigation key while preserving
+     * per-stop bracket parameters from a navigation key while preserving
      * the dotted path and any transitive markers.
      */
     @Test
@@ -942,7 +942,7 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
     /**
      * <strong>Goal:</strong> Verify that
      * {@link StatementAnalysis#keys() analyze(tree).keys()} strips a
-     * bracket annotation from a single-key scope prefix.
+     * bracket parameter from a single-key scope prefix.
      */
     @Test
     public void testAnalyzeKeysStripsBracketOnScopePrefix() {
@@ -957,7 +957,7 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
     /**
      * <strong>Goal:</strong> Verify that
      * {@link StatementAnalysis#keys() analyze(tree).keys()} strips
-     * bracket annotations from a multi-stop scope prefix while preserving
+     * bracket parameters from a multi-stop scope prefix while preserving
      * the dotted path.
      */
     @Test
@@ -1105,7 +1105,7 @@ public class CompilerJavaCCTest extends AbstractCompilerTest {
 
     /**
      * <strong>Goal:</strong> Verify that a navigation key with per-stop
-     * bracket annotations parses to a {@link NavigationKeySymbol} whose
+     * bracket parameters parses to a {@link NavigationKeySymbol} whose
      * {@link NavigationKeySymbol#stops() stops} carry the per-stop
      * timestamps.
      */

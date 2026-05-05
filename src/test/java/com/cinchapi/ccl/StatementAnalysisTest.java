@@ -105,7 +105,7 @@ public class StatementAnalysisTest {
         Map<String, Set<Long>> temporal = analyze(
                 String.format("name = \"jeff\" at %d", T1)).temporalKeys();
         Assert.assertTrue(
-                "trailing-at is not a per-key bracket annotation; "
+                "trailing-at is not a per-key bracket parameter; "
                         + "temporalKeys must not surface it",
                 temporal.isEmpty());
     }

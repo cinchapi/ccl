@@ -56,7 +56,7 @@ public class BracketTimestampMatrixTest {
 
     /**
      * <strong>Goal:</strong> Verify that {@code foo = X AND bar = Y}
-     * parses with both leaves unstamped (no bracket annotation and no
+     * parses with both leaves unstamped (no bracket parameter and no
      * expression-level timestamp).
      */
     @Test
@@ -124,7 +124,7 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that a bracket annotation on one
+     * <strong>Goal:</strong> Verify that a bracket parameter on one
      * leaf and a legacy trailing-{@code at} on the other
      * ({@code foo[t1] = X AND bar = Y at t2}) coexist, producing the
      * expected mix of {@link TemporalKeySymbol} key and
@@ -141,7 +141,7 @@ public class BracketTimestampMatrixTest {
 
     /**
      * <strong>Goal:</strong> Verify that two adjacent bracket
-     * annotations on a single flat leaf key
+     * parameters on a single flat leaf key
      * ({@code foo[t1][t2] = X}) are rejected at parse time. The
      * grammar's {@code Key()} production accepts at most one optional
      * trailing bracket, so a second adjacent bracket fails the parse.
@@ -274,7 +274,7 @@ public class BracketTimestampMatrixTest {
 
     /**
      * <strong>Goal:</strong> Verify that a transitive marker and a
-     * bracket annotation ({@code a[t]*.foo = X}) coexist on the same
+     * bracket parameter ({@code a[t]*.foo = X}) coexist on the same
      * stop, with both flags reflected on the resulting
      * {@link NavigationKeyStop}.
      */
@@ -291,7 +291,7 @@ public class BracketTimestampMatrixTest {
 
     /**
      * <strong>Goal:</strong> Verify that a standalone transitive stop
-     * with a bracket annotation ({@code children[t]* = "X"}) folds the
+     * with a bracket parameter ({@code children[t]* = "X"}) folds the
      * bracket onto the sole {@link NavigationKeyStop} rather than
      * wrapping the {@link NavigationKeySymbol} in an outer
      * {@link TemporalKeySymbol}. Per-stop consumers reading
@@ -318,9 +318,9 @@ public class BracketTimestampMatrixTest {
 
     /**
      * <strong>Goal:</strong> Verify that two adjacent bracket
-     * annotations on a navigation key ({@code a.b[t1][t2] = X}) are
+     * parameters on a navigation key ({@code a.b[t1][t2] = X}) are
      * rejected at parse time. A single key carries at most one
-     * bracket-timestamp annotation.
+     * bracket-timestamp parameter.
      */
     @Test
     public void testN10_DoubleBracketOnNavigationRejected() {
@@ -330,7 +330,7 @@ public class BracketTimestampMatrixTest {
 
     /**
      * <strong>Goal:</strong> Verify that two adjacent bracket
-     * annotations on a single transitive key
+     * parameters on a single transitive key
      * ({@code children[t1]*[t2] = X}) are rejected at parse time.
      */
     @Test
@@ -380,7 +380,7 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that bracket annotations on inner
+     * <strong>Goal:</strong> Verify that bracket parameters on inner
      * leaves ({@code A.(foo[t] = X AND bar[t] = Y)}) pin the leaves
      * while leaving the scope prefix unstamped.
      */
@@ -904,15 +904,15 @@ public class BracketTimestampMatrixTest {
         try {
             compiler().parse(ccl);
             Assert.fail("expected SyntaxException for double "
-                    + "bracket-timestamp annotation in: " + ccl);
+                    + "bracket-timestamp parameter in: " + ccl);
         }
         catch (SyntaxException e) {
             Assert.assertTrue(
                     "expected rejection message to mention 'two "
-                            + "bracket-timestamp annotations' but was: "
+                            + "bracket-timestamp parameters' but was: "
                             + e.getMessage(),
                     e.getMessage().contains(
-                            "two bracket-timestamp annotations"));
+                            "two bracket-timestamp parameters"));
         }
     }
 

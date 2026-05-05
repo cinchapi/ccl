@@ -972,7 +972,7 @@ public abstract class Compiler {
 
     /**
      * Append every (storage key, microsecond) pair carried by a bracket
-     * annotation inside {@code key} to {@code result}. A
+     * parameter inside {@code key} to {@code result}. A
      * {@link TemporalKeySymbol} is guaranteed to wrap a non-navigation
      * inner key (see the {@link TemporalKeySymbol} constructor
      * contract); a {@link NavigationKeySymbol} carries its temporal pins

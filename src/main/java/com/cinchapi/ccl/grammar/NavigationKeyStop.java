@@ -37,7 +37,7 @@ public final class NavigationKeyStop {
     /**
      * Return the storage-form key of the {@link NavigationKeyStop}
      * represented by {@code value}, with any {@link #TRANSITIVE_SUFFIX}
-     * or bracket-timestamp annotation stripped off.
+     * or bracket-timestamp parameter stripped off.
      *
      * @param value the raw value
      * @return the key
@@ -77,13 +77,13 @@ public final class NavigationKeyStop {
      * @param value the raw value string; must be non-{@code null},
      *            non-empty, and must contain at least one character
      *            before any trailing {@link #TRANSITIVE_SUFFIX} or
-     *            bracket annotation
+     *            bracket parameter
      * @return the {@link NavigationKeyStop}
      * @throws NullPointerException if {@code value} is {@code null}
      * @throws IllegalArgumentException if {@code value} is empty,
      *             consists solely of the {@link #TRANSITIVE_SUFFIX}
-     *             and/or a bracket annotation, or carries a malformed
-     *             bracket-timestamp annotation
+     *             and/or a bracket parameter, or carries a malformed
+     *             bracket-timestamp parameter
      */
     public static NavigationKeyStop parse(String value) {
         assertCanonicalShape(value);
@@ -116,7 +116,7 @@ public final class NavigationKeyStop {
         String key = stripBracketAnnotation(stripTransitiveSuffix(value));
         Preconditions.checkArgument(!key.isEmpty(),
                 "navigation key stop value cannot consist solely of a "
-                        + "bracket annotation or the transitive "
+                        + "bracket parameter or the transitive "
                         + "suffix '%s'",
                 TRANSITIVE_SUFFIX);
         Preconditions.checkArgument(
@@ -156,11 +156,11 @@ public final class NavigationKeyStop {
     }
 
     /**
-     * Return {@code value} with any trailing bracket-timestamp annotation
+     * Return {@code value} with any trailing bracket-timestamp parameter
      * removed.
      *
      * @param value the raw value
-     * @return {@code value} without its bracket annotation
+     * @return {@code value} without its bracket parameter
      */
     private static String stripBracketAnnotation(String value) {
         if(!value.isEmpty()
@@ -176,7 +176,7 @@ public final class NavigationKeyStop {
     /**
      * Return the {@link TimestampSymbol} encoded by the trailing
      * {@code [...]} of {@code value}, or {@code null} when {@code value}
-     * carries no bracket annotation.
+     * carries no bracket parameter.
      *
      * @param value the raw value
      * @return the {@link TimestampSymbol} or {@code null}
@@ -208,7 +208,7 @@ public final class NavigationKeyStop {
     private static TimestampSymbol parseBracketContent(String content) {
         String trimmed = content.trim();
         Preconditions.checkArgument(!trimmed.isEmpty(),
-                "bracket-timestamp annotation cannot be empty");
+                "bracket-timestamp parameter cannot be empty");
         String[] parts = trimmed.split("\\s+");
         int start = 0;
         String first = parts[0].toLowerCase();
@@ -217,7 +217,7 @@ public final class NavigationKeyStop {
             start = 1;
         }
         Preconditions.checkArgument(start < parts.length,
-                "bracket-timestamp annotation has no value after keyword");
+                "bracket-timestamp parameter has no value after keyword");
         StringBuilder joined = new StringBuilder();
         for (int i = start; i < parts.length; i++) {
             if(joined.length() > 0) {
@@ -236,18 +236,18 @@ public final class NavigationKeyStop {
     public static final char TRANSITIVE_SUFFIX = '*';
 
     /**
-     * The opening delimiter of a bracket-timestamp annotation.
+     * The opening delimiter of a bracket-timestamp parameter.
      */
     private static final char BRACKET_OPEN = '[';
 
     /**
-     * The closing delimiter of a bracket-timestamp annotation.
+     * The closing delimiter of a bracket-timestamp parameter.
      */
     private static final char BRACKET_CLOSE = ']';
 
     /**
      * The key of this {@link NavigationKeyStop}, without any
-     * {@link #TRANSITIVE_SUFFIX} or bracket-timestamp annotation.
+     * {@link #TRANSITIVE_SUFFIX} or bracket-timestamp parameter.
      */
     private final String key;
 
@@ -269,7 +269,7 @@ public final class NavigationKeyStop {
      * Construct a new {@link NavigationKeyStop}.
      *
      * @param key the key of the stop, without any
-     *            {@link #TRANSITIVE_SUFFIX} or bracket annotation
+     *            {@link #TRANSITIVE_SUFFIX} or bracket parameter
      * @param isTransitive whether the stop is transitive
      * @param timestamp the {@link TimestampSymbol} pinned to the stop, or
      *            {@code null}
@@ -326,7 +326,7 @@ public final class NavigationKeyStop {
 
     /**
      * Return the key of this {@link NavigationKeyStop}, without any
-     * trailing {@link #TRANSITIVE_SUFFIX} or bracket annotation.
+     * trailing {@link #TRANSITIVE_SUFFIX} or bracket parameter.
      *
      * @return the key
      */
@@ -354,7 +354,7 @@ public final class NavigationKeyStop {
     /**
      * Return the canonical text of this {@link NavigationKeyStop} as it would
      * appear inside a navigation path &mdash; the {@link #key() key},
-     * followed by a keyword-less bracket annotation when the stop carries a
+     * followed by a keyword-less bracket parameter when the stop carries a
      * {@link #timestamp() timestamp}, and optionally followed by the
      * {@link #TRANSITIVE_SUFFIX} when the stop {@link #isTransitive() is
      * transitive}.
@@ -376,9 +376,9 @@ public final class NavigationKeyStop {
 
     /**
      * Return the canonical text of this {@link NavigationKeyStop} with every
-     * read-time annotation stripped &mdash; the {@link #key() key} optionally
+     * read-time parameter stripped &mdash; the {@link #key() key} optionally
      * followed by the {@link #TRANSITIVE_SUFFIX}, but never a
-     * bracket-timestamp annotation. Mirrors {@link #segment()} minus the
+     * bracket-timestamp parameter. Mirrors {@link #segment()} minus the
      * temporal pin.
      *
      * @return the segment text in its base form

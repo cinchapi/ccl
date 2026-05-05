@@ -25,7 +25,7 @@ import com.google.common.base.Preconditions;
  * A {@link NavigationKeySymbol} is a {@link KeyTokenSymbol} whose value
  * is a dotted path that traverses linked records. Any segment of the
  * path may be marked as transitive and may carry a bracket-timestamp
- * annotation that pins that segment's read.
+ * parameter that pins that segment's read.
  *
  * @author Jeff Nelson
  */
@@ -37,9 +37,9 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
      * {@code prefix.(inner)} construct, with the trailing {@code .(}
      * already stripped). A multi-stop or transitive path yields a
      * {@link NavigationKeySymbol}; a single non-transitive stop with a
-     * bracket annotation yields a {@link TemporalKeySymbol} wrapping a
+     * bracket parameter yields a {@link TemporalKeySymbol} wrapping a
      * {@link KeySymbol}; a single non-transitive stop without an
-     * annotation yields a plain {@link KeySymbol}.
+     * parameter yields a plain {@link KeySymbol}.
      *
      * @param path the raw scope-prefix path
      * @return the {@link KeyTokenSymbol}
@@ -78,14 +78,14 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
      * Return a new {@link NavigationKeySymbol} that mirrors {@code nav}
      * but folds {@code ts} onto the last stop. Used by the parser when a
      * trailing bracket-timestamp suffix follows a navigation token whose
-     * last stop carried no inline annotation.
+     * last stop carried no inline parameter.
      *
      * @param nav the existing {@link NavigationKeySymbol}
      * @param ts the {@link TimestampSymbol} to fold onto the last stop
      * @return a new {@link NavigationKeySymbol} with the timestamp on
      *         the last stop
      * @throws IllegalArgumentException if the last stop already carries a
-     *             bracket-timestamp annotation, or if the last stop is
+     *             bracket-timestamp parameter, or if the last stop is
      *             transitive (the canonical form is {@code key[t]*}, not
      *             {@code key*[t]})
      */
@@ -99,7 +99,7 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
         NavigationKeyStop last = stops.get(stops.size() - 1);
         Preconditions.checkArgument(last.timestamp() == null,
                 "navigation key cannot carry two bracket-timestamp "
-                        + "annotations on the same stop");
+                        + "parameters on the same stop");
         Preconditions.checkArgument(!last.isTransitive(),
                 "navigation key cannot use the non-canonical "
                         + "'key*[t]' order; the canonical form binds "
@@ -130,7 +130,7 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
 
     /**
      * Split {@code raw} on top-level periods (those outside any bracket
-     * annotation) and parse each piece into a {@link NavigationKeyStop}.
+     * parameter) and parse each piece into a {@link NavigationKeyStop}.
      *
      * @param raw the raw key string
      * @return the parsed stops, in path order
@@ -198,7 +198,7 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     /**
      * Return the canonical component strings that make up this
      * {@link NavigationKeySymbol}, in path order. Any transitive marker
-     * or bracket-timestamp annotation is rendered in canonical form
+     * or bracket-timestamp parameter is rendered in canonical form
      * (e.g. {@code "children[123]*"} regardless of whether the input
      * used {@code [at 123]}).
      *
@@ -225,7 +225,7 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     }
 
     @Override
-    public boolean isAnnotated() {
+    public boolean isParameterized() {
         for (NavigationKeyStop stop : stops) {
             if(stop.timestamp() != null) {
                 return true;
@@ -235,8 +235,8 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     }
 
     @Override
-    public KeyTokenSymbol<?> unannotated() {
-        if(!isAnnotated()) {
+    public KeyTokenSymbol<?> stripParameters() {
+        if(!isParameterized()) {
             return this;
         }
         List<NavigationKeyStop> stripped = new ArrayList<>(stops.size());

@@ -32,7 +32,7 @@ import com.google.common.base.Preconditions;
  * {@code TemporalKeySymbol(NavigationKeySymbol, t)} would produce an
  * ambiguous tree (outer stamp vs. per-stop stamp), so the constructor
  * rejects it. The constructor likewise rejects an already-temporal
- * inner key to enforce the "at most one bracket-timestamp annotation
+ * inner key to enforce the "at most one bracket-timestamp parameter
  * per key" invariant the rest of the AST relies on.
  *
  * @author Jeff Nelson
@@ -52,7 +52,7 @@ public final class TemporalKeySymbol
      *            {@link NavigationKeySymbol} (navigation timestamps
      *            live on the path's stops) and must not itself be a
      *            {@link TemporalKeySymbol} (a key carries at most one
-     *            bracket-timestamp annotation)
+     *            bracket-timestamp parameter)
      * @param timestamp the {@link TimestampSymbol} pinned to {@code key}
      * @throws IllegalArgumentException if {@code key} is a
      *             {@link NavigationKeySymbol} or a
@@ -69,7 +69,7 @@ public final class TemporalKeySymbol
         Preconditions.checkArgument(!(key instanceof TemporalKeySymbol),
                 "TemporalKeySymbol cannot wrap another "
                         + "TemporalKeySymbol; a key carries at most one "
-                        + "bracket-timestamp annotation");
+                        + "bracket-timestamp parameter");
         this.timestamp = Preconditions.checkNotNull(timestamp);
     }
 
@@ -111,13 +111,13 @@ public final class TemporalKeySymbol
     }
 
     @Override
-    public boolean isAnnotated() {
+    public boolean isParameterized() {
         return true;
     }
 
     @Override
-    public KeyTokenSymbol<?> unannotated() {
-        return key.unannotated();
+    public KeyTokenSymbol<?> stripParameters() {
+        return key.stripParameters();
     }
 
 }

@@ -32,8 +32,8 @@ public interface StatementAnalysis {
     /**
      * Return an ordered collection of keys that are included in the CCL
      * statement (a flat key, a navigation path, or a scope-pivot path),
-     * each rendered in storage form (no bracket-timestamp annotations).
-     * To recover the per-key bracket annotations, use
+     * each rendered in storage form (no bracket-timestamp parameters).
+     * To recover the per-key bracket parameters, use
      * {@link #temporalKeys()}.
      *
      * @return the included keys
@@ -44,7 +44,7 @@ public interface StatementAnalysis {
      * Return an ordered collection of keys that are included in the CCL
      * statement in an expression that contains the specified
      * {@code operator}, each rendered without bracket-timestamp
-     * annotations.
+     * parameters.
      *
      * @return the included keys that are evaluated against the
      *         {@code operator}
@@ -62,7 +62,7 @@ public interface StatementAnalysis {
      * Return every distinct storage-level key the statement touches. A
      * flat key contributes itself; a navigation key contributes each
      * stop's storage key; a scope prefix contributes the prefix's
-     * storage key(s). Bracket annotations and transitive markers are
+     * storage key(s). Bracket parameters and transitive markers are
      * stripped.
      *
      * @return the set of storage keys
@@ -79,7 +79,7 @@ public interface StatementAnalysis {
     public Set<String> storageKeys(Operator operator);
 
     /**
-     * Return the storage keys that carry a bracket-timestamp annotation
+     * Return the storage keys that carry a bracket-timestamp parameter
      * anywhere they appear, paired with the distinct microsecond
      * timestamps each is pinned at. The same storage key can appear at
      * multiple timestamps (e.g. {@code name[t1] = X AND name[t2] = Y}
