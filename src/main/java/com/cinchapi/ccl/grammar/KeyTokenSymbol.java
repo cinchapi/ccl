@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Cinchapi Inc.
+ * Copyright (c) 2013-2026 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,18 @@ package com.cinchapi.ccl.grammar;
 public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
 
     /**
-     * Throw an {@link IllegalArgumentException} when {@code key} carries
-     * any bracket-timestamp annotation. Called from grammar actions for
-     * commands whose semantics forbid per-key timestamps (writes and
-     * range-history reads) so the rejection happens at parse time.
+     * Throw an {@link IllegalArgumentException} when {@code key} carries any
+     * read-time annotation. Called from grammar actions for commands whose
+     * semantics forbid per-key annotations (writes and range-history reads) so
+     * the rejection happens at parse time.
      *
      * @param key the {@link KeyTokenSymbol} to verify
-     * @param context a short label naming the rejecting context, used in
-     *            the exception message
-     * @throws IllegalArgumentException when {@code key} is temporal
+     * @param context a short label naming the rejecting context, used in the
+     *            exception message
+     * @throws IllegalArgumentException when {@code key} is annotated
      */
-    public static void requireStorageKey(KeyTokenSymbol<?> key,
-            String context) {
-        if(key.isTemporal()) {
+    public static void requireBaseKey(KeyTokenSymbol<?> key, String context) {
+        if(key.isAnnotated()) {
             throw new IllegalArgumentException(String.format(
                     "%s does not accept a bracket-timestamp annotation on "
                             + "the key; got: %s",
@@ -42,17 +41,17 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
     }
 
     /**
-     * Apply {@link #requireStorageKey} to every {@link KeyTokenSymbol} in
+     * Apply {@link #requireBaseKey} to every {@link KeyTokenSymbol} in
      * {@code keys}.
      *
      * @param keys the {@link KeyTokenSymbol KeyTokenSymbols} to verify
      * @param context a short label naming the rejecting context
-     * @throws IllegalArgumentException when any element is temporal
+     * @throws IllegalArgumentException when any element is annotated
      */
-    public static void requireStorageKeys(
+    public static void requireBaseKeys(
             Iterable<? extends KeyTokenSymbol<?>> keys, String context) {
         for (KeyTokenSymbol<?> key : keys) {
-            requireStorageKey(key, context);
+            requireBaseKey(key, context);
         }
     }
 
@@ -85,7 +84,7 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
     public int hashCode() {
         return key.hashCode();
     }
-    
+
     /**
      * Return the key that this symbol expresses.
      *
@@ -96,39 +95,38 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
     }
 
     /**
-     * Return the storage-form key string this {@link KeyTokenSymbol}
-     * represents, stripped of any bracket-timestamp annotation.
-     * Subclasses that carry annotations override to return the
-     * annotation-free form; the default returns {@link #key()} as a
-     * string.
+     * Return the canonical key string this {@link KeyTokenSymbol} represents
+     * with all read-time annotations stripped. Subclasses that carry
+     * annotations override to return the annotation-free form; the default
+     * returns {@link #key()} as a string.
      *
-     * @return the storage-form key string
+     * @return the base key string
      */
-    public String storageKey() {
+    public String baseKey() {
         return key.toString();
     }
 
     /**
-     * Return {@code true} when this {@link KeyTokenSymbol} carries a
-     * bracket-timestamp annotation anywhere in its structure (the leaf,
-     * a navigation stop, or a wrapped key). Used by command grammars to
-     * reject brackets where they are semantically invalid (writes) and
-     * by analysis tools that surface which keys are temporally pinned.
+     * Return {@code true} when this {@link KeyTokenSymbol} carries a read-time
+     * annotation anywhere in its structure (the leaf, a navigation stop, or a
+     * wrapped key). Used by command grammars to reject annotations where they
+     * are semantically invalid (writes) and by analysis tools that surface
+     * which keys are annotated.
      *
      * @return {@code true} if any annotation is present
      */
-    public boolean isTemporal() {
+    public boolean isAnnotated() {
         return false;
     }
 
     /**
      * Return a {@link KeyTokenSymbol} equivalent to this one with every
-     * bracket-timestamp annotation removed. Returns {@code this} when
-     * there is no annotation to strip.
+     * read-time annotation removed. Returns {@code this} when there is no
+     * annotation to strip.
      *
-     * @return the storage-form {@link KeyTokenSymbol}
+     * @return the {@link KeyTokenSymbol} in its base form
      */
-    public KeyTokenSymbol<?> untemporal() {
+    public KeyTokenSymbol<?> unannotated() {
         return this;
     }
 

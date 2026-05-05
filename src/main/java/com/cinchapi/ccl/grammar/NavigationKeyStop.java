@@ -348,19 +348,20 @@ public final class NavigationKeyStop {
 
     @Override
     public String toString() {
-        return value();
+        return segment();
     }
 
     /**
-     * Return the canonical raw value of this {@link NavigationKeyStop} —
-     * the {@link #key() key}, followed by a keyword-less bracket
-     * annotation when the stop carries a {@link #timestamp() timestamp},
-     * and optionally followed by the {@link #TRANSITIVE_SUFFIX} when
-     * the stop {@link #isTransitive() is transitive}.
+     * Return the canonical text of this {@link NavigationKeyStop} as it would
+     * appear inside a navigation path &mdash; the {@link #key() key},
+     * followed by a keyword-less bracket annotation when the stop carries a
+     * {@link #timestamp() timestamp}, and optionally followed by the
+     * {@link #TRANSITIVE_SUFFIX} when the stop {@link #isTransitive() is
+     * transitive}.
      *
-     * @return the value
+     * @return the canonical segment text
      */
-    public String value() {
+    public String segment() {
         StringBuilder sb = new StringBuilder(key);
         if(timestamp != null) {
             sb.append(BRACKET_OPEN);
@@ -374,15 +375,15 @@ public final class NavigationKeyStop {
     }
 
     /**
-     * Return the storage-form canonical value of this
-     * {@link NavigationKeyStop} — the {@link #key() key} optionally
+     * Return the canonical text of this {@link NavigationKeyStop} with every
+     * read-time annotation stripped &mdash; the {@link #key() key} optionally
      * followed by the {@link #TRANSITIVE_SUFFIX}, but never a
-     * bracket-timestamp annotation. Mirrors {@link #value()} minus the
+     * bracket-timestamp annotation. Mirrors {@link #segment()} minus the
      * temporal pin.
      *
-     * @return the storage-form value
+     * @return the segment text in its base form
      */
-    public String storageValue() {
+    public String baseSegment() {
         return isTransitive ? key + TRANSITIVE_SUFFIX : key;
     }
 

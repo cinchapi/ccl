@@ -330,7 +330,7 @@ public class BracketTimestampCommandTest {
         Assert.assertFalse(
                 "the unbracketed key must stay bare; the command-level "
                         + "timestamp is the engine's default fill",
-                ageKey.isTemporal());
+                ageKey.isAnnotated());
         Assert.assertEquals("age", ((KeySymbol) ageKey).key());
     }
 

@@ -123,7 +123,7 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
             if(sb.length() > 0) {
                 sb.append('.');
             }
-            sb.append(stop.value());
+            sb.append(stop.segment());
         }
         return sb.toString();
     }
@@ -207,25 +207,25 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     public String[] components() {
         String[] result = new String[stops.size()];
         for (int i = 0; i < stops.size(); i++) {
-            result[i] = stops.get(i).value();
+            result[i] = stops.get(i).segment();
         }
         return result;
     }
 
     @Override
-    public String storageKey() {
+    public String baseKey() {
         StringBuilder sb = new StringBuilder();
         for (NavigationKeyStop stop : stops) {
             if(sb.length() > 0) {
                 sb.append('.');
             }
-            sb.append(stop.storageValue());
+            sb.append(stop.baseSegment());
         }
         return sb.toString();
     }
 
     @Override
-    public boolean isTemporal() {
+    public boolean isAnnotated() {
         for (NavigationKeyStop stop : stops) {
             if(stop.timestamp() != null) {
                 return true;
@@ -235,8 +235,8 @@ public class NavigationKeySymbol extends KeyTokenSymbol<String> {
     }
 
     @Override
-    public KeyTokenSymbol<?> untemporal() {
-        if(!isTemporal()) {
+    public KeyTokenSymbol<?> unannotated() {
+        if(!isAnnotated()) {
             return this;
         }
         List<NavigationKeyStop> stripped = new ArrayList<>(stops.size());

@@ -106,18 +106,18 @@ public final class TemporalKeySymbol
     }
 
     @Override
-    public String storageKey() {
-        return key.storageKey();
+    public String baseKey() {
+        return key.baseKey();
     }
 
     @Override
-    public boolean isTemporal() {
+    public boolean isAnnotated() {
         return true;
     }
 
     @Override
-    public KeyTokenSymbol<?> untemporal() {
-        return key.untemporal();
+    public KeyTokenSymbol<?> unannotated() {
+        return key.unannotated();
     }
 
 }

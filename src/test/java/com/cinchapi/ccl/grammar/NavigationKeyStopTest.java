@@ -128,17 +128,17 @@ public class NavigationKeyStopTest {
     }
 
     @Test
-    public void testValueRoundTripStamped() {
+    public void testSegmentRoundTripStamped() {
         Assert.assertEquals("name[123]",
-                NavigationKeyStop.parse("name[123]").value());
+                NavigationKeyStop.parse("name[123]").segment());
         Assert.assertEquals("children[456]*",
-                NavigationKeyStop.parse("children[456]*").value());
+                NavigationKeyStop.parse("children[456]*").segment());
     }
 
     @Test
-    public void testValueCanonicalizesKeywordForm() {
+    public void testSegmentCanonicalizesKeywordForm() {
         Assert.assertEquals("name[123]",
-                NavigationKeyStop.parse("name[at 123]").value());
+                NavigationKeyStop.parse("name[at 123]").segment());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -245,13 +245,13 @@ public class NavigationKeyStopTest {
     @Test
     public void testStorageValueOmitsBracketAnnotation() {
         Assert.assertEquals("name",
-                NavigationKeyStop.parse("name").storageValue());
+                NavigationKeyStop.parse("name").baseSegment());
         Assert.assertEquals("children*",
-                NavigationKeyStop.parse("children*").storageValue());
+                NavigationKeyStop.parse("children*").baseSegment());
         Assert.assertEquals("name",
-                NavigationKeyStop.parse("name[123]").storageValue());
+                NavigationKeyStop.parse("name[123]").baseSegment());
         Assert.assertEquals("children*",
-                NavigationKeyStop.parse("children[123]*").storageValue());
+                NavigationKeyStop.parse("children[123]*").baseSegment());
     }
 
 }

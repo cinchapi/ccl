@@ -151,10 +151,10 @@ public abstract class Compiler {
                         .newLinkedHashSetWithExpectedSize($tokens().size());
                 $tokens().forEach((symbol) -> {
                     if(symbol instanceof KeyTokenSymbol) {
-                        keys.add(((KeyTokenSymbol<?>) symbol).storageKey());
+                        keys.add(((KeyTokenSymbol<?>) symbol).baseKey());
                     }
                     else if(symbol instanceof ScopeSymbol) {
-                        keys.add(((ScopeSymbol) symbol).prefix().storageKey());
+                        keys.add(((ScopeSymbol) symbol).prefix().baseKey());
                     }
                 });
                 return Collections.unmodifiableSet(keys);
@@ -171,7 +171,7 @@ public abstract class Compiler {
                     if(symbol instanceof ExpressionSymbol
                             && (expression = (ExpressionSymbol) symbol).raw()
                                     .operator().equals(operator)) {
-                        keys.add(expression.key().storageKey());
+                        keys.add(expression.key().baseKey());
                     }
                 });
                 return Collections.unmodifiableSet(keys);
@@ -311,7 +311,7 @@ public abstract class Compiler {
                 for (Symbol symbol : grouped) {
                     if(symbol instanceof ScopeSymbol) {
                         String pivot = ((ScopeSymbol) symbol).prefix()
-                                .storageKey();
+                                .baseKey();
                         if(!stack.isEmpty()) {
                             stack.peek().children.add(pivot);
                         }
@@ -442,7 +442,7 @@ public abstract class Compiler {
             public Set<String> keys() {
                 Set<String> result = new LinkedHashSet<>();
                 for (KeyTokenSymbol<?> key : selection) {
-                    result.add(key.storageKey());
+                    result.add(key.baseKey());
                 }
                 if(condition != null) {
                     result.addAll(condition.keys());
@@ -927,7 +927,7 @@ public abstract class Compiler {
             }
         }
         else {
-            result.add(unwrapped.storageKey());
+            result.add(unwrapped.baseKey());
         }
     }
 
@@ -985,7 +985,7 @@ public abstract class Compiler {
             Map<String, Set<Long>> result) {
         if(key instanceof TemporalKeySymbol) {
             TemporalKeySymbol temporal = (TemporalKeySymbol) key;
-            addTemporalEntry(temporal.key().storageKey(),
+            addTemporalEntry(temporal.key().baseKey(),
                     temporal.timestamp().timestamp(), result);
         }
         else if(key instanceof NavigationKeySymbol) {
@@ -1041,7 +1041,7 @@ public abstract class Compiler {
     private static String navPathOf(KeyTokenSymbol<?> key) {
         KeyTokenSymbol<?> unwrapped = unwrapTemporal(key);
         return unwrapped instanceof NavigationKeySymbol
-                ? ((NavigationKeySymbol) unwrapped).storageKey() : null;
+                ? ((NavigationKeySymbol) unwrapped).baseKey() : null;
     }
 
     /**

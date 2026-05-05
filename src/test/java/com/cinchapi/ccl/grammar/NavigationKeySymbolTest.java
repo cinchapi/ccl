@@ -59,19 +59,19 @@ public class NavigationKeySymbolTest {
     @Test
     public void testStorageKeyStripsBracketAnnotations() {
         Assert.assertEquals("a.b.foo", new NavigationKeySymbol(
-                "a[1].b[2].foo[3]").storageKey());
+                "a[1].b[2].foo[3]").baseKey());
     }
 
     @Test
     public void testStorageKeyPreservesTransitiveMarker() {
         Assert.assertEquals("a*.b",
-                new NavigationKeySymbol("a[1]*.b[2]").storageKey());
+                new NavigationKeySymbol("a[1]*.b[2]").baseKey());
     }
 
     @Test
     public void testStorageKeyOnUnstampedNavigationIsIdentity() {
         Assert.assertEquals("a.b.c",
-                new NavigationKeySymbol("a.b.c").storageKey());
+                new NavigationKeySymbol("a.b.c").baseKey());
     }
 
 }
