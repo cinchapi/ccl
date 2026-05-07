@@ -2610,7 +2610,7 @@ if (jjtc000) {
     Collection records = null;
     jj_consume_token(ADD);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "add command");
+KeyTokenSymbol.requireNotParameterized(key, "add command");
     jj_consume_token(AS);
     value = UnaryValue();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -2667,7 +2667,7 @@ KeyTokenSymbol.requireBaseKey(key, "add command");
     Collection records = null;
     jj_consume_token(SET);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "set command");
+KeyTokenSymbol.requireNotParameterized(key, "set command");
     jj_consume_token(AS);
     value = UnaryValue();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -2709,7 +2709,7 @@ KeyTokenSymbol.requireBaseKey(key, "set command");
     Collection records = null;
     jj_consume_token(REMOVE);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "remove command");
+KeyTokenSymbol.requireNotParameterized(key, "remove command");
     jj_consume_token(AS);
     value = UnaryValue();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -2759,7 +2759,7 @@ KeyTokenSymbol.requireBaseKey(key, "remove command");
 {if ("" != null) return new ClearSymbol((KeyTokenSymbol<?>)null, records);}
     } else if (jj_2_32(2147483647)) {
       keys = KeyCollection();
-KeyTokenSymbol.requireBaseKeys(keys, "clear command");
+KeyTokenSymbol.requireNotParameterized(keys, "clear command");
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case FROM:{
         jj_consume_token(FROM);
@@ -2796,7 +2796,7 @@ KeyTokenSymbol.requireBaseKeys(keys, "clear command");
       }
     } else if (jj_2_33(2147483647)) {
       key = Key();
-KeyTokenSymbol.requireBaseKey(key, "clear command");
+KeyTokenSymbol.requireNotParameterized(key, "clear command");
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case FROM:{
         jj_consume_token(FROM);
@@ -2857,7 +2857,7 @@ KeyTokenSymbol.requireBaseKey(key, "clear command");
     Token record;
     jj_consume_token(VERIFY_AND_SWAP);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "verify_and_swap command");
+KeyTokenSymbol.requireNotParameterized(key, "verify_and_swap command");
     jj_consume_token(AS);
     expected = UnaryValue();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -2886,7 +2886,7 @@ KeyTokenSymbol.requireBaseKey(key, "verify_and_swap command");
     Token record;
     jj_consume_token(VERIFY_OR_SET);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "verify_or_set command");
+KeyTokenSymbol.requireNotParameterized(key, "verify_or_set command");
     jj_consume_token(AS);
     value = UnaryValue();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -3001,7 +3001,7 @@ KeyTokenSymbol.requireBaseKey(key, "verify_or_set command");
     Collection destinations = null;
     jj_consume_token(LINK);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "link command");
+KeyTokenSymbol.requireNotParameterized(key, "link command");
     jj_consume_token(FROM);
     source = jj_consume_token(NUMERIC);
     jj_consume_token(TO);
@@ -3031,7 +3031,7 @@ Collection dest = new ArrayList();
     Token destination;
     jj_consume_token(UNLINK);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "unlink command");
+KeyTokenSymbol.requireNotParameterized(key, "unlink command");
     jj_consume_token(FROM);
     source = jj_consume_token(NUMERIC);
     jj_consume_token(TO);
@@ -4011,7 +4011,7 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     ValueTokenSymbol<?> value;
     jj_consume_token(FIND_OR_ADD);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "find_or_add command");
+KeyTokenSymbol.requireNotParameterized(key, "find_or_add command");
     jj_consume_token(AS);
     value = UnaryValue();
 {if ("" != null) return new FindOrAddSymbol(key, value);}
@@ -4173,7 +4173,7 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     TimestampSymbol end = null;
     jj_consume_token(CHRONICLE);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "chronicle command");
+KeyTokenSymbol.requireNotParameterized(key, "chronicle command");
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case IN:{
       jj_consume_token(IN);
@@ -4220,7 +4220,7 @@ KeyTokenSymbol.requireBaseKey(key, "chronicle command");
     jj_consume_token(DIFF);
     if (jj_2_58(4)) {
       key = Key();
-KeyTokenSymbol.requireBaseKey(key, "diff command");
+KeyTokenSymbol.requireNotParameterized(key, "diff command");
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case IN:{
         jj_consume_token(IN);
@@ -4274,7 +4274,7 @@ KeyTokenSymbol.requireBaseKey(key, "diff command");
       case PERIOD_SEPARATED_STRING:
       case ASTERISK_SUFFIXED_STRING:{
         key = Key();
-KeyTokenSymbol.requireBaseKey(key, "diff command");
+KeyTokenSymbol.requireNotParameterized(key, "diff command");
         jj_consume_token(FROM);
         start = TimestampValue();
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -4470,7 +4470,7 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     Collection<ValueTokenSymbol<?>> values;
     jj_consume_token(RECONCILE);
     key = Key();
-KeyTokenSymbol.requireBaseKey(key, "reconcile command");
+KeyTokenSymbol.requireNotParameterized(key, "reconcile command");
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case IN:{
       jj_consume_token(IN);
@@ -4499,7 +4499,7 @@ KeyTokenSymbol.requireBaseKey(key, "reconcile command");
     jj_consume_token(AUDIT);
     if (jj_2_63(2)) {
       key = Key();
-KeyTokenSymbol.requireBaseKey(key, "audit command");
+KeyTokenSymbol.requireNotParameterized(key, "audit command");
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case IN:{
         jj_consume_token(IN);
@@ -4635,7 +4635,7 @@ KeyTokenSymbol.requireBaseKey(key, "audit command");
     jj_consume_token(REVERT);
     if (jj_2_67(2147483647)) {
       keys = KeyCollection();
-KeyTokenSymbol.requireBaseKeys(keys, "revert command");
+KeyTokenSymbol.requireNotParameterized(keys, "revert command");
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case IN:{
         jj_consume_token(IN);
@@ -4678,7 +4678,7 @@ KeyTokenSymbol.requireBaseKeys(keys, "revert command");
       case PERIOD_SEPARATED_STRING:
       case ASTERISK_SUFFIXED_STRING:{
         key = Key();
-KeyTokenSymbol.requireBaseKey(key, "revert command");
+KeyTokenSymbol.requireNotParameterized(key, "revert command");
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case IN:{
           jj_consume_token(IN);

@@ -31,7 +31,8 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
      *            exception message
      * @throws IllegalArgumentException when {@code key} is annotated
      */
-    public static void requireBaseKey(KeyTokenSymbol<?> key, String context) {
+    public static void requireNotParameterized(KeyTokenSymbol<?> key,
+            String context) {
         if(key.isParameterized()) {
             throw new IllegalArgumentException(String.format(
                     "%s does not accept a bracket-timestamp parameter on "
@@ -41,17 +42,17 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
     }
 
     /**
-     * Apply {@link #requireBaseKey} to every {@link KeyTokenSymbol} in
-     * {@code keys}.
+     * Apply {@link #requireNotParameterized(KeyTokenSymbol, String)} to every
+     * {@link KeyTokenSymbol} in {@code keys}.
      *
      * @param keys the {@link KeyTokenSymbol KeyTokenSymbols} to verify
      * @param context a short label naming the rejecting context
      * @throws IllegalArgumentException when any element is annotated
      */
-    public static void requireBaseKeys(
+    public static void requireNotParameterized(
             Iterable<? extends KeyTokenSymbol<?>> keys, String context) {
         for (KeyTokenSymbol<?> key : keys) {
-            requireBaseKey(key, context);
+            requireNotParameterized(key, context);
         }
     }
 
