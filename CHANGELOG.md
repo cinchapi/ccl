@@ -103,6 +103,11 @@ A new `Compiler#analyze(CommandTree)` returns `CommandAnalysis extends Statement
 * `rangeStart()` / `rangeEnd()` — for `audit`, `chronicle`, `diff`.
 * `referencedRecords()` — `Set<Long>` of record ids the command directly touches.
 
+##### Symbol-Based Parsing
+Added `Compiler#parse(List<Symbol>)` for callers that already hold structured `Symbol`s (e.g., decoded from a wire protocol or produced programmatically) and want to build a `ConditionTree` without going through CCL text. It is the inverse of `tokenize(AbstractSyntaxTree)` for condition input — feeding the result of `tokenize` back through `parse` reconstructs the original tree. Variable substitution remains a text-level concern; placeholders must be resolved before the symbols are constructed.
+
+The new method unblocks conditions whose keys collide with CCL command keywords (e.g., `select = 42`), which the lexer otherwise reserves as global tokens and cannot parse as a condition from text.
+
 ##### Other Grammar Updates
 * [GH-51](https://github.com/cinchapi/ccl/issues/51): Allow an optional `*` suffix on navigation key segments to mark them as transitive (e.g., `children*.name`, `a.b*.c.d*.e`, `children*`). Transitive segments instruct Concourse to follow links recursively until exhaustion, supporting the Transitive Navigation feature in [cinchapi/concourse#632](https://github.com/cinchapi/concourse/issues/632). A standalone transitive stop (e.g., `children*`) is also accepted as a navigation key and is equivalent to a single-stop path whose terminal stop is transitive. Added `NavigationKeyStop` to model each segment as a structured `(name, transitive)` pair, and `NavigationKeySymbol#stops()` to expose them; the existing `components()` method is unchanged.
 * [GH-52](https://github.com/cinchapi/ccl/issues/52): Added **scoped condition groups** via the `prefix.(...)` syntax. Tells the engine that all conditions inside the group must be satisfied by the **same** destination record reachable through the explicit navigation `prefix`, rather than being evaluated independently (which can produce false positives on multi-valued links). Supports [cinchapi/concourse#533](https://github.com/cinchapi/concourse/issues/533).
