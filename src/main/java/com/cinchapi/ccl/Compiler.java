@@ -44,6 +44,7 @@ import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.grammar.command.AddSymbol;
 import com.cinchapi.ccl.grammar.command.AuditSymbol;
@@ -885,6 +886,53 @@ public abstract class Compiler {
                     "Symbols did not reduce to a single condition tree: "
                             + symbols);
         }
+    }
+
+    /**
+     * Build the {@link ConditionTree} represented by {@code symbols},
+     * resolving {@code $variable} value placeholders against {@code data}
+     * before assembly, bypassing CCL text parsing.
+     * <p>
+     * For each {@link ValueSymbol} whose value is a {@link String}, the
+     * canonical {@link Parsing#resolveLocalReference(String, Multimap)}
+     * helper is invoked: a {@code $name} reference is substituted from
+     * {@code data} and re-parsed through this {@link Compiler Compiler's}
+     * configured value parser; a {@code \$name} escape is unwrapped to
+     * the literal {@code $name}; other values pass through unchanged.
+     * The throw-on-missing semantics match the text-parsing path on every
+     * supported version of CCL.
+     * </p>
+     *
+     * @param symbols the {@link Symbol Symbols} to assemble
+     * @param data the {@link Multimap} of locally-bound values
+     * @return the {@link ConditionTree} represented by {@code symbols}
+     * @throws SyntaxException if a {@code $variable} reference has no
+     *             binding or has multiple bindings in {@code data}, or if
+     *             {@code symbols} contain a non-condition {@link Symbol}
+     *             or do not reduce to a single tree
+     */
+    public final ConditionTree parse(List<Symbol> symbols,
+            Multimap<String, Object> data) {
+        List<Symbol> resolved = new ArrayList<>(symbols.size());
+        for (Symbol symbol : symbols) {
+            Object value = (symbol instanceof ValueSymbol)
+                    ? ((ValueSymbol) symbol).value() : null;
+            if(value instanceof String) {
+                String substituted = Parsing.resolveLocalReference(
+                        (String) value, data);
+                if(substituted != null) {
+                    resolved.add(new ValueSymbol(
+                            valueParser.apply(substituted)));
+                }
+                else {
+                    resolved.add(symbol);
+                }
+            }
+            else {
+                resolved.add(symbol);
+            }
+        }
+        return parse(resolved);
     }
 
     /**
