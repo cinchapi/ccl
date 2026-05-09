@@ -23,6 +23,8 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
+import javax.annotation.Nullable;
+
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
@@ -72,7 +74,8 @@ public final class Parsing {
                     ValueTokenSymbol<?> value = (ValueTokenSymbol<?>) it.next();
                     ExpressionSymbol expression;
                     if(operator.operator().operands() == 2) {
-                        ValueTokenSymbol<?> value2 = (ValueTokenSymbol<?>) it.next();
+                        ValueTokenSymbol<?> value2 = (ValueTokenSymbol<?>) it
+                                .next();
                         expression = ExpressionSymbol.create(key, operator,
                                 value, value2);
                     }
@@ -102,6 +105,56 @@ public final class Parsing {
         }
         catch (ClassCastException e) {
             throw new SyntaxException(e.getMessage());
+        }
+    }
+
+    /**
+     * Resolve a CCL local-reference value &mdash; either a {@code $name}
+     * placeholder substituted from {@code data} or a {@code \$name} escape
+     * unwrapped to its literal form.
+     * <p>
+     * Returns the substituted/unescaped value when {@code value} matches
+     * one of those two forms, and {@code null} when {@code value} is
+     * neither &mdash; so callers can discriminate "resolved" from "left
+     * alone" without re-checking the prefix.
+     * </p>
+     *
+     * @param value the raw value text
+     * @param data the locally-bound values
+     * @return the substituted value for {@code $name}, the literal
+     *         {@code $name} for {@code \$name}, or {@code null} when
+     *         {@code value} is not a local reference
+     * @throws SyntaxException if {@code value} is a {@code $name}
+     *             reference and {@code data} does not contain exactly
+     *             one binding for {@code name}
+     */
+    @Nullable
+    public static String resolveLocalReference(String value,
+            Multimap<String, Object> data) {
+        if(!value.isEmpty() && value.charAt(0) == '$') {
+            String var = value.substring(1);
+            try {
+                return Iterables.getOnlyElement(data.get(var)).toString();
+            }
+            catch (IllegalArgumentException e) {
+                throw new SyntaxException(AnyStrings.format(
+                        "Unable to resolve variable {} because multiple "
+                                + "values exist locally: {}",
+                        value, data.get(var)));
+            }
+            catch (NoSuchElementException e) {
+                throw new SyntaxException(AnyStrings.format(
+                        "Unable to resolve variable {} because no values "
+                                + "exist locally",
+                        value));
+            }
+        }
+        else if(value.length() > 2 && value.charAt(0) == '\\'
+                && value.charAt(1) == '$') {
+            return value.substring(1);
+        }
+        else {
+            return null;
         }
     }
 
@@ -246,54 +299,5 @@ public final class Parsing {
             }
         });
         return ungrouped;
-    }
-
-    /**
-     * Resolve a CCL local-reference value &mdash; either a {@code $name}
-     * placeholder substituted from {@code data} or a {@code \$name} escape
-     * unwrapped to its literal form.
-     * <p>
-     * Returns the substituted/unescaped value when {@code value} matches
-     * one of those two forms, and {@code null} when {@code value} is
-     * neither &mdash; so callers can discriminate "resolved" from "left
-     * alone" without re-checking the prefix.
-     * </p>
-     *
-     * @param value the raw value text
-     * @param data the locally-bound values
-     * @return the substituted value for {@code $name}, the literal
-     *         {@code $name} for {@code \$name}, or {@code null} when
-     *         {@code value} is not a local reference
-     * @throws SyntaxException if {@code value} is a {@code $name}
-     *             reference and {@code data} does not contain exactly
-     *             one binding for {@code name}
-     */
-    public static String resolveLocalReference(String value,
-            Multimap<String, Object> data) {
-        if(!value.isEmpty() && value.charAt(0) == '$') {
-            String var = value.substring(1);
-            try {
-                return Iterables.getOnlyElement(data.get(var)).toString();
-            }
-            catch (IllegalArgumentException e) {
-                throw new SyntaxException(AnyStrings.format(
-                        "Unable to resolve variable {} because multiple "
-                                + "values exist locally: {}",
-                        value, data.get(var)));
-            }
-            catch (NoSuchElementException e) {
-                throw new SyntaxException(AnyStrings.format(
-                        "Unable to resolve variable {} because no values "
-                                + "exist locally",
-                        value));
-            }
-        }
-        else if(value.length() > 2 && value.charAt(0) == '\\'
-                && value.charAt(1) == '$') {
-            return value.substring(1);
-        }
-        else {
-            return null;
-        }
     }
 }

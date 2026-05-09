@@ -198,8 +198,7 @@ public abstract class Compiler {
             @Override
             public Set<String> storageKeys() {
                 Set<String> keys = new LinkedHashSet<>();
-                forEachKey($tokens(),
-                        (key) -> addStorageKeys(key, keys));
+                forEachKey($tokens(), (key) -> addStorageKeys(key, keys));
                 return Collections.unmodifiableSet(keys);
             }
 
@@ -230,8 +229,7 @@ public abstract class Compiler {
             @Override
             public Set<String> transitiveNavigationKeys() {
                 Set<String> keys = new LinkedHashSet<>();
-                forEachKey($tokens(),
-                        (key) -> addTransitiveStops(key, keys));
+                forEachKey($tokens(), (key) -> addTransitiveStops(key, keys));
                 return Collections.unmodifiableSet(keys);
             }
 
@@ -270,8 +268,7 @@ public abstract class Compiler {
             @Override
             public Set<String> navigationKeyStops() {
                 Set<String> stops = new LinkedHashSet<>();
-                forEachKey($tokens(),
-                        (key) -> addNavigationStops(key, stops));
+                forEachKey($tokens(), (key) -> addNavigationStops(key, stops));
                 return Collections.unmodifiableSet(stops);
             }
 
@@ -308,8 +305,7 @@ public abstract class Compiler {
                     Operator filterOperator) {
                 Map<String, List<String>> result = new LinkedHashMap<>();
                 Deque<ScopeFrame> stack = new ArrayDeque<>();
-                List<Symbol> grouped = Parsing
-                        .groupExpressions($tokens());
+                List<Symbol> grouped = Parsing.groupExpressions($tokens());
                 for (Symbol symbol : grouped) {
                     if(symbol instanceof ScopeSymbol) {
                         String pivot = ((ScopeSymbol) symbol).prefix()
@@ -380,12 +376,11 @@ public abstract class Compiler {
              */
             private void forEachKeyWithOperator(Operator operator,
                     java.util.function.Consumer<KeyTokenSymbol<?>> action) {
-                List<Symbol> grouped = Parsing
-                        .groupExpressions($tokens());
+                List<Symbol> grouped = Parsing.groupExpressions($tokens());
                 for (Symbol symbol : grouped) {
                     if(symbol instanceof ExpressionSymbol
-                            && ((ExpressionSymbol) symbol).operator()
-                                    .operator().equals(operator)) {
+                            && ((ExpressionSymbol) symbol).operator().operator()
+                                    .equals(operator)) {
                         action.accept(((ExpressionSymbol) symbol).key());
                     }
                 }
@@ -869,8 +864,7 @@ public abstract class Compiler {
                 }
                 else {
                     throw new SyntaxException(
-                            "Unexpected symbol in postfix notation: "
-                                    + symbol);
+                            "Unexpected symbol in postfix notation: " + symbol);
                 }
             }
         }
@@ -914,21 +908,16 @@ public abstract class Compiler {
         List<Symbol> resolved = new ArrayList<>(symbols.size());
         for (Symbol symbol : symbols) {
             Object value = (symbol instanceof ValueSymbol)
-                    ? ((ValueSymbol) symbol).value() : null;
+                    ? ((ValueSymbol) symbol).value()
+                    : null;
             if(value instanceof String) {
-                String substituted = Parsing.resolveLocalReference(
-                        (String) value, data);
+                String substituted = Parsing
+                        .resolveLocalReference((String) value, data);
                 if(substituted != null) {
-                    resolved.add(new ValueSymbol(
-                            valueParser.apply(substituted)));
-                }
-                else {
-                    resolved.add(symbol);
-                }
+                    symbol = new ValueSymbol(valueParser.apply(substituted));
+                }               
             }
-            else {
-                resolved.add(symbol);
-            }
+            resolved.add(symbol);
         }
         return parse(resolved);
     }
@@ -1124,11 +1113,10 @@ public abstract class Compiler {
                     temporal.timestamp().timestamp(), result);
         }
         else if(key instanceof NavigationKeySymbol) {
-            for (NavigationKeyStop stop : ((NavigationKeySymbol) key)
-                    .stops()) {
+            for (NavigationKeyStop stop : ((NavigationKeySymbol) key).stops()) {
                 if(stop.timestamp() != null) {
-                    addTemporalEntry(stop.key(),
-                            stop.timestamp().timestamp(), result);
+                    addTemporalEntry(stop.key(), stop.timestamp().timestamp(),
+                            result);
                 }
             }
         }
@@ -1144,8 +1132,7 @@ public abstract class Compiler {
      */
     private static void addTemporalEntry(String storageKey, long ts,
             Map<String, Set<Long>> result) {
-        result.computeIfAbsent(storageKey, k -> new LinkedHashSet<>())
-                .add(ts);
+        result.computeIfAbsent(storageKey, k -> new LinkedHashSet<>()).add(ts);
     }
 
     /**
@@ -1176,7 +1163,8 @@ public abstract class Compiler {
     private static String navPathOf(KeyTokenSymbol<?> key) {
         KeyTokenSymbol<?> unwrapped = unwrapTemporal(key);
         return unwrapped instanceof NavigationKeySymbol
-                ? ((NavigationKeySymbol) unwrapped).baseKey() : null;
+                ? ((NavigationKeySymbol) unwrapped).baseKey()
+                : null;
     }
 
     /**
@@ -1189,7 +1177,8 @@ public abstract class Compiler {
      */
     private static KeyTokenSymbol<?> unwrapTemporal(KeyTokenSymbol<?> key) {
         return key instanceof TemporalKeySymbol
-                ? ((TemporalKeySymbol) key).key() : key;
+                ? ((TemporalKeySymbol) key).key()
+                : key;
     }
 
     /**
