@@ -1734,4 +1734,26 @@ public abstract class CompilerTest {
         Assert.assertEquals(42, root.raw().values().get(0));
     }
 
+    @Test
+    public void testParseSymbolsResolutionAppliesValueParser() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("age", 42);
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("age"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol("$age")),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Object resolved = root.raw().values().get(0);
+        Assert.assertFalse(
+                "Substituted $name must be re-parsed via the configured "
+                        + "value parser, not left as the raw String",
+                resolved instanceof String);
+        Assert.assertTrue(resolved instanceof Number);
+        Assert.assertEquals(42, ((Number) resolved).intValue());
+    }
+
 }

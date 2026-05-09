@@ -255,10 +255,8 @@ public final class Parsing {
      * <p>
      * Returns the substituted/unescaped value when {@code value} matches
      * one of those two forms, and {@code null} when {@code value} is
-     * neither (so callers can distinguish "I resolved it" from "I left it
-     * alone" without re-checking the prefix). Behaves identically to the
-     * inline resolution previously inlined in the JavaCC value-position
-     * productions.
+     * neither &mdash; so callers can discriminate "resolved" from "left
+     * alone" without re-checking the prefix.
      * </p>
      *
      * @param value the raw value text

@@ -812,9 +812,10 @@ public abstract class Compiler {
      * back through this method reconstructs the original tree.
      * </p>
      * <p>
-     * Variable substitution (e.g., {@code $name}) is a text-level concern
-     * and is not performed here; callers must resolve placeholders before
-     * constructing the {@link Symbol Symbols} they pass in.
+     * Variable substitution (e.g., {@code $name}) is not performed by
+     * this overload &mdash; see
+     * {@link #parse(List, Multimap) parse(List, Multimap)} when CCL
+     * should resolve placeholders against locally-bound values.
      * </p>
      * <p>
      * Only condition-level {@link Symbol Symbols} are accepted &mdash;
@@ -890,24 +891,21 @@ public abstract class Compiler {
 
     /**
      * Build the {@link ConditionTree} represented by {@code symbols},
-     * resolving {@code $variable} value placeholders against {@code data}
-     * before assembly, bypassing CCL text parsing.
+     * with {@code $name} placeholders in any {@link ValueSymbol}
+     * substituted against {@code data}, bypassing CCL text parsing.
      * <p>
-     * For each {@link ValueSymbol} whose value is a {@link String}, the
-     * canonical {@link Parsing#resolveLocalReference(String, Multimap)}
-     * helper is invoked: a {@code $name} reference is substituted from
-     * {@code data} and re-parsed through this {@link Compiler Compiler's}
-     * configured value parser; a {@code \$name} escape is unwrapped to
-     * the literal {@code $name}; other values pass through unchanged.
-     * The throw-on-missing semantics match the text-parsing path on every
-     * supported version of CCL.
+     * A {@link ValueSymbol} whose value is the {@link String}
+     * {@code $name} carries {@code data}'s single binding for
+     * {@code name}, re-typed by this {@link Compiler Compiler's} value
+     * parser. The escape {@code \$name} carries the literal
+     * {@code $name}, re-typed by the same value parser.
      * </p>
      *
      * @param symbols the {@link Symbol Symbols} to assemble
      * @param data the {@link Multimap} of locally-bound values
      * @return the {@link ConditionTree} represented by {@code symbols}
-     * @throws SyntaxException if a {@code $variable} reference has no
-     *             binding or has multiple bindings in {@code data}, or if
+     * @throws SyntaxException if a {@code $name} placeholder has no
+     *             binding or multiple bindings in {@code data}, or if
      *             {@code symbols} contain a non-condition {@link Symbol}
      *             or do not reduce to a single tree
      */
