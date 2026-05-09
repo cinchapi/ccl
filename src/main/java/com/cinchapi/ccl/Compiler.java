@@ -863,12 +863,14 @@ public abstract class Compiler {
                         "Unexpected symbol in postfix notation: " + symbol);
             }
         }
-        if(stack.size() != 1 || !(stack.peek() instanceof ConditionTree)) {
+        if(stack.size() == 1 && stack.peek() instanceof ConditionTree) {
+            return (ConditionTree) stack.pop();
+        }
+        else {
             throw new SyntaxException(
                     "Symbols did not reduce to a single condition tree: "
                             + symbols);
         }
-        return (ConditionTree) stack.pop();
     }
 
     /**
