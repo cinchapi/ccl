@@ -1658,4 +1658,102 @@ public abstract class CompilerTest {
         compiler.parse(Lists.newArrayList());
     }
 
+    @Test
+    public void testParseSymbolsResolvesLocalReference() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron James");
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("name"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol("$name")),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("name", root.raw().key());
+        Assert.assertEquals("Lebron James",
+                root.raw().values().get(0));
+    }
+
+    @Test(expected = SyntaxException.class)
+    public void testParseSymbolsThrowsWhenLocalReferenceUnbound() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("other", "irrelevant");
+        compiler.parse(Lists.newArrayList(new KeySymbol("name"),
+                new OperatorSymbol(
+                        com.cinchapi.concourse.thrift.Operator.EQUALS),
+                new ValueSymbol("$missing")),
+                data);
+    }
+
+    @Test(expected = SyntaxException.class)
+    public void testParseSymbolsThrowsWhenLocalReferenceHasMultipleBindings() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron");
+        data.put("name", "Steph");
+        compiler.parse(Lists.newArrayList(new KeySymbol("name"),
+                new OperatorSymbol(
+                        com.cinchapi.concourse.thrift.Operator.EQUALS),
+                new ValueSymbol("$name")),
+                data);
+    }
+
+    @Test
+    public void testParseSymbolsTreatsEscapedDollarAsLiteral() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron");
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("name"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol("\\$name")),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("$name",
+                root.raw().values().get(0));
+    }
+
+    @Test
+    public void testParseSymbolsLeavesNonStringValuesUntouched() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron");
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("age"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol(42)),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Assert.assertEquals(42, root.raw().values().get(0));
+    }
+
+    @Test
+    public void testParseSymbolsResolutionAppliesValueParser() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("age", 42);
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("age"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol("$age")),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Object resolved = root.raw().values().get(0);
+        Assert.assertFalse(
+                "Substituted $name must be re-parsed via the configured "
+                        + "value parser, not left as the raw String",
+                resolved instanceof String);
+        Assert.assertTrue(resolved instanceof Number);
+        Assert.assertEquals(42, ((Number) resolved).intValue());
+    }
+
 }

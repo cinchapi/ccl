@@ -44,6 +44,7 @@ import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.grammar.command.AddSymbol;
 import com.cinchapi.ccl.grammar.command.AuditSymbol;
@@ -197,8 +198,7 @@ public abstract class Compiler {
             @Override
             public Set<String> storageKeys() {
                 Set<String> keys = new LinkedHashSet<>();
-                forEachKey($tokens(),
-                        (key) -> addStorageKeys(key, keys));
+                forEachKey($tokens(), (key) -> addStorageKeys(key, keys));
                 return Collections.unmodifiableSet(keys);
             }
 
@@ -229,8 +229,7 @@ public abstract class Compiler {
             @Override
             public Set<String> transitiveNavigationKeys() {
                 Set<String> keys = new LinkedHashSet<>();
-                forEachKey($tokens(),
-                        (key) -> addTransitiveStops(key, keys));
+                forEachKey($tokens(), (key) -> addTransitiveStops(key, keys));
                 return Collections.unmodifiableSet(keys);
             }
 
@@ -269,8 +268,7 @@ public abstract class Compiler {
             @Override
             public Set<String> navigationKeyStops() {
                 Set<String> stops = new LinkedHashSet<>();
-                forEachKey($tokens(),
-                        (key) -> addNavigationStops(key, stops));
+                forEachKey($tokens(), (key) -> addNavigationStops(key, stops));
                 return Collections.unmodifiableSet(stops);
             }
 
@@ -307,8 +305,7 @@ public abstract class Compiler {
                     Operator filterOperator) {
                 Map<String, List<String>> result = new LinkedHashMap<>();
                 Deque<ScopeFrame> stack = new ArrayDeque<>();
-                List<Symbol> grouped = Parsing
-                        .groupExpressions($tokens());
+                List<Symbol> grouped = Parsing.groupExpressions($tokens());
                 for (Symbol symbol : grouped) {
                     if(symbol instanceof ScopeSymbol) {
                         String pivot = ((ScopeSymbol) symbol).prefix()
@@ -379,12 +376,11 @@ public abstract class Compiler {
              */
             private void forEachKeyWithOperator(Operator operator,
                     java.util.function.Consumer<KeyTokenSymbol<?>> action) {
-                List<Symbol> grouped = Parsing
-                        .groupExpressions($tokens());
+                List<Symbol> grouped = Parsing.groupExpressions($tokens());
                 for (Symbol symbol : grouped) {
                     if(symbol instanceof ExpressionSymbol
-                            && ((ExpressionSymbol) symbol).operator()
-                                    .operator().equals(operator)) {
+                            && ((ExpressionSymbol) symbol).operator().operator()
+                                    .equals(operator)) {
                         action.accept(((ExpressionSymbol) symbol).key());
                     }
                 }
@@ -811,9 +807,10 @@ public abstract class Compiler {
      * back through this method reconstructs the original tree.
      * </p>
      * <p>
-     * Variable substitution (e.g., {@code $name}) is a text-level concern
-     * and is not performed here; callers must resolve placeholders before
-     * constructing the {@link Symbol Symbols} they pass in.
+     * Variable substitution (e.g., {@code $name}) is not performed by
+     * this overload &mdash; see
+     * {@link #parse(List, Multimap) parse(List, Multimap)} when CCL
+     * should resolve placeholders against locally-bound values.
      * </p>
      * <p>
      * Only condition-level {@link Symbol Symbols} are accepted &mdash;
@@ -867,8 +864,7 @@ public abstract class Compiler {
                 }
                 else {
                     throw new SyntaxException(
-                            "Unexpected symbol in postfix notation: "
-                                    + symbol);
+                            "Unexpected symbol in postfix notation: " + symbol);
                 }
             }
         }
@@ -885,6 +881,45 @@ public abstract class Compiler {
                     "Symbols did not reduce to a single condition tree: "
                             + symbols);
         }
+    }
+
+    /**
+     * Build the {@link ConditionTree} represented by {@code symbols},
+     * with {@code $name} placeholders in any {@link ValueSymbol}
+     * substituted against {@code data}, bypassing CCL text parsing.
+     * <p>
+     * A {@link ValueSymbol} whose value is the {@link String}
+     * {@code $name} carries {@code data}'s single binding for
+     * {@code name}, re-typed by this {@link Compiler Compiler's} value
+     * parser. The escape {@code \$name} carries the literal
+     * {@code $name}, re-typed by the same value parser.
+     * </p>
+     *
+     * @param symbols the {@link Symbol Symbols} to assemble
+     * @param data the {@link Multimap} of locally-bound values
+     * @return the {@link ConditionTree} represented by {@code symbols}
+     * @throws SyntaxException if a {@code $name} placeholder has no
+     *             binding or multiple bindings in {@code data}, or if
+     *             {@code symbols} contain a non-condition {@link Symbol}
+     *             or do not reduce to a single tree
+     */
+    public final ConditionTree parse(List<Symbol> symbols,
+            Multimap<String, Object> data) {
+        List<Symbol> resolved = new ArrayList<>(symbols.size());
+        for (Symbol symbol : symbols) {
+            Object value = (symbol instanceof ValueSymbol)
+                    ? ((ValueSymbol) symbol).value()
+                    : null;
+            if(value instanceof String) {
+                String substituted = Parsing
+                        .resolveLocalReference((String) value, data);
+                if(substituted != null) {
+                    symbol = new ValueSymbol(valueParser.apply(substituted));
+                }
+            }
+            resolved.add(symbol);
+        }
+        return parse(resolved);
     }
 
     /**
@@ -1078,11 +1113,10 @@ public abstract class Compiler {
                     temporal.timestamp().timestamp(), result);
         }
         else if(key instanceof NavigationKeySymbol) {
-            for (NavigationKeyStop stop : ((NavigationKeySymbol) key)
-                    .stops()) {
+            for (NavigationKeyStop stop : ((NavigationKeySymbol) key).stops()) {
                 if(stop.timestamp() != null) {
-                    addTemporalEntry(stop.key(),
-                            stop.timestamp().timestamp(), result);
+                    addTemporalEntry(stop.key(), stop.timestamp().timestamp(),
+                            result);
                 }
             }
         }
@@ -1098,8 +1132,7 @@ public abstract class Compiler {
      */
     private static void addTemporalEntry(String storageKey, long ts,
             Map<String, Set<Long>> result) {
-        result.computeIfAbsent(storageKey, k -> new LinkedHashSet<>())
-                .add(ts);
+        result.computeIfAbsent(storageKey, k -> new LinkedHashSet<>()).add(ts);
     }
 
     /**
@@ -1130,7 +1163,8 @@ public abstract class Compiler {
     private static String navPathOf(KeyTokenSymbol<?> key) {
         KeyTokenSymbol<?> unwrapped = unwrapTemporal(key);
         return unwrapped instanceof NavigationKeySymbol
-                ? ((NavigationKeySymbol) unwrapped).baseKey() : null;
+                ? ((NavigationKeySymbol) unwrapped).baseKey()
+                : null;
     }
 
     /**
@@ -1143,7 +1177,8 @@ public abstract class Compiler {
      */
     private static KeyTokenSymbol<?> unwrapTemporal(KeyTokenSymbol<?> key) {
         return key instanceof TemporalKeySymbol
-                ? ((TemporalKeySymbol) key).key() : key;
+                ? ((TemporalKeySymbol) key).key()
+                : key;
     }
 
     /**
