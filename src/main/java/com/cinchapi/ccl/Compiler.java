@@ -915,7 +915,7 @@ public abstract class Compiler {
                         .resolveLocalReference((String) value, data);
                 if(substituted != null) {
                     symbol = new ValueSymbol(valueParser.apply(substituted));
-                }               
+                }
             }
             resolved.add(symbol);
         }
