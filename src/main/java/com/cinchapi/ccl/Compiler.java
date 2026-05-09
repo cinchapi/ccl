@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
@@ -834,34 +835,47 @@ public abstract class Compiler {
      *             single tree
      */
     public final ConditionTree parse(List<Symbol> symbols) {
-        Queue<PostfixNotationSymbol> postfix = Parsing
-                .toPostfixNotation(symbols);
+        Queue<PostfixNotationSymbol> postfix;
+        try {
+            postfix = Parsing.toPostfixNotation(symbols);
+        }
+        catch (IllegalStateException | ClassCastException e) {
+            throw new SyntaxException(
+                    "Symbols are not a valid condition: " + symbols);
+        }
         Deque<Object> stack = new ArrayDeque<>();
-        while (!postfix.isEmpty()) {
-            PostfixNotationSymbol symbol = postfix.poll();
-            if(symbol instanceof ExpressionSymbol) {
-                stack.push(new ExpressionTree((ExpressionSymbol) symbol));
+        try {
+            while (!postfix.isEmpty()) {
+                PostfixNotationSymbol symbol = postfix.poll();
+                if(symbol instanceof ExpressionSymbol) {
+                    stack.push(new ExpressionTree((ExpressionSymbol) symbol));
+                }
+                else if(symbol instanceof ConjunctionSymbol) {
+                    ConditionTree right = (ConditionTree) stack.pop();
+                    ConditionTree left = (ConditionTree) stack.pop();
+                    stack.push(symbol == ConjunctionSymbol.AND
+                            ? new AndTree(left, right)
+                            : new OrTree(left, right));
+                }
+                else if(symbol instanceof ScopeSymbol) {
+                    stack.push(symbol);
+                }
+                else if(symbol == ScopeEndSymbol.INSTANCE) {
+                    ConditionTree inner = (ConditionTree) stack.pop();
+                    ScopeSymbol open = (ScopeSymbol) stack.pop();
+                    stack.push(new ScopedConditionTree(open.prefix(), inner));
+                }
+                else {
+                    throw new SyntaxException(
+                            "Unexpected symbol in postfix notation: "
+                                    + symbol);
+                }
             }
-            else if(symbol instanceof ConjunctionSymbol) {
-                ConditionTree right = (ConditionTree) stack.pop();
-                ConditionTree left = (ConditionTree) stack.pop();
-                stack.push(symbol == ConjunctionSymbol.AND
-                        ? new AndTree(left, right)
-                        : new OrTree(left, right));
-            }
-            else if(symbol instanceof ScopeSymbol) {
-                stack.push(symbol);
-            }
-            else if(symbol == ScopeEndSymbol.INSTANCE) {
-                ConditionTree inner = (ConditionTree) stack.pop();
-                ScopeSymbol open = (ScopeSymbol) stack.pop();
-                stack.push(
-                        new ScopedConditionTree(open.prefix(), inner));
-            }
-            else {
-                throw new SyntaxException(
-                        "Unexpected symbol in postfix notation: " + symbol);
-            }
+        }
+        catch (ClassCastException | NoSuchElementException e) {
+            throw new SyntaxException(
+                    "Symbols did not reduce to a single condition tree: "
+                            + symbols);
         }
         if(stack.size() == 1 && stack.peek() instanceof ConditionTree) {
             return (ConditionTree) stack.pop();
