@@ -799,6 +799,79 @@ public abstract class Compiler {
     }
 
     /**
+     * Build the {@link ConditionTree} represented by {@code symbols},
+     * bypassing CCL text parsing.
+     * <p>
+     * Use this overload when callers already hold structured
+     * {@link Symbol Symbols} (for example, decoded from a wire protocol or
+     * produced programmatically) and want to skip the text round-trip. It
+     * acts as the inverse of {@link #tokenize(AbstractSyntaxTree)} for
+     * {@link ConditionTree} input: feeding the result of {@code tokenize}
+     * back through this method reconstructs the original tree.
+     * </p>
+     * <p>
+     * Variable substitution (e.g., {@code $name}) is a text-level concern
+     * and is not performed here; callers must resolve placeholders before
+     * constructing the {@link Symbol Symbols} they pass in.
+     * </p>
+     * <p>
+     * Only condition-level {@link Symbol Symbols} are accepted &mdash;
+     * {@link ExpressionSymbol}, {@link ConjunctionSymbol},
+     * {@link ParenthesisSymbol}, {@link ScopeSymbol}, and
+     * {@link ScopeEndSymbol}, plus the raw key/operator/value tokens that
+     * compose an expression. Top-level statement components such as
+     * {@link com.cinchapi.ccl.grammar.OrderSymbol OrderSymbol},
+     * {@link com.cinchapi.ccl.grammar.PageSymbol PageSymbol},
+     * {@link com.cinchapi.ccl.grammar.FunctionTokenSymbol
+     * FunctionTokenSymbol}, and command symbols are not part of the
+     * postfix-notation pipeline and are rejected.
+     * </p>
+     *
+     * @param symbols the {@link Symbol Symbols} to assemble
+     * @return the {@link ConditionTree} represented by {@code symbols}
+     * @throws SyntaxException if {@code symbols} contain a
+     *             non-condition {@link Symbol} or do not reduce to a
+     *             single tree
+     */
+    public final ConditionTree parse(List<Symbol> symbols) {
+        Queue<PostfixNotationSymbol> postfix = Parsing
+                .toPostfixNotation(symbols);
+        Deque<Object> stack = new ArrayDeque<>();
+        while (!postfix.isEmpty()) {
+            PostfixNotationSymbol symbol = postfix.poll();
+            if(symbol instanceof ExpressionSymbol) {
+                stack.push(new ExpressionTree((ExpressionSymbol) symbol));
+            }
+            else if(symbol instanceof ConjunctionSymbol) {
+                ConditionTree right = (ConditionTree) stack.pop();
+                ConditionTree left = (ConditionTree) stack.pop();
+                stack.push(symbol == ConjunctionSymbol.AND
+                        ? new AndTree(left, right)
+                        : new OrTree(left, right));
+            }
+            else if(symbol instanceof ScopeSymbol) {
+                stack.push(symbol);
+            }
+            else if(symbol == ScopeEndSymbol.INSTANCE) {
+                ConditionTree inner = (ConditionTree) stack.pop();
+                ScopeSymbol open = (ScopeSymbol) stack.pop();
+                stack.push(
+                        new ScopedConditionTree(open.prefix(), inner));
+            }
+            else {
+                throw new SyntaxException(
+                        "Unexpected symbol in postfix notation: " + symbol);
+            }
+        }
+        if(stack.size() != 1 || !(stack.peek() instanceof ConditionTree)) {
+            throw new SyntaxException(
+                    "Symbols did not reduce to a single condition tree: "
+                            + symbols);
+        }
+        return (ConditionTree) stack.pop();
+    }
+
+    /**
      * Traverse the {@code ast} in breadth-first order and break up its nodes
      * into distinct {@link Symbol symbols} (i.e. separate an
      * {@link ExpressionSymbol} into its distinct parts}.
