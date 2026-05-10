@@ -1,6 +1,132 @@
 # Changelog
 
-#### Version 3.2.2 (TBD)
+#### Version 4.0.0 (May 10, 2026)
+##### Command Support
+The CCL grammar has been expanded to support parsing **Concourse commands** in addition to conditions, orders, and pages. A command string (e.g., `select name from 1 where age > 30`) is parsed into a `CommandTree` containing a `CommandSymbol` that represents the operation, along with optional `ConditionTree`, `OrderTree`, and `PageTree` children.
+
+###### Supported Commands
+The following Concourse operations can now be expressed and parsed in CCL:
+
+**Data Modification**
+* `add` - Add a value to a key in a record (e.g., `add name as jeff in 1`)
+* `set` - Set a value for a key in a record or records (e.g., `set name as jeff in [1, 2, 3]`)
+* `remove` - Remove a value from a key in a record (e.g., `remove name as jeff from 1`)
+* `clear` - Clear all values for a key in a record (e.g., `clear name from 1`)
+* `insert` - Insert a JSON document (e.g., `insert {"name": "jeff"}`)
+* `reconcile` - Reconcile values for a key in a record (e.g., `reconcile name in 1 with [jeff, bob]`)
+* `verify_and_swap` - Atomically verify and swap a value (e.g., `verify_and_swap name as jeff to bob in 1`)
+* `verify_or_set` - Verify or set a value (e.g., `verify_or_set name as jeff in 1`)
+
+**Data Reading**
+* `select` - Select keys from records with optional conditions, ordering, and pagination
+* `get` - Get key values from records at an optional timestamp
+* `find` - Find records matching a condition with optional ordering and pagination
+* `find_or_add` / `find_or_insert` - Find records matching a condition or add/insert if none found
+* `browse` - Browse values for keys (e.g., `browse name` or `browse [name, age]`)
+* `navigate` - Navigate linked data (e.g., `navigate friends.name from 1 where age > 21`)
+* `describe` - Describe a record's keys at an optional timestamp (e.g., `describe 1 at "yesterday"`)
+* `search` - Full-text search (e.g., `search name for "jeff"`)
+* `verify` - Verify a value exists (e.g., `verify name as jeff in 1`)
+* `jsonify` - Export records as JSON with optional identifier inclusion
+
+**History and Auditing**
+* `audit` - View the audit log for a record or key (e.g., `audit name in 1 from "2024-01-01" to "2024-02-01"`)
+* `chronicle` - View the change history for a key in a record (e.g., `chronicle name in 1`)
+* `diff` - Compare data between timestamps (e.g., `diff 1 from "yesterday" to "today"`)
+* `revert` - Revert keys in records to a prior state (e.g., `revert name in 1 at "last week"`)
+* `trace` - Trace incoming references to a record (e.g., `trace 1`)
+
+**Calculations**
+* `calculate` - Perform aggregate calculations (`sum`, `average`, `count`, `min`, `max`) on key values with optional record filtering and conditions (e.g., `calculate sum age where department = engineering`)
+
+**Links**
+* `link` / `unlink` - Create or remove links between records (e.g., `link friends from 1 to 2`)
+
+**Transactions**
+* `stage` / `commit` / `abort` - Transaction control
+
+**Utility**
+* `ping` - Server health check
+* `holds` - Check if records contain data (e.g., `holds 1` or `holds [1, 2, 3]`)
+* `consolidate` - Merge records (e.g., `consolidate 1 2 3`)
+* `inventory` - List all records
+
+###### New Symbol Classes
+Each command is represented by a dedicated `CommandSymbol` implementation: `AddSymbol`, `SetSymbol`, `RemoveSymbol`, `ClearSymbol`, `InsertSymbol`, `ReconcileSymbol`, `VerifyAndSwapSymbol`, `VerifyOrSetSymbol`, `SelectSymbol`, `GetSymbol`, `FindSymbol`, `FindOrAddSymbol`, `FindOrInsertSymbol`, `BrowseSymbol`, `NavigateSymbol`, `DescribeSymbol`, `SearchSymbol`, `VerifySymbol`, `JsonifySymbol`, `AuditSymbol`, `ChronicleSymbol`, `DiffSymbol`, `RevertSymbol`, `TraceSymbol`, `CalculateSymbol`, `LinkSymbol`, `UnlinkSymbol`, `StageSymbol`, `CommitSymbol`, `AbortSymbol`, `PingSymbol`, `HoldsSymbol`, `ConsolidateSymbol`, `InventorySymbol`.
+
+##### Multi-Statement Parsing
+Added support for parsing multiple semicolon-delimited CCL statements in a single call, similar to SQL. The new `Compiler#compile(String)` and `Compiler#compile(String, Multimap)` methods accept a CCL string containing one or more statements separated by `;` and return a `List<AbstractSyntaxTree>` with one tree per statement.
+* Semicolons (`;`) are now a reserved token in the grammar. Unquoted semicolons in values are no longer permitted (use quoted strings instead).
+
+##### Mixed-time reads via bracket-timestamp syntax
+A single CCL operation can now read each of its keys at a different point in time. Every key accepts an optional bracket annotation `[<timestamp>]` that pins the read it represents — the brackets are the timestamp pivot, so no leading `at`/`on`/`during` keyword is required inside (the keyword form is accepted for backward compatibility, but the canonical serialization is keyword-less). This is qualitatively new: previous CCL versions could only express one timestamp per operation.
+
+```
+select [name[t1], age[t2], score[t3]] from 1
+find name[t1] = "Jeff" AND age[t2] >= 30
+calculate sum revenue[t1] from 1
+A[t1].(foo[t2] = "X" AND bar[t3] = "Y")
+children[t]*.name = "Jeff"
+```
+
+Each bracket binds exactly the read it is adjacent to:
+* Bracket on a leaf key pins the leaf's evaluation timestamp.
+* Bracket on a navigation stop pins that stop's traversal timestamp.
+* Bracket on a scope prefix pins the scope's traversal timestamp.
+
+When a stop also carries the transitive marker `*`, the canonical order is `key[t]*` — the bracket binds to the key, and the asterisk terminates the stop (e.g., `children[t]*.name`). The reverse order `key*[t]` is rejected at parse time. A key carries at most one bracket-timestamp annotation; double annotations such as `a.b[t1][t2]` or `children[t1]*[t2]` are rejected at parse time.
+
+Without an annotation a key reads at the present moment. A new `TemporalKeySymbol` AST type wraps any `KeyTokenSymbol` with the bracket-derived `TimestampSymbol`. `NavigationKeySymbol` carries per-stop timestamps via the `stops()` accessor. Existing CCL strings without brackets parse identically to before.
+
+###### Read vs. write commands
+Brackets are accepted on every command whose semantics map to a single point-in-time read — `select`, `get`, `find`, `browse`, `navigate`, `calculate`, `search`, `verify`, and the `order by` clause. They are **rejected at parse time** for writes (`add`, `set`, `remove`, `clear`, `link`, `unlink`, `reconcile`, `verify_and_swap`, `verify_or_set`, `find_or_add`, `revert`) and for range-history reads (`audit`, `chronicle`, `diff`) whose timestamp parameter is a window rather than a point. Rejection produces a `SyntaxException` that names the offending command and key.
+
+###### Precedence when bracket and trailing-`at` coexist
+When a per-key bracket and a trailing-`at` (or `as of`) appear on the same operation, the more-specific form wins: the bracket pins the keys it covers, and the trailing-`at` provides a default for keys that have no bracket. This lets callers mix per-key control with a sensible operation-wide default (`select [name[t1], age, score] from 1 at t2` reads `name` at `t1` and the rest at `t2`) and keeps gradual migration off the deprecated trailing-`at` form friction-free. The AST preserves both pieces of information so downstream engines and drivers can apply the precedence rule at evaluation time; consult `KeyTokenSymbol.isTemporal()` / `TemporalKeySymbol.timestamp()` for the per-key timestamp and the command/expression symbol's own `timestamp()` accessor for the operation-level fallback.
+
+##### Statement and Command Analysis API
+[GH-67](https://github.com/cinchapi/ccl/issues/67): Expanded `Compiler#analyze(ConditionTree)` and added `Compiler#analyze(CommandTree)` so consumers can introspect the bracket-timestamp-aware shape of a parsed CCL statement without walking the AST by hand.
+
+`StatementAnalysis` gains six bracket-aware accessors — each with an `(Operator)` overload that scopes the result to condition leaves evaluated against that operator:
+* `storageKeys()` — every distinct storage-level key the statement touches; navigation paths are exploded into stops, and bracket annotations / transitive markers are stripped.
+* `temporalKeys()` — `Map<String, Set<Long>>` from storage key to the distinct microsecond timestamps it is bracket-pinned at. Reports bracket annotations only; the legacy trailing-`at` is reachable via `ExpressionSymbol#timestamp()`.
+* `transitiveNavigationKeys()` — storage keys that appear as a transitive (`key*`) navigation stop.
+* `navigationKeys()` — distinct navigation paths in canonical storage form (no brackets, no transitive markers).
+* `navigationKeyStops()` — storage keys that participate in any navigation path.
+* `scopedKeys()` — `Map<String, List<String>>` from each scope-pivot key to the direct child keys evaluated within that scope.
+
+The existing `keys()` accessor now returns storage-form keys (bracket annotations stripped) so per-key timestamps don't leak into general key listings; use `temporalKeys()` to recover them. `keys(Operator)` and `operators()` are otherwise unchanged.
+
+A new `Compiler#analyze(CommandTree)` returns `CommandAnalysis extends StatementAnalysis`, aggregating selection-side and condition-side keys under the inherited accessors and adding:
+* `commandType()` — the parsed command name (`"SELECT"`, `"FIND"`, `"ADD"`, ...).
+* `commandTimestamp()` — command-level `at` / `as of` as `Long` micros, or `null`.
+* `rangeStart()` / `rangeEnd()` — for `audit`, `chronicle`, `diff`.
+* `referencedRecords()` — `Set<Long>` of record ids the command directly touches.
+
+##### Symbol-Based Parsing
+Added `Compiler#parse(List<Symbol>)` for callers that already hold structured `Symbol`s (e.g., decoded from a wire protocol or produced programmatically) and want to build a `ConditionTree` without going through CCL text. It is the inverse of `tokenize(AbstractSyntaxTree)` for condition input — feeding the result of `tokenize` back through `parse` reconstructs the original tree. Variable substitution remains a text-level concern; placeholders must be resolved before the symbols are constructed.
+
+The new method unblocks conditions whose keys collide with CCL command keywords (e.g., `select = 42`), which the lexer otherwise reserves as global tokens and cannot parse as a condition from text.
+
+##### Other Grammar Updates
+* [GH-51](https://github.com/cinchapi/ccl/issues/51): Allow an optional `*` suffix on navigation key segments to mark them as transitive (e.g., `children*.name`, `a.b*.c.d*.e`, `children*`). Transitive segments instruct Concourse to follow links recursively until exhaustion, supporting the Transitive Navigation feature in [cinchapi/concourse#632](https://github.com/cinchapi/concourse/issues/632). A standalone transitive stop (e.g., `children*`) is also accepted as a navigation key and is equivalent to a single-stop path whose terminal stop is transitive. Added `NavigationKeyStop` to model each segment as a structured `(name, transitive)` pair, and `NavigationKeySymbol#stops()` to expose them; the existing `components()` method is unchanged.
+* [GH-52](https://github.com/cinchapi/ccl/issues/52): Added **scoped condition groups** via the `prefix.(...)` syntax. Tells the engine that all conditions inside the group must be satisfied by the **same** destination record reachable through the explicit navigation `prefix`, rather than being evaluated independently (which can produce false positives on multi-valued links). Supports [cinchapi/concourse#533](https://github.com/cinchapi/concourse/issues/533).
+  * **In CCL**: write the navigation pivot as an explicit prefix ending in `.(`, with inner conditions relative to the pivot. Example: `find where friend.(name = "Jeff" AND age > 30)` — matches records whose `friend` links to a single record satisfying both. Multi-segment (`a.b.(...)`), transitive (`children*.(...)`), and nested (`a.(b.(...))`) pivots compose naturally.
+  * **In parsing code**: the parser produces a `ScopedConditionTree` carrying an explicit `prefix()` (a `KeyTokenSymbol`) and an inner `ConditionTree`. `Visitor` implementations must explicitly handle `ScopedConditionTree` — the default `visit(ScopedConditionTree)` throws.
+  * **In postfix**: `Compiler#arrange` and `Compiler#tokenize` emit a `ScopeSymbol` (carrying the prefix) as the opening bracket and `ScopeEndSymbol.INSTANCE` as the closing bracket. `Parsing#toPostfixNotation` treats `ScopeSymbol` as a precedence boundary analogous to `(`.
+
+##### API Breaks and Deprecations
+###### Pagination
+* Changed pagination to use canonical offset-based forms only: `limit n`, `skip n`, `offset n`, `skip n limit m`, `offset n limit m`, `limit m skip n`, and `limit m offset n`.
+* Updated `PageSymbol` to model pagination as a required skip and an optional limit, with factories for `fromSkip(int)`, `fromLimit(int)`, and `fromSkipLimit(int, Integer)`.
+* Removed page-number pagination syntax such as `page n`, `size n`, and `page n size m`.
+
+###### Trailing `at <timestamp>` on Relational Expressions
+* The trailing `at <timestamp>` form on a relational expression (`name = "X" at t`) is now **deprecated** in favor of the per-key bracket annotation (`name[t] = "X"`). The legacy form continues to parse indefinitely, but new code should prefer brackets.
+* For a navigation key the trailing form pins every stop in the chain to the same time, with no way to express per-stop differences — the bracket syntax is the only way to do so.
+* The compiler preserves whichever form a CCL string uses — trailing-`at` strings round-trip unchanged. Within a bracket the optional keyword is canonicalized away, so `name[at 123]` and `name[123]` parse to identical ASTs and both serialize as `name[123]`.
+
+#### Version 3.2.2 (March 31, 2026)
 * Fixed a bug that caused the `Compiler`'s local evaluation to fail when the condition contained navigation keys (e.g., `friend.name = jeff`). The `evaluate` method now accepts an `Association` whose `fetch` method natively resolves dot-separated key paths by traversing nested data structures. The existing `Multimap`-based `evaluate` method is still supported and automatically converts to an `Association` for interoperability, but callers are encouraged to use the `Association` overload directly for better performance.
 
 #### Version 3.2.1 (March 10, 2026)

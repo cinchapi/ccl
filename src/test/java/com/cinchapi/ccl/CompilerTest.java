@@ -21,16 +21,22 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.cinchapi.ccl.syntax.AndTree;
 import com.cinchapi.ccl.syntax.ConjunctionTree;
 import com.cinchapi.ccl.syntax.ExpressionTree;
 import com.cinchapi.ccl.syntax.FunctionTree;
+import com.cinchapi.ccl.syntax.OrTree;
 import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
+import com.cinchapi.ccl.syntax.ScopedConditionTree;
+import com.cinchapi.ccl.grammar.command.SelectSymbol;
+import com.cinchapi.ccl.grammar.command.NavigateSymbol;
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
@@ -1382,6 +1388,372 @@ public abstract class CompilerTest {
                 new LinkedList<Symbol>());
         Assert.assertEquals(queue,
                 compiler.arrange((ConditionTree) compiler.parse(ccl)));
+    }
+
+    @Test
+    public void testParseMultiTwoStatements() {
+        String ccl = "a = 1; b > 2";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+        Assert.assertTrue(trees.get(0) instanceof ConditionTree);
+        Assert.assertTrue(trees.get(1) instanceof ConditionTree);
+    }
+
+    @Test
+    public void testParseMultiSingleStatement() {
+        String ccl = "a = 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(1, trees.size());
+    }
+
+    @Test
+    public void testParseMultiTrailingSemicolon() {
+        String ccl = "a = 1; b > 2;";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+    }
+
+    @Test
+    public void testParseMultiSemicolonInQuotedString() {
+        String ccl = "name = \"hello;world\"; age > 5";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+    }
+
+    @Test
+    public void testParseMultiThreeStatements() {
+        String ccl = "a = 1; b > 2; c != 3";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(3, trees.size());
+    }
+
+    @Test
+    public void testParseMultiEmptyBetweenSemicolons() {
+        String ccl = "a = 1;; b > 2";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+    }
+
+    @Test
+    public void testParseMultiWithCommands() {
+        String ccl = "get name from 1; select age from 2";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+        Assert.assertTrue(trees.get(0) instanceof CommandTree);
+        Assert.assertTrue(trees.get(1) instanceof CommandTree);
+    }
+
+    @Test
+    public void testCompileEmptyString() {
+        String ccl = "";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(0, trees.size());
+    }
+
+    @Test
+    public void testCompileOnlySemicolons() {
+        String ccl = ";;;";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(0, trees.size());
+    }
+
+    @Test
+    public void testCompileMixedConditionAndCommand() {
+        String ccl = "a = 1; get name from 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+        Assert.assertTrue(trees.get(0) instanceof ConditionTree);
+        Assert.assertTrue(trees.get(1) instanceof CommandTree);
+    }
+
+    @Test
+    public void testCompileCommandThenCondition() {
+        String ccl = "get name from 1; a = 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(2, trees.size());
+        Assert.assertTrue(trees.get(0) instanceof CommandTree);
+        Assert.assertTrue(trees.get(1) instanceof ConditionTree);
+    }
+
+    @Test
+    public void testSelectBracketlessKeyCollectionReturnsKeyTokenSymbols() {
+        String ccl = "select name, age from 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(1, trees.size());
+        CommandTree tree = (CommandTree) trees.get(0);
+        SelectSymbol sym = (SelectSymbol) tree.root();
+        Assert.assertNotNull(sym.keys());
+        Assert.assertEquals(2, sym.keys().size());
+        for (Object key : sym.keys()) {
+            Assert.assertTrue(
+                    "Expected KeyTokenSymbol but got "
+                            + key.getClass().getName(),
+                    key instanceof KeyTokenSymbol);
+        }
+    }
+
+    @Test
+    public void testSelectBracketedKeyCollectionReturnsKeyTokenSymbols() {
+        String ccl = "select [name, age] from 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(1, trees.size());
+        CommandTree tree = (CommandTree) trees.get(0);
+        SelectSymbol sym = (SelectSymbol) tree.root();
+        Assert.assertNotNull(sym.keys());
+        Assert.assertEquals(2, sym.keys().size());
+        for (Object key : sym.keys()) {
+            Assert.assertTrue(
+                    "Expected KeyTokenSymbol but got "
+                            + key.getClass().getName(),
+                    key instanceof KeyTokenSymbol);
+        }
+    }
+
+    @Test
+    public void testNavigateKeyCollectionReturnsKeyTokenSymbols() {
+        String ccl = "navigate name, age from 1";
+        Compiler compiler = createCompiler();
+        List<AbstractSyntaxTree> trees = compiler.compile(ccl);
+        Assert.assertEquals(1, trees.size());
+        CommandTree tree = (CommandTree) trees.get(0);
+        NavigateSymbol sym = (NavigateSymbol) tree.root();
+        Assert.assertNotNull(sym.keys());
+        Assert.assertEquals(2, sym.keys().size());
+        for (Object key : sym.keys()) {
+            Assert.assertTrue(
+                    "Expected KeyTokenSymbol but got "
+                            + key.getClass().getName(),
+                    key instanceof KeyTokenSymbol);
+        }
+    }
+
+    @Test
+    public void testParseSymbolsSingleExpression() {
+        Criteria criteria = Criteria.where().key("a")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(1).build();
+        Compiler compiler = createCompiler();
+        ConditionTree tree = compiler.parse(criteria.symbols());
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        Assert.assertEquals(compiler.parse("a = 1"), tree);
+    }
+
+    @Test
+    public void testParseSymbolsAnd() {
+        Criteria criteria = Criteria.where().key("a")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(1).and().key("b")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(2).build();
+        Compiler compiler = createCompiler();
+        ConditionTree tree = compiler.parse(criteria.symbols());
+        Assert.assertTrue(tree instanceof AndTree);
+        Assert.assertEquals(compiler.parse("a = 1 and b = 2"), tree);
+    }
+
+    @Test
+    public void testParseSymbolsOr() {
+        Criteria criteria = Criteria.where().key("a")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(1).or().key("b")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(2).build();
+        Compiler compiler = createCompiler();
+        ConditionTree tree = compiler.parse(criteria.symbols());
+        Assert.assertTrue(tree instanceof OrTree);
+        Assert.assertEquals(compiler.parse("a = 1 or b = 2"), tree);
+    }
+
+    @Test
+    public void testParseSymbolsHonorsPrecedence() {
+        Criteria criteria = Criteria.where().key("a")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(1).or().key("b")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(2).and().key("c")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(3).build();
+        Compiler compiler = createCompiler();
+        ConditionTree tree = compiler.parse(criteria.symbols());
+        Assert.assertTrue(tree instanceof OrTree);
+        Assert.assertEquals(compiler.parse("a = 1 or b = 2 and c = 3"), tree);
+    }
+
+    @Test
+    public void testParseSymbolsRespectsParentheses() {
+        Criteria criteria = Criteria.where()
+                .group(Criteria.where().key("a")
+                        .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                        .value(1).or().key("b")
+                        .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                        .value(2).build())
+                .and().key("c")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(3).build();
+        Compiler compiler = createCompiler();
+        ConditionTree tree = compiler.parse(criteria.symbols());
+        Assert.assertTrue(tree instanceof AndTree);
+        Assert.assertEquals(compiler.parse("(a = 1 or b = 2) and c = 3"),
+                tree);
+    }
+
+    @Test
+    public void testParseSymbolsRoundTripsThroughTokenize() {
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree fromText = compiler.parse(
+                "a = 1 and (b = 2 or c = 3) or d = 4");
+        ConditionTree fromSymbols = compiler.parse(compiler.tokenize(fromText));
+        Assert.assertEquals(fromText, fromSymbols);
+    }
+
+    @Test
+    public void testParseSymbolsAcceptsKeysCollidingWithCommandKeywords() {
+        Criteria criteria = Criteria.where().key("select")
+                .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
+                .value(42).build();
+        Compiler compiler = createCompiler();
+        // The lexer reserves command keywords as global tokens, so the text
+        // path cannot parse a condition whose key collides with one. The
+        // symbols path bypasses the lexer and is the supported route.
+        try {
+            compiler.parse("select = 42");
+            Assert.fail(
+                    "Expected text parse of \"select = 42\" to fail "
+                            + "because \"select\" is a reserved keyword");
+        }
+        catch (Exception expected) {/* text path is structurally broken */}
+        ConditionTree tree = compiler.parse(criteria.symbols());
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("select", root.raw().key());
+    }
+
+    @Test
+    public void testParseSymbolsRoundTripsScopedCondition() {
+        Compiler compiler = createCompiler();
+        AbstractSyntaxTree fromText = compiler
+                .parse("friends.(name = jeff and age > 30)");
+        ConditionTree fromSymbols = compiler
+                .parse(compiler.tokenize(fromText));
+        Assert.assertTrue(fromSymbols instanceof ScopedConditionTree);
+        Assert.assertEquals(fromText, fromSymbols);
+    }
+
+    @Test(expected = SyntaxException.class)
+    public void testParseSymbolsThrowsSyntaxExceptionForMalformedInput() {
+        Compiler compiler = createCompiler();
+        compiler.parse(Lists.newArrayList());
+    }
+
+    @Test
+    public void testParseSymbolsResolvesLocalReference() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron James");
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("name"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol("$name")),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("name", root.raw().key());
+        Assert.assertEquals("Lebron James",
+                root.raw().values().get(0));
+    }
+
+    @Test(expected = SyntaxException.class)
+    public void testParseSymbolsThrowsWhenLocalReferenceUnbound() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("other", "irrelevant");
+        compiler.parse(Lists.newArrayList(new KeySymbol("name"),
+                new OperatorSymbol(
+                        com.cinchapi.concourse.thrift.Operator.EQUALS),
+                new ValueSymbol("$missing")),
+                data);
+    }
+
+    @Test(expected = SyntaxException.class)
+    public void testParseSymbolsThrowsWhenLocalReferenceHasMultipleBindings() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron");
+        data.put("name", "Steph");
+        compiler.parse(Lists.newArrayList(new KeySymbol("name"),
+                new OperatorSymbol(
+                        com.cinchapi.concourse.thrift.Operator.EQUALS),
+                new ValueSymbol("$name")),
+                data);
+    }
+
+    @Test
+    public void testParseSymbolsTreatsEscapedDollarAsLiteral() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron");
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("name"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol("\\$name")),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Assert.assertEquals("$name",
+                root.raw().values().get(0));
+    }
+
+    @Test
+    public void testParseSymbolsLeavesNonStringValuesUntouched() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("name", "Lebron");
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("age"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol(42)),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Assert.assertEquals(42, root.raw().values().get(0));
+    }
+
+    @Test
+    public void testParseSymbolsResolutionAppliesValueParser() {
+        Compiler compiler = createCompiler();
+        Multimap<String, Object> data = LinkedHashMultimap.create();
+        data.put("age", 42);
+        ConditionTree tree = compiler.parse(
+                Lists.newArrayList(new KeySymbol("age"),
+                        new OperatorSymbol(
+                                com.cinchapi.concourse.thrift.Operator.EQUALS),
+                        new ValueSymbol("$age")),
+                data);
+        Assert.assertTrue(tree instanceof ExpressionTree);
+        ExpressionSymbol root = (ExpressionSymbol) tree.root();
+        Object resolved = root.raw().values().get(0);
+        Assert.assertFalse(
+                "Substituted $name must be re-parsed via the configured "
+                        + "value parser, not left as the raw String",
+                resolved instanceof String);
+        Assert.assertTrue(resolved instanceof Number);
+        Assert.assertEquals(42, ((Number) resolved).intValue());
     }
 
 }

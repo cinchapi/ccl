@@ -25,11 +25,13 @@ PARSER_BEGIN(Grammar)
 
 package com.cinchapi.ccl.generated;
 
+import com.cinchapi.ccl.Parsing;
 import com.cinchapi.ccl.SyntaxException;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
+import com.cinchapi.ccl.grammar.command.*;
 import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.type.function.KeyRecordsFunction;
 import com.cinchapi.ccl.grammar.FunctionKeySymbol;
@@ -40,21 +42,22 @@ import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
+import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
-import com.cinchapi.common.base.AnyStrings;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 /**
@@ -97,6 +100,43 @@ public class Grammar {
     public Object transformValue(String token) {
         return valueTransformFunction.apply(token);
     }
+
+    public List<ASTStart> generateASTs() throws ParseException {
+        List<ASTStart> statements = new ArrayList<ASTStart>();
+        // Skip any leading semicolons
+        while(getToken(1).kind == GrammarConstants.SEMICOLON) {
+            jj_consume_token(GrammarConstants.SEMICOLON);
+        }
+        if(getToken(1).kind != GrammarConstants.EOF) {
+            ASTStart first = generateStatement();
+            statements.add(first);
+            while(getToken(1).kind != GrammarConstants.EOF) {
+                jj_consume_token(GrammarConstants.SEMICOLON);
+                // Skip consecutive semicolons
+                while(getToken(1).kind == GrammarConstants.SEMICOLON) {
+                    jj_consume_token(GrammarConstants.SEMICOLON);
+                }
+                if(getToken(1).kind == GrammarConstants.EOF) {
+                    break; // trailing semicolon
+                }
+                ASTStart next = generateStatement();
+                statements.add(next);
+            }
+        }
+        jj_consume_token(GrammarConstants.EOF);
+        return statements;
+    }
+
+    private boolean isValidJson(String json) {
+        // Basic JSON validation
+        int braceCount = 0;
+        for(char c : json.toCharArray()) {
+            if(c == '{') braceCount++;
+            if(c == '}') braceCount--;
+            if(braceCount < 0) return false;
+        }
+        return braceCount == 0;
+    }
 }
 
 PARSER_END(Grammar)
@@ -109,11 +149,79 @@ SKIP :
   "\t"
 }
 
+// Token definitions
+TOKEN [IGNORE_CASE] : {
+  // Data modification commands
+  < ADD: "add" >
+| < SET: "set" >
+| < REMOVE: "remove" >
+| < CLEAR: "clear" >
+| < VERIFY_AND_SWAP: "verifyAndSwap" | "verify_and_swap" >
+| < VERIFY_OR_SET: "verifyOrSet" | "verify_or_set" >
+
+  // Record operations
+| < INSERT: "insert" >
+
+  // Link operations
+| < LINK: "link" >
+| < UNLINK: "unlink" >
+
+  // Query operations
+| < SELECT: "select" >
+| < GET: "get" >
+| < FIND: "find" >
+| < FIND_OR_ADD: "findOrAdd" >
+| < FIND_OR_INSERT: "findOrInsert" >
+| < DESCRIBE: "describe" >
+| < VERIFY: "verify" >
+| < SEARCH: "search" >
+| < BROWSE: "browse" >
+| < CHRONICLE: "chronicle" >
+| < DIFF: "diff" >
+| < INVENTORY: "inventory" >
+| < JSONIFY: "jsonify" >
+| < NAVIGATE: "navigate" >
+| < RECONCILE: "reconcile" >
+| < AUDIT: "audit" >
+| < TRACE: "trace" >
+| < CALCULATE: "calculate" >
+
+  // Transaction operations
+| < STAGE: "stage" >
+| < COMMIT: "commit" >
+| < ABORT: "abort" >
+
+  // Revert operation
+| < REVERT: "revert" >
+
+  // Utility operations
+| < PING: "ping" >
+| < HOLDS: "holds" >
+| < CONSOLIDATE: "consolidate" >
+
+  // Other keywords
+| < IN: "in" >
+| < INTO: "into" >
+| < WITHIN: "within" >
+| < FROM: "from" >
+| < TO: "to" >
+| < AS_OF: "as of" >
+| < AS: "as" >
+| < FOR: "for" >
+| < WITH: "with" >
+| < WITHOUT: "without" >
+| < OPEN_BRACE : "{" >
+| < CLOSE_BRACE : "}" >
+| < COLON : ":" >
+}
+
+
+TOKEN : { < SEMICOLON : ";" > }
 TOKEN : { < OPEN_PARENTHESES : "(" > }
 TOKEN : { < CLOSE_PARENTHESES : ")" > }
 TOKEN : { < OPEN_BRACKET : "[" > }
 TOKEN : { < CLOSE_BRACKET : "]" > }
-TOKEN [IGNORE_CASE]: { < TIMESTAMP: "at" | "on" | "during" | "in" > }
+TOKEN [IGNORE_CASE]: {< TIMESTAMP: "at" | "on" | "during" > }
 TOKEN [IGNORE_CASE]: { < WHERE: "where" > }
 TOKEN [IGNORE_CASE]: { < RESERVED_IDENTIFIER: "$id$" > }
 
@@ -158,9 +266,11 @@ TOKEN [IGNORE_CASE]:
 |
   < #BETWEEN: "><" | "bw" | "between" >
 |
-  < PAGE : "page" >
+  < OFFSET : "offset" >
 |
-  < SIZE : "size" >
+  < SKIP_ : "skip" >
+|
+  < LIMIT : "limit" >
 |
   < ORDER : "order by" >
 |
@@ -193,11 +303,17 @@ TOKEN :
 |
   < ALPHANUMERIC: (<LETTER>|<DIGIT>)+ >
 |
-  < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>))* >
+  < PERIOD_SEPARATED_STRING: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")?)+ >
+|
+  < NAVIGATION_SCOPE_OPEN: (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")? ("." (<SIGNED_DECIMAL> | <ALPHANUMERIC>) (<KEY_BRACKET>)? ("*")?)* ".(" >
+|
+  < #KEY_BRACKET: "[" ( ~["]", "[", "\n", "\r"] )+ "]" >
+|
+  < ASTERISK_SUFFIXED_STRING: <ALPHANUMERIC> (<KEY_BRACKET>)? "*" >
 |
   < NON_ALPHANUMERIC_AND_ALPHANUMERIC: (<NON_ALPHANUMERIC>|<ALPHANUMERIC>)+ >
 |
-  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "="] >
+  < #NON_ALPHANUMERIC: ~[",", "_","a"-"z","A"-"Z", "\n", "\t", "\r", " ", "(", ")", "[", "]", "=", ";"] >
 |
   < #LETTER: ["_","a"-"z","A"-"Z"] >
 |
@@ -208,7 +324,10 @@ TOKEN :
 
 ASTStart StartCommandLine() #Start : {}
 {
-   ( LOOKAHEAD(4)
+   (
+     Command() "\n"
+   |
+     LOOKAHEAD(4)
      (<WHERE>)? DisjunctionExpression() (Order())? (Page())? "\n"
    |
      Page() "\n"
@@ -220,17 +339,30 @@ ASTStart StartCommandLine() #Start : {}
    { return jjtThis; }
 }
 
+void Statement() : {}
+{
+     Command()
+   |
+     LOOKAHEAD(4)
+     (<WHERE>)? DisjunctionExpression() (Order())? (Page())?
+   |
+     Page()
+   |
+     Order()
+   |
+     Function()
+}
+
+// Used by unit tests to parse a single statement (expects EOF)
 ASTStart generateAST() #Start : {}
 {
-   ( LOOKAHEAD(4)
-     (<WHERE>)? DisjunctionExpression() (Order())? (Page())? <EOF>
-   |
-     Page() <EOF>
-   |
-     Order() <EOF>
-   |
-     Function() <EOF>
-   )
+   Statement() <EOF>
+   { return jjtThis; }
+}
+
+ASTStart generateStatement() #Start : {}
+{
+   Statement()
    { return jjtThis; }
 }
 
@@ -256,7 +388,27 @@ void ConjunctionExpression() : {}
 
 void UnaryExpression() : {}
 {
-   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>) | RelationalExpression()
+   ScopedExpression()
+   |
+   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>)
+   |
+   RelationalExpression()
+}
+
+void ScopedExpression() #Scoped :
+{
+  Token t;
+  KeyTokenSymbol prefix;
+}
+{
+  t=<NAVIGATION_SCOPE_OPEN>
+  {
+    String raw = t.image;
+    String path = raw.substring(0, raw.length() - 2); // strip trailing ".("
+    prefix = NavigationKeySymbol.parseScopePrefix(path);
+    jjtThis.prefix(prefix);
+  }
+  DisjunctionExpression() <CLOSE_PARENTHESES>
 }
 
 void RelationalExpression() #Expression :
@@ -274,13 +426,21 @@ void RelationalExpression() #Expression :
     |
       key=Key()
       (
-        operator=LinksToOperator() value1=LinksToValue() (timestamp=Timestamp())?
+        operator=LinksToOperator() value1=LinksToValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=RegexBasedOperator() value1=RegexValue() (timestamp=Timestamp())?
+        operator=RegexBasedOperator() value1=RegexValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=UnaryOperator() value1=UnaryValue() (timestamp=Timestamp())?
+        operator=UnaryOperator() value1=UnaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (timestamp=Timestamp())?
+        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
+      |
+        // Search operators are reachable here only when the Search-side
+        // LOOKAHEAD(2) above fell through — typically because a bracket
+        // parameter sits between the key and the search operator
+        // (e.g. `name[t] contains "X"`). The bracket-less form
+        // `name contains "X"` is consumed by the SearchKey/SearchOperator
+        // alternative.
+        operator=SearchOperator() value1=SearchValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       )
     )
     {
@@ -289,6 +449,80 @@ void RelationalExpression() #Expression :
       jjtThis.addValue(value1);
       if(value2 != null) jjtThis.addValue(value2);
       if(timestamp != null) jjtThis.timestamp(timestamp);
+    }
+}
+
+// --- No-timestamp expression variants ---
+// These four productions mirror DisjunctionExpression, ConjunctionExpression,
+// UnaryExpression, and RelationalExpression but suppress expression-level
+// timestamps. They exist so FindOrInsertCommand can parse its criteria without
+// the last RelationalExpression greedily consuming the command-level timestamp.
+//
+// Parenthesised sub-expressions delegate back to DisjunctionExpression (the
+// full variant), so expression-level timestamps inside parentheses still work:
+//   findOrInsert (age > 25 at "yesterday") at "2024-01-01" "{...}"
+//
+// MAINTENANCE: if the original expression productions change (e.g. new operator
+// types in RelationalExpression), update RelationalExpressionNoTimestamp to
+// match — the only difference should be the absence of the optional Timestamp()
+// call.
+
+void DisjunctionExpressionNoTimestamp() : {}
+{
+  (
+    ConjunctionExpressionNoTimestamp() (((<DISJUNCTION>) ConjunctionExpressionNoTimestamp()) #Or(2) )*
+  )
+}
+
+void ConjunctionExpressionNoTimestamp() : {}
+{
+  (
+    UnaryExpressionNoTimestamp() (((<CONJUNCTION>) UnaryExpressionNoTimestamp()) #And(2) )*
+  )
+}
+
+void UnaryExpressionNoTimestamp() : {}
+{
+   ScopedExpression()
+   |
+   (<OPEN_PARENTHESES>) DisjunctionExpression() (<CLOSE_PARENTHESES>)
+   |
+   RelationalExpressionNoTimestamp()
+}
+
+void RelationalExpressionNoTimestamp() #Expression :
+{
+    KeyTokenSymbol key = null;
+    OperatorSymbol operator = null;
+    ValueTokenSymbol value1 = null;
+    ValueTokenSymbol value2 = null;
+}
+{
+    (
+      LOOKAHEAD(2)
+      key=SearchKey() operator=SearchOperator() value1=SearchValue()
+    |
+      key=Key()
+      (
+        operator=LinksToOperator() value1=LinksToValue()
+      |
+        operator=RegexBasedOperator() value1=RegexValue()
+      |
+        operator=UnaryOperator() value1=UnaryValue()
+      |
+        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue()
+      |
+        // See RelationalExpression — the Search alternative covers the
+        // bracket-between-key-and-operator case the LOOKAHEAD above
+        // can't see past.
+        operator=SearchOperator() value1=SearchValue()
+      )
+    )
+    {
+      jjtThis.key(key);
+      jjtThis.operator(operator);
+      jjtThis.addValue(value1);
+      if(value2 != null) jjtThis.addValue(value2);
     }
 }
 
@@ -301,7 +535,7 @@ KeyTokenSymbol SearchKey() :
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
     { return new KeySymbol(key.image); }
   |
-    (key=<PERIOD_SEPARATED_STRING>)
+    (key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
     { return new NavigationKeySymbol(key.image); }
   )
 }
@@ -310,20 +544,33 @@ KeyTokenSymbol Key() :
 {
   FunctionKeySymbol function;
   Token key;
+  KeyTokenSymbol result;
+  TimestampSymbol ts = null;
 }
 {
   (
     LOOKAHEAD(2)
 
     (function=KeyFunction())
-    { return function; }
+    { result = function; }
   |
     (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
-    { return new KeySymbol(key.image); }
+    { result = new KeySymbol(key.image); }
   |
-    (key=<PERIOD_SEPARATED_STRING>)
-    { return new NavigationKeySymbol(key.image); }
+    (key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
+    { result = new NavigationKeySymbol(key.image); }
   )
+  ( LOOKAHEAD(2) <OPEN_BRACKET> ts=BracketedTimestamp() <CLOSE_BRACKET> )?
+  {
+    if(ts == null) {
+      return result;
+    }
+    if(result instanceof NavigationKeySymbol) {
+      return NavigationKeySymbol.withTimestampOnLastStop(
+          (NavigationKeySymbol) result, ts);
+    }
+    return new TemporalKeySymbol(result, ts);
+  }
 }
 
 ValueTokenSymbol UnaryValue() :
@@ -341,25 +588,11 @@ ValueTokenSymbol UnaryValue() :
   (function=ValueFunction())
   { return function; }
 |
-  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   {
-    if(value.charAt(0) == '$') {
-        String var = value.substring(1);
-        try {
-            value = Iterables.getOnlyElement(data.get(var)).toString();
-        }
-        catch (IllegalArgumentException e) {
-            String err = "Unable to resolve variable {} because multiple values exist locally: {}";
-            throw new SyntaxException(AnyStrings.format(err, value, data.get(var)));
-        }
-        catch (NoSuchElementException e) {
-            String err = "Unable to resolve variable {} because no values exist locally";
-            throw new SyntaxException(AnyStrings.format(err, value));
-        }
-    }
-    else if(value.length() > 2 && value.charAt(0) == '\\'
-            && value.charAt(1) == '$') {
-        value = value.substring(1);
+    String resolved = Parsing.resolveLocalReference(value, data);
+    if(resolved != null) {
+        value = resolved;
     }
     else {
         value = value.replace("\\@", "@");
@@ -387,7 +620,7 @@ ValueTokenSymbol RegexValue() :
 
 }
 {
-    <OPEN_PARENTHESES> (LOOKAHEAD(4) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="_" | word="=")
+    <OPEN_PARENTHESES> (LOOKAHEAD(4) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>  | word="_" | word="=")
     {
         if (value.equals("") |
             value.endsWith("(") | word.image.equals(")") |
@@ -401,7 +634,7 @@ ValueTokenSymbol RegexValue() :
     })+ <CLOSE_PARENTHESES>
     { return new ValueSymbol(transformValue("(" + value + ")")); }
   |
-    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>  | word="_" | word="=")
+    (LOOKAHEAD(3) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>  | word="_" | word="=")
     {
         if (value.equals("") |
             value.endsWith("(") | word.image.equals(")") |
@@ -434,25 +667,11 @@ ValueTokenSymbol SearchValue() :
   (function=ValueFunction())
   { return function; }
 |
-  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { value += (value.equals("")) ? word.image : " " + word.image; })+
+  ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
   {
-    if(value.charAt(0) == '$') {
-        String var = value.substring(1);
-        try {
-            value = Iterables.getOnlyElement(data.get(var)).toString();
-        }
-        catch (IllegalArgumentException e) {
-            String err = "Unable to resolve variable {} because multiple values exist locally: {}";
-            throw new SyntaxException(AnyStrings.format(err, value, data.get(var)));
-        }
-        catch (NoSuchElementException e) {
-            String err = "Unable to resolve variable {} because no values exist locally";
-            throw new SyntaxException(AnyStrings.format(err, value));
-        }
-    }
-    else if(value.length() > 2 && value.charAt(0) == '\\'
-            && value.charAt(1) == '$') {
-        value = value.substring(1);
+    String resolved = Parsing.resolveLocalReference(value, data);
+    if(resolved != null) {
+        value = resolved;
     }
     else {
         value = value.replace("\\@", "@");
@@ -479,26 +698,12 @@ ValueTokenSymbol BinaryValue() :
   (function=ValueFunction())
   { return function; }
 |
-  (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING>)
+  (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>)
   {
     value = word.image;
-    if(value.charAt(0) == '$') {
-        String var = value.substring(1);
-        try {
-            value = Iterables.getOnlyElement(data.get(var)).toString();
-        }
-        catch (IllegalArgumentException e) {
-            String err = "Unable to resolve variable {} because multiple values exist locally: {}";
-            throw new SyntaxException(AnyStrings.format(err, value, data.get(var)));
-        }
-        catch (NoSuchElementException e) {
-            String err = "Unable to resolve variable {} because no values exist locally";
-            throw new SyntaxException(AnyStrings.format(err, value));
-        }
-    }
-    else if(value.length() > 2 && value.charAt(0) == '\\'
-            && value.charAt(1) == '$') {
-        value = value.substring(1);
+    String resolved = Parsing.resolveLocalReference(value, data);
+    if(resolved != null) {
+        value = resolved;
     }
     else {
         value = value.replace("\\@", "@");
@@ -556,43 +761,93 @@ TimestampSymbol Timestamp() :
   String timestamp = "";
 }
 {
-  <TIMESTAMP> (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  (<TIMESTAMP>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+}
+
+// Bracket-form timestamp: the brackets themselves are the timestamp pivot,
+// so the leading at/on/during keyword is optional. The keyword form is
+// accepted for backward compatibility.
+TimestampSymbol BracketedTimestamp() :
+{
+  Token word;
+  String timestamp = "";
+}
+{
+  (<TIMESTAMP>)?
+  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+}
+
+TimestampSymbol TimestampReadCommand() :
+{
+  Token word;
+  String timestamp = "";
+}
+{
+  (<TIMESTAMP> | <AS_OF>) (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+}
+
+TimestampSymbol TimestampValue() :
+{
+  Token word;
+  String timestamp = "";
+}
+{
+  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+}
+
+// Single-token timestamp variant used by FindOrInsertCommand, where the
+// multi-token greedy loop of TimestampReadCommand would consume the trailing
+// JSON QUOTED_STRING. This production accepts exactly one value token after the
+// timestamp keyword.
+TimestampSymbol TimestampSingleToken() :
+{
+  Token word;
+}
+{
+  (<TIMESTAMP> | <AS_OF>)
+  (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL>
+   | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>)
+  { return new TimestampSymbol(NaturalLanguage.parseMicros(word.image)); }
 }
 
 void Page() #Page :
 {
-  String number = null;
-  String size = null;
+  String skip = null;
+  String limit = null;
 }
 {
   (
-    number=Number() (size=Size())?
+    skip=Offset() (limit=Limit())?
+    { jjtThis.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), limit != null ? Integer.parseInt(limit) : null)); }
   |
-    size=Size() (number=Number())?
-  )
-  { jjtThis.page(new PageSymbol(number != null ? Integer.parseInt(number) : null, size != null ? Integer.parseInt(size) : null)); }
-}
-
-String Number() :
-{
-   Token number;
-}
-{
-  (
-     (<PAGE> number=<NUMERIC>)
-     { return number.image; }
+    limit=Limit() (skip=Offset())?
+    { jjtThis.page(PageSymbol.fromSkipLimit(skip != null ? Integer.parseInt(skip) : 0, Integer.parseInt(limit))); }
   )
 }
 
-String Size() :
+String Offset() :
 {
-   Token size;
+   Token offset;
 }
 {
   (
-     (<SIZE> size=<NUMERIC>)
-     { return size.image; }
+     ((<OFFSET> | <SKIP_>) offset=<NUMERIC>)
+     { return offset.image; }
+  )
+}
+
+String Limit() :
+{
+   Token limit;
+}
+{
+  (
+     (<LIMIT> limit=<NUMERIC>)
+     { return limit.image; }
   )
 }
 
@@ -617,6 +872,7 @@ OrderComponentSymbol OrderClause() :
     DirectionSymbol direction = null;
 }
 {
+
   ((
     direction=SymbolicDirection() key=Key()
   |
@@ -692,7 +948,7 @@ FunctionKeySymbol KeyFunction() :
   Token function;
 }
 {
-   (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <PIPE> function=<ALPHANUMERIC>
+   (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <PIPE> function=<ALPHANUMERIC>
    { return new FunctionKeySymbol(new ImplicitKeyRecordFunction(function.image, key.image.substring(0, key.image.length())));}
 }
 
@@ -710,7 +966,7 @@ FunctionValueSymbol ValueFunction() :
    (
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>)
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
      (
          <CLOSE_PARENTHESES>
          { return new FunctionValueSymbol(new IndexFunction(function.image, key.image));}
@@ -721,7 +977,7 @@ FunctionValueSymbol ValueFunction() :
    |
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA>
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <COMMA>
      (
         (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image);}
         (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })* <CLOSE_PARENTHESES>
@@ -734,7 +990,7 @@ FunctionValueSymbol ValueFunction() :
         { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records, timestamp.timestamp()));}
      )
    |
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING>) <COMMA> ccl=generateSubAST()
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <COMMA> ccl=generateSubAST()
      (
         <CLOSE_PARENTHESES>
         {
@@ -749,4 +1005,953 @@ FunctionValueSymbol ValueFunction() :
         }
      )
    )
+}
+
+void Command() #Command : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = DataModificationOperations()
+      |
+        cmd = RecordOperations()
+      |
+        cmd = LinkOperations()
+      |
+        cmd = QueryOperations()
+      |
+        cmd = TransactionOperations()
+      |
+        cmd = RevertCommand()
+      |
+        cmd = UtilityOperations()
+    )
+    { jjtThis.command(cmd); }
+}
+
+CommandSymbol DataModificationOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = AddCommand()
+      |
+        cmd = SetCommand()
+      |
+        cmd = RemoveCommand()
+      |
+        cmd = ClearCommand()
+      |
+        cmd = VerifyAndSwapCommand()
+      |
+        cmd = VerifyOrSetCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol AddCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+    Token record = null;
+    Collection records = null;
+}
+{
+    <ADD> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "add command"); } <AS> value=UnaryValue()
+    (
+        ((<IN> | <TO> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            { return new AddSymbol(key, value, records); }
+          |
+            record=<NUMERIC>
+            { return new AddSymbol(key, value, Long.parseLong(record.image)); }
+        ))?
+    )
+    { return new AddSymbol(key, value); }
+}
+
+CommandSymbol SetCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+    Token record;
+    Collection records = null;
+}
+{
+    <SET> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "set command"); } <AS> value=UnaryValue() (<IN> | <WITHIN>)
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        records=RecordCollection()
+        { return new SetSymbol(key, value, records); }
+      |
+        record=<NUMERIC>
+        { return new SetSymbol(key, value, Long.parseLong(record.image)); }
+    )
+}
+
+CommandSymbol RemoveCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value = null;
+    Token record;
+    Collection records = null;
+}
+{
+    <REMOVE> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "remove command"); } <AS> value=UnaryValue() (<FROM> | <IN> | <WITHIN>)
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        records=RecordCollection() { return new RemoveSymbol(key, value, records); }
+      |
+        record=<NUMERIC> { return new RemoveSymbol(key, value, Long.parseLong(record.image)); }
+    )
+}
+
+CommandSymbol ClearCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
+    Token record = null;
+    Collection records = null;
+}
+{
+    <CLEAR>
+    (
+        // Bracketed record collection — clear [1, 2, 3]
+        LOOKAHEAD(<OPEN_BRACKET> <NUMERIC>)
+        records=RecordCollection()
+        { return new ClearSymbol((KeyTokenSymbol<?>)null, records); }
+      |
+        // Key collection + preposition — clear [name, age] from 1 / clear name, age from 1
+        LOOKAHEAD(KeyCollection() (<FROM> | <IN> | <WITHIN>))
+        keys=KeyCollection() { KeyTokenSymbol.requireNotParameterized(keys, "clear command"); } (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            { return new ClearSymbol(keys, records); }
+          |
+            record=<NUMERIC>
+            { return new ClearSymbol(keys, Long.parseLong(record.image)); }
+        )
+      |
+        // Single key + preposition — clear name from 1
+        LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN>))
+        key=Key() { KeyTokenSymbol.requireNotParameterized(key, "clear command"); } (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            { return new ClearSymbol(key, records); }
+          |
+            record=<NUMERIC>
+            { return new ClearSymbol(key, Long.parseLong(record.image)); }
+        )
+      |
+        // Bracketless record collection — clear 1, 2, 3
+        LOOKAHEAD(<NUMERIC> <COMMA>)
+        records=RecordCollection()
+        { return new ClearSymbol((KeyTokenSymbol<?>)null, records); }
+      |
+        // Single record — clear 1
+        record=<NUMERIC>
+        { return new ClearSymbol((KeyTokenSymbol<?>)null, Long.parseLong(record.image)); }
+    )
+}
+
+CommandSymbol VerifyAndSwapCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> expected;
+    ValueTokenSymbol<?> replacement;
+    Token record;
+}
+{
+    <VERIFY_AND_SWAP> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "verify_and_swap command"); } <AS> expected=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
+    <WITH> replacement=UnaryValue()
+    { return new VerifyAndSwapSymbol(key, expected, replacement, Long.parseLong(record.image)); }
+}
+
+CommandSymbol VerifyOrSetCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+    Token record;
+}
+{
+    <VERIFY_OR_SET> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "verify_or_set command"); } <AS> value=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
+    { return new VerifyOrSetSymbol(key, value, Long.parseLong(record.image)); }
+}
+
+CommandSymbol RecordOperations() : {
+    CommandSymbol cmd;
+}
+{
+    cmd = InsertCommand()
+    { return cmd; }
+}
+
+CommandSymbol InsertCommand() : {
+    String json;
+    Token record = null;
+    Collection records = null;
+}
+{
+    <INSERT> json=JsonObject()
+    {
+        // Basic JSON validation
+        if(!isValidJson(json)) {
+            throw new ParseException("Malformed JSON");
+        }
+    }
+    (
+        (<IN> | <INTO> | <TO> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            { return new InsertSymbol(json, records); }
+          |
+            record=<NUMERIC>
+            { return new InsertSymbol(json, Long.parseLong(record.image)); }
+        )
+    )?
+    { return new InsertSymbol(json); }
+}
+
+CommandSymbol LinkOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = LinkCommand()
+      |
+        cmd = UnlinkCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol LinkCommand() : {
+    KeyTokenSymbol<?> key;
+    Token source;
+    Token destination;
+    Collection destinations = null;
+}
+{
+    <LINK> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "link command"); } <FROM> source=<NUMERIC> <TO>
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        destinations=RecordCollection()
+        { return new LinkSymbol(key, Long.parseLong(source.image), destinations); }
+      |
+        destination=<NUMERIC>
+        {
+            Collection dest = new ArrayList();
+            dest.add(Long.parseLong(destination.image));
+            return new LinkSymbol(key, Long.parseLong(source.image), dest);
+        }
+    )
+}
+
+CommandSymbol UnlinkCommand() : {
+    KeyTokenSymbol<?> key;
+    Token source;
+    Token destination;
+}
+{
+    <UNLINK> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "unlink command"); } <FROM> source=<NUMERIC> <TO> destination=<NUMERIC>
+    { return new UnlinkSymbol(key, Long.parseLong(source.image), Long.parseLong(destination.image)); }
+}
+
+CommandSymbol QueryOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = SelectCommand()
+      |
+        cmd = GetCommand()
+      |
+        cmd = FindCommand()
+      |
+        cmd = FindOrAddCommand()
+      |
+        cmd = FindOrInsertCommand()
+      |
+        cmd = DescribeCommand()
+      |
+        cmd = VerifyCommand()
+      |
+        cmd = SearchCommand()
+      |
+        cmd = BrowseCommand()
+      |
+        cmd = ChronicleCommand()
+      |
+        cmd = DiffCommand()
+      |
+        cmd = InventoryCommand()
+      |
+        cmd = JsonifyCommand()
+      |
+        cmd = NavigateCommand()
+      |
+        cmd = ReconcileCommand()
+      |
+        cmd = AuditCommand()
+      |
+        cmd = TraceCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol SelectCommand() : {
+    Collection<KeyTokenSymbol<?>> keys = null;
+    KeyTokenSymbol<?> key = null;
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <SELECT>
+    (
+        // Bracketed record collection (no keys) — select [1, 2, 3]
+        LOOKAHEAD(<OPEN_BRACKET> <NUMERIC>)
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        {
+            return new SelectSymbol(null, records, timestamp);
+        }
+      |
+        // Key collection + preposition/where — select [name, age] from 1 / select name, age from 1
+        LOOKAHEAD(KeyCollection() (<FROM> | <IN> | <WITHIN> | <WHERE>))
+        keys=KeyCollection()
+        (
+            LOOKAHEAD(2)
+            (<FROM> | <IN> | <WITHIN>)
+            (
+                LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+                records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+                {
+                    return new SelectSymbol(keys, records, timestamp);
+                }
+              |
+                record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+                {
+                    return new SelectSymbol(keys, Long.parseLong(record.image), timestamp);
+                }
+            )
+          |
+            <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            {
+                return new SelectSymbol(keys, timestamp);
+            }
+        )
+      |
+        // Single key + preposition/where — select name from 1
+        LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN> | <WHERE>))
+        key=Key() {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
+        (
+            LOOKAHEAD(2)
+            (<FROM> | <IN> | <WITHIN>)
+            (
+                LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+                records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+                {
+                    return new SelectSymbol(keys, records, timestamp);
+                }
+              |
+                record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+                {
+                    return new SelectSymbol(keys, Long.parseLong(record.image), timestamp);
+                }
+            )
+          |
+            <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            {
+                return new SelectSymbol(keys, timestamp);
+            }
+        )
+      |
+        // No keys + where — select where active = true
+        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        {
+            return new SelectSymbol(null, timestamp);
+        }
+      |
+        // Bracketless record collection (no keys) — select 1, 2, 3
+        LOOKAHEAD(<NUMERIC> <COMMA>)
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        {
+            return new SelectSymbol(null, records, timestamp);
+        }
+      |
+        // Single record (no keys) — select 1
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        {
+            return new SelectSymbol(null, Long.parseLong(record.image), timestamp);
+        }
+    )
+}
+
+CommandSymbol GetCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
+    Token record = null;
+    Collection records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <GET>
+    (
+        LOOKAHEAD(KeyCollection() <WHERE>)
+        keys=KeyCollection() <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        { return new GetSymbol(keys, timestamp); }
+      |
+        // Single key + where — get name where age > 30
+        LOOKAHEAD(Key() <WHERE>)
+        key=Key() <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+            return new GetSymbol(keys, timestamp);
+        }
+      |
+        LOOKAHEAD(KeyCollection() (<FROM> | <IN> | <WITHIN>))
+        keys=KeyCollection() (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            { return new GetSymbol(keys, records, timestamp); }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            { return new GetSymbol(keys, Long.parseLong(record.image), timestamp); }
+        )
+      |
+        LOOKAHEAD(Key() (<FROM> | <IN> | <WITHIN>))
+        key=Key() (<FROM> | <IN> | <WITHIN>)
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            { return new GetSymbol(keys, records, timestamp); }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            { return new GetSymbol(keys, Long.parseLong(record.image), timestamp); }
+        )
+      |
+        // No keys + where — get where active = true
+        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+        {
+            return new GetSymbol(null, timestamp);
+        }
+      |
+        // No keys + preposition — get from 1 / get from [1, 2]
+        (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection() (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            {
+                return new GetSymbol(null, records, timestamp);
+            }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())? (Order())? (Page())?
+            {
+                return new GetSymbol(null, Long.parseLong(record.image), timestamp);
+            }
+        )
+      |
+        // Bracketed record collection (no keys) — get [1, 2, 3]
+        LOOKAHEAD(<OPEN_BRACKET> <NUMERIC>)
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        {
+            return new GetSymbol(null, records, timestamp);
+        }
+      |
+        // Bracketless record collection (no keys) — get 1, 2, 3
+        LOOKAHEAD(<NUMERIC> <COMMA>)
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        {
+            return new GetSymbol(null, records, timestamp);
+        }
+      |
+        // Single record (no keys) — get 1
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        {
+            return new GetSymbol(null, Long.parseLong(record.image), timestamp);
+        }
+    )
+}
+
+CommandSymbol FindCommand() : {
+    TimestampSymbol timestamp = null;
+}
+{
+    <FIND>
+    DisjunctionExpression()
+    (timestamp=TimestampReadCommand())?
+    (Order())?
+    (Page())?
+    {
+        return new FindSymbol(timestamp);
+    }
+}
+
+CommandSymbol FindOrAddCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+}
+{
+    <FIND_OR_ADD> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "find_or_add command"); } <AS> value=UnaryValue()
+    { return new FindOrAddSymbol(key, value); }
+}
+
+CommandSymbol FindOrInsertCommand() : {
+    Token json = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <FIND_OR_INSERT>
+    DisjunctionExpressionNoTimestamp()
+    (
+        LOOKAHEAD(TimestampSingleToken() <QUOTED_STRING>)
+        timestamp=TimestampSingleToken()
+    )?
+    json=<QUOTED_STRING>
+    {
+        return new FindOrInsertSymbol(
+                json.image.substring(1, json.image.length() - 1),
+                timestamp);
+    }
+}
+
+CommandSymbol DescribeCommand() : {
+    Token record = null;
+    Collection records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <DESCRIBE>
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        { return new DescribeSymbol(records, timestamp); }
+      |
+        LOOKAHEAD(<NUMERIC>)
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        { return new DescribeSymbol(Long.parseLong(record.image), timestamp); }
+      |
+        (timestamp=TimestampReadCommand())?
+        { return new DescribeSymbol(timestamp); }
+    )
+}
+
+CommandSymbol VerifyCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+    Token record;
+    TimestampSymbol timestamp = null;
+}
+{
+    <VERIFY> key=Key() <AS> value=UnaryValue() (<IN> | <WITHIN>) record=<NUMERIC>
+    (timestamp=TimestampReadCommand())?
+    { return new VerifySymbol(key, value, Long.parseLong(record.image), timestamp); }
+}
+
+CommandSymbol SearchCommand() : {
+    KeyTokenSymbol<?> key;
+    Token query;
+}
+{
+    <SEARCH> key=Key() <FOR> query=<QUOTED_STRING>
+    { return new SearchSymbol(key, transformValue(query.image).toString()); }
+}
+
+CommandSymbol BrowseCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <BROWSE>
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | Key() <COMMA> )
+        keys=KeyCollection()
+      |
+        key=Key()
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
+    )
+    (timestamp=TimestampReadCommand())?
+    { return new BrowseSymbol(keys, timestamp); }
+}
+
+CommandSymbol ChronicleCommand() : {
+    KeyTokenSymbol<?> key;
+    Token record;
+    TimestampSymbol start = null;
+    TimestampSymbol end = null;
+}
+{
+    <CHRONICLE> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "chronicle command"); } (<IN> | <WITHIN>) record=<NUMERIC>
+    (
+        <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+    )?
+    { return new ChronicleSymbol(key, Long.parseLong(record.image), start, end); }
+}
+
+CommandSymbol DiffCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Token record = null;
+    TimestampSymbol start;
+    TimestampSymbol end = null;
+}
+{
+    <DIFF>
+    (
+        LOOKAHEAD(4)
+        key=Key() { KeyTokenSymbol.requireNotParameterized(key, "diff command"); } (<IN> | <WITHIN>) record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+        { return new DiffSymbol(key, Long.parseLong(record.image), start, end); }
+      |
+        LOOKAHEAD(2)
+        record=<NUMERIC> <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+        { return new DiffSymbol(null, Long.parseLong(record.image), start, end); }
+      |
+        key=Key() { KeyTokenSymbol.requireNotParameterized(key, "diff command"); } <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+        { return new DiffSymbol(key, start, end); }
+    )
+}
+
+CommandSymbol InventoryCommand() : {}
+{
+    <INVENTORY>
+    { return InventorySymbol.INSTANCE; }
+}
+
+CommandSymbol JsonifyCommand() : {
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+    boolean identifier = true;
+}
+{
+    <JSONIFY>
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        records=RecordCollection()
+      |
+        record=<NUMERIC>
+    )
+    (<WITHOUT> <RESERVED_IDENTIFIER> { identifier = false; })?
+    (timestamp=TimestampReadCommand())?
+    {
+        if(record != null) {
+            return new JsonifySymbol(Long.parseLong(record.image), null, timestamp, identifier);
+        } else {
+            return new JsonifySymbol(null, records, timestamp, identifier);
+        }
+    }
+}
+
+CommandSymbol NavigateCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <NAVIGATE>
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | Key() <COMMA> )
+        keys=KeyCollection()
+      |
+        key=Key()
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
+    )
+    (
+        (<WHERE> DisjunctionExpression()) (timestamp=TimestampReadCommand())?
+        { return new NavigateSymbol(keys, (String)null, timestamp); }
+      |
+        (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection() (timestamp=TimestampReadCommand())?
+            { return new NavigateSymbol(keys, records, timestamp); }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())?
+            { return new NavigateSymbol(keys, Long.parseLong(record.image), timestamp); }
+        )
+    )
+}
+
+CommandSymbol ReconcileCommand() : {
+    KeyTokenSymbol<?> key;
+    Token record;
+    Collection<ValueTokenSymbol<?>> values;
+}
+{
+    <RECONCILE> key=Key() { KeyTokenSymbol.requireNotParameterized(key, "reconcile command"); } (<IN> | <WITHIN>) record=<NUMERIC> <WITH> values=ValueCollection()
+    { return new ReconcileSymbol(key, Long.parseLong(record.image), values); }
+}
+
+CommandSymbol AuditCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Token record;
+    TimestampSymbol start = null;
+    TimestampSymbol end = null;
+}
+{
+    <AUDIT>
+    (
+        LOOKAHEAD(2)
+        key=Key() { KeyTokenSymbol.requireNotParameterized(key, "audit command"); } (<IN> | <WITHIN>)
+    )?
+    record=<NUMERIC>
+    (
+        <FROM> start=TimestampValue() (<TO> end=TimestampValue())?
+    )?
+    { return new AuditSymbol(key, Long.parseLong(record.image), start, end); }
+}
+
+CommandSymbol TraceCommand() : {
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <TRACE>
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        records=RecordCollection() (timestamp=TimestampReadCommand())?
+        { return new TraceSymbol(records, timestamp); }
+      |
+        record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        { return new TraceSymbol(Long.parseLong(record.image), timestamp); }
+    )
+}
+
+// Transaction Operations
+CommandSymbol TransactionOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = StageCommand()
+      |
+        cmd = CommitCommand()
+      |
+        cmd = AbortCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol StageCommand() : {}
+{
+    <STAGE>
+    { return StageSymbol.INSTANCE; }
+}
+
+CommandSymbol CommitCommand() : {}
+{
+    <COMMIT>
+    { return CommitSymbol.INSTANCE; }
+}
+
+CommandSymbol AbortCommand() : {}
+{
+    <ABORT>
+    { return AbortSymbol.INSTANCE; }
+}
+
+CommandSymbol RevertCommand() : {
+    KeyTokenSymbol<?> key = null;
+    Token record = null;
+    Collection<KeyTokenSymbol<?>> keys = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp;
+}
+{
+    <REVERT>
+    (
+        LOOKAHEAD(KeyCollection() (<IN> | <WITHIN>))
+        keys=KeyCollection() { KeyTokenSymbol.requireNotParameterized(keys, "revert command"); } (<IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            timestamp=TimestampReadCommand()
+            { return new RevertSymbol(keys, records, timestamp); }
+          |
+            record=<NUMERIC>
+            timestamp=TimestampReadCommand()
+            { return new RevertSymbol(keys, Long.parseLong(record.image), timestamp); }
+        )
+      |
+        key=Key() { KeyTokenSymbol.requireNotParameterized(key, "revert command"); } (<IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection()
+            timestamp=TimestampReadCommand()
+            { return new RevertSymbol(key, records, timestamp); }
+          |
+            record=<NUMERIC>
+            timestamp=TimestampReadCommand()
+            { return new RevertSymbol(key, Long.parseLong(record.image), timestamp); }
+        )
+    )
+}
+
+// Utility Operations
+CommandSymbol UtilityOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = PingCommand()
+      |
+        cmd = HoldsCommand()
+      |
+        cmd = ConsolidateCommand()
+      |
+        cmd = CalculateCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol PingCommand() : {}
+{
+    <PING>
+    { return PingSymbol.INSTANCE; }
+}
+
+CommandSymbol HoldsCommand() : {
+    Token record;
+    Collection<Long> records;
+}
+{
+    <HOLDS>
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        records=RecordCollection()
+        { return new HoldsSymbol(records); }
+      |
+        record=<NUMERIC>
+        { return new HoldsSymbol(Long.parseLong(record.image)); }
+    )
+}
+
+CommandSymbol ConsolidateCommand() : {
+    Token first;
+    Token second;
+    Collection<Long> remaining = null;
+}
+{
+    <CONSOLIDATE> first=<NUMERIC>
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+        remaining=RecordCollection()
+        { return new ConsolidateSymbol(Long.parseLong(first.image), remaining); }
+      |
+        second=<NUMERIC>
+        {
+            Collection<Long> others = new ArrayList<Long>();
+            others.add(Long.parseLong(second.image));
+            return new ConsolidateSymbol(Long.parseLong(first.image), others);
+        }
+    )
+}
+
+CommandSymbol CalculateCommand() : {
+    Token function;
+    KeyTokenSymbol<?> key;
+    Token record = null;
+    Collection<Long> records = null;
+    TimestampSymbol timestamp = null;
+}
+{
+    <CALCULATE> function=<ALPHANUMERIC> key=Key()
+    (
+        LOOKAHEAD((<FROM> | <IN> | <WITHIN>) (<OPEN_BRACKET> | <NUMERIC> <COMMA>))
+        (<FROM> | <IN> | <WITHIN>) records=RecordCollection() (timestamp=TimestampReadCommand())?
+        { return new CalculateSymbol(function.image, key, records, timestamp); }
+      |
+        LOOKAHEAD((<FROM> | <IN> | <WITHIN>) <NUMERIC>)
+        (<FROM> | <IN> | <WITHIN>) record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        {
+            records = new ArrayList<Long>();
+            records.add(Long.parseLong(record.image));
+            return new CalculateSymbol(function.image, key, records, timestamp);
+        }
+      |
+        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())?
+        { return new CalculateSymbol(function.image, key, timestamp); }
+      |
+        (timestamp=TimestampReadCommand())?
+        { return new CalculateSymbol(function.image, key, timestamp); }
+    )
+}
+
+// Utility parsing rules
+Collection<ValueTokenSymbol<?>> ValueCollection() : {
+    ValueTokenSymbol<?> value;
+    Collection<ValueTokenSymbol<?>> values = Lists.newArrayList();
+}
+{
+    (
+        <OPEN_BRACKET>
+            value=UnaryValue() { values.add(value); }
+            (<COMMA> value=UnaryValue() { values.add(value); })*
+        <CLOSE_BRACKET>
+      |
+        value=UnaryValue() { values.add(value); }
+        (<COMMA> value=UnaryValue() { values.add(value); })+
+    )
+    { return values; }
+}
+
+Collection RecordCollection() :
+{
+    Token record;
+    Collection records = new ArrayList();
+}
+{
+    (
+        <OPEN_BRACKET>
+            record=<NUMERIC> { records.add(Long.parseLong(record.image)); }
+            (<COMMA> record=<NUMERIC> { records.add(Long.parseLong(record.image)); })*
+        <CLOSE_BRACKET>
+      |
+        record=<NUMERIC> { records.add(Long.parseLong(record.image)); }
+        (<COMMA> record=<NUMERIC> { records.add(Long.parseLong(record.image)); })+
+    )
+    { return records; }
+}
+
+Collection KeyCollection() :
+{
+    KeyTokenSymbol key;
+    Collection keys = new ArrayList();
+}
+{
+    (
+        <OPEN_BRACKET>
+            key=Key() { keys.add(key); }
+            (<COMMA> key=Key() { keys.add(key); })*
+        <CLOSE_BRACKET>
+      |
+        key=Key() { keys.add(key); }
+        (<COMMA> key=Key() { keys.add(key); })+
+    )
+    { return keys; }
+}
+
+String JsonObject() :
+{
+    Token content;
+}
+{
+    content=<QUOTED_STRING>
+    { return transformValue(content.image).toString(); }
 }

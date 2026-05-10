@@ -16,15 +16,30 @@
 package com.cinchapi.ccl.syntax;
 
 /**
- * An implementation of the visitor pattern. This interface should be
- * implemented by any class attempting to visit an {@link AbstractSyntaxTree}.
- * In order to do so, the {@link AbstractSyntaxTree#accept(Visitor, Object)}
- * method must be called with a {@link Visitor} as a parameter.
+ * A {@link Visitor} performs an operation over an
+ * {@link AbstractSyntaxTree} by dispatching on the concrete subtree type.
+ *
+ * @author Jeff Nelson
  */
 public interface Visitor<T> {
 
+    /**
+     * Visit a {@link CommandTree}.
+     *
+     * @param tree the {@link CommandTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
+     * @return the result of visiting {@code tree}
+     */
     public T visit(CommandTree tree, Object... data);
 
+    /**
+     * Dispatch to the {@code visit} method for the concrete
+     * {@link ConditionTree} subtype of {@code tree}.
+     *
+     * @param tree the {@link ConditionTree} to dispatch on
+     * @param data caller-supplied context passed through to sub-visits
+     * @return the result of visiting {@code tree}
+     */
     public default T visit(ConditionTree tree, Object... data) {
         if(tree instanceof ConjunctionTree) {
             return visit((ConjunctionTree) tree, data);
@@ -32,18 +47,80 @@ public interface Visitor<T> {
         else if(tree instanceof ExpressionTree) {
             return visit((ExpressionTree) tree, data);
         }
+        else if(tree instanceof ScopedConditionTree) {
+            return visit((ScopedConditionTree) tree, data);
+        }
         else {
-            throw new UnsupportedOperationException("Unsupported ConditionTree type");
+            throw new UnsupportedOperationException(
+                    "Unsupported ConditionTree type");
         }
     }
 
+    /**
+     * Visit a {@link ConjunctionTree}.
+     *
+     * @param tree the {@link ConjunctionTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
+     * @return the result of visiting {@code tree}
+     */
     public T visit(ConjunctionTree tree, Object... data);
-    
+
+    /**
+     * Visit an {@link ExpressionTree}.
+     *
+     * @param tree the {@link ExpressionTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
+     * @return the result of visiting {@code tree}
+     */
     public T visit(ExpressionTree tree, Object... data);
 
+    /**
+     * Visit a {@link FunctionTree}.
+     *
+     * @param tree the {@link FunctionTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
+     * @return the result of visiting {@code tree}
+     */
+    public T visit(FunctionTree tree, Object... data);
+
+    /**
+     * Visit an {@link OrderTree}.
+     *
+     * @param tree the {@link OrderTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
+     * @return the result of visiting {@code tree}
+     */
     public T visit(OrderTree tree, Object... data);
 
+    /**
+     * Visit a {@link PageTree}.
+     *
+     * @param tree the {@link PageTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
+     * @return the result of visiting {@code tree}
+     */
     public T visit(PageTree tree, Object... data);
 
-    public T visit(FunctionTree tree, Object... data);
+    /**
+     * Visit a {@link ScopedConditionTree}.
+     * <p>
+     * The default implementation throws {@link UnsupportedOperationException}.
+     * {@link ScopedConditionTree} carries semantics (same-destination
+     * evaluation at a navigation prefix) that cannot be silently unwrapped
+     * without risking incorrect results, so every {@link Visitor} must
+     * explicitly decide how to handle it &mdash; either by implementing
+     * scope-aware behavior, or by delegating to
+     * {@link ScopedConditionTree#condition()} with an intentional choice.
+     * </p>
+     *
+     * @param tree the {@link ScopedConditionTree} to visit
+     * @param data caller-supplied context passed through to sub-visits
+     * @return the result of visiting {@code tree}
+     */
+    public default T visit(ScopedConditionTree tree, Object... data) {
+        throw new UnsupportedOperationException(
+                "This Visitor does not handle ScopedConditionTree. Override "
+                        + "visit(ScopedConditionTree) to honor or explicitly "
+                        + "delegate its semantics.");
+    }
 }

@@ -20,7 +20,10 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.Queue;
+
+import javax.annotation.Nullable;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
@@ -28,6 +31,8 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.ScopeEndSymbol;
+import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
@@ -36,6 +41,7 @@ import com.cinchapi.common.base.Array;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 /**
  * Util functions for {@link Parser}s.
@@ -68,7 +74,8 @@ public final class Parsing {
                     ValueTokenSymbol<?> value = (ValueTokenSymbol<?>) it.next();
                     ExpressionSymbol expression;
                     if(operator.operator().operands() == 2) {
-                        ValueTokenSymbol<?> value2 = (ValueTokenSymbol<?>) it.next();
+                        ValueTokenSymbol<?> value2 = (ValueTokenSymbol<?>) it
+                                .next();
                         expression = ExpressionSymbol.create(key, operator,
                                 value, value2);
                     }
@@ -98,6 +105,56 @@ public final class Parsing {
         }
         catch (ClassCastException e) {
             throw new SyntaxException(e.getMessage());
+        }
+    }
+
+    /**
+     * Resolve a CCL local-reference value &mdash; either a {@code $name}
+     * placeholder substituted from {@code data} or a {@code \$name} escape
+     * unwrapped to its literal form.
+     * <p>
+     * Returns the substituted/unescaped value when {@code value} matches
+     * one of those two forms, and {@code null} when {@code value} is
+     * neither &mdash; so callers can discriminate "resolved" from "left
+     * alone" without re-checking the prefix.
+     * </p>
+     *
+     * @param value the raw value text
+     * @param data the locally-bound values
+     * @return the substituted value for {@code $name}, the literal
+     *         {@code $name} for {@code \$name}, or {@code null} when
+     *         {@code value} is not a local reference
+     * @throws SyntaxException if {@code value} is a {@code $name}
+     *             reference and {@code data} does not contain exactly
+     *             one binding for {@code name}
+     */
+    @Nullable
+    public static String resolveLocalReference(String value,
+            Multimap<String, Object> data) {
+        if(!value.isEmpty() && value.charAt(0) == '$') {
+            String var = value.substring(1);
+            try {
+                return Iterables.getOnlyElement(data.get(var)).toString();
+            }
+            catch (IllegalArgumentException e) {
+                throw new SyntaxException(AnyStrings.format(
+                        "Unable to resolve variable {} because multiple "
+                                + "values exist locally: {}",
+                        value, data.get(var)));
+            }
+            catch (NoSuchElementException e) {
+                throw new SyntaxException(AnyStrings.format(
+                        "Unable to resolve variable {} because no values "
+                                + "exist locally",
+                        value));
+            }
+        }
+        else if(value.length() > 2 && value.charAt(0) == '\\'
+                && value.charAt(1) == '$') {
+            return value.substring(1);
+        }
+        else {
+            return null;
         }
     }
 
@@ -157,6 +214,45 @@ public final class Parsing {
                     stack.pop();
                 }
             }
+            else if(symbol instanceof ScopeSymbol) {
+                // A ScopeSymbol acts as a precedence boundary (like
+                // LEFT_PAREN) so operators inside the scoped group cannot
+                // be popped out by later operators of lower precedence,
+                // while still flowing into the output queue in structural
+                // position.
+                stack.push(symbol);
+                queue.add((PostfixNotationSymbol) symbol);
+            }
+            else if(symbol == ScopeEndSymbol.INSTANCE) {
+                boolean foundBegin = false;
+                while (!stack.isEmpty()) {
+                    Symbol top = stack.peek();
+                    if(top instanceof ScopeSymbol) {
+                        foundBegin = true;
+                        break;
+                    }
+                    else if(top instanceof ParenthesisSymbol) {
+                        // An unmatched LEFT paren inside a scope means the
+                        // scope bracket closes before the paren group does;
+                        // report as a scope mismatch rather than letting the
+                        // subsequent PostfixNotationSymbol cast fail with
+                        // ClassCastException.
+                        throw new SyntaxException(AnyStrings.format(
+                                "Syntax error in {}: Mismatched scope bracket",
+                                symbols));
+                    }
+                    else {
+                        queue.add((PostfixNotationSymbol) stack.pop());
+                    }
+                }
+                if(!foundBegin) {
+                    throw new SyntaxException(AnyStrings.format(
+                            "Syntax error in {}: Mismatched scope bracket",
+                            symbols));
+                }
+                stack.pop();
+                queue.add((PostfixNotationSymbol) symbol);
+            }
             else {
                 queue.add((PostfixNotationSymbol) symbol);
             }
@@ -166,6 +262,11 @@ public final class Parsing {
             if(top instanceof ParenthesisSymbol) {
                 throw new SyntaxException(AnyStrings.format(
                         "Syntax error in {}: Mismatched parenthesis", symbols));
+            }
+            else if(top instanceof ScopeSymbol) {
+                throw new SyntaxException(AnyStrings.format(
+                        "Syntax error in {}: Mismatched scope bracket",
+                        symbols));
             }
             else {
                 queue.add((PostfixNotationSymbol) stack.pop());

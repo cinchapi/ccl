@@ -11,99 +11,203 @@ public interface GrammarConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int OPEN_PARENTHESES = 3;
+  int ADD = 3;
   /** RegularExpression Id. */
-  int CLOSE_PARENTHESES = 4;
+  int SET = 4;
   /** RegularExpression Id. */
-  int OPEN_BRACKET = 5;
+  int REMOVE = 5;
   /** RegularExpression Id. */
-  int CLOSE_BRACKET = 6;
+  int CLEAR = 6;
   /** RegularExpression Id. */
-  int TIMESTAMP = 7;
+  int VERIFY_AND_SWAP = 7;
   /** RegularExpression Id. */
-  int WHERE = 8;
+  int VERIFY_OR_SET = 8;
   /** RegularExpression Id. */
-  int RESERVED_IDENTIFIER = 9;
+  int INSERT = 9;
   /** RegularExpression Id. */
-  int CONJUNCTION = 10;
+  int LINK = 10;
   /** RegularExpression Id. */
-  int DISJUNCTION = 11;
+  int UNLINK = 11;
   /** RegularExpression Id. */
-  int UNARY_OPERATOR = 12;
+  int SELECT = 12;
   /** RegularExpression Id. */
-  int BINARY_OPERATOR = 13;
+  int GET = 13;
   /** RegularExpression Id. */
-  int OPEN_ANGLE_BRACKET = 14;
+  int FIND = 14;
   /** RegularExpression Id. */
-  int CLOSE_ANGLE_BRACKET = 15;
+  int FIND_OR_ADD = 15;
   /** RegularExpression Id. */
-  int EQUALS = 16;
+  int FIND_OR_INSERT = 16;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 17;
+  int DESCRIBE = 17;
   /** RegularExpression Id. */
-  int GREATER_THAN = 18;
+  int VERIFY = 18;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 19;
+  int SEARCH = 19;
   /** RegularExpression Id. */
-  int LESS_THAN = 20;
+  int BROWSE = 20;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 21;
+  int CHRONICLE = 21;
   /** RegularExpression Id. */
-  int LINKS_TO = 22;
+  int DIFF = 22;
   /** RegularExpression Id. */
-  int REGEX = 23;
+  int INVENTORY = 23;
   /** RegularExpression Id. */
-  int NOT_REGEX = 24;
+  int JSONIFY = 24;
   /** RegularExpression Id. */
-  int LIKE = 25;
+  int NAVIGATE = 25;
   /** RegularExpression Id. */
-  int NOT_LIKE = 26;
+  int RECONCILE = 26;
   /** RegularExpression Id. */
-  int BETWEEN = 27;
+  int AUDIT = 27;
   /** RegularExpression Id. */
-  int PAGE = 28;
+  int TRACE = 28;
   /** RegularExpression Id. */
-  int SIZE = 29;
+  int CALCULATE = 29;
   /** RegularExpression Id. */
-  int ORDER = 30;
+  int STAGE = 30;
   /** RegularExpression Id. */
-  int ASC = 31;
+  int COMMIT = 31;
   /** RegularExpression Id. */
-  int DESC = 32;
+  int ABORT = 32;
   /** RegularExpression Id. */
-  int SEARCH_MATCH = 33;
+  int REVERT = 33;
   /** RegularExpression Id. */
-  int SEARCH_EXCLUDE = 34;
+  int PING = 34;
   /** RegularExpression Id. */
-  int PIPE = 35;
+  int HOLDS = 35;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 36;
+  int CONSOLIDATE = 36;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 37;
+  int IN = 37;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 38;
+  int INTO = 38;
   /** RegularExpression Id. */
-  int NUMERIC = 39;
+  int WITHIN = 39;
   /** RegularExpression Id. */
-  int COMMA = 40;
+  int FROM = 40;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 41;
+  int TO = 41;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 42;
+  int AS_OF = 42;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 43;
+  int AS = 43;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 44;
+  int FOR = 44;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 45;
+  int WITH = 45;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 46;
+  int WITHOUT = 46;
   /** RegularExpression Id. */
-  int LETTER = 47;
+  int OPEN_BRACE = 47;
   /** RegularExpression Id. */
-  int DIGIT = 48;
+  int CLOSE_BRACE = 48;
   /** RegularExpression Id. */
-  int PERIOD = 49;
+  int COLON = 49;
+  /** RegularExpression Id. */
+  int SEMICOLON = 50;
+  /** RegularExpression Id. */
+  int OPEN_PARENTHESES = 51;
+  /** RegularExpression Id. */
+  int CLOSE_PARENTHESES = 52;
+  /** RegularExpression Id. */
+  int OPEN_BRACKET = 53;
+  /** RegularExpression Id. */
+  int CLOSE_BRACKET = 54;
+  /** RegularExpression Id. */
+  int TIMESTAMP = 55;
+  /** RegularExpression Id. */
+  int WHERE = 56;
+  /** RegularExpression Id. */
+  int RESERVED_IDENTIFIER = 57;
+  /** RegularExpression Id. */
+  int CONJUNCTION = 58;
+  /** RegularExpression Id. */
+  int DISJUNCTION = 59;
+  /** RegularExpression Id. */
+  int UNARY_OPERATOR = 60;
+  /** RegularExpression Id. */
+  int BINARY_OPERATOR = 61;
+  /** RegularExpression Id. */
+  int OPEN_ANGLE_BRACKET = 62;
+  /** RegularExpression Id. */
+  int CLOSE_ANGLE_BRACKET = 63;
+  /** RegularExpression Id. */
+  int EQUALS = 64;
+  /** RegularExpression Id. */
+  int NOT_EQUALS = 65;
+  /** RegularExpression Id. */
+  int GREATER_THAN = 66;
+  /** RegularExpression Id. */
+  int GREATER_THAN_OR_EQUALS = 67;
+  /** RegularExpression Id. */
+  int LESS_THAN = 68;
+  /** RegularExpression Id. */
+  int LESS_THAN_OR_EQUALS = 69;
+  /** RegularExpression Id. */
+  int LINKS_TO = 70;
+  /** RegularExpression Id. */
+  int REGEX = 71;
+  /** RegularExpression Id. */
+  int NOT_REGEX = 72;
+  /** RegularExpression Id. */
+  int LIKE = 73;
+  /** RegularExpression Id. */
+  int NOT_LIKE = 74;
+  /** RegularExpression Id. */
+  int BETWEEN = 75;
+  /** RegularExpression Id. */
+  int OFFSET = 76;
+  /** RegularExpression Id. */
+  int SKIP_ = 77;
+  /** RegularExpression Id. */
+  int LIMIT = 78;
+  /** RegularExpression Id. */
+  int ORDER = 79;
+  /** RegularExpression Id. */
+  int ASC = 80;
+  /** RegularExpression Id. */
+  int DESC = 81;
+  /** RegularExpression Id. */
+  int SEARCH_MATCH = 82;
+  /** RegularExpression Id. */
+  int SEARCH_EXCLUDE = 83;
+  /** RegularExpression Id. */
+  int PIPE = 84;
+  /** RegularExpression Id. */
+  int QUOTED_STRING = 85;
+  /** RegularExpression Id. */
+  int DOUBLE_QUOTED_STRING = 86;
+  /** RegularExpression Id. */
+  int SINGLE_QUOTED_STRING = 87;
+  /** RegularExpression Id. */
+  int NUMERIC = 88;
+  /** RegularExpression Id. */
+  int COMMA = 89;
+  /** RegularExpression Id. */
+  int SIGNED_INTEGER = 90;
+  /** RegularExpression Id. */
+  int SIGNED_DECIMAL = 91;
+  /** RegularExpression Id. */
+  int ALPHANUMERIC = 92;
+  /** RegularExpression Id. */
+  int PERIOD_SEPARATED_STRING = 93;
+  /** RegularExpression Id. */
+  int NAVIGATION_SCOPE_OPEN = 94;
+  /** RegularExpression Id. */
+  int KEY_BRACKET = 95;
+  /** RegularExpression Id. */
+  int ASTERISK_SUFFIXED_STRING = 96;
+  /** RegularExpression Id. */
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 97;
+  /** RegularExpression Id. */
+  int NON_ALPHANUMERIC = 98;
+  /** RegularExpression Id. */
+  int LETTER = 99;
+  /** RegularExpression Id. */
+  int DIGIT = 100;
+  /** RegularExpression Id. */
+  int PERIOD = 101;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -113,6 +217,54 @@ public interface GrammarConstants {
     "<EOF>",
     "\" \"",
     "\"\\t\"",
+    "\"add\"",
+    "\"set\"",
+    "\"remove\"",
+    "\"clear\"",
+    "<VERIFY_AND_SWAP>",
+    "<VERIFY_OR_SET>",
+    "\"insert\"",
+    "\"link\"",
+    "\"unlink\"",
+    "\"select\"",
+    "\"get\"",
+    "\"find\"",
+    "\"findOrAdd\"",
+    "\"findOrInsert\"",
+    "\"describe\"",
+    "\"verify\"",
+    "\"search\"",
+    "\"browse\"",
+    "\"chronicle\"",
+    "\"diff\"",
+    "\"inventory\"",
+    "\"jsonify\"",
+    "\"navigate\"",
+    "\"reconcile\"",
+    "\"audit\"",
+    "\"trace\"",
+    "\"calculate\"",
+    "\"stage\"",
+    "\"commit\"",
+    "\"abort\"",
+    "\"revert\"",
+    "\"ping\"",
+    "\"holds\"",
+    "\"consolidate\"",
+    "\"in\"",
+    "\"into\"",
+    "\"within\"",
+    "\"from\"",
+    "\"to\"",
+    "\"as of\"",
+    "\"as\"",
+    "\"for\"",
+    "\"with\"",
+    "\"without\"",
+    "\"{\"",
+    "\"}\"",
+    "\":\"",
+    "\";\"",
     "\"(\"",
     "\")\"",
     "\"[\"",
@@ -138,8 +290,9 @@ public interface GrammarConstants {
     "\"like\"",
     "<NOT_LIKE>",
     "<BETWEEN>",
-    "\"page\"",
-    "\"size\"",
+    "\"offset\"",
+    "\"skip\"",
+    "\"limit\"",
     "\"order by\"",
     "\"asc\"",
     "\"desc\"",
@@ -155,6 +308,9 @@ public interface GrammarConstants {
     "<SIGNED_DECIMAL>",
     "<ALPHANUMERIC>",
     "<PERIOD_SEPARATED_STRING>",
+    "<NAVIGATION_SCOPE_OPEN>",
+    "<KEY_BRACKET>",
+    "<ASTERISK_SUFFIXED_STRING>",
     "<NON_ALPHANUMERIC_AND_ALPHANUMERIC>",
     "<NON_ALPHANUMERIC>",
     "<LETTER>",
