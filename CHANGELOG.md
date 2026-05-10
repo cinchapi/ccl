@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 4.0.0 (TBD)
+#### Version 4.0.0 (May 10, 2026)
 ##### Command Support
 The CCL grammar has been expanded to support parsing **Concourse commands** in addition to conditions, orders, and pages. A command string (e.g., `select name from 1 where age > 30`) is parsed into a `CommandTree` containing a `CommandSymbol` that represents the operation, along with optional `ConditionTree`, `OrderTree`, and `PageTree` children.
 
