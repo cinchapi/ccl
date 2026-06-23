@@ -30,6 +30,7 @@ import com.cinchapi.ccl.grammar.NavigationKeyStop;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
+import com.cinchapi.ccl.grammar.TemporalRangeKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.AndTree;
@@ -157,6 +158,193 @@ public class BracketTimestampMatrixTest {
         catch (SyntaxException e) {
             // Pass — Key()'s optional bracket cannot fire twice.
         }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a closed temporal range on a
+     * flat leaf ({@code foo[t1...t2] = X}) parses to a
+     * {@link TemporalRangeKeySymbol} carrying both endpoints.
+     */
+    @Test
+    public void testR1_ClosedRange() {
+        String ccl = String.format("foo[%d...%d] = \"X\"", T1, T2);
+        assertLeafKeyTemporalRange(parseExpression(ccl), "foo", T1, T2);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an open-start temporal range
+     * ({@code foo[...t2] = X}) parses to a
+     * {@link TemporalRangeKeySymbol} with a null start and the given
+     * end.
+     */
+    @Test
+    public void testR2_OpenStartRange() {
+        String ccl = String.format("foo[...%d] = \"X\"", T2);
+        ExpressionSymbol expr = parseExpression(ccl);
+        TemporalRangeKeySymbol range = assertLeafKeyRange(expr, "foo");
+        Assert.assertNull(range.start());
+        Assert.assertEquals(T2, range.end().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an open-end temporal range
+     * ({@code foo[t1...] = X}) parses to a
+     * {@link TemporalRangeKeySymbol} with the given start and a null
+     * end.
+     */
+    @Test
+    public void testR3_OpenEndRange() {
+        String ccl = String.format("foo[%d...] = \"X\"", T1);
+        ExpressionSymbol expr = parseExpression(ccl);
+        TemporalRangeKeySymbol range = assertLeafKeyRange(expr, "foo");
+        Assert.assertEquals(T1, range.start().timestamp());
+        Assert.assertNull(range.end());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a range pinning neither
+     * endpoint ({@code foo[...] = X}) is rejected at parse time.
+     */
+    @Test
+    public void testR4_FullyOpenRangeRejected() {
+        String ccl = "foo[...] = \"X\"";
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for fully-open range "
+                    + "in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            Assert.assertTrue(
+                    "expected message to mention 'at least one endpoint' "
+                            + "but was: " + e.getMessage(),
+                    e.getMessage().contains("at least one endpoint"));
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a backwards range whose start
+     * follows its end ({@code foo[t2...t1] = X}) is rejected at parse
+     * time.
+     */
+    @Test
+    public void testR5_BackwardsRangeRejected() {
+        String ccl = String.format("foo[%d...%d] = \"X\"", T2, T1);
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for backwards range "
+                    + "in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            Assert.assertTrue(
+                    "expected message to mention 'start after it ends' "
+                            + "but was: " + e.getMessage(),
+                    e.getMessage().contains("start after it ends"));
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a single bracket followed by a
+     * range bracket on one leaf ({@code foo[t1][t2...t3] = X}) is
+     * rejected, since {@code Key()} accepts at most one trailing
+     * bracket.
+     */
+    @Test
+    public void testR6_RangeAfterSingleBracketRejected() {
+        String ccl = String.format("foo[%d][%d...%d] = \"X\"", T1, T2, T3);
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for double bracket with "
+                    + "range in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            // Pass — Key()'s optional bracket cannot fire twice.
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the three
+     * range shapes (closed, open-start, open-end) through
+     * {@code tokenize} then re-parse.
+     */
+    @Test
+    public void testRoundTripRange() {
+        assertRoundTrip(String.format("foo[%d...%d] = \"X\"", T1, T2));
+        assertRoundTrip(String.format("foo[...%d] = \"X\"", T2));
+        assertRoundTrip(String.format("foo[%d...] = \"X\"", T1));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a range whose endpoints are
+     * quoted date strings ({@code score["2024-01-01"..."2024-02-01"]})
+     * parses to a {@link TemporalRangeKeySymbol} carrying both resolved
+     * endpoints. This exercises the {@code QUOTED_STRING} token path,
+     * which the all-numeric range tests do not. Endpoints are compared
+     * at day precision because date strings resolve relative to the
+     * current instant (see {@code testL1_LeafNaturalLanguageBracket}).
+     */
+    @Test
+    public void testR7_QuotedDateEndpoints() {
+        TimestampSymbol expectedStart = new TimestampSymbol(
+                NaturalLanguage.parseMicros("2024-01-01"), TimeUnit.DAYS);
+        TimestampSymbol expectedEnd = new TimestampSymbol(
+                NaturalLanguage.parseMicros("2024-02-01"), TimeUnit.DAYS);
+        ExpressionSymbol expr = parseExpression(
+                "score[\"2024-01-01\"...\"2024-02-01\"] = \"X\"");
+        TemporalRangeKeySymbol range = assertLeafKeyRange(expr, "score");
+        Assert.assertEquals(expectedStart, range.start());
+        Assert.assertEquals(expectedEnd, range.end());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an open-end range whose start is
+     * a natural-language phrase ({@code foo[last week...]}) parses to a
+     * {@link TemporalRangeKeySymbol} routed through
+     * {@link NaturalLanguage#parseMicros}, with a null end. Compared at
+     * day precision because the phrase is anchored to the current
+     * instant.
+     */
+    @Test
+    public void testR8_NaturalLanguageOpenEnd() {
+        TimestampSymbol expectedStart = new TimestampSymbol(
+                NaturalLanguage.parseMicros("last week"), TimeUnit.DAYS);
+        ExpressionSymbol expr = parseExpression("foo[last week...] = \"X\"");
+        TemporalRangeKeySymbol range = assertLeafKeyRange(expr, "foo");
+        Assert.assertEquals(expectedStart, range.start());
+        Assert.assertNull(range.end());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that content carrying more than one
+     * range separator ({@code foo[t1...t2...t3]}) is rejected at parse
+     * time rather than silently splitting on the first {@code ...} and
+     * mis-parsing the remainder as one endpoint.
+     */
+    @Test
+    public void testR9_MultipleSeparatorsRejected() {
+        String ccl = String.format("foo[%d...%d...%d] = \"X\"", T1, T2, T3);
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for multiple range "
+                    + "separators in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            Assert.assertTrue(
+                    "expected message to mention 'more than one' but was: "
+                            + e.getMessage(),
+                    e.getMessage().contains("more than one"));
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of quoted and
+     * natural-language range endpoints. The canonical {@code toString()}
+     * renders both endpoints as resolved microseconds, so re-parsing the
+     * re-emitted form must yield an equal AST.
+     */
+    @Test
+    public void testRoundTripRangeResolvedEndpoints() {
+        assertRoundTrip("score[\"2024-01-01\"...\"2024-02-01\"] = \"X\"");
+        assertRoundTrip("foo[last week...] = \"X\"");
     }
 
     /**
@@ -868,6 +1056,27 @@ public class BracketTimestampMatrixTest {
                 ((KeySymbol) temporal.key()).key().toString());
         Assert.assertEquals(expectedTs,
                 temporal.timestamp().timestamp());
+    }
+
+    private TemporalRangeKeySymbol assertLeafKeyRange(ExpressionSymbol expr,
+            String expectedKey) {
+        KeyTokenSymbol<?> key = expr.key();
+        Assert.assertTrue(
+                "expected TemporalRangeKeySymbol but was "
+                        + key.getClass().getSimpleName(),
+                key instanceof TemporalRangeKeySymbol);
+        TemporalRangeKeySymbol range = (TemporalRangeKeySymbol) key;
+        Assert.assertTrue(range.key() instanceof KeySymbol);
+        Assert.assertEquals(expectedKey,
+                ((KeySymbol) range.key()).key().toString());
+        return range;
+    }
+
+    private void assertLeafKeyTemporalRange(ExpressionSymbol expr,
+            String expectedKey, long expectedStart, long expectedEnd) {
+        TemporalRangeKeySymbol range = assertLeafKeyRange(expr, expectedKey);
+        Assert.assertEquals(expectedStart, range.start().timestamp());
+        Assert.assertEquals(expectedEnd, range.end().timestamp());
     }
 
     private void assertLeafKeyUnstamped(AbstractSyntaxTree leaf) {
