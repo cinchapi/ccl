@@ -28,14 +28,18 @@ import javax.annotation.Nullable;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
 import com.cinchapi.ccl.grammar.ScopeEndSymbol;
 import com.cinchapi.ccl.grammar.ScopeSymbol;
+import com.cinchapi.ccl.grammar.TemporalKeySymbol;
+import com.cinchapi.ccl.grammar.TemporalRangeKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
+import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.Array;
 import com.google.common.base.Preconditions;
@@ -49,6 +53,102 @@ import com.google.common.collect.Multimap;
  * @author Jeff Nelson
  */
 public final class Parsing {
+
+    /**
+     * The literal token that separates the two endpoints of a temporal
+     * range bracket binding (for example {@code foo[t1...t2]}).
+     */
+    private static final String RANGE_SEPARATOR = "...";
+
+    /**
+     * Interpret the raw {@code content} of a leaf key's bracket parameter
+     * and pair it with {@code base} as the appropriate parameterized key.
+     *
+     * <p>Content containing the range separator {@code ...} produces a
+     * {@link TemporalRangeKeySymbol} over the half-open interval its
+     * endpoints describe; either endpoint may be omitted for an
+     * open-ended range. All other content is a single instant and
+     * produces a {@link TemporalKeySymbol}, or, when {@code base} is a
+     * {@link NavigationKeySymbol}, folds the timestamp onto the path's
+     * last stop.
+     *
+     * @param base the key the bracket parameter binds to
+     * @param content the raw bracket content; the leading {@code at} /
+     *            {@code on} / {@code during} keyword, if any, has already
+     *            been consumed by the grammar
+     * @return the parameterized {@link KeyTokenSymbol}
+     * @throws IllegalArgumentException if a range binding is applied to a
+     *             navigation key, if both endpoints are omitted, if more
+     *             than one range separator is present, or if an endpoint
+     *             cannot be parsed as a timestamp
+     */
+    public static KeyTokenSymbol<?> applyKeyBracket(KeyTokenSymbol<?> base,
+            String content) {
+        int separator = indexOfRangeSeparator(content, 0);
+        if(separator < 0) {
+            TimestampSymbol timestamp = new TimestampSymbol(
+                    NaturalLanguage.parseMicros(content.trim()));
+            if(base instanceof NavigationKeySymbol) {
+                return NavigationKeySymbol.withTimestampOnLastStop(
+                        (NavigationKeySymbol) base, timestamp);
+            }
+            else {
+                return new TemporalKeySymbol(base, timestamp);
+            }
+        }
+        else {
+            Preconditions.checkArgument(
+                    indexOfRangeSeparator(content,
+                            separator + RANGE_SEPARATOR.length()) < 0,
+                    "a temporal range has exactly two endpoints separated by "
+                            + "a single '%s'; '%s' has more than one",
+                    RANGE_SEPARATOR, content);
+            String startText = content.substring(0, separator).trim();
+            String endText = content
+                    .substring(separator + RANGE_SEPARATOR.length()).trim();
+            TimestampSymbol start = startText.isEmpty() ? null
+                    : new TimestampSymbol(
+                            NaturalLanguage.parseMicros(startText));
+            TimestampSymbol end = endText.isEmpty() ? null
+                    : new TimestampSymbol(
+                            NaturalLanguage.parseMicros(endText));
+            return new TemporalRangeKeySymbol(base, start, end);
+        }
+    }
+
+    /**
+     * Return the index of the next {@link #RANGE_SEPARATOR} in
+     * {@code content} at or after {@code from} that lies <em>outside</em>
+     * any quoted endpoint, or {@code -1} if there is none.
+     *
+     * <p>A quoted timestamp phrase may itself contain {@code ...} (for
+     * example {@code foo["a...b"]}); such an occurrence is part of the
+     * endpoint, not a range separator, so it is skipped. This keeps the
+     * single-vs-range decision and the endpoint split from being fooled
+     * by punctuation inside a quoted phrase.
+     *
+     * @param content the raw bracket content
+     * @param from the index to begin scanning from
+     * @return the index of the next unquoted separator, or {@code -1}
+     */
+    private static int indexOfRangeSeparator(String content, int from) {
+        char quote = 0;
+        for (int i = from; i < content.length(); ++i) {
+            char c = content.charAt(i);
+            if(quote != 0) {
+                if(c == quote) {
+                    quote = 0;
+                }
+            }
+            else if(c == '"' || c == '\'' || c == '`') {
+                quote = c;
+            }
+            else if(content.startsWith(RANGE_SEPARATOR, i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     /**
      * Go through a list of symbols and group the expressions together in a

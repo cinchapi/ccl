@@ -42,7 +42,6 @@ import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
-import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
@@ -545,7 +544,7 @@ KeyTokenSymbol Key() :
   FunctionKeySymbol function;
   Token key;
   KeyTokenSymbol result;
-  TimestampSymbol ts = null;
+  String parameter = null;
 }
 {
   (
@@ -560,16 +559,12 @@ KeyTokenSymbol Key() :
     (key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
     { result = new NavigationKeySymbol(key.image); }
   )
-  ( LOOKAHEAD(2) <OPEN_BRACKET> ts=BracketedTimestamp() <CLOSE_BRACKET> )?
+  ( LOOKAHEAD(2) <OPEN_BRACKET> parameter=KeyBracketParameter() <CLOSE_BRACKET> )?
   {
-    if(ts == null) {
+    if(parameter == null) {
       return result;
     }
-    if(result instanceof NavigationKeySymbol) {
-      return NavigationKeySymbol.withTimestampOnLastStop(
-          (NavigationKeySymbol) result, ts);
-    }
-    return new TemporalKeySymbol(result, ts);
+    return Parsing.applyKeyBracket(result, parameter);
   }
 }
 
@@ -765,18 +760,20 @@ TimestampSymbol Timestamp() :
   { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
 }
 
-// Bracket-form timestamp: the brackets themselves are the timestamp pivot,
-// so the leading at/on/during keyword is optional. The keyword form is
-// accepted for backward compatibility.
-TimestampSymbol BracketedTimestamp() :
+// Bracket-form key parameter: the raw content between a leaf key's
+// brackets. The leading at/on/during keyword is optional (the brackets
+// themselves are the pivot) and is consumed without being returned.
+// Interpreting the content -- single instant vs. temporal range -- is
+// deferred to Parsing.applyKeyBracket so the meaning lives in one place.
+String KeyBracketParameter() :
 {
   Token word;
-  String timestamp = "";
+  String parameter = "";
 }
 {
   (<TIMESTAMP>)?
-  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { timestamp += (timestamp.equals("")) ? word.image : " " + word.image; })+
-  { return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)); }
+  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { parameter += (parameter.equals("")) ? word.image : " " + word.image; })+
+  { return parameter; }
 }
 
 TimestampSymbol TimestampReadCommand() :

@@ -455,6 +455,34 @@ name["last week"] = "Jeff"
 score[1700000000] >= 90
 ```
 
+#### Temporal range (leaf keys)
+
+A leaf key can bind to a half-open time interval `[start, end)` rather
+than a single instant, using the `...` range separator. The interval is
+start-inclusive and end-exclusive, matching the `BETWEEN` convention.
+Either endpoint may be omitted for an open-ended range:
+
+```
+lock[1718380800000000...1718384400000000] = "claimed"   -- closed
+status[...1700000000] = "active"                         -- open start
+lock[1700000000...] = "claimed"                          -- open end
+```
+
+A range must pin at least one endpoint (`foo[...]` is rejected), carries
+exactly one `...` separator (`foo[t1...t2...t3]` is rejected), and a
+closed range may not start after it ends (`foo[t2...t1]` with `t2 > t1`
+is rejected); `t1 == t2` is an empty interval and is accepted. A key
+still carries at most one bracket annotation, so a range cannot follow
+another bracket (`foo[t1][t2...t3]` is rejected).
+
+The canonical serialization renders both endpoints as microseconds and
+omits any keyword, for example `lock[1700000000...]`.
+
+Range bindings are currently supported only on flat leaf keys. Range
+bindings on navigation stops, scope prefixes, and transitive keys are
+not yet supported. Evaluating what a range read returns is a
+server-side concern and is outside the grammar.
+
 #### Per-stop navigation
 
 Navigation keys carry one bracket per stop. Each annotation binds only
