@@ -763,8 +763,12 @@ TimestampSymbol Timestamp() :
 // Bracket-form key parameter: the raw content between a leaf key's
 // brackets. The leading at/on/during keyword is optional (the brackets
 // themselves are the pivot) and is consumed without being returned.
-// Interpreting the content -- single instant vs. temporal range -- is
-// deferred to Parsing.applyKeyBracket so the meaning lives in one place.
+// Interpreting the content -- single instant, temporal range, or
+// modification marker -- is deferred to Parsing.applyKeyBracket so the
+// meaning lives in one place. SEARCH_MATCH is accepted here only so a
+// standalone '~' modification marker (e.g. after a quoted timestamp) is
+// captured into the content; its meaning as a search operator outside
+// brackets is unaffected.
 String KeyBracketParameter() :
 {
   Token word;
@@ -772,7 +776,7 @@ String KeyBracketParameter() :
 }
 {
   (<TIMESTAMP>)?
-  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { parameter += (parameter.equals("")) ? word.image : " " + word.image; })+
+  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING> | word=<SEARCH_MATCH>) { parameter += (parameter.equals("")) ? word.image : " " + word.image; })+
   { return parameter; }
 }
 

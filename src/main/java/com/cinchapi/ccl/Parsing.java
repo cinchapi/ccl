@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ModificationKeySymbol;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
@@ -61,29 +62,63 @@ public final class Parsing {
     private static final String RANGE_SEPARATOR = "...";
 
     /**
+     * The literal marker that, when trailing a bracket timestamp, denotes
+     * an addition-relative binding (for example {@code foo[t1~]}): the
+     * values whose add occurred at or after the timestamp.
+     */
+    private static final String MODIFICATION_MARKER = "~";
+
+    /**
      * Interpret the raw {@code content} of a leaf key's bracket parameter
      * and pair it with {@code base} as the appropriate parameterized key.
      *
-     * <p>Content containing the range separator {@code ...} produces a
-     * {@link TemporalRangeKeySymbol} over the half-open interval its
-     * endpoints describe; either endpoint may be omitted for an
-     * open-ended range. All other content is a single instant and
-     * produces a {@link TemporalKeySymbol}, or, when {@code base} is a
-     * {@link NavigationKeySymbol}, folds the timestamp onto the path's
-     * last stop.
+     * <p>Content ending in the modification marker {@code ~} produces a
+     * {@link ModificationKeySymbol} bound to the values added at or after
+     * the timestamp ({@code foo[t1~]}). Content containing the range
+     * separator {@code ...} produces a {@link TemporalRangeKeySymbol} over
+     * the half-open interval its endpoints describe; either endpoint may
+     * be omitted for an open-ended range. All other content is a single
+     * instant and produces a {@link TemporalKeySymbol}, or, when
+     * {@code base} is a {@link NavigationKeySymbol}, folds the timestamp
+     * onto the path's last stop.
+     *
+     * <p>The leading modification form {@code key[~t]} (added-before) is
+     * not yet supported and is rejected; it is semantically equivalent to
+     * an existence-before range and is deferred to that sibling work.
      *
      * @param base the key the bracket parameter binds to
      * @param content the raw bracket content; the leading {@code at} /
      *            {@code on} / {@code during} keyword, if any, has already
      *            been consumed by the grammar
      * @return the parameterized {@link KeyTokenSymbol}
-     * @throws IllegalArgumentException if a range binding is applied to a
-     *             navigation key, if both endpoints are omitted, if more
-     *             than one range separator is present, or if an endpoint
-     *             cannot be parsed as a timestamp
+     * @throws IllegalArgumentException if a range or modification binding
+     *             is applied to a navigation key, if a range omits both
+     *             endpoints or has more than one separator, if the
+     *             unsupported leading {@code ~t} form is used, or if a
+     *             timestamp cannot be parsed
      */
     public static KeyTokenSymbol<?> applyKeyBracket(KeyTokenSymbol<?> base,
             String content) {
+        String trimmed = content.trim();
+        if(trimmed.startsWith(MODIFICATION_MARKER)) {
+            throw new IllegalArgumentException(
+                    "the leading modification form key[~t] (added-before) is "
+                            + "not yet supported; use a single instant key[t] "
+                            + "or a range key[t1...t2]");
+        }
+        if(trimmed.endsWith(MODIFICATION_MARKER)) {
+            String timestamp = trimmed
+                    .substring(0,
+                            trimmed.length() - MODIFICATION_MARKER.length())
+                    .trim();
+            Preconditions.checkArgument(
+                    indexOfRangeSeparator(timestamp, 0) < 0,
+                    "a modification marker binds a single instant, not a "
+                            + "range; '%s' combines '%s' with '%s'",
+                    content, RANGE_SEPARATOR, MODIFICATION_MARKER);
+            return new ModificationKeySymbol(base,
+                    new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)));
+        }
         int separator = indexOfRangeSeparator(content, 0);
         if(separator < 0) {
             TimestampSymbol timestamp = new TimestampSymbol(

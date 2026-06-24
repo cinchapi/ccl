@@ -26,6 +26,7 @@ import org.junit.Test;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ModificationKeySymbol;
 import com.cinchapi.ccl.grammar.NavigationKeyStop;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
@@ -345,6 +346,128 @@ public class BracketTimestampMatrixTest {
     public void testRoundTripRangeResolvedEndpoints() {
         assertRoundTrip("score[\"2024-01-01\"...\"2024-02-01\"] = \"X\"");
         assertRoundTrip("foo[last week...] = \"X\"");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an addition-marker on a flat leaf
+     * ({@code foo[t1~] = X}) parses to a {@link ModificationKeySymbol}
+     * carrying the marked timestamp. The half-open {@code [t1, now)}
+     * add-window intent is documented here even though the parser only
+     * records the endpoint: a value added at or after {@code t1} is in
+     * range, a value added before {@code t1} (even if still present) is
+     * not.
+     */
+    @Test
+    public void testM1_AfterMarkerNumeric() {
+        String ccl = String.format("foo[%d~] = \"X\"", T1);
+        ModificationKeySymbol modification = assertLeafKeyModification(
+                parseExpression(ccl), "foo");
+        Assert.assertEquals(T1, modification.timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that an addition-marker whose
+     * timestamp is a quoted natural-language phrase
+     * ({@code foo["last week"~] = X}) parses to a
+     * {@link ModificationKeySymbol}. This exercises the detached
+     * {@code ~} token path (the marker is lexed as a {@code SEARCH_MATCH}
+     * separate from the quoted timestamp), which the numeric case, where
+     * {@code ~} attaches to the digits, does not. Compared at day
+     * precision because the phrase is anchored to the current instant.
+     */
+    @Test
+    public void testM2_AfterMarkerQuotedNaturalLanguage() {
+        TimestampSymbol expected = new TimestampSymbol(
+                NaturalLanguage.parseMicros("last week"), TimeUnit.DAYS);
+        ModificationKeySymbol modification = assertLeafKeyModification(
+                parseExpression("foo[\"last week\"~] = \"X\""), "foo");
+        Assert.assertEquals(expected, modification.timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the optional {@code at} keyword
+     * is accepted in front of the marked timestamp
+     * ({@code foo[at t1~] = X}) and yields the same
+     * {@link ModificationKeySymbol} as the keyword-less form.
+     */
+    @Test
+    public void testM3_AfterMarkerKeywordEquivalence() {
+        ModificationKeySymbol withKeyword = assertLeafKeyModification(
+                parseExpression(String.format("foo[at %d~] = \"X\"", T1)),
+                "foo");
+        Assert.assertEquals(T1, withKeyword.timestamp().timestamp());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the leading before-marker form
+     * ({@code foo[~t1] = X}) is rejected at parse time, since the
+     * added-before semantic is not yet supported.
+     */
+    @Test
+    public void testM4_BeforeMarkerRejected() {
+        String ccl = String.format("foo[~%d] = \"X\"", T1);
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for before-marker in: "
+                    + ccl);
+        }
+        catch (SyntaxException e) {
+            Assert.assertTrue(
+                    "expected message to mention 'not yet supported' but "
+                            + "was: " + e.getMessage(),
+                    e.getMessage().contains("not yet supported"));
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that combining a range with an
+     * addition-marker ({@code foo[t1...t2~] = X}) is rejected, since a
+     * marker binds a single instant rather than a range.
+     */
+    @Test
+    public void testM5_RangeWithMarkerRejected() {
+        String ccl = String.format("foo[%d...%d~] = \"X\"", T1, T2);
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for range-with-marker in: "
+                    + ccl);
+        }
+        catch (SyntaxException e) {
+            Assert.assertTrue(
+                    "expected message to mention 'single instant, not a "
+                            + "range' but was: " + e.getMessage(),
+                    e.getMessage().contains("single instant, not a range"));
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a marker bracket followed by a
+     * second bracket on one leaf ({@code foo[t1~][t2] = X}) is rejected,
+     * since {@code Key()} accepts at most one trailing bracket.
+     */
+    @Test
+    public void testM6_MarkerBeforeSingleBracketRejected() {
+        String ccl = String.format("foo[%d~][%d] = \"X\"", T1, T2);
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for double bracket with "
+                    + "marker in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            // Pass — Key()'s optional bracket cannot fire twice.
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify lossless round-trip of the addition
+     * marker. The canonical {@code toString()} renders the timestamp as
+     * resolved microseconds with a trailing {@code ~}, so re-parsing the
+     * re-emitted form must yield an equal AST.
+     */
+    @Test
+    public void testRoundTripModification() {
+        assertRoundTrip(String.format("foo[%d~] = \"X\"", T1));
+        assertRoundTrip("foo[\"last week\"~] = \"X\"");
     }
 
     /**
@@ -1077,6 +1200,20 @@ public class BracketTimestampMatrixTest {
         TemporalRangeKeySymbol range = assertLeafKeyRange(expr, expectedKey);
         Assert.assertEquals(expectedStart, range.start().timestamp());
         Assert.assertEquals(expectedEnd, range.end().timestamp());
+    }
+
+    private ModificationKeySymbol assertLeafKeyModification(
+            ExpressionSymbol expr, String expectedKey) {
+        KeyTokenSymbol<?> key = expr.key();
+        Assert.assertTrue(
+                "expected ModificationKeySymbol but was "
+                        + key.getClass().getSimpleName(),
+                key instanceof ModificationKeySymbol);
+        ModificationKeySymbol modification = (ModificationKeySymbol) key;
+        Assert.assertTrue(modification.key() instanceof KeySymbol);
+        Assert.assertEquals(expectedKey,
+                ((KeySymbol) modification.key()).key().toString());
+        return modification;
     }
 
     private void assertLeafKeyUnstamped(AbstractSyntaxTree leaf) {

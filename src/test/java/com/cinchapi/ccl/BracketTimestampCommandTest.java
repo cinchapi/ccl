@@ -28,6 +28,7 @@ import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.NavigationKeyStop;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
+import com.cinchapi.ccl.grammar.ModificationKeySymbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TemporalRangeKeySymbol;
 import com.cinchapi.ccl.grammar.command.BrowseSymbol;
@@ -215,6 +216,49 @@ public class BracketTimestampCommandTest {
     public void testAuditRejectsRangeKey() {
         assertCommandRejected(
                 String.format("audit name[%d...%d] in 1", T1, T2),
+                "audit command");
+    }
+
+    @Test
+    public void testSelectModificationKeyBracket() {
+        SelectSymbol cmd = parseCommand(
+                String.format("select locked[%d~] from 1", T1),
+                SelectSymbol.class);
+        assertModificationKey(cmd.keys().iterator().next(), "locked", T1);
+    }
+
+    @Test
+    public void testGetModificationKeyBracket() {
+        GetSymbol cmd = parseCommand(
+                String.format("get locked[%d~] from 1", T1),
+                GetSymbol.class);
+        assertModificationKey(cmd.keys().iterator().next(), "locked", T1);
+    }
+
+    @Test
+    public void testFindModificationKeyBracket() {
+        AbstractSyntaxTree tree = compiler().parse(
+                String.format("find locked[%d~] = \"pod-A\"", T1));
+        Assert.assertTrue(tree instanceof CommandTree);
+        com.cinchapi.ccl.syntax.ConditionTree cond =
+                ((CommandTree) tree).conditionTree();
+        com.cinchapi.ccl.grammar.ExpressionSymbol expr =
+                (com.cinchapi.ccl.grammar.ExpressionSymbol)
+                        ((com.cinchapi.ccl.syntax.ExpressionTree) cond).root();
+        assertModificationKey(expr.key(), "locked", T1);
+    }
+
+    @Test
+    public void testAddRejectsModificationKey() {
+        assertCommandRejected(
+                String.format("add locked[%d~] as \"pod-A\" in 1", T1),
+                "add command");
+    }
+
+    @Test
+    public void testAuditRejectsModificationKey() {
+        assertCommandRejected(
+                String.format("audit locked[%d~] in 1", T1),
                 "audit command");
     }
 
@@ -533,6 +577,19 @@ public class BracketTimestampCommandTest {
         Assert.assertEquals(expectedKey, ((KeySymbol) range.key()).key());
         Assert.assertEquals(expectedStart, range.start().timestamp());
         Assert.assertEquals(expectedEnd, range.end().timestamp());
+    }
+
+    private void assertModificationKey(KeyTokenSymbol<?> key,
+            String expectedKey, long expectedTs) {
+        Assert.assertTrue(
+                "expected ModificationKeySymbol but got "
+                        + key.getClass().getSimpleName(),
+                key instanceof ModificationKeySymbol);
+        ModificationKeySymbol modification = (ModificationKeySymbol) key;
+        Assert.assertTrue(modification.key() instanceof KeySymbol);
+        Assert.assertEquals(expectedKey,
+                ((KeySymbol) modification.key()).key());
+        Assert.assertEquals(expectedTs, modification.timestamp().timestamp());
     }
 
     private static final Function<String, Object> VALUE_FN = Convert::stringToJava;

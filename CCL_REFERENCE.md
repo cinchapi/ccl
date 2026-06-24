@@ -483,6 +483,41 @@ bindings on navigation stops, scope prefixes, and transitive keys are
 not yet supported. Evaluating what a range read returns is a
 server-side concern and is outside the grammar.
 
+#### Modification marker (leaf keys)
+
+A leaf key can bind to the values whose **add** occurred at or after a
+timestamp, using a trailing `~` marker. The form `key[t~]` binds the key
+over the half-open window `[t, now)`: start-inclusive at `t`,
+end-exclusive at the present moment.
+
+```
+locked[1718380800000000~] = null     -- lock values ADDED at or after t
+find locked[1700000000~] = "pod-A"   -- ...added at or after t, equal to pod-A
+```
+
+This is distinct from both the single-instant and the range forms. The
+single-instant `foo[t]` binds the value *present at* the instant `t`
+regardless of when it was added; `foo[t~]` keys strictly off the
+add-event, so a value added before `t` (even if it is still present) is
+not in range. The range `foo[t1...t2]` binds anything *present during*
+the interval regardless of add time. The motivating use is stale-lock
+detection: a record whose only lock value was added before the cutoff
+binds to nothing under `locked[<cutoff>~]` and is therefore claimable.
+
+A marker binds a single instant, so it cannot be combined with a range
+(`foo[t1...t2~]` is rejected), and a key still carries at most one
+bracket annotation (`foo[t1~][t2]` is rejected). The leading form
+`foo[~t]` (added-before) is **not** supported and is rejected at parse
+time; it is semantically equivalent to an existence-before range and is
+deferred to that sibling work.
+
+The canonical serialization renders the timestamp as microseconds with a
+trailing `~` and omits any keyword, for example `locked[1700000000~]`.
+
+Modification markers are currently supported only on flat leaf keys, not
+on navigation stops or scope prefixes. Evaluating what a marked read
+returns is a server-side concern and is outside the grammar.
+
 #### Per-stop navigation
 
 Navigation keys carry one bracket per stop. Each annotation binds only

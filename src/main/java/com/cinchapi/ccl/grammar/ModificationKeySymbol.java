@@ -1,0 +1,128 @@
+/*
+ * Copyright (c) 2013-2026 Cinchapi Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.cinchapi.ccl.grammar;
+
+import java.util.Objects;
+
+import com.google.common.base.Preconditions;
+
+/**
+ * A {@link ModificationKeySymbol} pairs a {@link KeyTokenSymbol} with a
+ * timestamp that marks an addition-relative binding: the key binds to the
+ * values whose <em>add</em> occurred in the half-open interval
+ * {@code [timestamp, now)}, start-inclusive at the timestamp and
+ * end-exclusive at the present moment ({@code key[<timestamp>~]}).
+ *
+ * <p>This differs from a {@link TemporalKeySymbol}, which binds the single
+ * value <em>present at</em> the instant regardless of when it was added,
+ * and from a {@link TemporalRangeKeySymbol}, which binds the values
+ * <em>present during</em> an interval regardless of their add time. A
+ * value added before the timestamp is not in range here even if it is
+ * still present.
+ *
+ * <p>This symbol records the endpoint only; it does not decide what a
+ * read returns. That evaluation lives server-side and is out of scope for
+ * the grammar layer.
+ *
+ * <p>As with {@link TemporalKeySymbol}, a {@link NavigationKeySymbol} is
+ * never wrapped and an already-parameterized key is rejected, enforcing
+ * the "at most one bracket-timestamp parameter per key" invariant the
+ * rest of the AST relies on.
+ *
+ * @author Jeff Nelson
+ */
+public final class ModificationKeySymbol
+        extends KeyTokenSymbol<KeyTokenSymbol<?>> {
+
+    /**
+     * The inclusive start of the addition window; the end of the window is
+     * the (exclusive) present moment.
+     */
+    private final TimestampSymbol timestamp;
+
+    /**
+     * Construct a new {@link ModificationKeySymbol}.
+     *
+     * @param key the wrapped {@link KeyTokenSymbol}; must not be a
+     *            {@link NavigationKeySymbol} (navigation timestamps live
+     *            on the path's stops) and must not already be
+     *            parameterized (a key carries at most one
+     *            bracket-timestamp parameter)
+     * @param timestamp the inclusive start of the addition window
+     * @throws IllegalArgumentException if {@code key} is a
+     *             {@link NavigationKeySymbol} or already parameterized
+     */
+    public ModificationKeySymbol(KeyTokenSymbol<?> key,
+            TimestampSymbol timestamp) {
+        super(Preconditions.checkNotNull(key));
+        Preconditions.checkArgument(!(key instanceof NavigationKeySymbol),
+                "ModificationKeySymbol cannot wrap a NavigationKeySymbol; "
+                        + "modification bindings on navigation keys are not "
+                        + "yet supported");
+        Preconditions.checkArgument(!key.isParameterized(),
+                "ModificationKeySymbol cannot wrap an already-parameterized "
+                        + "key; a key carries at most one bracket-timestamp "
+                        + "parameter");
+        this.timestamp = Preconditions.checkNotNull(timestamp);
+    }
+
+    /**
+     * Return the inclusive start of the addition window.
+     *
+     * @return the timestamp {@link TimestampSymbol}
+     */
+    public TimestampSymbol timestamp() {
+        return timestamp;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) {
+            return true;
+        }
+        else if(!(obj instanceof ModificationKeySymbol)) {
+            return false;
+        }
+        ModificationKeySymbol other = (ModificationKeySymbol) obj;
+        return key.equals(other.key) && timestamp.equals(other.timestamp);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, timestamp);
+    }
+
+    @Override
+    public String toString() {
+        return key.toString() + "[" + timestamp.timestamp() + "~]";
+    }
+
+    @Override
+    public String baseKey() {
+        return key.baseKey();
+    }
+
+    @Override
+    public boolean isParameterized() {
+        return true;
+    }
+
+    @Override
+    public KeyTokenSymbol<?> stripParameters() {
+        return key.stripParameters();
+    }
+
+}
