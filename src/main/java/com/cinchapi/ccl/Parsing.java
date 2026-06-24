@@ -115,14 +115,14 @@ public final class Parsing {
                     indexOfRangeSeparator(timestamp, 0) < 0,
                     "a modification marker binds a single instant, not a "
                             + "range; '%s' combines '%s' with '%s'",
-                    content, RANGE_SEPARATOR, MODIFICATION_MARKER);
+                    trimmed, RANGE_SEPARATOR, MODIFICATION_MARKER);
             return new ModificationKeySymbol(base,
                     new TimestampSymbol(NaturalLanguage.parseMicros(timestamp)));
         }
-        int separator = indexOfRangeSeparator(content, 0);
+        int separator = indexOfRangeSeparator(trimmed, 0);
         if(separator < 0) {
             TimestampSymbol timestamp = new TimestampSymbol(
-                    NaturalLanguage.parseMicros(content.trim()));
+                    NaturalLanguage.parseMicros(trimmed));
             if(base instanceof NavigationKeySymbol) {
                 return NavigationKeySymbol.withTimestampOnLastStop(
                         (NavigationKeySymbol) base, timestamp);
@@ -133,13 +133,13 @@ public final class Parsing {
         }
         else {
             Preconditions.checkArgument(
-                    indexOfRangeSeparator(content,
+                    indexOfRangeSeparator(trimmed,
                             separator + RANGE_SEPARATOR.length()) < 0,
                     "a temporal range has exactly two endpoints separated by "
                             + "a single '%s'; '%s' has more than one",
-                    RANGE_SEPARATOR, content);
-            String startText = content.substring(0, separator).trim();
-            String endText = content
+                    RANGE_SEPARATOR, trimmed);
+            String startText = trimmed.substring(0, separator).trim();
+            String endText = trimmed
                     .substring(separator + RANGE_SEPARATOR.length()).trim();
             TimestampSymbol start = startText.isEmpty() ? null
                     : new TimestampSymbol(

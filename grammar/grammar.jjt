@@ -768,7 +768,9 @@ TimestampSymbol Timestamp() :
 // meaning lives in one place. SEARCH_MATCH is accepted here only so a
 // standalone '~' modification marker (e.g. after a quoted timestamp) is
 // captured into the content; its meaning as a search operator outside
-// brackets is unaffected.
+// brackets is unaffected. The SEARCH_MATCH token also lexes the
+// 'search_match'/'contains' keyword spellings, which are meaningless
+// inside a bracket, so the action rejects those and admits only '~'.
 String KeyBracketParameter() :
 {
   Token word;
@@ -776,7 +778,14 @@ String KeyBracketParameter() :
 }
 {
   (<TIMESTAMP>)?
-  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING> | word=<SEARCH_MATCH>) { parameter += (parameter.equals("")) ? word.image : " " + word.image; })+
+  (LOOKAHEAD(2) (word=<QUOTED_STRING> | word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING> | word=<SEARCH_MATCH>)
+    {
+      if(word.kind == GrammarConstants.SEARCH_MATCH && !word.image.equals("~")) {
+        throw new ParseException("only the '~' modification marker is allowed "
+            + "inside a key bracket, not the '" + word.image + "' keyword");
+      }
+      parameter += (parameter.equals("")) ? word.image : " " + word.image;
+    })+
   { return parameter; }
 }
 

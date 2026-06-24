@@ -471,6 +471,56 @@ public class BracketTimestampMatrixTest {
     }
 
     /**
+     * <strong>Goal:</strong> Verify that a {@code ~} appearing
+     * <em>inside</em> a quoted timestamp ({@code foo["last week ~"] = X})
+     * is not mistaken for a trailing modification marker. The marker is
+     * recognized only when {@code ~} is the final, unquoted character of
+     * the bracket content; because the closing quote is the last
+     * character here, the content resolves as an ordinary single-instant
+     * timestamp and yields a {@link TemporalKeySymbol}, not a
+     * {@link ModificationKeySymbol}.
+     */
+    @Test
+    public void testM7_QuotedTildeIsNotMarker() {
+        KeyTokenSymbol<?> key = parseExpression("foo[\"last week ~\"] = \"X\"")
+                .key();
+        Assert.assertFalse(
+                "a '~' inside quotes must not be read as a modification "
+                        + "marker, but parsed to a ModificationKeySymbol",
+                key instanceof ModificationKeySymbol);
+        Assert.assertTrue(
+                "expected TemporalKeySymbol but was "
+                        + key.getClass().getSimpleName(),
+                key instanceof TemporalKeySymbol);
+        Assert.assertEquals("foo",
+                ((KeySymbol) ((TemporalKeySymbol) key).key()).key().toString());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the {@code search_match} /
+     * {@code contains} keyword spellings of the {@code SEARCH_MATCH}
+     * token are rejected inside a key bracket. The token is admitted only
+     * to capture the standalone {@code ~} marker; a keyword spelling is
+     * meaningless here and must fail at parse time with a clear message
+     * rather than fall through to a confusing timestamp-parse error.
+     */
+    @Test
+    public void testM8_SearchKeywordInBracketRejected() {
+        String ccl = String.format("foo[%d contains] = \"X\"", T1);
+        try {
+            compiler().parse(ccl);
+            Assert.fail("expected SyntaxException for search keyword in "
+                    + "bracket in: " + ccl);
+        }
+        catch (SyntaxException e) {
+            Assert.assertTrue(
+                    "expected message to mention the '~' marker but was: "
+                            + e.getMessage(),
+                    e.getMessage().contains("'~' modification marker"));
+        }
+    }
+
+    /**
      * <strong>Goal:</strong> Verify that an unbracketed navigation key
      * ({@code a.foo = X}) parses to a {@link NavigationKeySymbol}
      * whose stops carry no timestamps.
