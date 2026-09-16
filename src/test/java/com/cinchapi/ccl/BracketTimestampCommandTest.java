@@ -29,6 +29,7 @@ import com.cinchapi.ccl.grammar.NavigationKeyStop;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
+import com.cinchapi.ccl.grammar.TemporalRangeKeySymbol;
 import com.cinchapi.ccl.grammar.command.BrowseSymbol;
 import com.cinchapi.ccl.grammar.command.CalculateSymbol;
 import com.cinchapi.ccl.grammar.command.GetSymbol;
@@ -172,6 +173,49 @@ public class BracketTimestampCommandTest {
                 String.format("findOrInsert name[%d] = \"jeff\" \"{}\"",
                         T));
         Assert.assertTrue(tree instanceof CommandTree);
+    }
+
+    @Test
+    public void testSelectRangeKeyBracket() {
+        SelectSymbol cmd = parseCommand(
+                String.format("select name[%d...%d] from 1", T1, T2),
+                SelectSymbol.class);
+        assertTemporalRangeKey(cmd.keys().iterator().next(), "name", T1, T2);
+    }
+
+    @Test
+    public void testGetRangeKeyBracket() {
+        GetSymbol cmd = parseCommand(
+                String.format("get name[%d...%d] from 1", T1, T2),
+                GetSymbol.class);
+        assertTemporalRangeKey(cmd.keys().iterator().next(), "name", T1, T2);
+    }
+
+    @Test
+    public void testFindRangeKeyBracket() {
+        AbstractSyntaxTree tree = compiler().parse(
+                String.format("find name[%d...%d] = \"jeff\"", T1, T2));
+        Assert.assertTrue(tree instanceof CommandTree);
+        com.cinchapi.ccl.syntax.ConditionTree cond =
+                ((CommandTree) tree).conditionTree();
+        com.cinchapi.ccl.grammar.ExpressionSymbol expr =
+                (com.cinchapi.ccl.grammar.ExpressionSymbol)
+                        ((com.cinchapi.ccl.syntax.ExpressionTree) cond).root();
+        assertTemporalRangeKey(expr.key(), "name", T1, T2);
+    }
+
+    @Test
+    public void testAddRejectsRangeKey() {
+        assertCommandRejected(
+                String.format("add name[%d...%d] as \"jeff\" in 1", T1, T2),
+                "add command");
+    }
+
+    @Test
+    public void testAuditRejectsRangeKey() {
+        assertCommandRejected(
+                String.format("audit name[%d...%d] in 1", T1, T2),
+                "audit command");
     }
 
     @Test
@@ -476,6 +520,19 @@ public class BracketTimestampCommandTest {
         Assert.assertEquals(expectedKey,
                 ((KeySymbol) temporal.key()).key());
         Assert.assertEquals(expectedTs, temporal.timestamp().timestamp());
+    }
+
+    private void assertTemporalRangeKey(KeyTokenSymbol<?> key,
+            String expectedKey, long expectedStart, long expectedEnd) {
+        Assert.assertTrue(
+                "expected TemporalRangeKeySymbol but got "
+                        + key.getClass().getSimpleName(),
+                key instanceof TemporalRangeKeySymbol);
+        TemporalRangeKeySymbol range = (TemporalRangeKeySymbol) key;
+        Assert.assertTrue(range.key() instanceof KeySymbol);
+        Assert.assertEquals(expectedKey, ((KeySymbol) range.key()).key());
+        Assert.assertEquals(expectedStart, range.start().timestamp());
+        Assert.assertEquals(expectedEnd, range.end().timestamp());
     }
 
     private static final Function<String, Object> VALUE_FN = Convert::stringToJava;
