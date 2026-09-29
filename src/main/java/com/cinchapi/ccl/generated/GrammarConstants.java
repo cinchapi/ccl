@@ -35,199 +35,197 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int AWAIT_GET = 14;
   /** RegularExpression Id. */
-  int AWAIT_NAVIGATE = 15;
+  int AWAIT_FIND_AND_SET = 15;
   /** RegularExpression Id. */
-  int AWAIT_FIND_AND_SET = 16;
+  int AWAIT_SELECT_AND_SET = 16;
   /** RegularExpression Id. */
-  int AWAIT_SELECT_AND_SET = 17;
+  int AWAIT_GET_AND_SET = 17;
   /** RegularExpression Id. */
-  int AWAIT_GET_AND_SET = 18;
+  int INSERT = 18;
   /** RegularExpression Id. */
-  int INSERT = 19;
+  int LINK = 19;
   /** RegularExpression Id. */
-  int LINK = 20;
+  int UNLINK = 20;
   /** RegularExpression Id. */
-  int UNLINK = 21;
+  int SELECT = 21;
   /** RegularExpression Id. */
-  int SELECT = 22;
+  int GET = 22;
   /** RegularExpression Id. */
-  int GET = 23;
+  int FIND = 23;
   /** RegularExpression Id. */
-  int FIND = 24;
+  int FIND_OR_ADD = 24;
   /** RegularExpression Id. */
-  int FIND_OR_ADD = 25;
+  int FIND_OR_INSERT = 25;
   /** RegularExpression Id. */
-  int FIND_OR_INSERT = 26;
+  int DESCRIBE = 26;
   /** RegularExpression Id. */
-  int DESCRIBE = 27;
+  int VERIFY = 27;
   /** RegularExpression Id. */
-  int VERIFY = 28;
+  int SEARCH = 28;
   /** RegularExpression Id. */
-  int SEARCH = 29;
+  int BROWSE = 29;
   /** RegularExpression Id. */
-  int BROWSE = 30;
+  int CHRONICLE = 30;
   /** RegularExpression Id. */
-  int CHRONICLE = 31;
+  int DIFF = 31;
   /** RegularExpression Id. */
-  int DIFF = 32;
+  int INVENTORY = 32;
   /** RegularExpression Id. */
-  int INVENTORY = 33;
+  int JSONIFY = 33;
   /** RegularExpression Id. */
-  int JSONIFY = 34;
+  int NAVIGATE = 34;
   /** RegularExpression Id. */
-  int NAVIGATE = 35;
+  int RECONCILE = 35;
   /** RegularExpression Id. */
-  int RECONCILE = 36;
+  int AUDIT = 36;
   /** RegularExpression Id. */
-  int AUDIT = 37;
+  int TRACE = 37;
   /** RegularExpression Id. */
-  int TRACE = 38;
+  int CALCULATE = 38;
   /** RegularExpression Id. */
-  int CALCULATE = 39;
+  int STAGE = 39;
   /** RegularExpression Id. */
-  int STAGE = 40;
+  int COMMIT = 40;
   /** RegularExpression Id. */
-  int COMMIT = 41;
+  int ABORT = 41;
   /** RegularExpression Id. */
-  int ABORT = 42;
+  int REVERT = 42;
   /** RegularExpression Id. */
-  int REVERT = 43;
+  int PING = 43;
   /** RegularExpression Id. */
-  int PING = 44;
+  int HOLDS = 44;
   /** RegularExpression Id. */
-  int HOLDS = 45;
+  int CONSOLIDATE = 45;
   /** RegularExpression Id. */
-  int CONSOLIDATE = 46;
+  int IN = 46;
   /** RegularExpression Id. */
-  int IN = 47;
+  int INTO = 47;
   /** RegularExpression Id. */
-  int INTO = 48;
+  int WITHIN = 48;
   /** RegularExpression Id. */
-  int WITHIN = 49;
+  int FROM = 49;
   /** RegularExpression Id. */
-  int FROM = 50;
+  int TO = 50;
   /** RegularExpression Id. */
-  int TO = 51;
+  int AS_OF = 51;
   /** RegularExpression Id. */
-  int AS_OF = 52;
+  int AS = 52;
   /** RegularExpression Id. */
-  int AS = 53;
+  int FOR = 53;
   /** RegularExpression Id. */
-  int FOR = 54;
+  int WITH = 54;
   /** RegularExpression Id. */
-  int WITH = 55;
+  int WITHOUT = 55;
   /** RegularExpression Id. */
-  int WITHOUT = 56;
+  int OPEN_BRACE = 56;
   /** RegularExpression Id. */
-  int OPEN_BRACE = 57;
+  int CLOSE_BRACE = 57;
   /** RegularExpression Id. */
-  int CLOSE_BRACE = 58;
+  int COLON = 58;
   /** RegularExpression Id. */
-  int COLON = 59;
+  int SEMICOLON = 59;
   /** RegularExpression Id. */
-  int SEMICOLON = 60;
+  int OPEN_PARENTHESES = 60;
   /** RegularExpression Id. */
-  int OPEN_PARENTHESES = 61;
+  int CLOSE_PARENTHESES = 61;
   /** RegularExpression Id. */
-  int CLOSE_PARENTHESES = 62;
+  int OPEN_BRACKET = 62;
   /** RegularExpression Id. */
-  int OPEN_BRACKET = 63;
+  int CLOSE_BRACKET = 63;
   /** RegularExpression Id. */
-  int CLOSE_BRACKET = 64;
+  int TIMESTAMP = 64;
   /** RegularExpression Id. */
-  int TIMESTAMP = 65;
+  int WHERE = 65;
   /** RegularExpression Id. */
-  int WHERE = 66;
+  int RESERVED_IDENTIFIER = 66;
   /** RegularExpression Id. */
-  int RESERVED_IDENTIFIER = 67;
+  int CONJUNCTION = 67;
   /** RegularExpression Id. */
-  int CONJUNCTION = 68;
+  int DISJUNCTION = 68;
   /** RegularExpression Id. */
-  int DISJUNCTION = 69;
+  int UNARY_OPERATOR = 69;
   /** RegularExpression Id. */
-  int UNARY_OPERATOR = 70;
+  int BINARY_OPERATOR = 70;
   /** RegularExpression Id. */
-  int BINARY_OPERATOR = 71;
+  int OPEN_ANGLE_BRACKET = 71;
   /** RegularExpression Id. */
-  int OPEN_ANGLE_BRACKET = 72;
+  int CLOSE_ANGLE_BRACKET = 72;
   /** RegularExpression Id. */
-  int CLOSE_ANGLE_BRACKET = 73;
+  int EQUALS = 73;
   /** RegularExpression Id. */
-  int EQUALS = 74;
+  int NOT_EQUALS = 74;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 75;
+  int GREATER_THAN = 75;
   /** RegularExpression Id. */
-  int GREATER_THAN = 76;
+  int GREATER_THAN_OR_EQUALS = 76;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 77;
+  int LESS_THAN = 77;
   /** RegularExpression Id. */
-  int LESS_THAN = 78;
+  int LESS_THAN_OR_EQUALS = 78;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 79;
+  int LINKS_TO = 79;
   /** RegularExpression Id. */
-  int LINKS_TO = 80;
+  int REGEX = 80;
   /** RegularExpression Id. */
-  int REGEX = 81;
+  int NOT_REGEX = 81;
   /** RegularExpression Id. */
-  int NOT_REGEX = 82;
+  int LIKE = 82;
   /** RegularExpression Id. */
-  int LIKE = 83;
+  int NOT_LIKE = 83;
   /** RegularExpression Id. */
-  int NOT_LIKE = 84;
+  int BETWEEN = 84;
   /** RegularExpression Id. */
-  int BETWEEN = 85;
+  int OFFSET = 85;
   /** RegularExpression Id. */
-  int OFFSET = 86;
+  int SKIP_ = 86;
   /** RegularExpression Id. */
-  int SKIP_ = 87;
+  int LIMIT = 87;
   /** RegularExpression Id. */
-  int LIMIT = 88;
+  int ORDER = 88;
   /** RegularExpression Id. */
-  int ORDER = 89;
+  int ASC = 89;
   /** RegularExpression Id. */
-  int ASC = 90;
+  int DESC = 90;
   /** RegularExpression Id. */
-  int DESC = 91;
+  int SEARCH_MATCH = 91;
   /** RegularExpression Id. */
-  int SEARCH_MATCH = 92;
+  int SEARCH_EXCLUDE = 92;
   /** RegularExpression Id. */
-  int SEARCH_EXCLUDE = 93;
+  int PIPE = 93;
   /** RegularExpression Id. */
-  int PIPE = 94;
+  int QUOTED_STRING = 94;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 95;
+  int DOUBLE_QUOTED_STRING = 95;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 96;
+  int SINGLE_QUOTED_STRING = 96;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 97;
+  int NUMERIC = 97;
   /** RegularExpression Id. */
-  int NUMERIC = 98;
+  int COMMA = 98;
   /** RegularExpression Id. */
-  int COMMA = 99;
+  int SIGNED_INTEGER = 99;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 100;
+  int SIGNED_DECIMAL = 100;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 101;
+  int ALPHANUMERIC = 101;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 102;
+  int PERIOD_SEPARATED_STRING = 102;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 103;
+  int NAVIGATION_SCOPE_OPEN = 103;
   /** RegularExpression Id. */
-  int NAVIGATION_SCOPE_OPEN = 104;
+  int KEY_BRACKET = 104;
   /** RegularExpression Id. */
-  int KEY_BRACKET = 105;
+  int ASTERISK_SUFFIXED_STRING = 105;
   /** RegularExpression Id. */
-  int ASTERISK_SUFFIXED_STRING = 106;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 106;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 107;
+  int NON_ALPHANUMERIC = 107;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 108;
+  int LETTER = 108;
   /** RegularExpression Id. */
-  int LETTER = 109;
+  int DIGIT = 109;
   /** RegularExpression Id. */
-  int DIGIT = 110;
-  /** RegularExpression Id. */
-  int PERIOD = 111;
+  int PERIOD = 110;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -249,7 +247,6 @@ public interface GrammarConstants {
     "<AWAIT_FIND>",
     "<AWAIT_SELECT>",
     "<AWAIT_GET>",
-    "<AWAIT_NAVIGATE>",
     "<AWAIT_FIND_AND_SET>",
     "<AWAIT_SELECT_AND_SET>",
     "<AWAIT_GET_AND_SET>",

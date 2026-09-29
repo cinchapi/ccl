@@ -51,7 +51,6 @@ import com.cinchapi.ccl.grammar.command.AuditSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitFindAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitGetAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitGetSymbol;
-import com.cinchapi.ccl.grammar.command.AwaitNavigateSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitSelectAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitSelectSymbol;
 import com.cinchapi.ccl.grammar.command.BrowseSymbol;
@@ -1301,9 +1300,6 @@ public abstract class Compiler {
         }
         else if(command instanceof AwaitGetSymbol) {
             addAll(result, ((AwaitGetSymbol) command).keys());
-        }
-        else if(command instanceof AwaitNavigateSymbol) {
-            addAll(result, ((AwaitNavigateSymbol) command).keys());
         }
         else if(command instanceof AwaitFindAndSetSymbol) {
             result.add(((AwaitFindAndSetSymbol) command).key());

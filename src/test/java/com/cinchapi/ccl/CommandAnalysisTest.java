@@ -377,11 +377,6 @@ public class CommandAnalysisTest {
         CommandAnalysis get = analyze("awaitGet" + within + "name where a = 1");
         Assert.assertEquals("AWAIT_GET", get.commandType());
         Assert.assertEquals(ImmutableSet.of("name", "a"), get.storageKeys());
-        CommandAnalysis navigate = analyze(
-                "awaitNavigate" + within + "friends.name where a = 1");
-        Assert.assertEquals("AWAIT_NAVIGATE", navigate.commandType());
-        Assert.assertEquals(ImmutableSet.of("friends", "name", "a"),
-                navigate.storageKeys());
         CommandAnalysis findAndSet = analyze(
                 "awaitFindAndSet" + within + "a = 1 set b as 2");
         Assert.assertEquals("AWAIT_FIND_AND_SET", findAndSet.commandType());

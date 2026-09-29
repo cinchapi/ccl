@@ -164,7 +164,6 @@ TOKEN [IGNORE_CASE] : {
 | < AWAIT_FIND: "awaitFind" | "await_find" >
 | < AWAIT_SELECT: "awaitSelect" | "await_select" >
 | < AWAIT_GET: "awaitGet" | "await_get" >
-| < AWAIT_NAVIGATE: "awaitNavigate" | "await_navigate" >
 | < AWAIT_FIND_AND_SET: "awaitFindAndSet" | "await_find_and_set" >
 | < AWAIT_SELECT_AND_SET: "awaitSelectAndSet" | "await_select_and_set" >
 | < AWAIT_GET_AND_SET: "awaitGetAndSet" | "await_get_and_set" >
@@ -1991,8 +1990,6 @@ CommandSymbol AwaitOperations() : {
       |
         cmd = AwaitGetCommand()
       |
-        cmd = AwaitNavigateCommand()
-      |
         cmd = AwaitFindAndSetCommand()
       |
         cmd = AwaitSelectAndSetCommand()
@@ -2034,16 +2031,6 @@ CommandSymbol AwaitGetCommand() : {
     DisjunctionExpression() (NoCommandTimestamp("await_get command"))?
     (Order())? (Page())?
     { return new AwaitGetSymbol(timeout, keys); }
-}
-
-CommandSymbol AwaitNavigateCommand() : {
-    long timeout;
-    Collection<KeyTokenSymbol<?>> keys;
-}
-{
-    <AWAIT_NAVIGATE> timeout=Within() (<FOR>)? keys=KeyOrKeyCollection() <WHERE>
-    DisjunctionExpression() (NoCommandTimestamp("await_navigate command"))?
-    { return new AwaitNavigateSymbol(timeout, keys); }
 }
 
 CommandSymbol AwaitFindAndSetCommand() : {

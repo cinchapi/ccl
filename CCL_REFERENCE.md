@@ -1478,17 +1478,6 @@ awaitGet within <duration> where <condition> [order] [page]
 awaitGet within "1 minute" for [payload, owner] where status = pending
 ```
 
-#### AWAIT_NAVIGATE
-
-```
-awaitNavigate within <duration> [for] <key> where <condition>
-awaitNavigate within <duration> [for] <keys> where <condition>
-```
-
-```
-awaitNavigate within "5 s" for friends.name where age > 30
-```
-
 #### AWAIT_FIND_AND_SET
 
 ```
@@ -1675,8 +1664,8 @@ Command           ::= AddCommand | SetCommand | InsertCommand
                     | FindCommand | PingCommand
                     | FindAndSetCommand | SelectAndSetCommand | GetAndSetCommand
                     | AwaitFindCommand | AwaitSelectCommand | AwaitGetCommand
-                    | AwaitNavigateCommand | AwaitFindAndSetCommand
-                    | AwaitSelectAndSetCommand | AwaitGetAndSetCommand
+                    | AwaitFindAndSetCommand | AwaitSelectAndSetCommand
+                    | AwaitGetAndSetCommand
 
 AddCommand        ::= 'add' Key 'as' Value WritePreposition NUMERIC
                     | 'add' Key 'as' Value WritePreposition RecordCollection
@@ -1759,7 +1748,6 @@ GetAndSetCommand  ::= ('getAndSet' | 'get_and_set') [Keys] 'where' Condition [Or
 AwaitFindCommand  ::= ('awaitFind' | 'await_find') Within ['for'] Condition [Order] [Page]
 AwaitSelectCommand ::= ('awaitSelect' | 'await_select') Within AwaitKeys Condition [Order] [Page]
 AwaitGetCommand   ::= ('awaitGet' | 'await_get') Within AwaitKeys Condition [Order] [Page]
-AwaitNavigateCommand ::= ('awaitNavigate' | 'await_navigate') Within ['for'] Keys 'where' Condition
 AwaitFindAndSetCommand ::= ('awaitFindAndSet' | 'await_find_and_set') Within ['for'] Condition [Order] [Page] SetClause
 AwaitSelectAndSetCommand ::= ('awaitSelectAndSet' | 'await_select_and_set') Within AwaitKeys Condition [Order] [Page] SetClause
 AwaitGetAndSetCommand ::= ('awaitGetAndSet' | 'await_get_and_set') Within AwaitKeys Condition [Order] [Page] SetClause
@@ -1800,15 +1788,13 @@ await commands have these symbols:
 | `AwaitFindSymbol` | `AWAIT_FIND` | `timeout()` |
 | `AwaitSelectSymbol` | `AWAIT_SELECT` | `timeout()`, `keys()` |
 | `AwaitGetSymbol` | `AWAIT_GET` | `timeout()`, `keys()` |
-| `AwaitNavigateSymbol` | `AWAIT_NAVIGATE` | `timeout()`, `keys()` |
 | `AwaitFindAndSetSymbol` | `AWAIT_FIND_AND_SET` | `timeout()`, `key()`, `value()` |
 | `AwaitSelectAndSetSymbol` | `AWAIT_SELECT_AND_SET` | `timeout()`, `keys()`, `key()`, `value()` |
 | `AwaitGetAndSetSymbol` | `AWAIT_GET_AND_SET` | `timeout()`, `keys()`, `key()`, `value()` |
 
 - `timeout()` is the `within` duration in milliseconds.
 - `keys()` holds the keys to read, and is `null` when the command reads every
-  key. For `AwaitNavigateSymbol`, it holds the navigation keys and is never
-  `null`.
+  key.
 - `key()` and `value()` are the key and value of the `set` clause.
 - The condition, order and page are children of the `CommandTree`, the same as
   for `find` and `select`.

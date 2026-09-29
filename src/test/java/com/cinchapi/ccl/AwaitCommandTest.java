@@ -23,13 +23,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.KeySymbol;
-import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitFindAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitFindSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitGetAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitGetSymbol;
-import com.cinchapi.ccl.grammar.command.AwaitNavigateSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitSelectAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitSelectSymbol;
 import com.cinchapi.ccl.syntax.CommandTree;
@@ -318,71 +316,6 @@ public class AwaitCommandTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that {@code awaitNavigate} exposes its
-     * navigation keys and carries its condition the same way {@code navigate}
-     * does.
-     * <p>
-     * <strong>Start state:</strong> No prior state needed.
-     * <p>
-     * <strong>Workflow:</strong>
-     * <ul>
-     * <li>Parse an {@code awaitNavigate} statement for
-     * {@code friends.name}, with and without {@code for}.</li>
-     * <li>Parse the matching {@code navigate} statement.</li>
-     * <li>Parse an {@code awaitNavigate} statement for two keys.</li>
-     * </ul>
-     * <p>
-     * <strong>Expected:</strong> The keys are {@code [friends.name]} and
-     * {@code [friends.name, age]}, the two single-key trees are equal, and
-     * their children equal those of the {@code navigate} tree.
-     */
-    @Test
-    public void testAwaitNavigateReadsKeysAndKeepsConditionLikeNavigate() {
-        CommandTree tree = parse(
-                "awaitNavigate within \"1 s\" for friends.name where a = 1");
-        AwaitNavigateSymbol symbol = (AwaitNavigateSymbol) tree.root();
-        Assert.assertEquals("AWAIT_NAVIGATE", symbol.type());
-        Assert.assertEquals(
-                ImmutableList.of(new NavigationKeySymbol("friends.name")),
-                ImmutableList.copyOf(symbol.keys()));
-        Assert.assertEquals(tree, parse(
-                "awaitNavigate within \"1 s\" friends.name where a = 1"));
-        Assert.assertEquals(
-                parse("navigate friends.name where a = 1").children(),
-                tree.children());
-        AwaitNavigateSymbol many = (AwaitNavigateSymbol) parse(
-                "awaitNavigate within \"1 s\" [friends.name, age] where a = 1")
-                        .root();
-        Assert.assertEquals(
-                ImmutableList.of(new NavigationKeySymbol("friends.name"),
-                        new KeySymbol("age")),
-                ImmutableList.copyOf(many.keys()));
-    }
-
-    /**
-     * <strong>Goal:</strong> Verify that {@code awaitNavigate} accepts no order
-     * and no page, as {@code navigate} does.
-     * <p>
-     * <strong>Start state:</strong> No prior state needed.
-     * <p>
-     * <strong>Workflow:</strong>
-     * <ul>
-     * <li>Parse {@code awaitNavigate} with an order and with a page.</li>
-     * </ul>
-     * <p>
-     * <strong>Expected:</strong> Each parse fails with a
-     * {@link SyntaxException}.
-     */
-    @Test
-    public void testAwaitNavigateRejectsOrderAndPage() {
-        assertRejected(
-                "awaitNavigate within \"1 s\" name where a = 1 order by name",
-                null);
-        assertRejected("awaitNavigate within \"1 s\" name where a = 1 limit 1",
-                null);
-    }
-
-    /**
      * <strong>Goal:</strong> Verify that {@code awaitFindAndSet} exposes its
      * timeout and set clause, and carries its condition, order and page the
      * same way {@code find} does.
@@ -535,9 +468,6 @@ public class AwaitCommandTest {
         Assert.assertEquals(parse("awaitGet" + within + "name where a = 1"),
                 parse("await_get" + within + "name where a = 1"));
         Assert.assertEquals(
-                parse("awaitNavigate" + within + "name where a = 1"),
-                parse("await_navigate" + within + "name where a = 1"));
-        Assert.assertEquals(
                 parse("awaitFindAndSet" + within + "a = 1 set b as 2"),
                 parse("await_find_and_set" + within + "a = 1 set b as 2"));
         Assert.assertEquals(
@@ -653,8 +583,6 @@ public class AwaitCommandTest {
                 message);
         assertRejected("awaitGet" + within + "name where a = 1 as of 123",
                 message);
-        assertRejected("awaitNavigate" + within + "name where (a = 1) at 123",
-                message);
         assertRejected(
                 "awaitFindAndSet" + within + "a = 1 as of 123 set b as 2",
                 message);
@@ -739,9 +667,6 @@ public class AwaitCommandTest {
                 "awaitGet within \"2 s\" name where a = 1",
                 "awaitGet within \"1 s\" age where a = 1",
                 "awaitGet within \"1 s\" where a = 1");
-        assertEqualOnlyToItself("awaitNavigate within \"1 s\" name where a = 1",
-                "awaitNavigate within \"2 s\" name where a = 1",
-                "awaitNavigate within \"1 s\" age where a = 1");
         assertEqualOnlyToItself(
                 "awaitFindAndSet within \"1 s\" a = 1 set b as 2",
                 "awaitFindAndSet within \"2 s\" a = 1 set b as 2",
