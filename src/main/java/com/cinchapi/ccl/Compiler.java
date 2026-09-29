@@ -48,6 +48,12 @@ import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.grammar.command.AddSymbol;
 import com.cinchapi.ccl.grammar.command.AuditSymbol;
+import com.cinchapi.ccl.grammar.command.AwaitFindAndSetSymbol;
+import com.cinchapi.ccl.grammar.command.AwaitGetAndSetSymbol;
+import com.cinchapi.ccl.grammar.command.AwaitGetSymbol;
+import com.cinchapi.ccl.grammar.command.AwaitNavigateSymbol;
+import com.cinchapi.ccl.grammar.command.AwaitSelectAndSetSymbol;
+import com.cinchapi.ccl.grammar.command.AwaitSelectSymbol;
 import com.cinchapi.ccl.grammar.command.BrowseSymbol;
 import com.cinchapi.ccl.grammar.command.CalculateSymbol;
 import com.cinchapi.ccl.grammar.command.ChronicleSymbol;
@@ -56,9 +62,11 @@ import com.cinchapi.ccl.grammar.command.CommandSymbol;
 import com.cinchapi.ccl.grammar.command.ConsolidateSymbol;
 import com.cinchapi.ccl.grammar.command.DescribeSymbol;
 import com.cinchapi.ccl.grammar.command.DiffSymbol;
+import com.cinchapi.ccl.grammar.command.FindAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.FindOrAddSymbol;
 import com.cinchapi.ccl.grammar.command.FindOrInsertSymbol;
 import com.cinchapi.ccl.grammar.command.FindSymbol;
+import com.cinchapi.ccl.grammar.command.GetAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.GetSymbol;
 import com.cinchapi.ccl.grammar.command.HoldsSymbol;
 import com.cinchapi.ccl.grammar.command.ImplicitSymbol;
@@ -70,6 +78,7 @@ import com.cinchapi.ccl.grammar.command.ReconcileSymbol;
 import com.cinchapi.ccl.grammar.command.RemoveSymbol;
 import com.cinchapi.ccl.grammar.command.RevertSymbol;
 import com.cinchapi.ccl.grammar.command.SearchSymbol;
+import com.cinchapi.ccl.grammar.command.SelectAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.SelectSymbol;
 import com.cinchapi.ccl.grammar.command.SetSymbol;
 import com.cinchapi.ccl.grammar.command.TraceSymbol;
@@ -1273,6 +1282,42 @@ public abstract class Compiler {
         }
         else if(command instanceof VerifyOrSetSymbol) {
             result.add(((VerifyOrSetSymbol) command).key());
+        }
+        else if(command instanceof FindAndSetSymbol) {
+            result.add(((FindAndSetSymbol) command).key());
+        }
+        else if(command instanceof SelectAndSetSymbol) {
+            SelectAndSetSymbol selectAndSet = (SelectAndSetSymbol) command;
+            addAll(result, selectAndSet.keys());
+            result.add(selectAndSet.key());
+        }
+        else if(command instanceof GetAndSetSymbol) {
+            GetAndSetSymbol getAndSet = (GetAndSetSymbol) command;
+            addAll(result, getAndSet.keys());
+            result.add(getAndSet.key());
+        }
+        else if(command instanceof AwaitSelectSymbol) {
+            addAll(result, ((AwaitSelectSymbol) command).keys());
+        }
+        else if(command instanceof AwaitGetSymbol) {
+            addAll(result, ((AwaitGetSymbol) command).keys());
+        }
+        else if(command instanceof AwaitNavigateSymbol) {
+            addAll(result, ((AwaitNavigateSymbol) command).keys());
+        }
+        else if(command instanceof AwaitFindAndSetSymbol) {
+            result.add(((AwaitFindAndSetSymbol) command).key());
+        }
+        else if(command instanceof AwaitSelectAndSetSymbol) {
+            AwaitSelectAndSetSymbol selectAndSet =
+                    (AwaitSelectAndSetSymbol) command;
+            addAll(result, selectAndSet.keys());
+            result.add(selectAndSet.key());
+        }
+        else if(command instanceof AwaitGetAndSetSymbol) {
+            AwaitGetAndSetSymbol getAndSet = (AwaitGetAndSetSymbol) command;
+            addAll(result, getAndSet.keys());
+            result.add(getAndSet.key());
         }
         return result;
     }

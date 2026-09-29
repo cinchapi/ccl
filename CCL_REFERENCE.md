@@ -28,6 +28,8 @@ CCL is the query and command language for [Concourse](https://cinchapi.com/techn
     - [Transaction Operations](#transaction-operations)
     - [Revert Operation](#revert-operation)
     - [Utility Operations](#utility-operations)
+    - [Read and Set Operations](#read-and-set-operations)
+    - [Await Operations](#await-operations)
 13. [Multi-Statement Support](#13-multi-statement-support)
 14. [Variable References](#14-variable-references)
 15. [Escape Sequences](#15-escape-sequences)
@@ -429,6 +431,7 @@ and on history-range commands.
 | `order by` | accepted |
 | `find` (in the `WHERE` condition) | accepted |
 | `add`, `set`, `remove`, `clear`, `link`, `unlink`, `reconcile`, `verify_and_swap`, `verify_or_set`, `find_or_add`, `revert` | rejected (writes) |
+| `findAndSet`, `selectAndSet`, `getAndSet` and the `await` commands | accepted on the keys they read and in the condition; rejected on the key in the `set` clause |
 | `audit`, `chronicle`, `diff` | rejected (range-history reads — they take a `from … to …` window, not a point) |
 
 A rejection produces a `SyntaxException` at parse time. The exception
@@ -529,6 +532,11 @@ diff 1 from "yesterday" to "today"
 chronicle name in 1 from "2024-01-01" to "2024-06-01"
 audit 1 from "last month" to "today"
 ```
+
+The [read and set](#read-and-set-operations) and [await](#await-operations)
+commands read the present state, so a command-level timestamp is a syntax error
+for them. A timestamp that directly follows a comparison still belongs to that
+comparison, as it does in `find`.
 
 ### 8.6 Precedence: bracket beats trailing-`at`
 
@@ -786,6 +794,10 @@ avg(score, age > 30)
 ## 12. Commands
 
 Commands are database operations. All command keywords are case-insensitive.
+Command names, including their snake_case aliases, are reserved words in any
+letter case. A key cannot be one of them, although one may be a stop in a
+navigation key, such as `awaitGet.name`. A value that matches one must be
+quoted.
 
 ---
 
@@ -1354,6 +1366,165 @@ Supported function names: `sum`, `avg`, `average`, `count`, `min`, `max` (and an
 
 ---
 
+### Read and Set Operations
+
+A read and set command finds the records that match a condition, reads them, and
+sets a key to a value in each record it selects, as one atomic operation. The
+read part follows the syntax of `find`, `select` or `get`, including the
+optional order and page. The command ends with a `set <key> as <value>` clause,
+which follows the key and value rules of the `set` command.
+
+These commands read the present state, so a command-level timestamp is a syntax
+error. Each command also has a snake_case alias, such as `find_and_set`.
+
+#### FIND_AND_SET
+
+Find the matching records and set a key to a value in each record selected.
+
+```
+findAndSet <condition> [order] [page] set <key> as <value>
+```
+
+```
+findAndSet status = pending set status as claimed
+findAndSet status = pending order by priority desc limit 1 set status as claimed
+find_and_set age > 30 set group as senior
+```
+
+#### SELECT_AND_SET
+
+Select keys from the matching records, then set a key to a value in each record
+selected. With no keys, the command selects every key.
+
+```
+selectAndSet <key> where <condition> [order] [page] set <key> as <value>
+selectAndSet <keys> where <condition> [order] [page] set <key> as <value>
+selectAndSet where <condition> [order] [page] set <key> as <value>
+```
+
+```
+selectAndSet payload where status = pending limit 1 set status as claimed
+selectAndSet [payload, owner] where status = pending set status as claimed
+select_and_set where status = pending set status as claimed
+```
+
+#### GET_AND_SET
+
+Get keys from the matching records, then set a key to a value in each record
+selected. With no keys, the command gets every key.
+
+```
+getAndSet <key> where <condition> [order] [page] set <key> as <value>
+getAndSet <keys> where <condition> [order] [page] set <key> as <value>
+getAndSet where <condition> [order] [page] set <key> as <value>
+```
+
+```
+getAndSet payload where status = pending limit 1 set status as claimed
+get_and_set payload, owner where status = pending set status as claimed
+```
+
+---
+
+### Await Operations
+
+An await command waits until at least one record matches its condition, or until
+its duration ends, and then runs its read, or its read and set. The `within`
+clause gives the duration as one quoted token: a positive integer, whitespace,
+and a unit. The units are `ms`, `millisecond`, `milliseconds`, `s`, `second`,
+`seconds`, `m`, `minute` and `minutes`, in any letter case. A zero, negative or
+fractional amount, a missing unit, and an unknown unit are syntax errors. The
+parser accepts any positive duration; the server enforces its own maximum.
+
+An optional `for` may come before the condition or the keys, and adds no
+meaning; it cannot come directly before `where`. Everything else after the
+duration follows the syntax of the same command without `await`. These commands
+read the present state, so a command-level timestamp is a syntax error. Each
+command also has a snake_case alias, such as `await_find`.
+
+#### AWAIT_FIND
+
+```
+awaitFind within <duration> [for] <condition> [order] [page]
+```
+
+```
+awaitFind within "30 seconds" status = pending
+await_find within "500 ms" for status = pending order by priority limit 1
+```
+
+#### AWAIT_SELECT
+
+```
+awaitSelect within <duration> [for] <key> where <condition> [order] [page]
+awaitSelect within <duration> [for] <keys> where <condition> [order] [page]
+awaitSelect within <duration> where <condition> [order] [page]
+```
+
+```
+awaitSelect within "1 m" for payload where status = pending
+awaitSelect within "10 s" where status = pending limit 5
+```
+
+#### AWAIT_GET
+
+```
+awaitGet within <duration> [for] <key> where <condition> [order] [page]
+awaitGet within <duration> [for] <keys> where <condition> [order] [page]
+awaitGet within <duration> where <condition> [order] [page]
+```
+
+```
+awaitGet within "1 minute" for [payload, owner] where status = pending
+```
+
+#### AWAIT_NAVIGATE
+
+```
+awaitNavigate within <duration> [for] <key> where <condition>
+awaitNavigate within <duration> [for] <keys> where <condition>
+```
+
+```
+awaitNavigate within "5 s" for friends.name where age > 30
+```
+
+#### AWAIT_FIND_AND_SET
+
+```
+awaitFindAndSet within <duration> [for] <condition> [order] [page] set <key> as <value>
+```
+
+```
+awaitFindAndSet within "30 s" for status = pending limit 1 set status as claimed
+```
+
+#### AWAIT_SELECT_AND_SET
+
+```
+awaitSelectAndSet within <duration> [for] <key> where <condition> [order] [page] set <key> as <value>
+awaitSelectAndSet within <duration> [for] <keys> where <condition> [order] [page] set <key> as <value>
+awaitSelectAndSet within <duration> where <condition> [order] [page] set <key> as <value>
+```
+
+```
+awaitSelectAndSet within "30 s" for payload where status = pending limit 1 set status as claimed
+```
+
+#### AWAIT_GET_AND_SET
+
+```
+awaitGetAndSet within <duration> [for] <key> where <condition> [order] [page] set <key> as <value>
+awaitGetAndSet within <duration> [for] <keys> where <condition> [order] [page] set <key> as <value>
+awaitGetAndSet within <duration> where <condition> [order] [page] set <key> as <value>
+```
+
+```
+await_get_and_set within "2 minutes" where status = pending limit 1 set status as claimed
+```
+
+---
+
 ## 13. Multi-Statement Support
 
 Multiple statements can be combined in a single input, separated by semicolons:
@@ -1502,6 +1673,10 @@ Command           ::= AddCommand | SetCommand | InsertCommand
                     | RevertCommand | ReconcileCommand
                     | LinkCommand | UnlinkCommand
                     | FindCommand | PingCommand
+                    | FindAndSetCommand | SelectAndSetCommand | GetAndSetCommand
+                    | AwaitFindCommand | AwaitSelectCommand | AwaitGetCommand
+                    | AwaitNavigateCommand | AwaitFindAndSetCommand
+                    | AwaitSelectAndSetCommand | AwaitGetAndSetCommand
 
 AddCommand        ::= 'add' Key 'as' Value WritePreposition NUMERIC
                     | 'add' Key 'as' Value WritePreposition RecordCollection
@@ -1571,6 +1746,24 @@ UnlinkCommand     ::= 'unlink' Key 'from' NUMERIC 'to' NUMERIC
 FindCommand       ::= 'find' Condition [TimestampCommand] [Order] [Page]
 PingCommand       ::= 'ping'
 
+(* Read and set, and await *)
+Keys              ::= Key | KeyCollection
+SetClause         ::= 'set' Key 'as' Value
+Within            ::= 'within' QUOTED_STRING   (* e.g., "30 seconds" *)
+AwaitKeys         ::= 'where' | ['for'] Keys 'where'
+
+FindAndSetCommand ::= ('findAndSet' | 'find_and_set') Condition [Order] [Page] SetClause
+SelectAndSetCommand ::= ('selectAndSet' | 'select_and_set') [Keys] 'where' Condition [Order] [Page] SetClause
+GetAndSetCommand  ::= ('getAndSet' | 'get_and_set') [Keys] 'where' Condition [Order] [Page] SetClause
+
+AwaitFindCommand  ::= ('awaitFind' | 'await_find') Within ['for'] Condition [Order] [Page]
+AwaitSelectCommand ::= ('awaitSelect' | 'await_select') Within AwaitKeys Condition [Order] [Page]
+AwaitGetCommand   ::= ('awaitGet' | 'await_get') Within AwaitKeys Condition [Order] [Page]
+AwaitNavigateCommand ::= ('awaitNavigate' | 'await_navigate') Within ['for'] Keys 'where' Condition
+AwaitFindAndSetCommand ::= ('awaitFindAndSet' | 'await_find_and_set') Within ['for'] Condition [Order] [Page] SetClause
+AwaitSelectAndSetCommand ::= ('awaitSelectAndSet' | 'await_select_and_set') Within AwaitKeys Condition [Order] [Page] SetClause
+AwaitGetAndSetCommand ::= ('awaitGetAndSet' | 'await_get_and_set') Within AwaitKeys Condition [Order] [Page] SetClause
+
 (* Multi-statement *)
 Input             ::= Statement (';' Statement)* [';']
 ```
@@ -1593,6 +1786,35 @@ The compiler produces these abstract syntax tree types (in `com.cinchapi.ccl.syn
 | `FunctionTree` | Standalone function statements |
 
 All extend `AbstractSyntaxTree` and support the Visitor pattern via `accept(Visitor)`.
+
+The root of a `CommandTree` is the `CommandSymbol` for its command (in
+`com.cinchapi.ccl.grammar.command`), and `CommandSymbol.type()` returns the
+command's name, such as `FIND` or `AWAIT_FIND_AND_SET`. The read and set and
+await commands have these symbols:
+
+| Symbol | `type()` | Accessors |
+|--------|----------|-----------|
+| `FindAndSetSymbol` | `FIND_AND_SET` | `key()`, `value()` |
+| `SelectAndSetSymbol` | `SELECT_AND_SET` | `keys()`, `key()`, `value()` |
+| `GetAndSetSymbol` | `GET_AND_SET` | `keys()`, `key()`, `value()` |
+| `AwaitFindSymbol` | `AWAIT_FIND` | `timeout()` |
+| `AwaitSelectSymbol` | `AWAIT_SELECT` | `timeout()`, `keys()` |
+| `AwaitGetSymbol` | `AWAIT_GET` | `timeout()`, `keys()` |
+| `AwaitNavigateSymbol` | `AWAIT_NAVIGATE` | `timeout()`, `keys()` |
+| `AwaitFindAndSetSymbol` | `AWAIT_FIND_AND_SET` | `timeout()`, `key()`, `value()` |
+| `AwaitSelectAndSetSymbol` | `AWAIT_SELECT_AND_SET` | `timeout()`, `keys()`, `key()`, `value()` |
+| `AwaitGetAndSetSymbol` | `AWAIT_GET_AND_SET` | `timeout()`, `keys()`, `key()`, `value()` |
+
+- `timeout()` is the `within` duration in milliseconds.
+- `keys()` holds the keys to read, and is `null` when the command reads every
+  key. For `AwaitNavigateSymbol`, it holds the navigation keys and is never
+  `null`.
+- `key()` and `value()` are the key and value of the `set` clause.
+- The condition, order and page are children of the `CommandTree`, the same as
+  for `find` and `select`.
+- These symbols implement `equals` and `hashCode`, so equivalent statements
+  parse to equal trees. For example, `awaitFind within "2 s" a = 1` and
+  `await_find within "2000 ms" for a = 1` are equal.
 
 ---
 

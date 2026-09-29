@@ -158,6 +158,16 @@ TOKEN [IGNORE_CASE] : {
 | < CLEAR: "clear" >
 | < VERIFY_AND_SWAP: "verifyAndSwap" | "verify_and_swap" >
 | < VERIFY_OR_SET: "verifyOrSet" | "verify_or_set" >
+| < FIND_AND_SET: "findAndSet" | "find_and_set" >
+| < SELECT_AND_SET: "selectAndSet" | "select_and_set" >
+| < GET_AND_SET: "getAndSet" | "get_and_set" >
+| < AWAIT_FIND: "awaitFind" | "await_find" >
+| < AWAIT_SELECT: "awaitSelect" | "await_select" >
+| < AWAIT_GET: "awaitGet" | "await_get" >
+| < AWAIT_NAVIGATE: "awaitNavigate" | "await_navigate" >
+| < AWAIT_FIND_AND_SET: "awaitFindAndSet" | "await_find_and_set" >
+| < AWAIT_SELECT_AND_SET: "awaitSelectAndSet" | "await_select_and_set" >
+| < AWAIT_GET_AND_SET: "awaitGetAndSet" | "await_get_and_set" >
 
   // Record operations
 | < INSERT: "insert" >
@@ -1031,6 +1041,10 @@ void Command() #Command : {
         cmd = RevertCommand()
       |
         cmd = UtilityOperations()
+      |
+        cmd = ReadAndSetOperations()
+      |
+        cmd = AwaitOperations()
     )
     { jjtThis.command(cmd); }
 }
@@ -1899,6 +1913,220 @@ CommandSymbol CalculateCommand() : {
     )
 }
 
+CommandSymbol ReadAndSetOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = FindAndSetCommand()
+      |
+        cmd = SelectAndSetCommand()
+      |
+        cmd = GetAndSetCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol FindAndSetCommand() : {
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+}
+{
+    <FIND_AND_SET>
+    DisjunctionExpression() (NoCommandTimestamp("find_and_set command"))?
+    (Order())? (Page())?
+    <SET> key=Key()
+    {
+        KeyTokenSymbol.requireNotParameterized(key,
+                "find_and_set command");
+    }
+    <AS> value=UnaryValue()
+    { return new FindAndSetSymbol(key, value); }
+}
+
+CommandSymbol SelectAndSetCommand() : {
+    Collection<KeyTokenSymbol<?>> keys = null;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+}
+{
+    <SELECT_AND_SET> (keys=KeyOrKeyCollection())? <WHERE>
+    DisjunctionExpression() (NoCommandTimestamp("select_and_set command"))?
+    (Order())? (Page())?
+    <SET> key=Key()
+    {
+        KeyTokenSymbol.requireNotParameterized(key,
+                "select_and_set command");
+    }
+    <AS> value=UnaryValue()
+    { return new SelectAndSetSymbol(keys, key, value); }
+}
+
+CommandSymbol GetAndSetCommand() : {
+    Collection<KeyTokenSymbol<?>> keys = null;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+}
+{
+    <GET_AND_SET> (keys=KeyOrKeyCollection())? <WHERE>
+    DisjunctionExpression() (NoCommandTimestamp("get_and_set command"))?
+    (Order())? (Page())?
+    <SET> key=Key()
+    {
+        KeyTokenSymbol.requireNotParameterized(key,
+                "get_and_set command");
+    }
+    <AS> value=UnaryValue()
+    { return new GetAndSetSymbol(keys, key, value); }
+}
+
+CommandSymbol AwaitOperations() : {
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = AwaitFindCommand()
+      |
+        cmd = AwaitSelectCommand()
+      |
+        cmd = AwaitGetCommand()
+      |
+        cmd = AwaitNavigateCommand()
+      |
+        cmd = AwaitFindAndSetCommand()
+      |
+        cmd = AwaitSelectAndSetCommand()
+      |
+        cmd = AwaitGetAndSetCommand()
+    )
+    { return cmd; }
+}
+
+CommandSymbol AwaitFindCommand() : {
+    long timeout;
+}
+{
+    <AWAIT_FIND> timeout=Within() (<FOR>)?
+    DisjunctionExpression() (NoCommandTimestamp("await_find command"))?
+    (Order())? (Page())?
+    { return new AwaitFindSymbol(timeout); }
+}
+
+CommandSymbol AwaitSelectCommand() : {
+    long timeout;
+    Collection<KeyTokenSymbol<?>> keys = null;
+}
+{
+    <AWAIT_SELECT> timeout=Within()
+    (<WHERE> | (<FOR>)? keys=KeyOrKeyCollection() <WHERE>)
+    DisjunctionExpression() (NoCommandTimestamp("await_select command"))?
+    (Order())? (Page())?
+    { return new AwaitSelectSymbol(timeout, keys); }
+}
+
+CommandSymbol AwaitGetCommand() : {
+    long timeout;
+    Collection<KeyTokenSymbol<?>> keys = null;
+}
+{
+    <AWAIT_GET> timeout=Within()
+    (<WHERE> | (<FOR>)? keys=KeyOrKeyCollection() <WHERE>)
+    DisjunctionExpression() (NoCommandTimestamp("await_get command"))?
+    (Order())? (Page())?
+    { return new AwaitGetSymbol(timeout, keys); }
+}
+
+CommandSymbol AwaitNavigateCommand() : {
+    long timeout;
+    Collection<KeyTokenSymbol<?>> keys;
+}
+{
+    <AWAIT_NAVIGATE> timeout=Within() (<FOR>)? keys=KeyOrKeyCollection() <WHERE>
+    DisjunctionExpression() (NoCommandTimestamp("await_navigate command"))?
+    { return new AwaitNavigateSymbol(timeout, keys); }
+}
+
+CommandSymbol AwaitFindAndSetCommand() : {
+    long timeout;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+}
+{
+    <AWAIT_FIND_AND_SET> timeout=Within() (<FOR>)?
+    DisjunctionExpression() (NoCommandTimestamp("await_find_and_set command"))?
+    (Order())? (Page())?
+    <SET> key=Key()
+    {
+        KeyTokenSymbol.requireNotParameterized(key,
+                "await_find_and_set command");
+    }
+    <AS> value=UnaryValue()
+    { return new AwaitFindAndSetSymbol(timeout, key, value); }
+}
+
+CommandSymbol AwaitSelectAndSetCommand() : {
+    long timeout;
+    Collection<KeyTokenSymbol<?>> keys = null;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+}
+{
+    <AWAIT_SELECT_AND_SET> timeout=Within()
+    (<WHERE> | (<FOR>)? keys=KeyOrKeyCollection() <WHERE>)
+    DisjunctionExpression() (NoCommandTimestamp("await_select_and_set command"))?
+    (Order())? (Page())?
+    <SET> key=Key()
+    {
+        KeyTokenSymbol.requireNotParameterized(key,
+                "await_select_and_set command");
+    }
+    <AS> value=UnaryValue()
+    { return new AwaitSelectAndSetSymbol(timeout, keys, key, value); }
+}
+
+CommandSymbol AwaitGetAndSetCommand() : {
+    long timeout;
+    Collection<KeyTokenSymbol<?>> keys = null;
+    KeyTokenSymbol<?> key;
+    ValueTokenSymbol<?> value;
+}
+{
+    <AWAIT_GET_AND_SET> timeout=Within()
+    (<WHERE> | (<FOR>)? keys=KeyOrKeyCollection() <WHERE>)
+    DisjunctionExpression() (NoCommandTimestamp("await_get_and_set command"))?
+    (Order())? (Page())?
+    <SET> key=Key()
+    {
+        KeyTokenSymbol.requireNotParameterized(key,
+                "await_get_and_set command");
+    }
+    <AS> value=UnaryValue()
+    { return new AwaitGetAndSetSymbol(timeout, keys, key, value); }
+}
+
+// The duration is one quoted token, so no word inside it can be mistaken for
+// the start of the condition that follows.
+long Within() : {
+    Token duration;
+}
+{
+    <WITHIN> duration=<QUOTED_STRING>
+    { return Parsing.parseDurationMillis(duration.image); }
+}
+
+// A timestamp that directly follows a comparison belongs to that comparison, so
+// this production only sees a command-level timestamp, such as an as-of clause
+// or an at clause after a closing parenthesis.
+void NoCommandTimestamp(String command) : {}
+{
+    (<TIMESTAMP> | <AS_OF>)
+    {
+        throw new SyntaxException(String.format(
+                "%s does not accept a timestamp because it reads the "
+                        + "present state", command));
+    }
+}
+
 // Utility parsing rules
 Collection<ValueTokenSymbol<?>> ValueCollection() : {
     ValueTokenSymbol<?> value;
@@ -1949,6 +2177,25 @@ Collection KeyCollection() :
       |
         key=Key() { keys.add(key); }
         (<COMMA> key=Key() { keys.add(key); })+
+    )
+    { return keys; }
+}
+
+Collection<KeyTokenSymbol<?>> KeyOrKeyCollection() :
+{
+    KeyTokenSymbol<?> key;
+    Collection<KeyTokenSymbol<?>> keys;
+}
+{
+    (
+        LOOKAHEAD( <OPEN_BRACKET> | Key() <COMMA> )
+        keys=KeyCollection()
+      |
+        key=Key()
+        {
+            keys = new ArrayList<KeyTokenSymbol<?>>();
+            keys.add(key);
+        }
     )
     { return keys; }
 }

@@ -15,13 +15,19 @@
  */
 package com.cinchapi.ccl;
 
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
@@ -39,6 +45,7 @@ import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.Array;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -49,6 +56,27 @@ import com.google.common.collect.Multimap;
  * @author Jeff Nelson
  */
 public final class Parsing {
+
+    /**
+     * The form of a {@code within} duration: an amount, then whitespace, then a
+     * unit.
+     */
+    private static final Pattern DURATION = Pattern
+            .compile("(\\d+)\\s+([a-zA-Z]+)");
+
+    /**
+     * The {@link TimeUnit} for each lower case unit name that a {@code within}
+     * duration accepts.
+     */
+    private static final Map<String, TimeUnit> DURATION_UNITS = ImmutableMap
+            .<String, TimeUnit> builder()
+            .put("ms", TimeUnit.MILLISECONDS)
+            .put("millisecond", TimeUnit.MILLISECONDS)
+            .put("milliseconds", TimeUnit.MILLISECONDS)
+            .put("s", TimeUnit.SECONDS).put("second", TimeUnit.SECONDS)
+            .put("seconds", TimeUnit.SECONDS).put("m", TimeUnit.MINUTES)
+            .put("minute", TimeUnit.MINUTES).put("minutes", TimeUnit.MINUTES)
+            .build();
 
     /**
      * Go through a list of symbols and group the expressions together in a
@@ -105,6 +133,47 @@ public final class Parsing {
         }
         catch (ClassCastException e) {
             throw new SyntaxException(e.getMessage());
+        }
+    }
+
+    /**
+     * Return the number of milliseconds in the duration of a {@code within}
+     * clause, such as {@code "5 seconds"}.
+     * <p>
+     * A duration is a positive integer, whitespace, and a unit. The units are
+     * {@code ms}, {@code millisecond} and {@code milliseconds}; {@code s},
+     * {@code second} and {@code seconds}; and {@code m}, {@code minute} and
+     * {@code minutes}, in any letter case. Whitespace around the duration is
+     * ignored. A duration longer than {@link Long#MAX_VALUE} milliseconds
+     * resolves to {@link Long#MAX_VALUE}.
+     * </p>
+     *
+     * @param token the image of a quoted string token, including its enclosing
+     *            quotes
+     * @return the duration in milliseconds, always positive
+     * @throws SyntaxException if the duration is not a positive integer and a
+     *             unit
+     */
+    public static long parseDurationMillis(String token) {
+        String duration = token.substring(1, token.length() - 1).trim();
+        Matcher matcher = DURATION.matcher(duration);
+        TimeUnit unit = matcher.matches()
+                ? DURATION_UNITS.get(matcher.group(2).toLowerCase(Locale.ROOT))
+                : null;
+        BigInteger amount = unit != null ? new BigInteger(matcher.group(1))
+                : BigInteger.ZERO;
+        if(amount.signum() > 0) {
+            // TimeUnit saturates at Long.MAX_VALUE, but only for an amount that
+            // fits in a long.
+            return amount.bitLength() < Long.SIZE
+                    ? unit.toMillis(amount.longValue())
+                    : Long.MAX_VALUE;
+        }
+        else {
+            throw new SyntaxException(AnyStrings.format(
+                    "A within duration must be a positive integer and a "
+                            + "unit (ms, s or m), but got \"{}\"",
+                    duration));
         }
     }
 
