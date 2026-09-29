@@ -10,12 +10,13 @@ await operations, which wait for a read to have a result.
   follows the syntax of `find`, `select` and `get`, including the optional order
   and page, and the command ends with a `set <key> as <value>` clause.
 * `awaitFind`, `awaitSelect`, `awaitGet`, `awaitFindAndSet`, `awaitSelectAndSet`
-  and `awaitGetAndSet` wait up to the duration in their `within` clause for a
-  record to match, then run the same read, or read and set, as the command
-  without `await`. The duration is one quoted token, such as `"30 seconds"` or
-  `"500 ms"`, with a unit of milliseconds, seconds or minutes. An optional `for`
-  may come before the condition of `awaitFind` and `awaitFindAndSet`, and before
-  the keys of the other await commands.
+  and `awaitGetAndSet` wait up to the duration in their `within` clause for the
+  read, with its order and page, to have a non-empty result. Then they run the
+  same read, or read and set, as the command without `await`. The duration is
+  one quoted token, such as `"30 seconds"` or `"500 ms"`, with a unit of
+  milliseconds, seconds or minutes. An optional `for` may come before the
+  condition of `awaitFind` and `awaitFindAndSet`, and before the keys of the
+  other await commands.
 * Each command has a snake_case alias, such as `find_and_set` or
   `await_select_and_set`.
 * These commands read the present state, so a command-level timestamp is a

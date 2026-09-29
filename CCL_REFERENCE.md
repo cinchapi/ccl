@@ -1428,13 +1428,14 @@ get_and_set payload, owner where status = pending set status as claimed
 
 ### Await Operations
 
-An await command waits until at least one record matches its condition, or until
-its duration ends, and then runs its read, or its read and set. The `within`
-clause gives the duration as one quoted token: a positive integer, whitespace,
-and a unit. The units are `ms`, `millisecond`, `milliseconds`, `s`, `second`,
-`seconds`, `m`, `minute` and `minutes`, in any letter case. A zero, negative or
-fractional amount, a missing unit, and an unknown unit are syntax errors. The
-parser accepts any positive duration; the server enforces its own maximum.
+An await command waits until its read, with its order and page, has a non-empty
+result, or until its duration ends, and then runs its read, or its read and set.
+The `within` clause gives the duration as one quoted token: a positive integer,
+whitespace, and a unit. The units are `ms`, `millisecond`, `milliseconds`, `s`,
+`second`, `seconds`, `m`, `minute` and `minutes`, in any letter case. A zero,
+negative or fractional amount, a missing unit, and an unknown unit are syntax
+errors. The parser accepts any positive duration; the server enforces its own
+maximum.
 
 An optional `for` may come before the condition or the keys, and adds no
 meaning; it cannot come directly before `where`. Everything else after the

@@ -19,8 +19,8 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * A {@link CommandSymbol} for an AWAIT FIND command, which waits up to its
- * timeout for at least one record to match its condition and then finds the
- * matching records.
+ * timeout for its read, with its order and page, to have a non-empty result,
+ * and then finds the matching records.
  * <p>
  * The condition, order and page are children of the
  * {@link com.cinchapi.ccl.syntax.CommandTree CommandTree} whose root is this
@@ -53,8 +53,8 @@ public final class AwaitFindSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the longest time that the command may wait for a record to match
-     * its condition.
+     * Return the longest time that the command may wait for its read to have a
+     * non-empty result.
      *
      * @return the timeout in milliseconds
      */
