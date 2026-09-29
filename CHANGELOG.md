@@ -31,16 +31,20 @@ await operations, which wait for a read to have a result.
   condition, order and page are children of the tree, as they are for `find` and
   `select`. These symbols implement `equals` and `hashCode`, so equivalent
   statements parse to equal trees.
-* The new command names and their snake_case aliases are reserved words in any
-  letter case. A statement that uses one of them as an unquoted value no longer
-  parses; quote the value instead. A key with one of these names can no longer
-  appear on its own in a statement, because CCL has no quoted form for keys. It
-  still parses as a stop in a navigation key, such as `awaitGet.name`.
 
 ```
 findAndSet status = pending order by priority desc limit 1 set status as claimed
 awaitSelectAndSet within "30 seconds" payload where status = pending limit 1 set status as claimed
 ```
+
+##### API Breaks and Deprecations
+* The new command names and their snake_case aliases are reserved words in any
+  letter case. A statement that uses one of them as an unquoted value no longer
+  parses; quote the value instead. A key with one of these names can no longer
+  appear on its own in CCL text, because CCL has no quoted form for keys. It
+  still parses as a stop in a navigation key, such as `awaitGet.name`. To use
+  such a key in a condition, build the condition with
+  `Compiler#parse(List<Symbol>)`.
 
 ##### Bug Fixes
 * Fixed a bug that caused a command whose value was a function with a condition,
