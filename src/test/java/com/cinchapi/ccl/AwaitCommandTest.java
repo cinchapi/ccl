@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitFindAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitFindSymbol;
@@ -684,6 +685,41 @@ public class AwaitCommandTest {
                 "awaitGetAndSet within \"1 s\" age where a = 1 set b as 2",
                 "awaitGetAndSet within \"1 s\" name where a = 1 set c as 2",
                 "awaitGetAndSet within \"1 s\" name where a = 1 set b as 3");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the command names are reserved in any
+     * letter case, except as a stop in a navigation key.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Parse statements that use a command name as an unquoted value, a
+     * quoted value, a key and a navigation stop.</li>
+     * <li>Parse {@code AWAITFIND} and {@code awaitFind}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The unquoted values and the key fail with a
+     * {@link SyntaxException}; the quoted value is {@code awaitGet}; the key is
+     * the navigation key {@code awaitGet.name}; the two trees are equal.
+     */
+    @Test
+    public void testCommandNamesAreReservedExceptAsNavigationStop() {
+        assertRejected("find status = awaitFind", "AWAIT_FIND");
+        assertRejected("find status = FIND_AND_SET", "FIND_AND_SET");
+        assertRejected("select awaitGet where a = 1", "AWAIT_GET");
+        Assert.assertEquals(new ValueSymbol("awaitGet"),
+                ((AwaitFindAndSetSymbol) parse("awaitFindAndSet within "
+                        + "\"1 s\" a = 1 set b as \"awaitGet\"").root())
+                                .value());
+        Assert.assertEquals(
+                ImmutableList.of(new NavigationKeySymbol("awaitGet.name")),
+                ImmutableList.copyOf(((AwaitGetSymbol) parse("awaitGet "
+                        + "within \"1 s\" awaitGet.name where a = 1").root())
+                                .keys()));
+        Assert.assertEquals(parse("awaitFind within \"1 s\" a = 1"),
+                parse("AWAITFIND within \"1 s\" a = 1"));
     }
 
 }
