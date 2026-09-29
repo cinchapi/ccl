@@ -26,9 +26,10 @@ import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.google.common.collect.ImmutableList;
 
 /**
- * A {@link CommandSymbol} for a SELECT AND SET command, which selects keys from
- * the records that match its condition and sets its key to its value in each
- * record it selects.
+ * A {@link CommandSymbol} for a SELECT AND SET command. The command's read
+ * selects keys from the records that match its condition and applies its
+ * optional order and page. The command sets its key as its value in each record
+ * that the read returns. The read and the writes are one atomic operation.
  * <p>
  * The condition, order and page are children of the
  * {@link com.cinchapi.ccl.syntax.CommandTree CommandTree} whose root is this

@@ -1369,7 +1369,7 @@ Supported function names: `sum`, `avg`, `average`, `count`, `min`, `max` (and an
 ### Read and Set Operations
 
 A read and set command finds the records that match a condition, reads them, and
-sets a key to a value in each record it selects, as one atomic operation. The
+sets a key as a value in each record it selects, as one atomic operation. The
 read part follows the syntax of `find`, `select` or `get`, including the
 optional order and page. The command ends with a `set <key> as <value>` clause,
 which follows the key and value rules of the `set` command.
@@ -1379,7 +1379,7 @@ error. Each command also has a snake_case alias, such as `find_and_set`.
 
 #### FIND_AND_SET
 
-Find the matching records and set a key to a value in each record selected.
+Find the matching records and set a key as a value in each record selected.
 
 ```
 findAndSet <condition> [order] [page] set <key> as <value>
@@ -1393,7 +1393,7 @@ find_and_set age > 30 set group as senior
 
 #### SELECT_AND_SET
 
-Select keys from the matching records, then set a key to a value in each record
+Select keys from the matching records, then set a key as a value in each record
 selected. With no keys, the command selects every key.
 
 ```
@@ -1410,7 +1410,7 @@ select_and_set where status = pending set status as claimed
 
 #### GET_AND_SET
 
-Get keys from the matching records, then set a key to a value in each record
+Get keys from the matching records, then set a key as a value in each record
 selected. With no keys, the command gets every key.
 
 ```

@@ -6,7 +6,7 @@ CCL parses commands for Concourse's atomic read and set operations and for its
 await operations, which wait for a read to have a result.
 
 * `findAndSet`, `selectAndSet` and `getAndSet` find the records that match a
-  condition and set a key to a value in each record they select. The read part
+  condition and set a key as a value in each record they select. The read part
   follows the syntax of `find`, `select` and `get`, including the optional order
   and page, and the command ends with a `set <key> as <value>` clause.
 * `awaitFind`, `awaitSelect`, `awaitGet`, `awaitFindAndSet`, `awaitSelectAndSet`

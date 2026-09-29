@@ -23,8 +23,9 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 
 /**
- * A {@link CommandSymbol} for an AWAIT FIND AND SET command, which waits up to
- * its timeout for its read, with its order and page, to have a non-empty
+ * A {@link CommandSymbol} for an AWAIT FIND AND SET command. The command's read
+ * finds the records that match its condition and applies its optional order and
+ * page. The command waits up to its timeout for the read to have a non-empty
  * result, and then does what a {@link FindAndSetSymbol FIND AND SET} command
  * does.
  * <p>

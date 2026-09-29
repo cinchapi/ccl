@@ -18,9 +18,10 @@ package com.cinchapi.ccl.grammar.command;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A {@link CommandSymbol} for an AWAIT FIND command, which waits up to its
- * timeout for its read, with its order and page, to have a non-empty result,
- * and then finds the matching records.
+ * A {@link CommandSymbol} for an AWAIT FIND command. The command's read finds
+ * the records that match its condition and applies its optional order and page.
+ * The command waits up to its timeout for the read to have a non-empty result,
+ * and then runs the read.
  * <p>
  * The condition, order and page are children of the
  * {@link com.cinchapi.ccl.syntax.CommandTree CommandTree} whose root is this

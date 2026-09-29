@@ -25,9 +25,10 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.google.common.collect.ImmutableList;
 
 /**
- * A {@link CommandSymbol} for an AWAIT GET command, which waits up to its
- * timeout for its read, with its order and page, to have a non-empty result,
- * and then gets keys from the matching records.
+ * A {@link CommandSymbol} for an AWAIT GET command. The command's read gets
+ * keys from the records that match its condition and applies its optional order
+ * and page. The command waits up to its timeout for the read to have a
+ * non-empty result, and then runs the read.
  * <p>
  * The condition, order and page are children of the
  * {@link com.cinchapi.ccl.syntax.CommandTree CommandTree} whose root is this
