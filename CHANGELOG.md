@@ -1,5 +1,11 @@
 # Changelog
 
+#### Version 4.1.0 (TBD)
+##### Bug Fixes
+* Fixed a bug that caused a command whose value was a function with a condition,
+  such as `set b as avg(age, age > 30) in 1`, to parse to a `CommandTree` that
+  reported the function's condition as the command's condition.
+
 #### Version 4.0.0 (May 10, 2026)
 ##### Command Support
 The CCL grammar has been expanded to support parsing **Concourse commands** in addition to conditions, orders, and pages. A command string (e.g., `select name from 1 where age > 30`) is parsed into a `CommandTree` containing a `CommandSymbol` that represents the operation, along with optional `ConditionTree`, `OrderTree`, and `PageTree` children.

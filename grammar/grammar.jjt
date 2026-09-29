@@ -991,6 +991,12 @@ FunctionValueSymbol ValueFunction() :
      )
    |
      (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <COMMA> ccl=generateSubAST()
+     {
+       // The function holds its own condition, so the node for that condition
+       // must not become a child of the node that encloses the function, where
+       // it would read as that node's condition.
+       jjtree.popNode();
+     }
      (
         <CLOSE_PARENTHESES>
         {

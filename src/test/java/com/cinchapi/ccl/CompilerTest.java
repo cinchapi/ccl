@@ -30,6 +30,7 @@ import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.ScopedConditionTree;
 import com.cinchapi.ccl.grammar.command.SelectSymbol;
+import com.cinchapi.ccl.grammar.command.SetSymbol;
 import com.cinchapi.ccl.grammar.command.NavigateSymbol;
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
@@ -40,6 +41,7 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
@@ -1754,6 +1756,29 @@ public abstract class CompilerTest {
                 resolved instanceof String);
         Assert.assertTrue(resolved instanceof Number);
         Assert.assertEquals(42, ((Number) resolved).intValue());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a command whose value is a function
+     * with a condition has no condition of its own.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Parse {@code set b as avg(age, c > 1) in 1}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The {@link CommandTree} has no condition tree,
+     * and the value is a {@link FunctionValueSymbol}.
+     */
+    @Test
+    public void testCommandValueFunctionConditionIsNotCommandCondition() {
+        CommandTree tree = (CommandTree) createCompiler()
+                .parse("set b as avg(age, c > 1) in 1");
+        Assert.assertNull(tree.conditionTree());
+        Assert.assertTrue(((SetSymbol) tree.root())
+                .value() instanceof FunctionValueSymbol);
     }
 
 }
