@@ -53,6 +53,7 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.reflect.Reflection;
 import com.cinchapi.concourse.Tag;
@@ -1770,15 +1771,17 @@ public abstract class CompilerTest {
      * </ul>
      * <p>
      * <strong>Expected:</strong> The {@link CommandTree} has no condition tree,
-     * and the value is a {@link FunctionValueSymbol}.
+     * and the function's condition equals the tree for {@code c > 1}.
      */
     @Test
     public void testCommandValueFunctionConditionIsNotCommandCondition() {
         CommandTree tree = (CommandTree) createCompiler()
                 .parse("set b as avg(age, c > 1) in 1");
         Assert.assertNull(tree.conditionTree());
-        Assert.assertTrue(((SetSymbol) tree.root())
-                .value() instanceof FunctionValueSymbol);
+        FunctionValueSymbol value = (FunctionValueSymbol) ((SetSymbol) tree
+                .root()).value();
+        Assert.assertEquals(createCompiler().parse("c > 1"),
+                ((KeyConditionFunction) value.function()).source());
     }
 
 }
