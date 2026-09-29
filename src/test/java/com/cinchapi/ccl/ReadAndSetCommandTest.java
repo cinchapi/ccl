@@ -392,8 +392,9 @@ public class ReadAndSetCommandTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse statements that omit the set clause, its key, its
-     * {@code as}, or its value.</li>
+     * <li>Parse a statement with no set clause.</li>
+     * <li>Parse statements whose set clause lacks the {@code set} word, the
+     * key, the value, or both the {@code as} and the value.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each parse fails with a

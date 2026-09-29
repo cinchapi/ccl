@@ -107,15 +107,17 @@ public class AwaitCommandTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that the {@code within} clause accepts each
-     * unit and converts the duration to milliseconds.
+     * <strong>Goal:</strong> Verify that the {@code within} clause converts a
+     * duration in each unit to milliseconds, and accepts an upper case unit and
+     * extra whitespace.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Parse {@code awaitFind within "<duration>" a = 1} for each unit
-     * name, including an upper case unit.</li>
+     * name, for an upper case unit, and for a duration with extra spaces around
+     * and inside it.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> {@link AwaitFindSymbol#timeout()} is the
@@ -148,10 +150,14 @@ public class AwaitCommandTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code awaitFind} with a 19-digit duration that fits in a
-     * {@code long}, with {@link Long#MAX_VALUE} milliseconds, with a minute
-     * count whose milliseconds overflow a {@code long}, and with a 20-digit
-     * amount.</li>
+     * <li>Parse {@code awaitFind} with {@code "1000000000000000000 ms"}, which
+     * fits in a {@code long}.</li>
+     * <li>Parse {@code awaitFind} with {@code "9223372036854775807 ms"}, which
+     * is {@link Long#MAX_VALUE}.</li>
+     * <li>Parse {@code awaitFind} with {@code "200000000000000000 m"}, whose
+     * milliseconds overflow a {@code long}.</li>
+     * <li>Parse {@code awaitFind} with {@code "99999999999999999999 s"}, whose
+     * amount does not fit in a {@code long}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The timeouts are 10^18, then
@@ -695,14 +701,15 @@ public class AwaitCommandTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse statements that use a command name as an unquoted value, a
-     * quoted value, a key and a navigation stop.</li>
+     * <li>Parse statements that use a command name as an unquoted value, as a
+     * key, as a quoted value and as a stop in a navigation key.</li>
      * <li>Parse {@code AWAITFIND} and {@code awaitFind}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The unquoted values and the key fail with a
-     * {@link SyntaxException}; the quoted value is {@code awaitGet}; the key is
-     * the navigation key {@code awaitGet.name}; the two trees are equal.
+     * {@link SyntaxException} whose message names the command's token, such as
+     * {@code AWAIT_FIND}. The quoted value is {@code awaitGet}, the navigation
+     * key is {@code awaitGet.name}, and the two trees are equal.
      */
     @Test
     public void testCommandNamesAreReservedExceptAsNavigationStop() {

@@ -1760,14 +1760,15 @@ public abstract class CompilerTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that a command whose value is a function
-     * with a condition has no condition of its own.
+     * <strong>Goal:</strong> Verify that the condition inside a function value
+     * stays with the function and does not become the command's condition.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Parse {@code set b as avg(age, c > 1) in 1}.</li>
+     * <li>Parse {@code c > 1}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The {@link CommandTree} has no condition tree,
