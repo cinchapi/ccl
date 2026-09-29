@@ -535,8 +535,8 @@ audit 1 from "last month" to "today"
 
 The [read and set](#read-and-set-operations) and [await](#await-operations)
 commands read the present state, so a command-level timestamp is a syntax error
-for them. A timestamp that directly follows a comparison still belongs to that
-comparison, as it does in `find`.
+for them. An `at`, `on` or `during` clause that directly follows a comparison
+still belongs to that comparison, as it does in `find`.
 
 ### 8.6 Precedence: bracket beats trailing-`at`
 

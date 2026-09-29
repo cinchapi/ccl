@@ -5542,8 +5542,8 @@ KeyTokenSymbol.requireNotParameterized(key,
     throw new Error("Missing return statement in function");
 }
 
-// A timestamp that directly follows a comparison belongs to that comparison, so
-// this production only sees a command-level timestamp, such as an as-of clause
+// A comparison takes an at, on or during clause that directly follows it, so
+// this production sees only a command-level timestamp, such as an as-of clause
 // or an at clause after a closing parenthesis.
   final public void NoCommandTimestamp(String command) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {

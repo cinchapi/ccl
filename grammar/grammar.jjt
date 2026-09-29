@@ -2101,8 +2101,8 @@ long Within() : {
     { return Parsing.parseDurationMillis(duration.image); }
 }
 
-// A timestamp that directly follows a comparison belongs to that comparison, so
-// this production only sees a command-level timestamp, such as an as-of clause
+// A comparison takes an at, on or during clause that directly follows it, so
+// this production sees only a command-level timestamp, such as an as-of clause
 // or an at clause after a closing parenthesis.
 void NoCommandTimestamp(String command) : {}
 {
