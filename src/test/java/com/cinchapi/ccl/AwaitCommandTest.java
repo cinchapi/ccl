@@ -830,7 +830,7 @@ public class AwaitCommandTest {
     @Test
     public void testCommandNamesAreReservedExceptAsNavigationStop() {
         assertRejected("find status = awaitFind", "AWAIT_FIND");
-        assertRejected("find status = FIND_AND_SET", "FIND_AND_SET");
+        assertRejected("find status = Find_And_Set", "FIND_AND_SET");
         assertRejected("select awaitGet where a = 1", "AWAIT_GET");
         Assert.assertEquals(new ValueSymbol("awaitGet"),
                 ((AwaitFindAndSetSymbol) parse("awaitFindAndSet within "

@@ -140,15 +140,17 @@ public class ReadAndSetCommandTest {
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Parse {@code findAndSet a = 1 set b as 2}.</li>
+     * <li>Parse {@code find a = 1}.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The tree has a condition, no order and no
-     * page.
+     * <strong>Expected:</strong> The condition equals that of
+     * {@code find a = 1}, and the tree has no order and no page.
      */
     @Test
     public void testFindAndSetWithoutOrderOrPageHasOnlyCondition() {
         CommandTree tree = parse("findAndSet a = 1 set b as 2");
-        Assert.assertNotNull(tree.conditionTree());
+        Assert.assertEquals(parse("find a = 1").conditionTree(),
+                tree.conditionTree());
         Assert.assertNull(tree.orderTree());
         Assert.assertNull(tree.pageTree());
     }
