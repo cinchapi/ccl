@@ -600,6 +600,40 @@ public class AwaitCommandTest {
     }
 
     /**
+     * <strong>Goal:</strong> Verify that an {@code at} directly after a
+     * comparison stays part of the condition in each await command, as it
+     * does for {@code find}.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Parse {@code find a = 1 at 123}.</li>
+     * <li>Parse each await command with {@code a = 1 at 123} as its
+     * condition.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The children of each await tree equal those
+     * of the {@code find} tree.
+     */
+    @Test
+    public void testTrailingAtAfterComparisonStaysInCondition() {
+        String within = " within \"1 s\" ";
+        for (String ccl : ImmutableList.of(
+                "awaitFind" + within + "a = 1 at 123",
+                "awaitSelect" + within + "where a = 1 at 123",
+                "awaitGet" + within + "name where a = 1 at 123",
+                "awaitFindAndSet" + within + "a = 1 at 123 set b as 2",
+                "awaitSelectAndSet" + within
+                        + "where a = 1 at 123 set b as 2",
+                "awaitGetAndSet" + within
+                        + "name where a = 1 at 123 set b as 2")) {
+            Assert.assertEquals(ccl, parse("find a = 1 at 123").children(),
+                    parse(ccl).children());
+        }
+    }
+
+    /**
      * <strong>Goal:</strong> Verify that {@code for} may not stand directly
      * before {@code where}.
      * <p>

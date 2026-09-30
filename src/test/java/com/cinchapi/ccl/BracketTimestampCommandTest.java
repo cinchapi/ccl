@@ -22,6 +22,7 @@ import java.util.function.Function;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
@@ -317,6 +318,38 @@ public class BracketTimestampCommandTest {
                 "awaitGet within \"1 s\" name[%d] where a = 1", T),
                 AwaitGetSymbol.class);
         assertTemporalKey(awaitGet.keys().iterator().next(), "name", T);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the condition of a read-and-set or
+     * await command accepts a bracket timestamp, as the condition of
+     * {@code find} does.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Parse a {@code findAndSet} statement with a bracket timestamp on
+     * the key in its condition.</li>
+     * <li>Parse an {@code awaitGet} statement with a bracket timestamp on the
+     * key in its condition.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The key in each condition is a
+     * {@link TemporalKeySymbol} for {@code name} at {@code T}.
+     */
+    @Test
+    public void testConditionsOfReadAndSetAndAwaitAcceptBrackets() {
+        CommandTree findAndSet = (CommandTree) compiler().parse(String.format(
+                "findAndSet name[%d] = \"jeff\" set b as 2", T));
+        assertTemporalKey(
+                ((ExpressionSymbol) findAndSet.conditionTree().root()).key(),
+                "name", T);
+        CommandTree awaitGet = (CommandTree) compiler().parse(String.format(
+                "awaitGet within \"1 s\" where name[%d] = \"jeff\"", T));
+        assertTemporalKey(
+                ((ExpressionSymbol) awaitGet.conditionTree().root()).key(),
+                "name", T);
     }
 
     @Test

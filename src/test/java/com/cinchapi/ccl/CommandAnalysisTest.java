@@ -423,6 +423,43 @@ public class CommandAnalysisTest {
                 get.storageKeys());
     }
 
+    /**
+     * <strong>Goal:</strong> Verify that the analysis of a read-and-set or
+     * await command that reads every key reports the keys in its condition and
+     * the key it sets.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Analyze each read-and-set and await command that lists no keys to
+     * read, with the condition {@code a = 1} and, where the command has one,
+     * the set clause {@code set b as 2}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The storage keys are {@code a} and {@code b}
+     * for each command with a set clause, and {@code a} for each command
+     * without one.
+     */
+    @Test
+    public void testCommandsThatReadEveryKeyReportConditionAndSetKeys() {
+        String within = " within \"1 s\" ";
+        Assert.assertEquals(ImmutableSet.of("a", "b"),
+                analyze("selectAndSet where a = 1 set b as 2").storageKeys());
+        Assert.assertEquals(ImmutableSet.of("a", "b"),
+                analyze("getAndSet where a = 1 set b as 2").storageKeys());
+        Assert.assertEquals(ImmutableSet.of("a"),
+                analyze("awaitSelect" + within + "where a = 1").storageKeys());
+        Assert.assertEquals(ImmutableSet.of("a"),
+                analyze("awaitGet" + within + "where a = 1").storageKeys());
+        Assert.assertEquals(ImmutableSet.of("a", "b"),
+                analyze("awaitSelectAndSet" + within
+                        + "where a = 1 set b as 2").storageKeys());
+        Assert.assertEquals(ImmutableSet.of("a", "b"),
+                analyze("awaitGetAndSet" + within + "where a = 1 set b as 2")
+                        .storageKeys());
+    }
+
     private CommandAnalysis analyze(String ccl) {
         Compiler compiler = Compiler.create(VALUE_FN, OP_FN);
         CommandTree tree = (CommandTree) compiler.parse(ccl);
