@@ -15,8 +15,8 @@
  */
 package com.cinchapi.ccl;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.time.Duration;
+import java.util.Locale;
 import java.util.function.Function;
 
 import org.junit.Assert;
@@ -35,7 +35,6 @@ import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Coverage for the {@code await} commands: the duration of the {@code within}
@@ -107,76 +106,143 @@ public class AwaitCommandTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that the {@code within} clause converts a
-     * duration in each unit to milliseconds, and accepts an upper case unit and
-     * extra whitespace.
+     * Return the timeout of {@code awaitFind} with {@code duration} as its
+     * {@code within} duration.
+     *
+     * @param duration the text between the quotes of the {@code within} clause
+     * @return {@link AwaitFindSymbol#timeout()}
+     */
+    private static Duration timeout(String duration) {
+        return ((AwaitFindSymbol) parse(
+                "awaitFind within \"" + duration + "\" a = 1").root())
+                        .timeout();
+    }
+
+    /**
+     * Assert that a duration of {@code amount} and each of {@code names} is
+     * {@code expected}, with a space between the amount and the name, without
+     * one, and with the name in upper case.
+     *
+     * @param amount the amount in each duration
+     * @param expected the timeout each duration must parse to
+     * @param names the names of one unit
+     */
+    private static void assertEachUnitName(String amount, Duration expected,
+            String... names) {
+        for (String name : names) {
+            for (String duration : ImmutableList.of(amount + " " + name,
+                    amount + name,
+                    amount + " " + name.toUpperCase(Locale.ROOT))) {
+                Assert.assertEquals(duration, expected, timeout(duration));
+            }
+        }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the {@code within} clause accepts each
+     * name of each unit, with or without a space before the name, in any letter
+     * case, and with extra whitespace.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code awaitFind within "<duration>" a = 1} for each unit
-     * name, for an upper case unit, and for a duration with extra spaces around
-     * and inside it.</li>
+     * <li>For each unit, parse {@code awaitFind} with a duration of 2 and each
+     * name of the unit, written with a space, without one, and in upper
+     * case.</li>
+     * <li>Parse {@code awaitFind} with {@code " 4 \t  s "}.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> {@link AwaitFindSymbol#timeout()} is the
-     * duration in milliseconds, worked out by hand for each case.
+     * <strong>Expected:</strong> {@link AwaitFindSymbol#timeout()} is two of
+     * each unit, worked out by hand, with a month of 2,629,746 seconds and a
+     * year of 31,556,952 seconds. The duration with extra whitespace is 4
+     * seconds.
      */
     @Test
-    public void testWithinAcceptsEachUnitAsMilliseconds() {
-        Map<String, Long> expected = ImmutableMap.<String, Long> builder()
-                .put("7 ms", 7L).put("7 millisecond", 7L)
-                .put("7 milliseconds", 7L).put("2 s", 2000L)
-                .put("2 second", 2000L).put("2 seconds", 2000L)
-                .put("3 m", 180000L).put("3 minute", 180000L)
-                .put("3 minutes", 180000L).put("2 SECONDS", 2000L)
-                .put(" 4   s ", 4000L).build();
-        for (Entry<String, Long> entry : expected.entrySet()) {
-            AwaitFindSymbol symbol = (AwaitFindSymbol) parse(
-                    "awaitFind within \"" + entry.getKey() + "\" a = 1")
-                            .root();
-            Assert.assertEquals(entry.getKey(), (long) entry.getValue(),
-                    symbol.timeout());
-        }
+    public void testWithinAcceptsEachUnitNameInAnyForm() {
+        assertEachUnitName("2", Duration.ofNanos(2), "ns", "nsec", "nsecs",
+                "nano", "nanos", "nanosecond", "nanoseconds");
+        assertEachUnitName("2", Duration.ofNanos(2000), "us", "\u00b5s",
+                "\u03bcs", "usec", "usecs", "micro", "micros", "microsecond",
+                "microseconds");
+        assertEachUnitName("2", Duration.ofMillis(2), "ms", "msec", "msecs",
+                "milli", "millis", "millisecond", "milliseconds");
+        assertEachUnitName("2", Duration.ofSeconds(2), "s", "sec", "secs",
+                "second", "seconds");
+        assertEachUnitName("2", Duration.ofMinutes(2), "m", "min", "mins",
+                "minute", "minutes");
+        assertEachUnitName("2", Duration.ofHours(2), "h", "hr", "hrs", "hour",
+                "hours");
+        assertEachUnitName("2", Duration.ofDays(2), "d", "day", "days");
+        assertEachUnitName("2", Duration.ofDays(14), "w", "wk", "wks", "week",
+                "weeks");
+        assertEachUnitName("2", Duration.ofSeconds(5259492), "mo", "mos",
+                "month", "months");
+        assertEachUnitName("2", Duration.ofSeconds(63113904), "y", "yr",
+                "yrs", "year", "years");
+        Assert.assertEquals(Duration.ofSeconds(4), timeout(" 4 \t  s "));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that a decimal amount keeps its exact value
+     * down to the nanosecond, and that any fraction of a nanosecond is dropped.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Parse {@code awaitFind} with {@code "1.5 s"}, {@code "0.5m"},
+     * {@code "1.25 h"} and {@code "2.5 us"}.</li>
+     * <li>Parse {@code awaitFind} with {@code "1.9 ns"} and
+     * {@code "1.0000000005 s"}, which each end in a fraction of a
+     * nanosecond.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The timeouts are 1500 milliseconds, 30
+     * seconds, 75 minutes and 2500 nanoseconds, then 1 nanosecond and 1 second.
+     */
+    @Test
+    public void testWithinKeepsDecimalAmountsToTheNanosecond() {
+        Assert.assertEquals(Duration.ofMillis(1500), timeout("1.5 s"));
+        Assert.assertEquals(Duration.ofSeconds(30), timeout("0.5m"));
+        Assert.assertEquals(Duration.ofMinutes(75), timeout("1.25 h"));
+        Assert.assertEquals(Duration.ofNanos(2500), timeout("2.5 us"));
+        Assert.assertEquals(Duration.ofNanos(1), timeout("1.9 ns"));
+        Assert.assertEquals(Duration.ofSeconds(1),
+                timeout("1.0000000005 s"));
     }
 
     /**
      * <strong>Goal:</strong> Verify that the parser accepts a positive duration
      * of any length, and that a duration longer than {@link Long#MAX_VALUE}
-     * milliseconds resolves to {@link Long#MAX_VALUE}.
+     * milliseconds resolves to {@link Long#MAX_VALUE} milliseconds.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code awaitFind} with {@code "1000000000000000000 ms"}, which
-     * fits in a {@code long}.</li>
+     * <li>Parse {@code awaitFind} with {@code "1000000000000000000 ms"}.</li>
      * <li>Parse {@code awaitFind} with {@code "9223372036854775807 ms"}, which
-     * is {@link Long#MAX_VALUE}.</li>
+     * is {@link Long#MAX_VALUE} milliseconds, and with
+     * {@code "9223372036854775808 ms"}, which is 1 millisecond more.</li>
      * <li>Parse {@code awaitFind} with {@code "200000000000000000 m"}, whose
      * milliseconds overflow a {@code long}.</li>
      * <li>Parse {@code awaitFind} with {@code "99999999999999999999 s"}, whose
      * amount does not fit in a {@code long}.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The timeouts are 10^18, then
-     * {@link Long#MAX_VALUE} for each of the other three.
+     * <strong>Expected:</strong> The first timeout is 10^18 milliseconds, and
+     * each of the others is {@link Long#MAX_VALUE} milliseconds.
      */
     @Test
     public void testWithinAcceptsVeryLongDurations() {
-        Map<String, Long> expected = ImmutableMap.<String, Long> builder()
-                .put("1000000000000000000 ms", 1000000000000000000L)
-                .put("9223372036854775807 ms", Long.MAX_VALUE)
-                .put("200000000000000000 m", Long.MAX_VALUE)
-                .put("99999999999999999999 s", Long.MAX_VALUE).build();
-        for (Entry<String, Long> entry : expected.entrySet()) {
-            AwaitFindSymbol symbol = (AwaitFindSymbol) parse(
-                    "awaitFind within \"" + entry.getKey() + "\" a = 1")
-                            .root();
-            Assert.assertEquals(entry.getKey(), (long) entry.getValue(),
-                    symbol.timeout());
-        }
+        Assert.assertEquals(Duration.ofMillis(1000000000000000000L),
+                timeout("1000000000000000000 ms"));
+        Duration max = Duration.ofMillis(Long.MAX_VALUE);
+        Assert.assertEquals(max, timeout("9223372036854775807 ms"));
+        Assert.assertEquals(max, timeout("9223372036854775808 ms"));
+        Assert.assertEquals(max, timeout("200000000000000000 m"));
+        Assert.assertEquals(max, timeout("99999999999999999999 s"));
     }
 
     /**
@@ -194,8 +260,8 @@ public class AwaitCommandTest {
      * </ul>
      * <p>
      * <strong>Expected:</strong> The root is an {@link AwaitFindSymbol} with a
-     * timeout of 5000, the two {@code awaitFind} trees are equal, and their
-     * children equal those of the {@code find} tree.
+     * timeout of 5 seconds, the two {@code awaitFind} trees are equal, and
+     * their children equal those of the {@code find} tree.
      */
     @Test
     public void testAwaitFindKeepsConditionOrderAndPageLikeFind() {
@@ -203,7 +269,7 @@ public class AwaitCommandTest {
                 + "status = pending order by priority desc skip 2 limit 1");
         AwaitFindSymbol symbol = (AwaitFindSymbol) tree.root();
         Assert.assertEquals("AWAIT_FIND", symbol.type());
-        Assert.assertEquals(5000, symbol.timeout());
+        Assert.assertEquals(Duration.ofSeconds(5), symbol.timeout());
         Assert.assertEquals(tree, parse("awaitFind within \"5 s\" "
                 + "status = pending order by priority desc skip 2 limit 1"));
         Assert.assertEquals(parse("find status = pending "
@@ -226,8 +292,8 @@ public class AwaitCommandTest {
      * </ul>
      * <p>
      * <strong>Expected:</strong> The keys are {@code [name, age]}, the timeout
-     * is 1000, the two {@code awaitSelect} trees are equal, and their children
-     * equal those of the {@code select} tree.
+     * is 1 second, the two {@code awaitSelect} trees are equal, and their
+     * children equal those of the {@code select} tree.
      */
     @Test
     public void testAwaitSelectReadsListedKeysAndKeepsChildrenLikeSelect() {
@@ -235,7 +301,7 @@ public class AwaitCommandTest {
                 + "[name, age] where a = 1 order by name limit 5");
         AwaitSelectSymbol symbol = (AwaitSelectSymbol) tree.root();
         Assert.assertEquals("AWAIT_SELECT", symbol.type());
-        Assert.assertEquals(1000, symbol.timeout());
+        Assert.assertEquals(Duration.ofSeconds(1), symbol.timeout());
         Assert.assertEquals(
                 ImmutableList.of(new KeySymbol("name"), new KeySymbol("age")),
                 ImmutableList.copyOf(symbol.keys()));
@@ -282,9 +348,9 @@ public class AwaitCommandTest {
      * <li>Parse the matching {@code get} statement.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The keys are {@code [name]}, the timeout is
-     * 60000, the two {@code awaitGet} trees are equal, and their children equal
-     * those of the {@code get} tree.
+     * <strong>Expected:</strong> The keys are {@code [name]}, the timeout is 1
+     * minute, the two {@code awaitGet} trees are equal, and their children
+     * equal those of the {@code get} tree.
      */
     @Test
     public void testAwaitGetReadsListedKeysAndKeepsChildrenLikeGet() {
@@ -292,7 +358,7 @@ public class AwaitCommandTest {
                 + "where a = 1 order by name limit 5");
         AwaitGetSymbol symbol = (AwaitGetSymbol) tree.root();
         Assert.assertEquals("AWAIT_GET", symbol.type());
-        Assert.assertEquals(60000, symbol.timeout());
+        Assert.assertEquals(Duration.ofMinutes(1), symbol.timeout());
         Assert.assertEquals(ImmutableList.of(new KeySymbol("name")),
                 ImmutableList.copyOf(symbol.keys()));
         Assert.assertEquals(tree, parse("awaitGet within \"1 minute\" name "
@@ -336,7 +402,7 @@ public class AwaitCommandTest {
      * <li>Parse the matching {@code find} statement.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The timeout is 30000, the key is
+     * <strong>Expected:</strong> The timeout is 30 seconds, the key is
      * {@code status}, the value is {@code claimed}, the two
      * {@code awaitFindAndSet} trees are equal, and their children equal those
      * of the {@code find} tree.
@@ -348,7 +414,7 @@ public class AwaitCommandTest {
                 + "set status as claimed");
         AwaitFindAndSetSymbol symbol = (AwaitFindAndSetSymbol) tree.root();
         Assert.assertEquals("AWAIT_FIND_AND_SET", symbol.type());
-        Assert.assertEquals(30000, symbol.timeout());
+        Assert.assertEquals(Duration.ofSeconds(30), symbol.timeout());
         Assert.assertEquals(new KeySymbol("status"), symbol.key());
         Assert.assertEquals(new ValueSymbol("claimed"), symbol.value());
         Assert.assertEquals(tree,
@@ -377,9 +443,9 @@ public class AwaitCommandTest {
      * </ul>
      * <p>
      * <strong>Expected:</strong> The keys are {@code [payload]}, the timeout is
-     * 500, the set clause is {@code status} as {@code claimed}, the two keyed
-     * trees are equal, their children equal those of the {@code select} tree,
-     * and the form with no keys has {@code null} keys.
+     * 500 milliseconds, the set clause is {@code status} as {@code claimed},
+     * the two keyed trees are equal, their children equal those of the
+     * {@code select} tree, and the form with no keys has {@code null} keys.
      */
     @Test
     public void testAwaitSelectAndSetExposesTimeoutKeysAndSetClause() {
@@ -389,7 +455,7 @@ public class AwaitCommandTest {
         AwaitSelectAndSetSymbol symbol = (AwaitSelectAndSetSymbol) tree
                 .root();
         Assert.assertEquals("AWAIT_SELECT_AND_SET", symbol.type());
-        Assert.assertEquals(500, symbol.timeout());
+        Assert.assertEquals(Duration.ofMillis(500), symbol.timeout());
         Assert.assertEquals(ImmutableList.of(new KeySymbol("payload")),
                 ImmutableList.copyOf(symbol.keys()));
         Assert.assertEquals(new KeySymbol("status"), symbol.key());
@@ -423,9 +489,10 @@ public class AwaitCommandTest {
      * </ul>
      * <p>
      * <strong>Expected:</strong> The keys are {@code [payload, owner]}, the
-     * timeout is 120000, the set clause is {@code status} as {@code claimed},
-     * the two keyed trees are equal, their children equal those of the
-     * {@code get} tree, and the form with no keys has {@code null} keys.
+     * timeout is 2 minutes, the set clause is {@code status} as
+     * {@code claimed}, the two keyed trees are equal, their children equal
+     * those of the {@code get} tree, and the form with no keys has {@code null}
+     * keys.
      */
     @Test
     public void testAwaitGetAndSetExposesTimeoutKeysAndSetClause() {
@@ -434,7 +501,7 @@ public class AwaitCommandTest {
                 + "set status as claimed");
         AwaitGetAndSetSymbol symbol = (AwaitGetAndSetSymbol) tree.root();
         Assert.assertEquals("AWAIT_GET_AND_SET", symbol.type());
-        Assert.assertEquals(120000, symbol.timeout());
+        Assert.assertEquals(Duration.ofMinutes(2), symbol.timeout());
         Assert.assertEquals(
                 ImmutableList.of(new KeySymbol("payload"),
                         new KeySymbol("owner")),
@@ -498,17 +565,21 @@ public class AwaitCommandTest {
      * <ul>
      * <li>Parse {@code awaitFind} with {@code "2 s"} and with
      * {@code "2000 ms"}.</li>
+     * <li>Parse {@code awaitFind} with {@code "0.5 s"} and with
+     * {@code "500000us"}.</li>
      * <li>Parse {@code awaitFind} with {@code "2 s"} and with
      * {@code "3 s"}.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The first pair is equal and the second pair is
-     * not.
+     * <strong>Expected:</strong> The first two pairs are equal and the third
+     * pair is not.
      */
     @Test
     public void testEqualDurationsParseToEqualTrees() {
         Assert.assertEquals(parse("awaitFind within \"2 s\" a = 1"),
                 parse("awaitFind within \"2000 ms\" a = 1"));
+        Assert.assertEquals(parse("awaitFind within \"0.5 s\" a = 1"),
+                parse("awaitFind within \"500000us\" a = 1"));
         Assert.assertNotEquals(parse("awaitFind within \"2 s\" a = 1"),
                 parse("awaitFind within \"3 s\" a = 1"));
     }
@@ -541,16 +612,18 @@ public class AwaitCommandTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that a duration that is not a positive
-     * integer followed by a known unit is a syntax error that names the
+     * <strong>Goal:</strong> Verify that a duration that is not one amount and
+     * one known unit of at least 1 nanosecond is a syntax error that names the
      * duration.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code awaitFind} with a zero, negative, fractional,
-     * unit-less, amount-less and unknown-unit duration.</li>
+     * <li>Parse {@code awaitFind} with a zero duration, a duration shorter
+     * than 1 nanosecond, a signed amount, an amount with no leading digit, no
+     * unit, no amount, an unknown unit, a repeated unit, two units, and an
+     * amount with a digit separator.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each parse fails with a
@@ -558,8 +631,9 @@ public class AwaitCommandTest {
      */
     @Test
     public void testRejectsMalformedDuration() {
-        for (String duration : ImmutableList.of("0 s", "-1 s", "1.5 s", "5",
-                "s", "5 hours")) {
+        for (String duration : ImmutableList.of("0 s", "0.5 ns", "0.0001 us",
+                "-1 s", "+1 s", ".5 s", "5", "s", "5 fortnights", "5 s s",
+                "1h 30m", "1,000 ms")) {
             assertRejected("awaitFind within \"" + duration + "\" a = 1",
                     "but got \"" + duration + "\"");
         }
@@ -601,8 +675,8 @@ public class AwaitCommandTest {
 
     /**
      * <strong>Goal:</strong> Verify that an {@code at} directly after a
-     * comparison stays part of the condition in each await command, as it
-     * does for {@code find}.
+     * comparison stays part of the condition in each await command, as it does
+     * for {@code find}.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
@@ -613,8 +687,8 @@ public class AwaitCommandTest {
      * condition.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The children of each await tree equal those
-     * of the {@code find} tree.
+     * <strong>Expected:</strong> The children of each await tree equal those of
+     * the {@code find} tree.
      */
     @Test
     public void testTrailingAtAfterComparisonStaysInCondition() {

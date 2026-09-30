@@ -1430,12 +1430,30 @@ get_and_set payload, owner where status = pending set status as claimed
 
 An await command waits until its read, with its order and page, has a non-empty
 result, or until its duration ends, and then runs its read, or its read and set.
-The `within` clause gives the duration as one quoted token: a positive integer,
-whitespace, and a unit. The units are `ms`, `millisecond`, `milliseconds`, `s`,
-`second`, `seconds`, `m`, `minute` and `minutes`, in any letter case. A zero,
-negative or fractional amount, a missing unit, and an unknown unit are syntax
-errors. The parser accepts any positive duration; the server enforces its own
-maximum.
+The `within` clause gives the duration as one quoted token: a whole or decimal
+amount, optional whitespace, and one unit name in any letter case, such as
+`"30 seconds"`, `"500ms"` or `"1.5 h"`.
+
+| Unit | Names |
+|------|-------|
+| nanoseconds | `ns`, `nsec`, `nsecs`, `nano`, `nanos`, `nanosecond`, `nanoseconds` |
+| microseconds | `us`, `µs`, `usec`, `usecs`, `micro`, `micros`, `microsecond`, `microseconds` |
+| milliseconds | `ms`, `msec`, `msecs`, `milli`, `millis`, `millisecond`, `milliseconds` |
+| seconds | `s`, `sec`, `secs`, `second`, `seconds` |
+| minutes | `m`, `min`, `mins`, `minute`, `minutes` |
+| hours | `h`, `hr`, `hrs`, `hour`, `hours` |
+| days | `d`, `day`, `days` |
+| weeks | `w`, `wk`, `wks`, `week`, `weeks` |
+| months | `mo`, `mos`, `month`, `months` |
+| years | `y`, `yr`, `yrs`, `year`, `years` |
+
+`m` means minutes and `mo` means months. `µs` may use the micro sign or the
+Greek letter mu. A year is 365.2425 days, the average Gregorian year, and a
+month is one twelfth of a year. The duration keeps its exact value down to the
+nanosecond and drops any smaller fraction. A duration shorter than 1 nanosecond,
+a zero or negative amount, a missing or unknown unit, and more than one unit,
+such as `"1h 30m"`, are syntax errors. The parser accepts any longer duration;
+the server enforces its own maximum.
 
 An optional `for` may come before the condition or the keys, and adds no
 meaning; it cannot come directly before `where`. Everything else after the
@@ -1793,7 +1811,7 @@ await commands have these symbols:
 | `AwaitSelectAndSetSymbol` | `AWAIT_SELECT_AND_SET` | `timeout()`, `keys()`, `key()`, `value()` |
 | `AwaitGetAndSetSymbol` | `AWAIT_GET_AND_SET` | `timeout()`, `keys()`, `key()`, `value()` |
 
-- `timeout()` is the `within` duration in milliseconds.
+- `timeout()` is the `within` duration as a `java.time.Duration`.
 - `keys()` holds the keys to read, and is `null` when the command reads every
   key.
 - `key()` and `value()` are the key and value of the `set` clause.

@@ -15,6 +15,8 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
+import java.time.Duration;
+
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -34,17 +36,16 @@ import javax.annotation.concurrent.Immutable;
 public final class AwaitFindSymbol implements CommandSymbol {
 
     /**
-     * The longest time, in milliseconds, that the command may wait.
+     * The longest time that the command may wait.
      */
-    private final long timeout;
+    private final Duration timeout;
 
     /**
      * Construct a new instance.
      *
-     * @param timeout the longest time, in milliseconds, that the command may
-     *            wait
+     * @param timeout the longest time that the command may wait
      */
-    public AwaitFindSymbol(long timeout) {
+    public AwaitFindSymbol(Duration timeout) {
         this.timeout = timeout;
     }
 
@@ -57,16 +58,16 @@ public final class AwaitFindSymbol implements CommandSymbol {
      * Return the longest time that the command may wait for its read to have a
      * non-empty result.
      *
-     * @return the timeout in milliseconds
+     * @return the timeout
      */
-    public long timeout() {
+    public Duration timeout() {
         return timeout;
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof AwaitFindSymbol) {
-            return timeout == ((AwaitFindSymbol) obj).timeout;
+            return timeout.equals(((AwaitFindSymbol) obj).timeout);
         }
         else {
             return false;
@@ -75,7 +76,7 @@ public final class AwaitFindSymbol implements CommandSymbol {
 
     @Override
     public int hashCode() {
-        return Long.hashCode(timeout);
+        return timeout.hashCode();
     }
 
 }

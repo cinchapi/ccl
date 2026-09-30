@@ -13,10 +13,10 @@ await operations, which wait for a read to have a result.
   and `awaitGetAndSet` wait up to the duration in their `within` clause for the
   read, with its order and page, to have a non-empty result. Then they run the
   same read, or read and set, as the command without `await`. The duration is
-  one quoted token, such as `"30 seconds"` or `"500 ms"`, with a unit of
-  milliseconds, seconds or minutes. An optional `for` may come before the
-  condition of `awaitFind` and `awaitFindAndSet`, and before the keys of the
-  other await commands.
+  one quoted token with a whole or decimal amount and a unit from nanoseconds to
+  years, such as `"30 seconds"`, `"500ms"` or `"1.5 h"`. An optional `for` may
+  come before the condition of `awaitFind` and `awaitFindAndSet`, and before the
+  keys of the other await commands.
 * Each command has a snake_case alias, such as `find_and_set` or
   `await_select_and_set`.
 * These commands read the present state, so a command-level timestamp is a
@@ -26,11 +26,11 @@ await operations, which wait for a read to have a result.
   `FindAndSetSymbol`, `SelectAndSetSymbol`, `GetAndSetSymbol`,
   `AwaitFindSymbol`, `AwaitSelectSymbol`, `AwaitGetSymbol`,
   `AwaitFindAndSetSymbol`, `AwaitSelectAndSetSymbol` or `AwaitGetAndSetSymbol`.
-  The await symbols expose the duration in milliseconds through `timeout()`, and
-  the set symbols expose the `set` clause through `key()` and `value()`. The
-  condition, order and page are children of the tree, as they are for `find` and
-  `select`. These symbols implement `equals` and `hashCode`, so equivalent
-  statements parse to equal trees.
+  The await symbols expose the duration as a `java.time.Duration` through
+  `timeout()`, and the set symbols expose the `set` clause through `key()` and
+  `value()`. The condition, order and page are children of the tree, as they are
+  for `find` and `select`. These symbols implement `equals` and `hashCode`, so
+  equivalent statements parse to equal trees.
 
 ```
 findAndSet status = pending order by priority desc limit 1 set status as claimed

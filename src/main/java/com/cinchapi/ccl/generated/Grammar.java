@@ -32,6 +32,7 @@ import com.cinchapi.ccl.util.NaturalLanguage;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -5131,7 +5132,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     throw new Error("Missing return statement in function");
 }
 
-  final public CommandSymbol AwaitFindCommand() throws ParseException {long timeout;
+  final public CommandSymbol AwaitFindCommand() throws ParseException {Duration timeout;
     jj_consume_token(AWAIT_FIND);
     timeout = Within();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -5178,7 +5179,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     throw new Error("Missing return statement in function");
 }
 
-  final public CommandSymbol AwaitSelectCommand() throws ParseException {long timeout;
+  final public CommandSymbol AwaitSelectCommand() throws ParseException {Duration timeout;
     Collection<KeyTokenSymbol<?>> keys = null;
     jj_consume_token(AWAIT_SELECT);
     timeout = Within();
@@ -5249,7 +5250,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     throw new Error("Missing return statement in function");
 }
 
-  final public CommandSymbol AwaitGetCommand() throws ParseException {long timeout;
+  final public CommandSymbol AwaitGetCommand() throws ParseException {Duration timeout;
     Collection<KeyTokenSymbol<?>> keys = null;
     jj_consume_token(AWAIT_GET);
     timeout = Within();
@@ -5320,7 +5321,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     throw new Error("Missing return statement in function");
 }
 
-  final public CommandSymbol AwaitFindAndSetCommand() throws ParseException {long timeout;
+  final public CommandSymbol AwaitFindAndSetCommand() throws ParseException {Duration timeout;
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value;
     jj_consume_token(AWAIT_FIND_AND_SET);
@@ -5375,7 +5376,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     throw new Error("Missing return statement in function");
 }
 
-  final public CommandSymbol AwaitSelectAndSetCommand() throws ParseException {long timeout;
+  final public CommandSymbol AwaitSelectAndSetCommand() throws ParseException {Duration timeout;
     Collection<KeyTokenSymbol<?>> keys = null;
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value;
@@ -5454,7 +5455,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     throw new Error("Missing return statement in function");
 }
 
-  final public CommandSymbol AwaitGetAndSetCommand() throws ParseException {long timeout;
+  final public CommandSymbol AwaitGetAndSetCommand() throws ParseException {Duration timeout;
     Collection<KeyTokenSymbol<?>> keys = null;
     KeyTokenSymbol<?> key;
     ValueTokenSymbol<?> value;
@@ -5535,10 +5536,10 @@ KeyTokenSymbol.requireNotParameterized(key,
 
 // The duration is one quoted token, so no word inside it can be mistaken for
 // the start of the condition that follows.
-  final public long Within() throws ParseException {Token duration;
+  final public Duration Within() throws ParseException {Token duration;
     jj_consume_token(WITHIN);
     duration = jj_consume_token(QUOTED_STRING);
-{if ("" != null) return Parsing.parseDurationMillis(duration.image);}
+{if ("" != null) return Parsing.parseDuration(duration.image);}
     throw new Error("Missing return statement in function");
 }
 
@@ -6349,31 +6350,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     try { return (!jj_3_72()); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(71, xla); }
-  }
-
-  private boolean jj_3R_23()
- {
-    if (jj_3R_70()) return true;
-    return false;
-  }
-
-  private boolean jj_3_70()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(49)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(46)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(48)) return true;
-    }
-    }
-    xsp = jj_scanpos;
-    if (jj_scan_token(62)) {
-    jj_scanpos = xsp;
-    if (jj_3R_66()) return true;
-    }
-    return false;
   }
 
   private boolean jj_3R_65()
@@ -8167,6 +8143,31 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     if (jj_scan_token(91)) {
     jj_scanpos = xsp;
     if (jj_scan_token(92)) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_23()
+ {
+    if (jj_3R_70()) return true;
+    return false;
+  }
+
+  private boolean jj_3_70()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(49)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(46)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(48)) return true;
+    }
+    }
+    xsp = jj_scanpos;
+    if (jj_scan_token(62)) {
+    jj_scanpos = xsp;
+    if (jj_3R_66()) return true;
     }
     return false;
   }

@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
+import java.time.Duration;
 import java.util.Objects;
 
 import javax.annotation.concurrent.Immutable;
@@ -40,9 +41,9 @@ import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 public final class AwaitFindAndSetSymbol implements CommandSymbol {
 
     /**
-     * The longest time, in milliseconds, that the command may wait.
+     * The longest time that the command may wait.
      */
-    private final long timeout;
+    private final Duration timeout;
 
     /**
      * The key that the set clause writes.
@@ -57,12 +58,11 @@ public final class AwaitFindAndSetSymbol implements CommandSymbol {
     /**
      * Construct a new instance.
      *
-     * @param timeout the longest time, in milliseconds, that the command may
-     *            wait
+     * @param timeout the longest time that the command may wait
      * @param key the key that the set clause writes
      * @param value the value that the set clause writes
      */
-    public AwaitFindAndSetSymbol(long timeout, KeyTokenSymbol<?> key,
+    public AwaitFindAndSetSymbol(Duration timeout, KeyTokenSymbol<?> key,
             ValueTokenSymbol<?> value) {
         this.timeout = timeout;
         this.key = key;
@@ -78,9 +78,9 @@ public final class AwaitFindAndSetSymbol implements CommandSymbol {
      * Return the longest time that the command may wait for its read to have a
      * non-empty result.
      *
-     * @return the timeout in milliseconds
+     * @return the timeout
      */
-    public long timeout() {
+    public Duration timeout() {
         return timeout;
     }
 
@@ -106,7 +106,7 @@ public final class AwaitFindAndSetSymbol implements CommandSymbol {
     public boolean equals(Object obj) {
         if(obj instanceof AwaitFindAndSetSymbol) {
             AwaitFindAndSetSymbol other = (AwaitFindAndSetSymbol) obj;
-            return timeout == other.timeout && key.equals(other.key)
+            return timeout.equals(other.timeout) && key.equals(other.key)
                     && value.equals(other.value);
         }
         else {

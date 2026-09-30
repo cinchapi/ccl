@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -43,9 +44,9 @@ import com.google.common.collect.ImmutableList;
 public final class AwaitSelectAndSetSymbol implements CommandSymbol {
 
     /**
-     * The longest time, in milliseconds, that the command may wait.
+     * The longest time that the command may wait.
      */
-    private final long timeout;
+    private final Duration timeout;
 
     /**
      * The keys to read, or {@code null} to read every key.
@@ -66,13 +67,12 @@ public final class AwaitSelectAndSetSymbol implements CommandSymbol {
     /**
      * Construct a new instance.
      *
-     * @param timeout the longest time, in milliseconds, that the command may
-     *            wait
+     * @param timeout the longest time that the command may wait
      * @param keys the keys to read, or {@code null} to read every key
      * @param key the key that the set clause writes
      * @param value the value that the set clause writes
      */
-    public AwaitSelectAndSetSymbol(long timeout,
+    public AwaitSelectAndSetSymbol(Duration timeout,
             @Nullable Collection<KeyTokenSymbol<?>> keys,
             KeyTokenSymbol<?> key, ValueTokenSymbol<?> value) {
         this.timeout = timeout;
@@ -90,9 +90,9 @@ public final class AwaitSelectAndSetSymbol implements CommandSymbol {
      * Return the longest time that the command may wait for its read to have a
      * non-empty result.
      *
-     * @return the timeout in milliseconds
+     * @return the timeout
      */
-    public long timeout() {
+    public Duration timeout() {
         return timeout;
     }
 
@@ -129,7 +129,7 @@ public final class AwaitSelectAndSetSymbol implements CommandSymbol {
     public boolean equals(Object obj) {
         if(obj instanceof AwaitSelectAndSetSymbol) {
             AwaitSelectAndSetSymbol other = (AwaitSelectAndSetSymbol) obj;
-            return timeout == other.timeout
+            return timeout.equals(other.timeout)
                     && Objects.equals(keys, other.keys)
                     && key.equals(other.key) && value.equals(other.value);
         }

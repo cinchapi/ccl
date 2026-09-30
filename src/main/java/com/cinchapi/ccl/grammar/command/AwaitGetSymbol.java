@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -41,9 +42,9 @@ import com.google.common.collect.ImmutableList;
 public final class AwaitGetSymbol implements CommandSymbol {
 
     /**
-     * The longest time, in milliseconds, that the command may wait.
+     * The longest time that the command may wait.
      */
-    private final long timeout;
+    private final Duration timeout;
 
     /**
      * The keys to read, or {@code null} to read every key.
@@ -54,11 +55,10 @@ public final class AwaitGetSymbol implements CommandSymbol {
     /**
      * Construct a new instance.
      *
-     * @param timeout the longest time, in milliseconds, that the command may
-     *            wait
+     * @param timeout the longest time that the command may wait
      * @param keys the keys to read, or {@code null} to read every key
      */
-    public AwaitGetSymbol(long timeout,
+    public AwaitGetSymbol(Duration timeout,
             @Nullable Collection<KeyTokenSymbol<?>> keys) {
         this.timeout = timeout;
         this.keys = keys != null ? ImmutableList.copyOf(keys) : null;
@@ -73,9 +73,9 @@ public final class AwaitGetSymbol implements CommandSymbol {
      * Return the longest time that the command may wait for its read to have a
      * non-empty result.
      *
-     * @return the timeout in milliseconds
+     * @return the timeout
      */
-    public long timeout() {
+    public Duration timeout() {
         return timeout;
     }
 
@@ -94,7 +94,7 @@ public final class AwaitGetSymbol implements CommandSymbol {
     public boolean equals(Object obj) {
         if(obj instanceof AwaitGetSymbol) {
             AwaitGetSymbol other = (AwaitGetSymbol) obj;
-            return timeout == other.timeout
+            return timeout.equals(other.timeout)
                     && Objects.equals(keys, other.keys);
         }
         else {
