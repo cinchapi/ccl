@@ -595,8 +595,7 @@ public class AwaitCommandTest {
      * <li>Parse {@code awaitFind} with no {@code within} clause, with
      * {@code within} and no duration, with empty quotes, and with an unquoted
      * duration.</li>
-     * <li>Parse {@code awaitSelectAndSet} with no {@code within}
-     * clause.</li>
+     * <li>Parse each other await command with no {@code within} clause.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each parse fails with a
@@ -609,6 +608,10 @@ public class AwaitCommandTest {
         assertRejected("awaitFind within \"\" a = 1", null);
         assertRejected("awaitFind within 5 s a = 1", null);
         assertRejected("awaitSelectAndSet name where a = 1 set b as 2", null);
+        assertRejected("awaitSelect name where a = 1", null);
+        assertRejected("awaitGet name where a = 1", null);
+        assertRejected("awaitFindAndSet a = 1 set b as 2", null);
+        assertRejected("awaitGetAndSet name where a = 1 set b as 2", null);
     }
 
     /**
@@ -715,8 +718,7 @@ public class AwaitCommandTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code awaitSelect} and {@code awaitGetAndSet} with
-     * {@code for where}.</li>
+     * <li>Parse each await command that reads keys with {@code for where}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each parse fails with a
@@ -725,6 +727,10 @@ public class AwaitCommandTest {
     @Test
     public void testRejectsForBeforeWhere() {
         assertRejected("awaitSelect within \"1 s\" for where a = 1", null);
+        assertRejected("awaitGet within \"1 s\" for where a = 1", null);
+        assertRejected(
+                "awaitSelectAndSet within \"1 s\" for where a = 1 set b as 2",
+                null);
         assertRejected(
                 "awaitGetAndSet within \"1 s\" for where a = 1 set b as 2",
                 null);
@@ -748,6 +754,8 @@ public class AwaitCommandTest {
     @Test
     public void testRejectsMissingOrIncompleteSetClause() {
         assertRejected("awaitFindAndSet within \"1 s\" a = 1", null);
+        assertRejected("awaitSelectAndSet within \"1 s\" where a = 1", null);
+        assertRejected("awaitGetAndSet within \"1 s\" where a = 1", null);
         assertRejected("awaitSelectAndSet within \"1 s\" where a = 1 set b",
                 null);
         assertRejected("awaitGetAndSet within \"1 s\" where a = 1 set as 2",

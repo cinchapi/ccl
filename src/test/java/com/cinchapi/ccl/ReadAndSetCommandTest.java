@@ -400,7 +400,7 @@ public class ReadAndSetCommandTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse a statement with no set clause.</li>
+     * <li>Parse each command with no set clause.</li>
      * <li>Parse statements whose set clause lacks the {@code set} word, the
      * key, the value, or both the {@code as} and the value.</li>
      * </ul>
@@ -411,6 +411,8 @@ public class ReadAndSetCommandTest {
     @Test
     public void testRejectsMissingOrIncompleteSetClause() {
         assertRejected("findAndSet a = 1", null);
+        assertRejected("selectAndSet name where a = 1", null);
+        assertRejected("getAndSet name where a = 1", null);
         assertRejected("findAndSet a = 1 set b", null);
         assertRejected("findAndSet a = 1 set b as", null);
         assertRejected("selectAndSet name where a = 1 set as 2", null);
