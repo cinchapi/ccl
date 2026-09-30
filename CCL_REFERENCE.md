@@ -1454,7 +1454,7 @@ month is one twelfth of a year. The duration keeps its exact value down to the
 nanosecond and drops any smaller fraction. A duration shorter than 1 nanosecond,
 a zero or negative amount, a missing or unknown unit, and more than one unit,
 such as `"1h 30m"`, are syntax errors. The parser accepts any longer duration;
-the server enforces its own maximum.
+the server enforces its own minimum and maximum.
 
 An optional `for` may come before the condition or the keys, and adds no
 meaning; it cannot come directly before `where`. Everything else after the
