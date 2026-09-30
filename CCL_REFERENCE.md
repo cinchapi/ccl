@@ -1370,9 +1370,10 @@ Supported function names: `sum`, `avg`, `average`, `count`, `min`, `max` (and an
 
 A read and set command finds the records that match a condition, reads them, and
 sets a key as a value in each record it selects, as one atomic operation. The
-read part follows the syntax of `find`, `select` or `get`, including the
-optional order and page. The command ends with a `set <key> as <value>` clause,
-which follows the key and value rules of the `set` command.
+read part follows the form of `find`, `select` or `get` that reads by condition,
+including the optional order and page. The command ends with a
+`set <key> as <value>` clause, which follows the key and value rules of the
+`set` command.
 
 These commands read the present state, so a command-level timestamp is a syntax
 error. Each command also has a snake_case alias, such as `find_and_set`.
@@ -1457,9 +1458,10 @@ the server enforces its own maximum.
 
 An optional `for` may come before the condition or the keys, and adds no
 meaning; it cannot come directly before `where`. Everything else after the
-duration follows the syntax of the same command without `await`. These commands
-read the present state, so a command-level timestamp is a syntax error. Each
-command also has a snake_case alias, such as `await_find`.
+duration follows the form of the same command without `await` that reads by
+condition. These commands read the present state, so a command-level timestamp
+is a syntax error. Each command also has a snake_case alias, such as
+`await_find`.
 
 #### AWAIT_FIND
 
