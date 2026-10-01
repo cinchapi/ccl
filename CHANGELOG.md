@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 4.1.0 (TBD)
+#### Version 4.1.0 (September 30, 2026)
 ##### New Commands
 CCL parses commands for Concourse's atomic read and set operations and for its
 await operations, which wait for a read to have a result. These rules apply to
