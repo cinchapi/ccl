@@ -1,5 +1,81 @@
 # Changelog
 
+#### Version 4.1.0 (September 30, 2026)
+##### New Commands
+CCL parses commands for Concourse's atomic read and set operations and for its
+await operations, which wait for a read to have a result. These rules apply to
+each new command.
+
+* The command has a snake_case alias, such as `find_and_set` or
+  `await_select_and_set`.
+* The command reads the present state, so a command-level timestamp is a syntax
+  error. A bracket timestamp is accepted on the keys the command reads and in
+  its condition, and rejected on the key in the `set` clause.
+* The command parses to a `CommandTree` whose root is a new `CommandSymbol`. The
+  condition, order and page are children of the tree, as they are for `find` and
+  `select`.
+* The new symbols implement `equals` and `hashCode`, so equivalent statements
+  parse to equal trees.
+* `Compiler#analyze` reports the keys that the command reads and, for a command
+  with a `set` clause, the key that it sets.
+
+###### Read And Set
+`findAndSet`, `selectAndSet` and `getAndSet` find the records that match a
+condition and set a key as a value in each record they select. The read and the
+writes are one atomic operation.
+
+* The read part follows the form of `find`, `select` and `get` that reads by
+  condition, including the optional order and page. The command ends with a
+  `set <key> as <value>` clause.
+* `FindAndSetSymbol`, `SelectAndSetSymbol` and `GetAndSetSymbol` expose the
+  `set` clause through `key()` and `value()`.
+* `SelectAndSetSymbol` and `GetAndSetSymbol` expose the keys to read through
+  `keys()`, which returns `null` when the command reads every key.
+
+```
+findAndSet status = pending order by priority desc limit 1 set status as claimed
+selectAndSet payload where status = pending limit 1 set status as claimed
+```
+
+###### Await
+The await commands are `awaitFind`, `awaitSelect`, `awaitGet`,
+`awaitFindAndSet`, `awaitSelectAndSet` and `awaitGetAndSet`. Each one waits up
+to the duration in its `within` clause for its read, with its order and page, to
+have a non-empty result. Then it runs the same read, or read and set, as the
+command without `await`.
+
+* The duration is one quoted token with a whole or decimal amount and a unit,
+  such as `"30 seconds"`, `"500ms"` or `"1.5 h"`. The units run from nanoseconds
+  to years.
+* An optional `for` may come before the condition of `awaitFind` and
+  `awaitFindAndSet`, and before the keys of the other await commands.
+* `AwaitFindSymbol`, `AwaitSelectSymbol`, `AwaitGetSymbol`,
+  `AwaitFindAndSetSymbol`, `AwaitSelectAndSetSymbol` and `AwaitGetAndSetSymbol`
+  expose the duration as a `java.time.Duration` through `timeout()`. An await
+  symbol also exposes `keys()` when its command reads keys, and `key()` and
+  `value()` when its command has a `set` clause.
+
+```
+awaitFind within "30 seconds" status = pending
+awaitSelectAndSet within "30 seconds" payload where status = pending limit 1 set status as claimed
+```
+
+##### API Breaks and Deprecations
+* The new command names and their snake_case aliases are reserved words in any
+  letter case.
+  * A statement that uses one of them as an unquoted value is a syntax error.
+    Quote the value, as in `status = "awaitGet"`.
+  * A key with one of these names is a syntax error on its own, because CCL has
+    no quoted form for keys. The name still parses as a stop in a navigation
+    key, such as `awaitGet.name`. To use such a key in a condition, build the
+    condition with `Compiler#parse(List<Symbol>)`.
+
+##### Bug Fixes
+* Fixed a bug that caused a command to report the wrong condition when its value
+  was a function with a condition. For example,
+  `set b as avg(age, age > 30) in 1` parsed to a `CommandTree` whose condition
+  was `age > 30`.
+
 #### Version 4.0.0 (May 10, 2026)
 ##### Command Support
 The CCL grammar has been expanded to support parsing **Concourse commands** in addition to conditions, orders, and pages. A command string (e.g., `select name from 1 where age > 30`) is parsed into a `CommandTree` containing a `CommandSymbol` that represents the operation, along with optional `ConditionTree`, `OrderTree`, and `PageTree` children.
