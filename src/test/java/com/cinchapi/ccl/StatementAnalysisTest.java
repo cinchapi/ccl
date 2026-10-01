@@ -40,7 +40,6 @@ public class StatementAnalysisTest {
 
     private static final long T1 = 1700000001L;
     private static final long T2 = 1700000002L;
-    private static final long T3 = 1700000003L;
 
     @Test
     public void testStorageKeysFlat() {

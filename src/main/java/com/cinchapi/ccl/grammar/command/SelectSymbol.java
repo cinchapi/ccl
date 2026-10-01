@@ -12,10 +12,7 @@ package com.cinchapi.ccl.grammar.command;
 import java.util.Collection;
 import javax.annotation.Nullable;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.grammar.OrderSymbol;
-import com.cinchapi.ccl.grammar.PageSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a SELECT command.

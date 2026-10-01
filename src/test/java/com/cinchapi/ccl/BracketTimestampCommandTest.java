@@ -16,7 +16,6 @@
 package com.cinchapi.ccl;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.Function;
 
 import org.junit.Assert;
@@ -26,7 +25,6 @@ import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
-import com.cinchapi.ccl.grammar.NavigationKeyStop;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
