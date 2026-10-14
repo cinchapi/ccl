@@ -1335,6 +1335,12 @@ public abstract class Compiler {
                 result.add(key);
             }
         }
+        else if(command instanceof TraceSymbol) {
+            KeyTokenSymbol<?> key = ((TraceSymbol) command).key();
+            if(key != null) {
+                result.add(key);
+            }
+        }
         else if(command instanceof ReconcileSymbol) {
             result.add(((ReconcileSymbol) command).key());
         }

@@ -26,6 +26,7 @@ import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Coverage for the key-qualified {@code trace} command, which names the key
@@ -160,6 +161,36 @@ public class TraceCommandTest {
         assertRejected("trace manager");
         assertRejected("trace from 42");
         assertRejected("trace manager[1700000000] from 42");
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the analysis of a keyed {@code trace}
+     * reports the traced key among the keys the command touches, as it does for
+     * the other commands that take an optional key.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Analyze {@code trace manager from 42}.</li>
+     * <li>Analyze {@code trace 42}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The keyed trace reports the key
+     * {@code manager} and the record 42. The record-only trace reports no keys
+     * and the record 42.
+     */
+    @Test
+    public void testAnalyzeReportsTheKeyOfAKeyedTrace() {
+        Compiler compiler = Compiler.create(VALUE_FN, OP_FN);
+        CommandAnalysis keyed = compiler.analyze(
+                (CommandTree) compiler.parse("trace manager from 42"));
+        Assert.assertEquals(ImmutableSet.of("manager"), keyed.keys());
+        Assert.assertEquals(ImmutableSet.of(42L), keyed.referencedRecords());
+        CommandAnalysis plain = compiler
+                .analyze((CommandTree) compiler.parse("trace 42"));
+        Assert.assertEquals(ImmutableSet.of(), plain.keys());
+        Assert.assertEquals(ImmutableSet.of(42L), plain.referencedRecords());
     }
 
 }

@@ -66,7 +66,8 @@ friend lnks2 every[navigate team.members from 7]
 `trace <key> from <record>` and `trace <key> from [<records>]` trace only the
 references made through `key`. The prepositions `in` and `within` are accepted
 in place of `from`, and a timestamp may follow. `TraceSymbol#key()` returns the
-key, or `null` for a trace through every key.
+key, or `null` for a trace through every key, and `Compiler#analyze` reports the
+key among the keys the command touches.
 
 ```
 trace manager from 42
