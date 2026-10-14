@@ -183,7 +183,7 @@ public class QuantifierTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that {@code any(...)} parses to an
+     * <strong>Goal:</strong> Verify that {@code any[...]} parses to an
      * expression that exposes the quantifier and each member value, and that it
      * equals the expression built through the {@code ExpressionSymbol.create}
      * overload that takes a quantifier.
@@ -192,7 +192,7 @@ public class QuantifierTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name = any("Jeff", "John", "Jane")}.</li>
+     * <li>Parse {@code name = any["Jeff", "John", "Jane"]}.</li>
      * <li>Read the key, operator, quantifier, values and raw content.</li>
      * <li>Build the same expression with {@code ExpressionSymbol.create}.</li>
      * </ul>
@@ -206,7 +206,7 @@ public class QuantifierTest {
     @Test
     public void testAnyParsesToQuantifiedExpression() {
         ExpressionSymbol expression = expression(
-                "name = any(\"Jeff\", \"John\", \"Jane\")");
+                "name = any[\"Jeff\", \"John\", \"Jane\"]");
         Assert.assertEquals(new KeySymbol("name"), expression.key());
         Assert.assertEquals(op(com.cinchapi.concourse.thrift.Operator.EQUALS),
                 expression.operator());
@@ -234,7 +234,7 @@ public class QuantifierTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name = "Jeff"} and {@code name = any("Jeff")}.</li>
+     * <li>Parse {@code name = "Jeff"} and {@code name = any["Jeff"]}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The plain comparison has a {@code null}
@@ -244,7 +244,7 @@ public class QuantifierTest {
     @Test
     public void testPlainComparisonHasNoQuantifier() {
         ExpressionSymbol plain = expression("name = \"Jeff\"");
-        ExpressionSymbol quantified = expression("name = any(\"Jeff\")");
+        ExpressionSymbol quantified = expression("name = any[\"Jeff\"]");
         Assert.assertNull(plain.quantifier());
         Assert.assertNull(plain.raw().quantifier());
         Assert.assertEquals(QuantifierSymbol.ANY, quantified.quantifier());
@@ -272,12 +272,12 @@ public class QuantifierTest {
      */
     @Test
     public void testQuantifierAliasesAndCaseParseToSameTree() {
-        ConditionTree any = parse("tags = any(\"a\", \"b\")");
-        Assert.assertEquals(any, parse("tags = either(\"a\", \"b\")"));
-        Assert.assertEquals(any, parse("tags = ANY(\"a\", \"b\")"));
-        ConditionTree every = parse("tags = every(\"a\", \"b\")");
-        Assert.assertEquals(every, parse("tags = all(\"a\", \"b\")"));
-        Assert.assertEquals(every, parse("tags = EVERY(\"a\", \"b\")"));
+        ConditionTree any = parse("tags = any[\"a\", \"b\"]");
+        Assert.assertEquals(any, parse("tags = either[\"a\", \"b\"]"));
+        Assert.assertEquals(any, parse("tags = ANY[\"a\", \"b\"]"));
+        ConditionTree every = parse("tags = every[\"a\", \"b\"]");
+        Assert.assertEquals(every, parse("tags = all[\"a\", \"b\"]"));
+        Assert.assertEquals(every, parse("tags = EVERY[\"a\", \"b\"]"));
         Assert.assertEquals(QuantifierSymbol.EVERY,
                 ((ExpressionSymbol) every.root()).quantifier());
         Assert.assertNotEquals(any, every);
@@ -295,8 +295,8 @@ public class QuantifierTest {
      * <li>For each of {@code =}, {@code !=}, {@code <}, {@code <=}, {@code >},
      * {@code >=}, {@code like}, {@code nlike}, {@code regex}, {@code nregex},
      * {@code contains} and {@code not_contains}, parse
-     * {@code name <op> every("a", "b")}.</li>
-     * <li>Parse {@code friends lnks2 any(2, 7, 9)}.</li>
+     * {@code name <op> every["a", "b"]}.</li>
+     * <li>Parse {@code friends lnks2 any[2, 7, 9]}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each expression has the operator the Concourse
@@ -311,7 +311,7 @@ public class QuantifierTest {
                 "like", "nlike", "regex", "nregex", "contains",
                 "not_contains")) {
             ExpressionSymbol expression = expression(
-                    "name " + token + " every(\"a\", \"b\")");
+                    "name " + token + " every[\"a\", \"b\"]");
             Assert.assertEquals(token, Convert.stringToOperator(token),
                     expression.operator().operator());
             Assert.assertEquals(token, QuantifierSymbol.EVERY,
@@ -319,7 +319,7 @@ public class QuantifierTest {
             Assert.assertEquals(token, ImmutableList.copyOf(values("a", "b")),
                     expression.values());
         }
-        ExpressionSymbol links = expression("friends lnks2 any(2, 7, 9)");
+        ExpressionSymbol links = expression("friends lnks2 any[2, 7, 9]");
         Assert.assertEquals(com.cinchapi.concourse.thrift.Operator.LINKS_TO,
                 links.operator().operator());
         Assert.assertEquals(QuantifierSymbol.ANY, links.quantifier());
@@ -335,7 +335,7 @@ public class QuantifierTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code age bw any((1, 5), (10, 20))}.</li>
+     * <li>Parse {@code age bw any[(1, 5), (10, 20)]}.</li>
      * <li>Parse the same set with {@code every} and with {@code ><}.</li>
      * </ul>
      * <p>
@@ -348,61 +348,63 @@ public class QuantifierTest {
     @Test
     public void testBetweenAcceptsQuantifiedTuples() {
         ExpressionSymbol expression = expression(
-                "age bw any((1, 5), (10, 20))");
+                "age bw any[(1, 5), (10, 20)]");
         Assert.assertEquals(com.cinchapi.concourse.thrift.Operator.BETWEEN,
                 expression.operator().operator());
         Assert.assertEquals(QuantifierSymbol.ANY, expression.quantifier());
         Assert.assertEquals(ImmutableList.of(1, 5, 10, 20),
                 expression.raw().values());
         Assert.assertEquals(QuantifierSymbol.EVERY,
-                expression("age bw every((1, 5), (10, 20))").quantifier());
-        Assert.assertEquals(parse("age bw any((1, 5), (10, 20))"),
-                parse("age >< any((1, 5), (10, 20))"));
+                expression("age bw every[(1, 5), (10, 20)]").quantifier());
+        Assert.assertEquals(parse("age bw any[(1, 5), (10, 20)]"),
+                parse("age >< any[(1, 5), (10, 20)]"));
     }
 
     /**
      * <strong>Goal:</strong> Verify that {@code in} is sugar for
-     * {@code = any(...)} and {@code not_in} is sugar for {@code != every(...)},
-     * with either delimiter and each alias.
+     * {@code = any[...]} and {@code not_in} is sugar for {@code != every[...]},
+     * in any letter case and with each alias.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name in ("a", "b")} and {@code name in ["a", "b"]}.</li>
-     * <li>Parse {@code name not_in ["a", "b"]}, {@code name nin ("a", "b")}
+     * <li>Parse {@code name in ["a", "b"]} and {@code name IN ["a", "b"]}.</li>
+     * <li>Parse {@code name not_in ["a", "b"]}, {@code name nin ["a", "b"]}
      * and {@code name notin ["a", "b"]}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The {@code in} forms equal
-     * {@code name = any("a", "b")} and the {@code not_in} forms equal
-     * {@code name != every("a", "b")}.
+     * {@code name = any["a", "b"]} and the {@code not_in} forms equal
+     * {@code name != every["a", "b"]}.
      */
     @Test
     public void testInAndNotInAreSugarForQuantifiedEquality() {
-        ConditionTree any = parse("name = any(\"a\", \"b\")");
-        Assert.assertEquals(any, parse("name in (\"a\", \"b\")"));
+        ConditionTree any = parse("name = any[\"a\", \"b\"]");
         Assert.assertEquals(any, parse("name in [\"a\", \"b\"]"));
         Assert.assertEquals(any, parse("name IN [\"a\", \"b\"]"));
-        ConditionTree every = parse("name != every(\"a\", \"b\")");
+        ConditionTree every = parse("name != every[\"a\", \"b\"]");
         Assert.assertEquals(every, parse("name not_in [\"a\", \"b\"]"));
-        Assert.assertEquals(every, parse("name nin (\"a\", \"b\")"));
+        Assert.assertEquals(every, parse("name nin [\"a\", \"b\"]"));
         Assert.assertEquals(every, parse("name notin [\"a\", \"b\"]"));
     }
 
     /**
      * <strong>Goal:</strong> Verify that a quantified value set must hold at
      * least one member and, for {@code between}, whole pairs, both when parsed
-     * and when built through {@code ExpressionSymbol.create}.
+     * and when built through {@code ExpressionSymbol.create}, and that
+     * parentheses do not delimit a set.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name = any()}, {@code name = every()},
-     * {@code name in []}, {@code name in ()}, {@code age bw any()} and
-     * {@code age bw any((1, 5), 7)}.</li>
-     * <li>Build {@code age bw any(1)} and {@code name = any()} with
+     * <li>Parse {@code name = any[]}, {@code name = every[]},
+     * {@code name in []}, {@code age bw any[]} and
+     * {@code age bw any[(1, 5), 7]}.</li>
+     * <li>Parse {@code name = any("a", "b")} and
+     * {@code name in ("a", "b")}.</li>
+     * <li>Build {@code age bw any[1]} and {@code name = any[]} with
      * {@code ExpressionSymbol.create}.</li>
      * </ul>
      * <p>
@@ -412,12 +414,13 @@ public class QuantifierTest {
      */
     @Test
     public void testEmptyAndMalformedValueSetsAreRejected() {
-        assertRejected("name = any()");
-        assertRejected("name = every()");
+        assertRejected("name = any[]");
+        assertRejected("name = every[]");
         assertRejected("name in []");
-        assertRejected("name in ()");
-        assertRejected("age bw any()");
-        assertRejected("age bw any((1, 5), 7)");
+        assertRejected("age bw any[]");
+        assertRejected("age bw any[(1, 5), 7]");
+        assertRejected("name = any(\"a\", \"b\")");
+        assertRejected("name in (\"a\", \"b\")");
         try {
             ExpressionSymbol.create(new KeySymbol("age"),
                     op(com.cinchapi.concourse.thrift.Operator.BETWEEN),
@@ -448,13 +451,13 @@ public class QuantifierTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Build {@code name = any($x, "b")} with
+     * <li>Build {@code name = any[$x, "b"]} with
      * {@code ExpressionSymbol.create} and tokenize it.</li>
      * <li>Parse the tokens with {@code x} bound to {@code Jeff}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The result equals the parse of
-     * {@code name = any("Jeff", "b")}.
+     * {@code name = any["Jeff", "b"]}.
      */
     @Test
     public void testPlaceholderInsideValueSetIsResolvedFromSymbols() {
@@ -463,7 +466,7 @@ public class QuantifierTest {
                 op(com.cinchapi.concourse.thrift.Operator.EQUALS),
                 QuantifierSymbol.ANY, values("$x", "b"));
         List<Symbol> tokens = compiler.tokenize(new ExpressionTree(built));
-        Assert.assertEquals(parse("name = any(\"Jeff\", \"b\")"),
+        Assert.assertEquals(parse("name = any[\"Jeff\", \"b\"]"),
                 compiler.parse(tokens, ImmutableMultimap.of("x", "Jeff")));
     }
 
@@ -504,9 +507,9 @@ public class QuantifierTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name = any("a", "b") at 1700000000}.</li>
-     * <li>Parse {@code (name = any("a", "b") and age > 5) or x in [1, 2]}.</li>
-     * <li>Parse {@code findOrInsert name = any("a", "b")} followed by a JSON
+     * <li>Parse {@code name = any["a", "b"] at 1700000000}.</li>
+     * <li>Parse {@code (name = any["a", "b"] and age > 5) or x in [1, 2]}.</li>
+     * <li>Parse {@code findOrInsert name = any["a", "b"]} followed by a JSON
      * payload.</li>
      * </ul>
      * <p>
@@ -518,19 +521,19 @@ public class QuantifierTest {
     @Test
     public void testQuantifierComposesWithTimestampsNestingAndCommands() {
         ExpressionSymbol timed = expression(
-                "name = any(\"a\", \"b\") at 1700000000");
+                "name = any[\"a\", \"b\"] at 1700000000");
         Assert.assertEquals(1700000000L, timed.timestamp().timestamp());
         Assert.assertEquals(QuantifierSymbol.ANY, timed.quantifier());
         ConditionTree nested = parse(
-                "(name = any(\"a\", \"b\") and age > 5) or x in [1, 2]");
+                "(name = any[\"a\", \"b\"] and age > 5) or x in [1, 2]");
         ExpressionSymbol right = (ExpressionSymbol) nested.children().stream()
                 .skip(1).findFirst().get().root();
         Assert.assertEquals(QuantifierSymbol.ANY, right.quantifier());
         Assert.assertEquals(ImmutableList.of(1, 2), right.raw().values());
         CommandTree command = (CommandTree) compiler()
-                .parse("findOrInsert name = any(\"a\", \"b\") "
+                .parse("findOrInsert name = any[\"a\", \"b\"] "
                         + "\"{\\\"name\\\": \\\"a\\\"}\"");
-        Assert.assertEquals(expression("name = any(\"a\", \"b\")"),
+        Assert.assertEquals(expression("name = any[\"a\", \"b\"]"),
                 command.conditionTree().root());
     }
 
@@ -545,7 +548,7 @@ public class QuantifierTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code age bw any((1, 5), (10, 20)) at 1700000000} and
+     * <li>Parse {@code age bw any[(1, 5), (10, 20)] at 1700000000} and
      * {@link Compiler#tokenize(AbstractSyntaxTree) tokenize} it.</li>
      * <li>Group the tokens, then ungroup the result.</li>
      * </ul>
@@ -553,14 +556,14 @@ public class QuantifierTest {
      * <strong>Expected:</strong> The tokens are the key, the operator, one
      * {@link ValueSetSymbol} with quantifier {@link QuantifierSymbol#ANY},
      * arity 2 and the four values, and the timestamp. The set renders as
-     * {@code any((1, 5), (10, 20))}. Grouping yields one expression equal to
+     * {@code any[(1, 5), (10, 20)]}. Grouping yields one expression equal to
      * the parsed root, and ungrouping yields the original tokens.
      */
     @Test
     public void testTokenStreamCarriesValueSetAsOneSymbol() {
         Compiler compiler = compiler();
         AbstractSyntaxTree tree = compiler
-                .parse("age bw any((1, 5), (10, 20)) at 1700000000");
+                .parse("age bw any[(1, 5), (10, 20)] at 1700000000");
         List<Symbol> tokens = compiler.tokenize(tree);
         Assert.assertEquals(4, tokens.size());
         Assert.assertEquals(new KeySymbol("age"), tokens.get(0));
@@ -571,7 +574,7 @@ public class QuantifierTest {
         Assert.assertEquals(2, set.arity());
         Assert.assertEquals(ImmutableList.copyOf(values(1, 5, 10, 20)),
                 set.values());
-        Assert.assertEquals("any((1, 5), (10, 20))", set.toString());
+        Assert.assertEquals("any[(1, 5), (10, 20)]", set.toString());
         List<Symbol> grouped = Parsing.groupExpressions(tokens);
         Assert.assertEquals(ImmutableList.of(tree.root()), grouped);
         Assert.assertEquals(tokens, Parsing.ungroupExpressions(grouped));
@@ -592,7 +595,7 @@ public class QuantifierTest {
      * </ul>
      * <p>
      * <strong>Expected:</strong> The expression equals the parse of
-     * {@code tags = every("a", "b")}, with quantifier
+     * {@code tags = every["a", "b"]}, with quantifier
      * {@link QuantifierSymbol#EVERY} and the two member values.
      */
     @Test
@@ -604,7 +607,7 @@ public class QuantifierTest {
         Assert.assertEquals(QuantifierSymbol.EVERY, built.quantifier());
         Assert.assertEquals(ImmutableList.copyOf(values("a", "b")),
                 built.values());
-        Assert.assertEquals(expression("tags = every(\"a\", \"b\")"), built);
+        Assert.assertEquals(expression("tags = every[\"a\", \"b\"]"), built);
     }
 
     /**
@@ -624,13 +627,13 @@ public class QuantifierTest {
      */
     @Test
     public void testQuantifiedFormsRoundTrip() {
-        assertRoundTripStable("name = any(\"Jeff\", \"John\")");
-        assertRoundTripStable("friends lnks2 every(2, 7)");
-        assertRoundTripStable("age bw any((1, 5), (10, 20))");
+        assertRoundTripStable("name = any[\"Jeff\", \"John\"]");
+        assertRoundTripStable("friends lnks2 every[2, 7]");
+        assertRoundTripStable("age bw any[(1, 5), (10, 20)]");
         assertRoundTripStable("name in [\"a\", \"b\"]");
         assertRoundTripStable("name not_in [\"a\", \"b\"]");
-        assertRoundTripStable("name = any(\"Jeff Nelson\", \"a=b\")");
-        assertRoundTripStable("name = all(\"a\", \"b\") at 1700000000");
+        assertRoundTripStable("name = any[\"Jeff Nelson\", \"a=b\"]");
+        assertRoundTripStable("name = all[\"a\", \"b\"] at 1700000000");
     }
 
     /**
@@ -643,14 +646,14 @@ public class QuantifierTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Evaluate {@code tags = every("urgent", "backend")} against tags
+     * <li>Evaluate {@code tags = every["urgent", "backend"]} against tags
      * {@code urgent, backend, misc} and against {@code urgent, misc}.</li>
-     * <li>Evaluate {@code age > every(20, 30, 40)} against 45 and 35.</li>
-     * <li>Evaluate {@code age > any(20, 30, 40)} against 25 and 15.</li>
+     * <li>Evaluate {@code age > every[20, 30, 40]} against 45 and 35.</li>
+     * <li>Evaluate {@code age > any[20, 30, 40]} against 25 and 15.</li>
      * <li>Evaluate {@code name in ["Jeff", "John"]} against {@code John} and
      * {@code Jane}, and {@code name not_in ["Jeff", "John"]} against the
      * same.</li>
-     * <li>Evaluate {@code age bw any((1, 5), (10, 20))} against 12 and 7.</li>
+     * <li>Evaluate {@code age bw any[(1, 5), (10, 20)]} against 12 and 7.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The first value of each pair satisfies the
@@ -659,18 +662,18 @@ public class QuantifierTest {
     @Test
     public void testLocalEvaluationOfQuantifiers() {
         Compiler compiler = compiler();
-        ConditionTree every = parse("tags = every(\"urgent\", \"backend\")");
+        ConditionTree every = parse("tags = every[\"urgent\", \"backend\"]");
         Assert.assertTrue(compiler.evaluate(every, ImmutableMultimap.of("tags",
                 "urgent", "tags", "backend", "tags", "misc"), EVALUATOR));
         Assert.assertFalse(compiler.evaluate(every,
                 ImmutableMultimap.of("tags", "urgent", "tags", "misc"),
                 EVALUATOR));
-        ConditionTree greaterEvery = parse("age > every(20, 30, 40)");
+        ConditionTree greaterEvery = parse("age > every[20, 30, 40]");
         Assert.assertTrue(compiler.evaluate(greaterEvery,
                 ImmutableMultimap.of("age", 45), EVALUATOR));
         Assert.assertFalse(compiler.evaluate(greaterEvery,
                 ImmutableMultimap.of("age", 35), EVALUATOR));
-        ConditionTree greaterAny = parse("age > any(20, 30, 40)");
+        ConditionTree greaterAny = parse("age > any[20, 30, 40]");
         Assert.assertTrue(compiler.evaluate(greaterAny,
                 ImmutableMultimap.of("age", 25), EVALUATOR));
         Assert.assertFalse(compiler.evaluate(greaterAny,
@@ -683,7 +686,7 @@ public class QuantifierTest {
         Assert.assertFalse(compiler.evaluate(in, jane, EVALUATOR));
         Assert.assertFalse(compiler.evaluate(notIn, john, EVALUATOR));
         Assert.assertTrue(compiler.evaluate(notIn, jane, EVALUATOR));
-        ConditionTree between = parse("age bw any((1, 5), (10, 20))");
+        ConditionTree between = parse("age bw any[(1, 5), (10, 20)]");
         Assert.assertTrue(compiler.evaluate(between,
                 ImmutableMultimap.of("age", 12), EVALUATOR));
         Assert.assertFalse(compiler.evaluate(between,

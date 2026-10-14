@@ -24,8 +24,8 @@ import com.cinchapi.ccl.syntax.CommandTree;
 /**
  * A {@link ValueTokenSymbol} whose value is a read command whose result
  * supplies the value set of a quantified comparison, as in
- * {@code name = any(select name where group = "vip")} or
- * {@code manager lnks2 any(trace manager from 42)}.
+ * {@code name = any[select name where group = "vip"]} or
+ * {@code manager lnks2 any[trace manager from 42]}.
  * <p>
  * The {@link #value()} is the parsed {@link CommandTree} of the subquery,
  * including its condition, order and page. The subquery's condition belongs to

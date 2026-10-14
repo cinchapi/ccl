@@ -130,14 +130,14 @@ public class SubqueryTest {
 
     /**
      * <strong>Goal:</strong> Verify that a {@code select} subquery inside
-     * {@code any(...)} parses to a {@link SubquerySymbol} that carries the
+     * {@code any[...]} parses to a {@link SubquerySymbol} that carries the
      * parsed {@link CommandTree} and renders back to the subquery's CCL.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name = any(select name where group = "vip")}.</li>
+     * <li>Parse {@code name = any[select name where group = "vip"]}.</li>
      * <li>Read the outer quantifier and the subquery's command tree.</li>
      * </ul>
      * <p>
@@ -150,7 +150,7 @@ public class SubqueryTest {
     @Test
     public void testSelectSubqueryCarriesCommandTree() {
         ConditionTree tree = parse(
-                "name = any(select name where group = \"vip\")");
+                "name = any[select name where group = \"vip\"]");
         ExpressionSymbol expression = (ExpressionSymbol) tree.root();
         Assert.assertEquals(QuantifierSymbol.ANY, expression.quantifier());
         SubquerySymbol subquery = (SubquerySymbol) expression.values().get(0);
@@ -173,11 +173,11 @@ public class SubqueryTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name in (get name where age > 30 as of 1700000000 order
-     * by name limit 5)}.</li>
-     * <li>Parse {@code manager lnks2 every(find group = "vip")}.</li>
-     * <li>Parse {@code reports_to lnks2 any(trace manager from 42)}.</li>
-     * <li>Parse {@code friend lnks2 any(navigate team.members from 7)}.</li>
+     * <li>Parse {@code name in [get name where age > 30 as of 1700000000 order
+     * by name limit 5]}.</li>
+     * <li>Parse {@code manager lnks2 every[find group = "vip"]}.</li>
+     * <li>Parse {@code reports_to lnks2 any[trace manager from 42]}.</li>
+     * <li>Parse {@code friend lnks2 any[navigate team.members from 7]}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The {@code get} subquery has a
@@ -190,25 +190,25 @@ public class SubqueryTest {
      */
     @Test
     public void testEachReadCommandMaySupplyTheValueSet() {
-        CommandTree get = subquery("name in (get name where age > 30 "
-                + "as of 1700000000 order by name limit 5)").value();
+        CommandTree get = subquery("name in [get name where age > 30 "
+                + "as of 1700000000 order by name limit 5]").value();
         Assert.assertEquals(1700000000L,
                 ((GetSymbol) get.root()).timestamp().timestamp());
         Assert.assertNotNull(get.orderTree());
         Assert.assertNotNull(get.pageTree());
         Assert.assertEquals(parse("age > 30").root(),
                 get.conditionTree().root());
-        CommandTree find = subquery("manager lnks2 every(find group = \"vip\")")
+        CommandTree find = subquery("manager lnks2 every[find group = \"vip\"]")
                 .value();
         Assert.assertTrue(find.root() instanceof FindSymbol);
         Assert.assertEquals(parse("group = \"vip\"").root(),
                 find.conditionTree().root());
         TraceSymbol trace = (TraceSymbol) subquery(
-                "reports_to lnks2 any(trace manager from 42)").value().root();
+                "reports_to lnks2 any[trace manager from 42]").value().root();
         Assert.assertEquals(new KeySymbol("manager"), trace.key());
         Assert.assertEquals(Long.valueOf(42), trace.record());
         NavigateSymbol navigate = (NavigateSymbol) subquery(
-                "friend lnks2 any(navigate team.members from 7)").value()
+                "friend lnks2 any[navigate team.members from 7]").value()
                         .root();
         Assert.assertEquals("team.members",
                 navigate.keys().iterator().next().toString());
@@ -225,25 +225,25 @@ public class SubqueryTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name = any(select name where tags = every("a", "b"))
+     * <li>Parse {@code name = any[select name where tags = every["a", "b"]]
      * and age > 5}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The outer tree is a conjunction with exactly
      * two leaves. The left leaf is the quantified comparison and its subquery's
-     * condition is the expression {@code tags = every("a", "b")}. The right
+     * condition is the expression {@code tags = every["a", "b"]}. The right
      * leaf is {@code age > 5}.
      */
     @Test
     public void testSubqueryConditionIsNotAChildOfTheOuterCondition() {
-        ConditionTree tree = parse("name = any(select name where "
-                + "tags = every(\"a\", \"b\")) and age > 5");
+        ConditionTree tree = parse("name = any[select name where "
+                + "tags = every[\"a\", \"b\"]] and age > 5");
         List<AbstractSyntaxTree> children = ImmutableList
                 .copyOf(tree.children());
         Assert.assertEquals(2, children.size());
         ExpressionSymbol left = (ExpressionSymbol) children.get(0).root();
         SubquerySymbol subquery = (SubquerySymbol) left.values().get(0);
-        Assert.assertEquals(parse("tags = every(\"a\", \"b\")").root(),
+        Assert.assertEquals(parse("tags = every[\"a\", \"b\"]").root(),
                 subquery.value().conditionTree().root());
         Assert.assertEquals(parse("age > 5").root(), children.get(1).root());
     }
@@ -257,11 +257,11 @@ public class SubqueryTest {
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Parse {@code name = select name where x = 1} (no quantifier).</li>
-     * <li>Parse {@code name = any(select name where x = 1, "a")} (mixed with
+     * <li>Parse {@code name = any[select name where x = 1, "a"]} (mixed with
      * a literal).</li>
-     * <li>Parse {@code age bw any(select age where x = 1)} (a tuple
+     * <li>Parse {@code age bw any[select age where x = 1]} (a tuple
      * operator).</li>
-     * <li>Parse {@code name = any(add name as 1 in 2)} (a write
+     * <li>Parse {@code name = any[add name as 1 in 2]} (a write
      * command).</li>
      * </ul>
      * <p>
@@ -271,9 +271,9 @@ public class SubqueryTest {
     @Test
     public void testSubqueryOutsideAQuantifiedSetIsRejected() {
         assertRejected("name = select name where x = 1");
-        assertRejected("name = any(select name where x = 1, \"a\")");
-        assertRejected("age bw any(select age where x = 1)");
-        assertRejected("name = any(add name as 1 in 2)");
+        assertRejected("name = any[select name where x = 1, \"a\"]");
+        assertRejected("age bw any[select age where x = 1]");
+        assertRejected("name = any[add name as 1 in 2]");
     }
 
     /**
@@ -300,18 +300,18 @@ public class SubqueryTest {
     @Test
     public void testSubqueryFormsRoundTrip() {
         assertRoundTripStable(
-                "name = any(select name where group = \"vip\")");
-        assertRoundTripStable("reports_to lnks2 every(trace manager from 42)");
-        assertRoundTripStable("id in (find group = \"vip\" order by name)");
+                "name = any[select name where group = \"vip\"]");
+        assertRoundTripStable("reports_to lnks2 every[trace manager from 42]");
+        assertRoundTripStable("id in [find group = \"vip\" order by name]");
         assertRoundTripStable(
-                "name = any(select name where g = 1) at 1700000000");
+                "name = any[select name where g = 1] at 1700000000");
         ExpressionSymbol timed = (ExpressionSymbol) parse(
-                "name = any(select name where g = 1) at 1700000000").root();
+                "name = any[select name where g = 1] at 1700000000").root();
         Assert.assertEquals(1700000000L, timed.timestamp().timestamp());
         Assert.assertNull(((SelectSymbol) ((SubquerySymbol) timed.values()
                 .get(0)).value().root()).timestamp());
-        Assert.assertEquals(parse("name = any(select name where g = 1)"),
-                parse("name = any( select   name where g=1 )"));
+        Assert.assertEquals(parse("name = any[select name where g = 1]"),
+                parse("name = any[ select   name where g=1 ]"));
     }
 
     /**
@@ -322,7 +322,7 @@ public class SubqueryTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Evaluate {@code name = any(select name where g = 1)} against
+     * <li>Evaluate {@code name = any[select name where g = 1]} against
      * {@code name = Jeff}.</li>
      * </ul>
      * <p>
@@ -331,7 +331,7 @@ public class SubqueryTest {
      */
     @Test(expected = UnsupportedOperationException.class)
     public void testLocalEvaluationRejectsSubquery() {
-        compiler().evaluate(parse("name = any(select name where g = 1)"),
+        compiler().evaluate(parse("name = any[select name where g = 1]"),
                 ImmutableMultimap.of("name", "Jeff"),
                 (value, operator, values) -> true);
     }

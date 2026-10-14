@@ -134,15 +134,14 @@ public class Grammar {
 
     /**
      * Return true if the next tokens are a quantifier word followed by an
-     * opening parenthesis, which starts a quantified value set. The words are
-     * not reserved, so the same tokens are an ordinary value or a function
-     * value elsewhere.
+     * opening bracket, which starts a quantified value set. The words are not
+     * reserved, so the same word is an ordinary value elsewhere.
      */
     private boolean isQuantifiedValueSet() {
         Token word = getToken(1);
         return word.kind == GrammarConstants.ALPHANUMERIC
                 && QuantifierSymbol.parse(word.image) != null
-                && getToken(2).kind == GrammarConstants.OPEN_PARENTHESES;
+                && getToken(2).kind == GrammarConstants.OPEN_BRACKET;
     }
 
     /**
@@ -522,7 +521,7 @@ void RelationalExpression() #Expression :
 }
 
 // --- Operands ---
-// An operand is a single value, a quantified value set such as any(v1, v2),
+// An operand is a single value, a quantified value set such as any[v1, v2],
 // or, after `in` / `not_in`, a value set with the quantifier implied. Each
 // operator family has its own operand production because each calls for its
 // own value production. Only the equality operators accept the unquoted null
@@ -536,7 +535,7 @@ void UnaryOperand(ASTExpression expression, boolean nullable) :
 {
     LOOKAHEAD({ isQuantifiedValueSet() })
     quantifier=Quantifier() { expression.quantifier(quantifier); }
-    <OPEN_PARENTHESES> UnaryValueSet(expression, nullable) <CLOSE_PARENTHESES>
+    <OPEN_BRACKET> UnaryValueSet(expression, nullable) <CLOSE_BRACKET>
   |
     value=UnaryConditionValue(nullable) { expression.addValue(value); }
 }
@@ -571,14 +570,14 @@ void RegexOperand(ASTExpression expression) :
 {
     LOOKAHEAD({ isQuantifiedValueSet() })
     quantifier=Quantifier() { expression.quantifier(quantifier); }
-    <OPEN_PARENTHESES>
+    <OPEN_BRACKET>
     (
       value=Subquery() { expression.addValue(value); }
     |
       value=RegexConditionValue() { expression.addValue(value); }
       (<COMMA> value=RegexConditionValue() { expression.addValue(value); })*
     )
-    <CLOSE_PARENTHESES>
+    <CLOSE_BRACKET>
   |
     value=RegexConditionValue() { expression.addValue(value); }
 }
@@ -602,14 +601,14 @@ void SearchOperand(ASTExpression expression) :
 {
     LOOKAHEAD({ isQuantifiedValueSet() })
     quantifier=Quantifier() { expression.quantifier(quantifier); }
-    <OPEN_PARENTHESES>
+    <OPEN_BRACKET>
     (
       value=Subquery() { expression.addValue(value); }
     |
       value=SearchConditionValue() { expression.addValue(value); }
       (<COMMA> value=SearchConditionValue() { expression.addValue(value); })*
     )
-    <CLOSE_PARENTHESES>
+    <CLOSE_BRACKET>
   |
     value=SearchConditionValue() { expression.addValue(value); }
 }
@@ -633,14 +632,14 @@ void LinksToOperand(ASTExpression expression) :
 {
     LOOKAHEAD({ isQuantifiedValueSet() })
     quantifier=Quantifier() { expression.quantifier(quantifier); }
-    <OPEN_PARENTHESES>
+    <OPEN_BRACKET>
     (
       value=Subquery() { expression.addValue(value); }
     |
       value=LinksToConditionValue() { expression.addValue(value); }
       (<COMMA> value=LinksToConditionValue() { expression.addValue(value); })*
     )
-    <CLOSE_PARENTHESES>
+    <CLOSE_BRACKET>
   |
     value=LinksToConditionValue() { expression.addValue(value); }
 }
@@ -657,7 +656,7 @@ ValueTokenSymbol LinksToConditionValue() :
 }
 
 // A two-operand operator takes a pair of values, or a quantified set of
-// parenthesized pairs such as any((1, 5), (10, 20)). A subquery yields single
+// parenthesized pairs such as any[(1, 5), (10, 20)]. A subquery yields single
 // values, so it cannot supply the set.
 void BinaryOperand(ASTExpression expression) :
 {
@@ -667,7 +666,7 @@ void BinaryOperand(ASTExpression expression) :
 {
     LOOKAHEAD({ isQuantifiedValueSet() })
     quantifier=Quantifier() { expression.quantifier(quantifier); }
-    <OPEN_PARENTHESES> ValueTuple(expression) (<COMMA> ValueTuple(expression))* <CLOSE_PARENTHESES>
+    <OPEN_BRACKET> ValueTuple(expression) (<COMMA> ValueTuple(expression))* <CLOSE_BRACKET>
   |
     value=BinaryConditionValue() { expression.addValue(value); }
     value=BinaryConditionValue() { expression.addValue(value); }
@@ -697,8 +696,7 @@ ValueTokenSymbol BinaryConditionValue() :
     { return nullLiteralOrValue(first, value, false); }
 }
 
-// `in` is sugar for `= any(...)` and `not_in` for `!= every(...)`. The set may
-// be delimited by parentheses or brackets.
+// `in` is sugar for `= any[...]` and `not_in` for `!= every[...]`.
 void MembershipOperand(ASTExpression expression) :
 {
     String operator;
@@ -714,11 +712,7 @@ void MembershipOperand(ASTExpression expression) :
       expression.operator(new OperatorSymbol(transformOperator(operator)));
       expression.quantifier(quantifier);
     }
-    (
-      <OPEN_PARENTHESES> UnaryValueSet(expression, true) <CLOSE_PARENTHESES>
-    |
-      <OPEN_BRACKET> UnaryValueSet(expression, true) <CLOSE_BRACKET>
-    )
+    <OPEN_BRACKET> UnaryValueSet(expression, true) <CLOSE_BRACKET>
 }
 
 QuantifierSymbol Quantifier() :

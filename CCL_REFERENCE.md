@@ -125,7 +125,7 @@ with a syntax error.
 ```
 middleName = null
 email != null
-name = any(null, "Jeff")
+name = any[null, "Jeff"]
 ```
 
 The quoted string `"null"` is an ordinary string value, so data that stores the
@@ -284,9 +284,9 @@ The `links_to` operator's value must be a numeric record ID.
 | `in` | | Equal to any member of a value set |
 | `not_in` | `nin`, `notin` | Not equal to every member of a value set |
 
-`key in (v1, v2)` is sugar for `key = any(v1, v2)` and `key not_in (v1, v2)` is
-sugar for `key != every(v1, v2)`. The set may be delimited by parentheses or
-square brackets. See [Quantified Value Sets](#quantified-value-sets).
+`key in [v1, v2]` is sugar for `key = any[v1, v2]` and `key not_in [v1, v2]` is
+sugar for `key != every[v1, v2]`. See [Quantified Value
+Sets](#quantified-value-sets).
 
 ---
 
@@ -339,41 +339,42 @@ tags ~ database
 ### Quantified Value Sets
 
 Any operator may compare a key against a set of values instead of one value. The
-set is written as a call to a quantifier, which says how the operator combines
-with the members:
+set is written in square brackets, as every collection in CCL is, after a
+quantifier that says how the operator combines with the members:
 
 | Quantifier | Aliases | Meaning |
 |------------|---------|---------|
-| `any(...)` | `either(...)` | The comparison holds for at least one member |
-| `every(...)` | `all(...)` | The comparison holds for every member |
+| `any[...]` | `either[...]` | The comparison holds for at least one member |
+| `every[...]` | `all[...]` | The comparison holds for every member |
 
-`key op any(v1, v2)` means `(key op v1) or (key op v2)`, and
-`key op every(v1, v2)` means `(key op v1) and (key op v2)`. Each member is
+`key op any[v1, v2]` means `(key op v1) or (key op v2)`, and
+`key op every[v1, v2]` means `(key op v1) and (key op v2)`. Each member is
 compared with the operator's usual single-value semantics, so for a key that
 holds several values, a member holds when any stored value satisfies it. The
 quantifier words are case-insensitive and are not reserved; `status = all` is
 still a comparison against the string `all`.
 
 ```
-name = any("Jeff", "John", "Jane")      -- name is one of the three
-tags = every("urgent", "backend")       -- tags holds both values
-age > every(20, 30, 40)                 -- age exceeds 40
-age > any(20, 30, 40)                   -- age exceeds 20
-friends lnks2 any(2, 7, 9)              -- links to any of these records
-name like any("J%", "K%")
+name = any["Jeff", "John", "Jane"]      -- name is one of the three
+tags = every["urgent", "backend"]       -- tags holds both values
+age > every[20, 30, 40]                 -- age exceeds 40
+age > any[20, 30, 40]                   -- age exceeds 20
+friends lnks2 any[2, 7, 9]              -- links to any of these records
+name like any["J%", "K%"]
 ```
 
 The `between` operator takes a set of parenthesized value pairs:
 
 ```
-age bw any((1, 5), (10, 20))
+age bw any[(1, 5), (10, 20)]
 ```
 
-A set must hold at least one member; `any()` is a syntax error. A timestamp that
-follows the closing parenthesis applies to the comparison:
+A set must hold at least one member; `any[]` is a syntax error. Parentheses do
+not delimit a set, so `any("a", "b")` is a syntax error too. A timestamp that
+follows the closing bracket applies to the comparison:
 
 ```
-name = any("a", "b") at "yesterday"
+name = any["a", "b"] at "yesterday"
 ```
 
 In the parsed expression, `ExpressionSymbol#quantifier()` returns the quantifier
@@ -388,10 +389,10 @@ applied to those members. The command may be `select`, `get`, `find`, `trace` or
 `navigate`, with its own condition, order, page and timestamp clauses.
 
 ```
-name = any(select name where group = "vip")
-id in (find group = "vip")
-reports_to lnks2 any(trace manager from 42)
-friend lnks2 every(navigate team.members from 7)
+name = any[select name where group = "vip"]
+id in [find group = "vip"]
+reports_to lnks2 any[trace manager from 42]
+friend lnks2 every[navigate team.members from 7]
 ```
 
 A subquery must be the whole set: it cannot be mixed with literal members, it
@@ -1712,10 +1713,10 @@ Expression        ::= Key Operator Operand [Timestamp]
                     | Key BinaryOperator BinaryOperand [Timestamp]
                     | Key SearchOperator Operand
                     | Key MembershipOperator ValueSet [Timestamp]
-Operand           ::= Value | Quantifier '(' ValueSet ')'
-BinaryOperand     ::= Value Value | Quantifier '(' ValueTuple (',' ValueTuple)* ')'
+Operand           ::= Value | Quantifier ValueSet
+BinaryOperand     ::= Value Value | Quantifier '[' ValueTuple (',' ValueTuple)* ']'
 ValueTuple        ::= '(' Value ',' Value ')'
-ValueSet          ::= '(' Members ')' | '[' Members ']'      (* brackets only after in / not_in *)
+ValueSet          ::= '[' Members ']'
 Members           ::= Subquery | Value (',' Value)*
 Subquery          ::= SelectCommand | GetCommand | FindCommand | TraceCommand | NavigateCommand
 Quantifier        ::= 'any' | 'either' | 'every' | 'all'

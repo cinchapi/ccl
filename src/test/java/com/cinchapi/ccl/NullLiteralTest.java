@@ -182,7 +182,7 @@ public class NullLiteralTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code name = any(null, "Jeff")} and
+     * <li>Parse {@code name = any[null, "Jeff"]} and
      * {@code name not_in [null]}.</li>
      * </ul>
      * <p>
@@ -193,7 +193,7 @@ public class NullLiteralTest {
      */
     @Test
     public void testNullMayBeAMemberOfAQuantifiedSet() {
-        ExpressionSymbol any = expression("name = any(null, \"Jeff\")");
+        ExpressionSymbol any = expression("name = any[null, \"Jeff\"]");
         Assert.assertEquals(QuantifierSymbol.ANY, any.quantifier());
         Assert.assertEquals(ImmutableList.of(NullValueSymbol.INSTANCE,
                 new ValueSymbol("Jeff")), any.values());
@@ -215,7 +215,7 @@ public class NullLiteralTest {
      * <li>Parse {@code age > null}, {@code age >= null}, {@code age < null},
      * {@code age lte null}, {@code age bw null 5}, {@code age bw 1 null},
      * {@code name like null}, {@code name regex null},
-     * {@code name contains null} and {@code age > any(null, 5)}.</li>
+     * {@code name contains null} and {@code age > any[null, 5]}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each statement fails with a
@@ -226,7 +226,7 @@ public class NullLiteralTest {
         for (String ccl : ImmutableList.of("age > null", "age >= null",
                 "age < null", "age lte null", "age bw null 5", "age bw 1 null",
                 "name like null", "name regex null", "name contains null",
-                "age > any(null, 5)")) {
+                "age > any[null, 5]")) {
             assertRejected(ccl);
         }
     }
@@ -277,8 +277,8 @@ public class NullLiteralTest {
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Round-trip {@code locked = null},
-     * {@code email != null at 1700000000}, {@code name = any(null, "Jeff")}
-     * and {@code name = "null"}.</li>
+     * {@code email != null at 1700000000}, {@code name = any[null, "Jeff"]} and
+     * {@code name = "null"}.</li>
      * <li>Parse {@code locked = null} and {@code locked = "null"}.</li>
      * </ul>
      * <p>
@@ -289,7 +289,7 @@ public class NullLiteralTest {
     public void testNullFormsRoundTrip() {
         assertRoundTripStable("locked = null");
         assertRoundTripStable("email != null at 1700000000");
-        assertRoundTripStable("name = any(null, \"Jeff\")");
+        assertRoundTripStable("name = any[null, \"Jeff\"]");
         assertRoundTripStable("name = \"null\"");
         Assert.assertNotEquals(compiler().parse("locked = null"),
                 compiler().parse("locked = \"null\""));

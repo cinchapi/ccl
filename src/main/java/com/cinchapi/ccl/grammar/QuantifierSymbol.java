@@ -24,10 +24,10 @@ import javax.annotation.Nullable;
  * combines with a set of values: the comparison holds for
  * {@link #ANY at least one} member or for {@link #EVERY every} member.
  * <p>
- * In CCL a quantifier is written as a function call around the value set, as in
- * {@code name = any("Jeff", "John")}. The words {@code any} and {@code either}
- * mean {@link #ANY}; {@code every} and {@code all} mean {@link #EVERY}. The
- * words are matched without regard to letter case.
+ * In CCL a quantifier is written as a word before the bracketed value set, as
+ * in {@code name = any["Jeff", "John"]}. The words {@code any} and
+ * {@code either} mean {@link #ANY}; {@code every} and {@code all} mean
+ * {@link #EVERY}. The words are matched without regard to letter case.
  * </p>
  *
  * @author Jeff Nelson
@@ -36,14 +36,14 @@ public enum QuantifierSymbol implements Symbol {
 
     /**
      * The comparison holds when it holds for at least one member of the value
-     * set, so {@code key op any(v1, v2)} means
+     * set, so {@code key op any[v1, v2]} means
      * {@code (key op v1) or (key op v2)}.
      */
     ANY,
 
     /**
      * The comparison holds when it holds for every member of the value set, so
-     * {@code key op every(v1, v2)} means {@code (key op v1) and (key op v2)}.
+     * {@code key op every[v1, v2]} means {@code (key op v1) and (key op v2)}.
      */
     EVERY;
 

@@ -2,21 +2,22 @@
 
 #### Version 4.2.0 (TBD)
 ##### Quantified Value Sets
-A comparison may test a key against a set of values. The set is written as a
-call to a quantifier, which says how the operator combines with the members:
-`any(...)` (alias `either`) holds when the comparison holds for at least one
-member, and `every(...)` (alias `all`) holds when it holds for every member. The
-quantifier composes with every operator.
+A comparison may test a key against a set of values. The set is written in
+square brackets, as CCL writes every collection, after a quantifier that says
+how the operator combines with the members: `any[...]` (alias `either`) holds
+when the comparison holds for at least one member, and `every[...]` (alias
+`all`) holds when it holds for every member. The quantifier composes with every
+operator.
 
-* `key op any(v1, v2)` means `(key op v1) or (key op v2)` and
-  `key op every(v1, v2)` means `(key op v1) and (key op v2)`. Each member is
+* `key op any[v1, v2]` means `(key op v1) or (key op v2)` and
+  `key op every[v1, v2]` means `(key op v1) and (key op v2)`. Each member is
   compared with the operator's usual single-value semantics.
 * `between` takes a set of parenthesized pairs, such as
-  `age bw any((1, 5), (10, 20))`.
-* `key in (...)` is sugar for `key = any(...)` and `key not_in (...)` (aliases
-  `nin`, `notin`) is sugar for `key != every(...)`. The set after `in` or
-  `not_in` may also be written with square brackets.
-* A set must hold at least one member; `any()` is a syntax error.
+  `age bw any[(1, 5), (10, 20)]`.
+* `key in [...]` is sugar for `key = any[...]` and `key not_in [...]` (aliases
+  `nin`, `notin`) is sugar for `key != every[...]`.
+* A set must hold at least one member; `any[]` is a syntax error. Parentheses do
+  not delimit a set; `any("a", "b")` is a syntax error.
 * The quantifier words are not reserved, so `status = all` still compares
   against the string `all`.
 * `ExpressionSymbol#quantifier()` returns the `QuantifierSymbol` (`ANY` or
@@ -30,10 +31,10 @@ quantifier composes with every operator.
 * `Compiler#evaluate` applies the quantifier locally.
 
 ```
-name = any("Jeff", "John", "Jane")
-tags = every("urgent", "backend")
-age > every(20, 30, 40)
-friends lnks2 any(2, 7, 9)
+name = any["Jeff", "John", "Jane"]
+tags = every["urgent", "backend"]
+age > every[20, 30, 40]
+friends lnks2 any[2, 7, 9]
 status in ["active", "pending"]
 ```
 
@@ -52,9 +53,9 @@ page and timestamp clauses. The command's result becomes the members of the set.
   that holds a subquery, because only the engine can resolve it.
 
 ```
-name = any(select name where group = "vip")
-reports_to lnks2 any(trace manager from 42)
-friend lnks2 every(navigate team.members from 7)
+name = any[select name where group = "vip"]
+reports_to lnks2 any[trace manager from 42]
+friend lnks2 every[navigate team.members from 7]
 ```
 
 ##### Keyed Trace

@@ -29,7 +29,7 @@ import com.google.common.base.Preconditions;
  * operation on a key with respect to one or more values (e.g. key = value, key
  * >= value, etc) at a certain timestamp.
  * <p>
- * A quantified expression, such as {@code name = any("Jeff", "John")}, holds
+ * A quantified expression, such as {@code name = any["Jeff", "John"]}, holds
  * every member of its value set in {@link #values()} and the way the operator
  * combines with them in {@link #quantifier()}. For an operator with more than
  * one operand, each consecutive group of {@link Operator#operands()} values is

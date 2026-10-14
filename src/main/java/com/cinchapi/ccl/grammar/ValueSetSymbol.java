@@ -27,8 +27,8 @@ import com.google.common.collect.Lists;
 
 /**
  * A {@link ValueTokenSymbol} that stands in the value position of a token
- * stream for a quantified value set, such as {@code any("Jeff", "John")} or
- * {@code every((1, 5), (10, 20))}.
+ * stream for a quantified value set, such as {@code any["Jeff", "John"]} or
+ * {@code every[(1, 5), (10, 20)]}.
  * <p>
  * An {@link ExpressionSymbol} exposes a quantified set through
  * {@link ExpressionSymbol#quantifier()} and {@link ExpressionSymbol#values()}.
@@ -156,7 +156,7 @@ public final class ValueSetSymbol
                             .collect(Collectors.joining(", ", "(", ")")))
                     .collect(Collectors.joining(", "));
         }
-        return quantifier + "(" + members + ")";
+        return quantifier + "[" + members + "]";
     }
 
 }
