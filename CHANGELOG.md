@@ -93,8 +93,18 @@ email != null
 
 ##### API Breaks and Deprecations
 * `not_in`, `nin` and `notin` are reserved words in any letter case, as the
-  other operator keywords are. A statement that uses one of them as an unquoted
-  key or value is a syntax error. Quote the value, as in `status = "nin"`.
+  other operator keywords are.
+  * A statement that uses one of them as an unquoted value is a syntax error.
+    Quote the value, as in `status = "nin"`.
+  * A key with one of these names is a syntax error on its own, because CCL has
+    no quoted form for keys. The name still parses as a stop in a navigation
+    key, such as `nin.name`. To use such a key in a condition, build the
+    condition with `Compiler#parse(List<Symbol>)`.
+* The unquoted word `null` in a condition is the null literal. A statement such
+  as `status = null`, which compared `status` with the string `null`, now
+  describes records with no value for `status`. An unquoted `null` with any
+  operator other than `=` and `!=`, such as `notes ~ null`, is a syntax error.
+  Quote the word, as in `status = "null"`, to compare with the string.
 * `ExpressionSymbol` has a new abstract method, `quantifier()`. A class outside
   this library that implements `ExpressionSymbol` must implement it; returning
   `null` keeps the class a plain comparison.

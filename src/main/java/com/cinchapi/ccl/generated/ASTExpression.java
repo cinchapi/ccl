@@ -187,7 +187,7 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     /**
      * Convert the node a string representation. The result is CCL that parses
      * to an equal node, so a quantified set renders as
-     * {@code quantifier(member, ...)}.
+     * {@code quantifier[member, ...]}.
      *
      * @return the node as a string
      */

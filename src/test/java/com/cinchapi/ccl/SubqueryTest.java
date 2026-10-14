@@ -279,8 +279,8 @@ public class SubqueryTest {
     /**
      * <strong>Goal:</strong> Verify that a quantified comparison with a
      * subquery re-parses to an equal tree from its token stream and from its
-     * {@code toString()}, with the timestamp after the closing parenthesis kept
-     * on the outer comparison.
+     * {@code toString()}, with the timestamp after the closing bracket kept on
+     * the outer comparison.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>

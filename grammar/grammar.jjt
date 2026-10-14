@@ -148,6 +148,8 @@ public class Grammar {
      * Return true if the next tokens are a quantifier word followed by an
      * opening bracket, which starts a quantified value set. The words are not
      * reserved, so the same word is an ordinary value elsewhere.
+     *
+     * @return {@code true} if a quantified value set starts at the next token
      */
     private boolean isQuantifiedValueSet() {
         Token word = getToken(1);
@@ -157,11 +159,18 @@ public class Grammar {
     }
 
     /**
-     * Return value, unless the value production that produced it consumed only
-     * the unquoted word null, which is the literal for an absent value. The
-     * literal is returned when nullable and rejected otherwise. A word that
-     * follows null makes the two part of a multi-word string value, which is
-     * returned unchanged.
+     * Return {@code value}, unless the value production that produced it
+     * consumed only the unquoted word {@code null}, which is the literal for an
+     * absent value. A word that follows {@code null} makes the two part of a
+     * multi-word string value, which is returned unchanged.
+     *
+     * @param first the first token the value production consumed
+     * @param value the value the production returned
+     * @param nullable whether the operator accepts the {@code null} literal
+     * @return {@link NullValueSymbol#INSTANCE} for the literal, or
+     *         {@code value}
+     * @throws SyntaxException if {@code value} is the literal and
+     *             {@code nullable} is {@code false}
      */
     private ValueTokenSymbol nullLiteralOrValue(Token first,
             ValueTokenSymbol value, boolean nullable) {
@@ -576,12 +585,11 @@ void RelationalExpression() #Expression :
     }
 }
 
-// --- Operands ---
-// An operand is a single value, a quantified value set such as any[v1, v2],
-// or, after `in` / `not_in`, a value set with the quantifier implied. Each
-// operator family has its own operand production because each calls for its
-// own value production. Only the equality operators accept the unquoted null
-// literal, which `nullable` conveys; every other family rejects it.
+// An operand is a single value, a quantified value set such as any[v1, v2], or,
+// after `in` / `not_in`, a value set with the quantifier implied. Each operator
+// family has its own operand production because each calls for its own value
+// production. Only the equality operators accept the unquoted null literal,
+// which `nullable` conveys; every other family rejects it.
 
 void UnaryOperand(ASTExpression expression, boolean nullable) :
 {

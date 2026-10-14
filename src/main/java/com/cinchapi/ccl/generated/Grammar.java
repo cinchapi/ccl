@@ -125,6 +125,8 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
      * Return true if the next tokens are a quantifier word followed by an
      * opening bracket, which starts a quantified value set. The words are not
      * reserved, so the same word is an ordinary value elsewhere.
+     *
+     * @return {@code true} if a quantified value set starts at the next token
      */
     private boolean isQuantifiedValueSet() {
         Token word = getToken(1);
@@ -134,11 +136,18 @@ public class Grammar/*@bgen(jjtree)*/implements GrammarTreeConstants, GrammarCon
     }
 
     /**
-     * Return value, unless the value production that produced it consumed only
-     * the unquoted word null, which is the literal for an absent value. The
-     * literal is returned when nullable and rejected otherwise. A word that
-     * follows null makes the two part of a multi-word string value, which is
-     * returned unchanged.
+     * Return {@code value}, unless the value production that produced it
+     * consumed only the unquoted word {@code null}, which is the literal for an
+     * absent value. A word that follows {@code null} makes the two part of a
+     * multi-word string value, which is returned unchanged.
+     *
+     * @param first the first token the value production consumed
+     * @param value the value the production returned
+     * @param nullable whether the operator accepts the {@code null} literal
+     * @return {@link NullValueSymbol#INSTANCE} for the literal, or
+     *         {@code value}
+     * @throws SyntaxException if {@code value} is the literal and
+     *             {@code nullable} is {@code false}
      */
     private ValueTokenSymbol nullLiteralOrValue(Token first,
             ValueTokenSymbol value, boolean nullable) {
@@ -856,12 +865,11 @@ if (jjtc000) {
     }
 }
 
-// --- Operands ---
-// An operand is a single value, a quantified value set such as any[v1, v2],
-// or, after `in` / `not_in`, a value set with the quantifier implied. Each
-// operator family has its own operand production because each calls for its
-// own value production. Only the equality operators accept the unquoted null
-// literal, which `nullable` conveys; every other family rejects it.
+// An operand is a single value, a quantified value set such as any[v1, v2], or,
+// after `in` / `not_in`, a value set with the quantifier implied. Each operator
+// family has its own operand production because each calls for its own value
+// production. Only the equality operators accept the unquoted null literal,
+// which `nullable` conveys; every other family rejects it.
   final public 
 void UnaryOperand(ASTExpression expression, boolean nullable) throws ParseException {QuantifierSymbol quantifier;
     ValueTokenSymbol value;
@@ -7022,13 +7030,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     finally { jj_save(74, xla); }
   }
 
-  private boolean jj_3R_46()
- {
-    if (jj_scan_token(NUMERIC)) return true;
-    if (jj_scan_token(COMMA)) return true;
-    return false;
-  }
-
   private boolean jj_3R_136()
  {
     if (jj_3R_144()) return true;
@@ -7856,6 +7857,12 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3_6()
+ {
+    if (jj_3R_32()) return true;
+    return false;
+  }
+
   private boolean jj_3_15()
  {
     Token xsp;
@@ -7888,7 +7895,7 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3_6()
+  private boolean jj_3_4()
  {
     if (jj_3R_32()) return true;
     return false;
@@ -7898,12 +7905,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
  {
     if (jj_3R_47()) return true;
     if (jj_scan_token(WHERE)) return true;
-    return false;
-  }
-
-  private boolean jj_3_4()
- {
-    if (jj_3R_32()) return true;
     return false;
   }
 
@@ -8252,14 +8253,10 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3_65()
+  private boolean jj_3R_105()
  {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(62)) {
-    jj_scanpos = xsp;
-    if (jj_3R_66()) return true;
-    }
+    if (jj_3R_116()) return true;
+    if (jj_3R_117()) return true;
     return false;
   }
 
@@ -8269,10 +8266,14 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_105()
+  private boolean jj_3_65()
  {
-    if (jj_3R_116()) return true;
-    if (jj_3R_117()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(62)) {
+    jj_scanpos = xsp;
+    if (jj_3R_66()) return true;
+    }
     return false;
   }
 
@@ -8582,16 +8583,16 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_75()
+ {
+    if (jj_scan_token(DISJUNCTION)) return true;
+    return false;
+  }
+
   private boolean jj_3R_65()
  {
     if (jj_scan_token(NUMERIC)) return true;
     if (jj_scan_token(COMMA)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_75()
- {
-    if (jj_scan_token(DISJUNCTION)) return true;
     return false;
   }
 
@@ -8680,6 +8681,12 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_95()
+ {
+    if (jj_3R_99()) return true;
+    return false;
+  }
+
   private boolean jj_3R_35()
  {
     Token xsp;
@@ -8705,9 +8712,10 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_95()
+  private boolean jj_3R_94()
  {
-    if (jj_3R_99()) return true;
+    if (jj_scan_token(OPEN_PARENTHESES)) return true;
+    if (jj_3R_27()) return true;
     return false;
   }
 
@@ -8719,13 +8727,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     jj_scanpos = xsp;
     if (jj_scan_token(107)) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_94()
- {
-    if (jj_scan_token(OPEN_PARENTHESES)) return true;
-    if (jj_3R_27()) return true;
     return false;
   }
 
@@ -8844,6 +8845,12 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_28()
+ {
+    if (jj_3R_76()) return true;
+    return false;
+  }
+
   private boolean jj_3_62()
  {
     Token xsp;
@@ -8852,12 +8859,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     jj_scanpos = xsp;
     if (jj_3R_64()) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_28()
- {
-    if (jj_3R_76()) return true;
     return false;
   }
 
@@ -9192,6 +9193,13 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
   }
 
   private boolean jj_3R_72()
+ {
+    if (jj_scan_token(NUMERIC)) return true;
+    if (jj_scan_token(COMMA)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_46()
  {
     if (jj_scan_token(NUMERIC)) return true;
     if (jj_scan_token(COMMA)) return true;
