@@ -344,7 +344,7 @@ quantifier that says how the operator combines with the members:
 
 | Quantifier | Aliases | Meaning |
 |------------|---------|---------|
-| `any[...]` | `either[...]` | The comparison holds for at least one member |
+| `any[...]` | `either[...]`, `some[...]` | The comparison holds for at least one member |
 | `every[...]` | `all[...]` | The comparison holds for every member |
 
 `key op any[v1, v2]` means `(key op v1) or (key op v2)`, and
@@ -359,6 +359,7 @@ name = any["Jeff", "John", "Jane"]      -- name is one of the three
 tags = every["urgent", "backend"]       -- tags holds both values
 age > every[20, 30, 40]                 -- age exceeds 40
 age > any[20, 30, 40]                   -- age exceeds 20
+age > some[20, 30, 40]                  -- the same, in SQL's spelling
 friends lnks2 any[2, 7, 9]              -- links to any of these records
 name like any["J%", "K%"]
 ```
@@ -1719,7 +1720,7 @@ ValueTuple        ::= '(' Value ',' Value ')'
 ValueSet          ::= '[' Members ']'
 Members           ::= Subquery | Value (',' Value)*
 Subquery          ::= SelectCommand | GetCommand | FindCommand | TraceCommand | NavigateCommand
-Quantifier        ::= 'any' | 'either' | 'every' | 'all'
+Quantifier        ::= 'any' | 'either' | 'some' | 'every' | 'all'
 
 (* Keys *)
 Key               ::= FunctionKey | SimpleKey | NavigationKey

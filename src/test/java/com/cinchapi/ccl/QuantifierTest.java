@@ -254,16 +254,17 @@ public class QuantifierTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that {@code either} is an alias of
-     * {@code any}, that {@code all} is an alias of {@code every}, and that
-     * quantifier words are case-insensitive.
+     * <strong>Goal:</strong> Verify that {@code either} and {@code some} are
+     * aliases of {@code any}, that {@code all} is an alias of {@code every},
+     * and that quantifier words are case-insensitive.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse the same comparison with {@code any}, {@code either} and
-     * {@code ANY}, and with {@code every}, {@code all} and {@code EVERY}.</li>
+     * <li>Parse the same comparison with {@code any}, {@code either},
+     * {@code some} and {@code ANY}, and with {@code every}, {@code all} and
+     * {@code EVERY}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each spelling in a group parses to a tree
@@ -274,6 +275,7 @@ public class QuantifierTest {
     public void testQuantifierAliasesAndCaseParseToSameTree() {
         ConditionTree any = parse("tags = any[\"a\", \"b\"]");
         Assert.assertEquals(any, parse("tags = either[\"a\", \"b\"]"));
+        Assert.assertEquals(any, parse("tags = some[\"a\", \"b\"]"));
         Assert.assertEquals(any, parse("tags = ANY[\"a\", \"b\"]"));
         ConditionTree every = parse("tags = every[\"a\", \"b\"]");
         Assert.assertEquals(every, parse("tags = all[\"a\", \"b\"]"));
@@ -479,13 +481,14 @@ public class QuantifierTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code status = all}, {@code any = 1} and
-     * {@code note = all hands}.</li>
+     * <li>Parse {@code status = all}, {@code any = 1}, {@code count = some}
+     * and {@code note = all hands}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> {@code status = all} has no quantifier and the
-     * value {@code all}; {@code any = 1} has the key {@code any}; the
-     * multi-word value is {@code all hands}.
+     * value {@code all}; {@code any = 1} has the key {@code any};
+     * {@code count = some} has the value {@code some}; the multi-word value is
+     * {@code all hands}.
      */
     @Test
     public void testQuantifierWordsRemainOrdinaryKeysAndValues() {
@@ -493,6 +496,8 @@ public class QuantifierTest {
         Assert.assertNull(status.quantifier());
         Assert.assertEquals(ImmutableList.of("all"), status.raw().values());
         Assert.assertEquals(new KeySymbol("any"), expression("any = 1").key());
+        Assert.assertEquals(ImmutableList.of("some"),
+                expression("count = some").raw().values());
         Assert.assertEquals(ImmutableList.of("all hands"),
                 expression("note = all hands").raw().values());
     }

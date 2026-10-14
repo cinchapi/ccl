@@ -4,10 +4,10 @@
 ##### Quantified Value Sets
 A comparison may test a key against a set of values. The set is written in
 square brackets, as CCL writes every collection, after a quantifier that says
-how the operator combines with the members: `any[...]` (alias `either`) holds
-when the comparison holds for at least one member, and `every[...]` (alias
-`all`) holds when it holds for every member. The quantifier composes with every
-operator.
+how the operator combines with the members: `any[...]` (aliases `either` and
+`some`) holds when the comparison holds for at least one member, and
+`every[...]` (alias `all`) holds when it holds for every member. The quantifier
+composes with every operator.
 
 * `key op any[v1, v2]` means `(key op v1) or (key op v2)` and
   `key op every[v1, v2]` means `(key op v1) and (key op v2)`. Each member is
@@ -20,6 +20,8 @@ operator.
   not delimit a set; `any("a", "b")` is a syntax error.
 * The quantifier words are not reserved, so `status = all` still compares
   against the string `all`.
+* `some` reads best with the ordering operators: `age > some[20, 30, 40]` holds
+  when `age` exceeds at least one of them.
 * `ExpressionSymbol#quantifier()` returns the `QuantifierSymbol` (`ANY` or
   `EVERY`), or `null` for a plain comparison, and `values()` returns every
   member in order. `ExpressionSymbol#create` accepts a quantifier. The raw

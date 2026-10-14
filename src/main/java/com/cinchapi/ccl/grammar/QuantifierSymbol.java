@@ -25,8 +25,8 @@ import javax.annotation.Nullable;
  * {@link #ANY at least one} member or for {@link #EVERY every} member.
  * <p>
  * In CCL a quantifier is written as a word before the bracketed value set, as
- * in {@code name = any["Jeff", "John"]}. The words {@code any} and
- * {@code either} mean {@link #ANY}; {@code every} and {@code all} mean
+ * in {@code name = any["Jeff", "John"]}. The words {@code any}, {@code either}
+ * and {@code some} mean {@link #ANY}; {@code every} and {@code all} mean
  * {@link #EVERY}. The words are matched without regard to letter case.
  * </p>
  *
@@ -59,6 +59,7 @@ public enum QuantifierSymbol implements Symbol {
         switch (word.toLowerCase(Locale.ROOT)) {
         case "any":
         case "either":
+        case "some":
             return ANY;
         case "every":
         case "all":
