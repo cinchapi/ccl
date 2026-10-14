@@ -48,7 +48,9 @@ page and timestamp clauses. The command's result becomes the members of the set.
 * A subquery must be the whole set. It cannot be mixed with literal members,
   appear without a quantifier, or supply the pairs of a `between` set.
 * The subquery's condition belongs to the subquery alone; it is not a child of
-  the enclosing condition.
+  the enclosing condition. `Compiler#analyze` of the enclosing statement does
+  not report the subquery's keys, operators or timestamps; analyze the
+  subquery's `CommandTree` for them.
 * The parsed expression holds one `SubquerySymbol` whose `value()` is the
   subquery's `CommandTree` and whose `toString()` is the subquery's CCL. A
   `$name` placeholder in the subquery renders as its bound value, so the CCL

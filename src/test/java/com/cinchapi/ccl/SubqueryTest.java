@@ -39,6 +39,7 @@ import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.concourse.util.Convert;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Coverage for subqueries as the source of a quantified value set: the commands
@@ -368,6 +369,41 @@ public class SubqueryTest {
         compiler().evaluate(parse("name = any[select name where g = 1]"),
                 ImmutableMultimap.of("name", "Jeff"),
                 (value, operator, values) -> true);
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the analysis of a condition stops at a
+     * subquery, whose keys belong to the analysis of the subquery's own
+     * {@link CommandTree}.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Analyze
+     * {@code name = any[select email where group[1700000000] > 1]}.</li>
+     * <li>Analyze the subquery's {@link CommandTree}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The condition reports only the key
+     * {@code name}, only the operator {@code =} and no temporal keys. The
+     * subquery reports the keys {@code email} and {@code group}, the operator
+     * {@code >} and the temporal key {@code group}.
+     */
+    @Test
+    public void testAnalyzeExcludesTheKeysOfASubquery() {
+        String ccl = "name = any[select email where group[1700000000] > 1]";
+        StatementAnalysis outer = compiler().analyze(parse(ccl));
+        Assert.assertEquals(ImmutableSet.of("name"), outer.keys());
+        Assert.assertEquals(ImmutableSet.of(OP_FN.apply("=")),
+                outer.operators());
+        Assert.assertEquals(ImmutableSet.of(), outer.temporalKeys().keySet());
+        CommandAnalysis inner = compiler().analyze(subquery(ccl).value());
+        Assert.assertEquals(ImmutableSet.of("email", "group"), inner.keys());
+        Assert.assertEquals(ImmutableSet.of(OP_FN.apply(">")),
+                inner.operators());
+        Assert.assertEquals(ImmutableSet.of("group"),
+                inner.temporalKeys().keySet());
     }
 
 }

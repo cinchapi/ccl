@@ -23,9 +23,11 @@ import javax.annotation.Nullable;
  * The {@link CommandAnalysis} provides metadata about a CCL command,
  * aggregating both the selection-side and the {@code WHERE}-side of the
  * statement under the same {@link StatementAnalysis} accessors. Each
- * key/temporal/navigation accessor it inherits unions selection keys,
- * inner condition keys, and any scope pivots so a single call answers
- * "what does this whole command touch".
+ * key/temporal/navigation accessor it inherits unions selection keys, inner
+ * condition keys, and any scope pivots so a single call answers "what does this
+ * whole command touch". A subquery in the condition is a separate statement
+ * whose keys are not part of this analysis, as {@link StatementAnalysis}
+ * describes.
  *
  * @author Jeff Nelson
  */
