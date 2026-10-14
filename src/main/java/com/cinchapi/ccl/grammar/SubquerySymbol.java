@@ -35,9 +35,10 @@ import com.cinchapi.ccl.syntax.CommandTree;
  * </p>
  * <p>
  * {@link #toString()} is the CCL of the subquery with its tokens separated by
- * single spaces, so a comparison that holds this symbol renders back to CCL
- * that parses to an equal comparison. Two subqueries are equal when that CCL is
- * equal.
+ * single spaces and each {@code $name} placeholder replaced by its bound value,
+ * so a comparison that holds this symbol renders back to CCL that parses to an
+ * equal comparison without the bindings. Two subqueries are equal when that CCL
+ * is equal.
  * </p>
  *
  * @author Jeff Nelson

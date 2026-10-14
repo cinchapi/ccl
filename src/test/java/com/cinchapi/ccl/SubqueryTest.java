@@ -315,6 +315,40 @@ public class SubqueryTest {
     }
 
     /**
+     * <strong>Goal:</strong> Verify that a subquery whose condition holds a
+     * {@code $name} placeholder renders the bound value, so its CCL re-parses
+     * without the bindings and subqueries with different bindings differ.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Parse {@code name = any[select name where group = $g]} with
+     * {@code g} bound to {@code very important}, and again with {@code g} bound
+     * to {@code staff}.</li>
+     * <li>Parse the first tree's {@code toString()} with no bindings.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The first tree equals the tree for
+     * {@code name = any[select name where group = "very important"]}, and its
+     * {@code toString()} re-parses to an equal tree. The two bound trees are
+     * not equal.
+     */
+    @Test
+    public void testToStringRendersTheBoundValueOfASubqueryPlaceholder() {
+        String ccl = "name = any[select name where group = $g]";
+        ConditionTree important = (ConditionTree) compiler().parse(ccl,
+                ImmutableMultimap.of("g", "very important"));
+        ConditionTree staff = (ConditionTree) compiler().parse(ccl,
+                ImmutableMultimap.of("g", "staff"));
+        Assert.assertEquals(parse(
+                "name = any[select name where group = \"very important\"]"),
+                important);
+        Assert.assertEquals(important, parse(important.root().toString()));
+        Assert.assertNotEquals(important, staff);
+    }
+
+    /**
      * <strong>Goal:</strong> Verify that local evaluation refuses a condition
      * whose value set is a subquery, because only the engine can resolve it.
      * <p>

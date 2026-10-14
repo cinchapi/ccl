@@ -50,9 +50,11 @@ page and timestamp clauses. The command's result becomes the members of the set.
 * The subquery's condition belongs to the subquery alone; it is not a child of
   the enclosing condition.
 * The parsed expression holds one `SubquerySymbol` whose `value()` is the
-  subquery's `CommandTree` and whose `toString()` is the subquery's CCL.
-  `Compiler#evaluate` throws `UnsupportedOperationException` for a condition
-  that holds a subquery, because only the engine can resolve it.
+  subquery's `CommandTree` and whose `toString()` is the subquery's CCL. A
+  `$name` placeholder in the subquery renders as its bound value, so the CCL
+  parses to an equal subquery without the bindings. `Compiler#evaluate` throws
+  `UnsupportedOperationException` for a condition that holds a subquery, because
+  only the engine can resolve it.
 
 ```
 name = any[select name where group = "vip"]
