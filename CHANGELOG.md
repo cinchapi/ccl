@@ -1,5 +1,98 @@
 # Changelog
 
+#### Version 4.2.0 (TBD)
+##### Quantified Value Sets
+A comparison may test a key against a set of values. The set is written as a
+call to a quantifier, which says how the operator combines with the members:
+`any(...)` (alias `either`) holds when the comparison holds for at least one
+member, and `every(...)` (alias `all`) holds when it holds for every member. The
+quantifier composes with every operator.
+
+* `key op any(v1, v2)` means `(key op v1) or (key op v2)` and
+  `key op every(v1, v2)` means `(key op v1) and (key op v2)`. Each member is
+  compared with the operator's usual single-value semantics.
+* `between` takes a set of parenthesized pairs, such as
+  `age bw any((1, 5), (10, 20))`.
+* `key in (...)` is sugar for `key = any(...)` and `key not_in (...)` (aliases
+  `nin`, `notin`) is sugar for `key != every(...)`. The set after `in` or
+  `not_in` may also be written with square brackets.
+* A set must hold at least one member; `any()` is a syntax error.
+* The quantifier words are not reserved, so `status = all` still compares
+  against the string `all`.
+* `ExpressionSymbol#quantifier()` returns the `QuantifierSymbol` (`ANY` or
+  `EVERY`), or `null` for a plain comparison, and `values()` returns every
+  member in order. `ExpressionSymbol#create` accepts a quantifier. The raw
+  `Content` exposes `quantifier()` too.
+* In the token stream from `Compiler#tokenize` and `Parsing#ungroupExpressions`,
+  a quantified set travels as one `ValueSetSymbol` in the value position, so the
+  stream renders back to valid CCL and `Parsing#groupExpressions` rebuilds the
+  quantified expression.
+* `Compiler#evaluate` applies the quantifier locally.
+
+```
+name = any("Jeff", "John", "Jane")
+tags = every("urgent", "backend")
+age > every(20, 30, 40)
+friends lnks2 any(2, 7, 9)
+status in ["active", "pending"]
+```
+
+##### Subqueries
+A quantified value set may be supplied by a read command instead of literals:
+`select`, `get`, `find`, `trace` or `navigate`, with its own condition, order,
+page and timestamp clauses. The command's result becomes the members of the set.
+
+* A subquery must be the whole set. It cannot be mixed with literal members,
+  appear without a quantifier, or supply the pairs of a `between` set.
+* The subquery's condition belongs to the subquery alone; it is not a child of
+  the enclosing condition.
+* The parsed expression holds one `SubquerySymbol` whose `value()` is the
+  subquery's `CommandTree` and whose `toString()` is the subquery's CCL.
+  `Compiler#evaluate` throws `UnsupportedOperationException` for a condition
+  that holds a subquery, because only the engine can resolve it.
+
+```
+name = any(select name where group = "vip")
+reports_to lnks2 any(trace manager from 42)
+friend lnks2 every(navigate team.members from 7)
+```
+
+##### Keyed Trace
+`trace <key> from <record>` and `trace <key> from [<records>]` trace only the
+references made through `key`. The prepositions `in` and `within` are accepted
+in place of `from`, and a timestamp may follow. `TraceSymbol#key()` returns the
+key, or `null` for a trace through every key.
+
+```
+trace manager from 42
+trace manager in [1, 2] at "yesterday"
+```
+
+##### Null Literal
+The unquoted word `null`, in any letter case, is a literal for the absence of a
+value. `key = null` describes records with no value for `key` and `key != null`
+describes records with at least one.
+
+* The literal parses to `NullValueSymbol.INSTANCE`, whose `value()` is Java
+  `null`. It is accepted only with `=` and `!=`, alone or as a member of a
+  quantified set; any other operator rejects it with a syntax error.
+* The quoted string `"null"` stays a string, and its `ValueSymbol` renders with
+  its quotes so that a round trip through CCL keeps it a string. An unquoted
+  `null` followed by another word is part of a multi-word string.
+
+```
+middleName = null
+email != null
+```
+
+##### API Breaks and Deprecations
+* `not_in`, `nin` and `notin` are reserved words in any letter case, as the
+  other operator keywords are. A statement that uses one of them as an unquoted
+  key or value is a syntax error. Quote the value, as in `status = "nin"`.
+* `ExpressionSymbol` has a new abstract method, `quantifier()`. A class outside
+  this library that implements `ExpressionSymbol` must implement it; returning
+  `null` keeps the class a plain comparison.
+
 #### Version 4.1.0 (September 30, 2026)
 ##### New Commands
 CCL parses commands for Concourse's atomic read and set operations and for its

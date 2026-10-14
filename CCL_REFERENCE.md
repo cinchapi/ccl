@@ -114,6 +114,24 @@ name = Jeff Nelson
 
 Unquoted numeric strings are parsed by the value transform function, which determines whether they become integers, longs, floats, etc.
 
+### The Null Literal
+
+The unquoted word `null`, in any letter case, stands for the absence of a value.
+`key = null` describes records that hold no value for `key`, and `key != null`
+describes records that hold at least one. The literal is accepted only with `=`
+and `!=`, alone or as a member of a value set; any other operator rejects it
+with a syntax error.
+
+```
+middleName = null
+email != null
+name = any(null, "Jeff")
+```
+
+The quoted string `"null"` is an ordinary string value, so data that stores the
+word `null` as text is matched with `name = "null"`. An unquoted `null` followed
+by another word is part of a multi-word string, as in `note = null pointer`.
+
 ### Record Identifiers
 
 Records are identified by positive integer IDs:
@@ -259,6 +277,17 @@ Requires two values:
 
 The `links_to` operator's value must be a numeric record ID.
 
+### Membership Operators
+
+| Syntax | Aliases | Meaning |
+|--------|---------|---------|
+| `in` | | Equal to any member of a value set |
+| `not_in` | `nin`, `notin` | Not equal to every member of a value set |
+
+`key in (v1, v2)` is sugar for `key = any(v1, v2)` and `key not_in (v1, v2)` is
+sugar for `key != every(v1, v2)`. The set may be delimited by parentheses or
+square brackets. See [Quantified Value Sets](#quantified-value-sets).
+
 ---
 
 ## 6. Conditions (Expressions)
@@ -306,6 +335,72 @@ name regex ([A-Z][a-z]+)
 friends -> 42
 tags ~ database
 ```
+
+### Quantified Value Sets
+
+Any operator may compare a key against a set of values instead of one value. The
+set is written as a call to a quantifier, which says how the operator combines
+with the members:
+
+| Quantifier | Aliases | Meaning |
+|------------|---------|---------|
+| `any(...)` | `either(...)` | The comparison holds for at least one member |
+| `every(...)` | `all(...)` | The comparison holds for every member |
+
+`key op any(v1, v2)` means `(key op v1) or (key op v2)`, and
+`key op every(v1, v2)` means `(key op v1) and (key op v2)`. Each member is
+compared with the operator's usual single-value semantics, so for a key that
+holds several values, a member holds when any stored value satisfies it. The
+quantifier words are case-insensitive and are not reserved; `status = all` is
+still a comparison against the string `all`.
+
+```
+name = any("Jeff", "John", "Jane")      -- name is one of the three
+tags = every("urgent", "backend")       -- tags holds both values
+age > every(20, 30, 40)                 -- age exceeds 40
+age > any(20, 30, 40)                   -- age exceeds 20
+friends lnks2 any(2, 7, 9)              -- links to any of these records
+name like any("J%", "K%")
+```
+
+The `between` operator takes a set of parenthesized value pairs:
+
+```
+age bw any((1, 5), (10, 20))
+```
+
+A set must hold at least one member; `any()` is a syntax error. A timestamp that
+follows the closing parenthesis applies to the comparison:
+
+```
+name = any("a", "b") at "yesterday"
+```
+
+In the parsed expression, `ExpressionSymbol#quantifier()` returns the quantifier
+and `ExpressionSymbol#values()` returns every member in order. For `between`,
+each consecutive pair of values is one member.
+
+### Subqueries
+
+A quantified value set may be supplied by a read command instead of literals.
+The command's result becomes the members of the set, and the quantifier is
+applied to those members. The command may be `select`, `get`, `find`, `trace` or
+`navigate`, with its own condition, order, page and timestamp clauses.
+
+```
+name = any(select name where group = "vip")
+id in (find group = "vip")
+reports_to lnks2 any(trace manager from 42)
+friend lnks2 every(navigate team.members from 7)
+```
+
+A subquery must be the whole set: it cannot be mixed with literal members, it
+cannot appear outside a quantifier, and it cannot supply the pairs of a
+`between` set. The subquery's condition belongs to the subquery alone and is not
+part of the enclosing condition. In the parsed expression, the single value is a
+`SubquerySymbol` whose value is the subquery's `CommandTree`; the engine
+resolves it. `Compiler#evaluate` cannot evaluate a condition that holds a
+subquery.
 
 ---
 
@@ -1203,18 +1298,25 @@ audit name in 1 from "last month" to "today"
 
 #### TRACE
 
-Trace incoming references to a record.
+Trace incoming references to a record. With a key, trace only the references
+made through that key.
 
 ```
 trace <record> [timestamp]
 trace [<records>] [timestamp]
+trace <key> from <record> [timestamp]
+trace <key> from [<records>] [timestamp]
 ```
 
 ```
 trace 1
 trace [1, 2, 3]
 trace 1 at "yesterday"
+trace manager from 42
+trace manager in [1, 2] at "yesterday"
 ```
+
+The parsed `TraceSymbol#key()` is the key, or `null` when every key is traced.
 
 #### INVENTORY
 
@@ -1606,9 +1708,17 @@ Conjunction       ::= Unary (('and' | '&&' | '&') Unary)*
 Unary             ::= Scoped | '(' Condition ')' | Expression
 Scoped            ::= NavigationPrefix '.' '(' Condition ')'
 NavigationPrefix  ::= SimpleKey | PERIOD_SEPARATED_STRING | ASTERISK_SUFFIXED_STRING
-Expression        ::= Key Operator Value [Timestamp]
-                    | Key BinaryOperator Value Value [Timestamp]
-                    | Key SearchOperator Value
+Expression        ::= Key Operator Operand [Timestamp]
+                    | Key BinaryOperator BinaryOperand [Timestamp]
+                    | Key SearchOperator Operand
+                    | Key MembershipOperator ValueSet [Timestamp]
+Operand           ::= Value | Quantifier '(' ValueSet ')'
+BinaryOperand     ::= Value Value | Quantifier '(' ValueTuple (',' ValueTuple)* ')'
+ValueTuple        ::= '(' Value ',' Value ')'
+ValueSet          ::= '(' Members ')' | '[' Members ']'      (* brackets only after in / not_in *)
+Members           ::= Subquery | Value (',' Value)*
+Subquery          ::= SelectCommand | GetCommand | FindCommand | TraceCommand | NavigateCommand
+Quantifier        ::= 'any' | 'either' | 'every' | 'all'
 
 (* Keys *)
 Key               ::= FunctionKey | SimpleKey | NavigationKey
@@ -1617,7 +1727,8 @@ NavigationKey     ::= PERIOD_SEPARATED_STRING          (* e.g., friends.name, ch
 FunctionKey       ::= Key '|' ALPHANUMERIC             (* e.g., score | avg *)
 
 (* Values *)
-Value             ::= FunctionValue | QUOTED_STRING | UnquotedTokens | VariableRef
+Value             ::= FunctionValue | QUOTED_STRING | UnquotedTokens | VariableRef | NullLiteral
+NullLiteral       ::= 'null'                           (* only with '=' and '!=' *)
 FunctionValue     ::= ALPHANUMERIC '(' Key [',' Args] ')'
 VariableRef       ::= '$' ALPHANUMERIC
 
@@ -1633,6 +1744,7 @@ RegexOperator     ::= 'regex' | 'nregex' | 'not_regex' | 'like' | 'nlike' | 'not
 LinkOperator      ::= '->' | 'lnk2' | 'lnks2' | 'links_to'
 SearchOperator    ::= '~' | 'contains' | 'search_match'
                     | '!~' | 'not_contains' | 'search_exclude'
+MembershipOperator ::= 'in' | 'not_in' | 'nin' | 'notin'
 
 (* Timestamp *)
 Timestamp         ::= ('at' | 'on' | 'during') TimestampValue
@@ -1677,7 +1789,7 @@ InspectPreposition::= 'in' | 'within'
 (* Commands *)
 Command           ::= AddCommand | SetCommand | InsertCommand
                     | RemoveCommand | ClearCommand
-                    | SelectCommand | GetCommand | NavigateCommand | CalculateCommand
+                    | SelectCommand | GetCommand | NavigateCommand | TraceCommand | CalculateCommand
                     | VerifyCommand | VerifyAndSwapCommand | VerifyOrSetCommand
                     | ChronicleCommand | DiffCommand | AuditCommand
                     | RevertCommand | ReconcileCommand
@@ -1730,6 +1842,10 @@ NavigateCommand   ::= 'navigate' Key ReadPreposition NUMERIC [TimestampCommand]
                     | 'navigate' KeyCollection ReadPreposition RecordCollection [TimestampCommand]
                     | 'navigate' Key 'where' Condition [TimestampCommand]
                     | 'navigate' KeyCollection 'where' Condition [TimestampCommand]
+TraceCommand      ::= 'trace' NUMERIC [TimestampCommand]
+                    | 'trace' RecordCollection [TimestampCommand]
+                    | 'trace' Key ReadPreposition NUMERIC [TimestampCommand]
+                    | 'trace' Key ReadPreposition RecordCollection [TimestampCommand]
 CalculateCommand  ::= 'calculate' ALPHANUMERIC Key [TimestampCommand]
                     | 'calculate' ALPHANUMERIC Key ReadPreposition NUMERIC [TimestampCommand]
                     | 'calculate' ALPHANUMERIC Key ReadPreposition RecordCollection [TimestampCommand]

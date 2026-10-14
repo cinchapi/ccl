@@ -28,6 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
@@ -39,11 +40,14 @@ import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.ParenthesisSymbol;
 import com.cinchapi.ccl.grammar.PostfixNotationSymbol;
+import com.cinchapi.ccl.grammar.QuantifierSymbol;
 import com.cinchapi.ccl.grammar.ScopeEndSymbol;
 import com.cinchapi.ccl.grammar.ScopeSymbol;
+import com.cinchapi.ccl.grammar.SubquerySymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
+import com.cinchapi.ccl.grammar.ValueSetSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.ccl.grammar.command.AddSymbol;
@@ -663,6 +667,17 @@ public abstract class Compiler {
      * &mdash; it avoids the intermediate conversion from {@link Multimap} to
      * {@link Association} and is therefore more efficient.
      * </p>
+     * <p>
+     * A comparison holds when any stored value for its key satisfies the
+     * {@code evaluator}. A quantified comparison applies that test to each
+     * member of its value set and combines the results: {@code any} holds when
+     * at least one member holds and {@code every} holds when each member holds.
+     * A comparison whose value set is a subquery cannot be evaluated locally.
+     * The {@code null} literal reaches the {@code evaluator} as a {@code null}
+     * operand, and a key with no stored value reaches it as a {@code null}
+     * stored value, so the {@code evaluator} decides whether {@code key = null}
+     * holds for a record without {@code key}.
+     * </p>
      *
      * @param tree the {@link ConditionTree} that represents
      *            the condition to evaluate
@@ -675,6 +690,8 @@ public abstract class Compiler {
      *            values
      * @return {@code true} if the {@code data} is described by the condition in
      *         the {@code tree}
+     * @throws UnsupportedOperationException if the {@code tree} holds a
+     *             prefix-scoped condition or a subquery
      */
     public final boolean evaluate(ConditionTree tree, Association data,
             TriFunction<Object, Operator, List<Object>, Boolean> evaluator) {
@@ -711,13 +728,39 @@ public abstract class Compiler {
                 Operator operator = expression.raw().operator();
                 List<Object> values = expression.raw().values();
                 Object stored = dataset.fetch(key);
-                Stream<Object> stream = Sequences.isSequence(stored)
-                        ? Sequences.stream(stored)
-                        : Stream.of(stored);
-                return stream
-                        .map(item -> evaluator.apply(item, operator, values))
-                        .filter(value -> Boolean.TRUE.equals(value)).findFirst()
-                        .orElse(false);
+                Predicate<List<Object>> satisfied = operands -> {
+                    Stream<Object> stream = Sequences.isSequence(stored)
+                            ? Sequences.stream(stored)
+                            : Stream.of(stored);
+                    return stream
+                            .map(item -> evaluator.apply(item, operator,
+                                    operands))
+                            .filter(value -> Boolean.TRUE.equals(value))
+                            .findFirst().orElse(false);
+                };
+                QuantifierSymbol quantifier = expression.quantifier();
+                if(quantifier == null) {
+                    return satisfied.test(values);
+                }
+                else if(expression.values().get(0) instanceof SubquerySymbol) {
+                    throw new UnsupportedOperationException(
+                            "Local evaluation cannot resolve a subquery; "
+                                    + "the value set of " + expression
+                                    + " is the engine's responsibility.");
+                }
+                else {
+                    // Each member of the set is evaluated as its own comparison
+                    // with the single-value semantics above, and the quantifier
+                    // combines those results.
+                    Stream<List<Object>> members = Lists
+                            .partition(values, operator.operands()).stream();
+                    if(quantifier == QuantifierSymbol.ANY) {
+                        return members.anyMatch(satisfied);
+                    }
+                    else {
+                        return members.allMatch(satisfied);
+                    }
+                }
 
             }
 
@@ -892,9 +935,10 @@ public abstract class Compiler {
     }
 
     /**
-     * Build the {@link ConditionTree} represented by {@code symbols},
-     * with {@code $name} placeholders in any {@link ValueSymbol}
-     * substituted against {@code data}, bypassing CCL text parsing.
+     * Build the {@link ConditionTree} represented by {@code symbols}, with
+     * {@code $name} placeholders in any {@link ValueSymbol}, including the
+     * members of a {@link ValueSetSymbol}, substituted against {@code data},
+     * bypassing CCL text parsing.
      * <p>
      * A {@link ValueSymbol} whose value is the {@link String}
      * {@code $name} carries {@code data}'s single binding for
@@ -915,19 +959,57 @@ public abstract class Compiler {
             Multimap<String, Object> data) {
         List<Symbol> resolved = new ArrayList<>(symbols.size());
         for (Symbol symbol : symbols) {
-            Object value = (symbol instanceof ValueSymbol)
-                    ? ((ValueSymbol) symbol).value()
-                    : null;
-            if(value instanceof String) {
-                String substituted = Parsing
-                        .resolveLocalReference((String) value, data);
-                if(substituted != null) {
-                    symbol = new ValueSymbol(valueParser.apply(substituted));
+            if(symbol instanceof ValueSetSymbol) {
+                ValueSetSymbol set = (ValueSetSymbol) symbol;
+                List<ValueTokenSymbol<?>> members = new ArrayList<>(
+                        set.values().size());
+                for (ValueTokenSymbol<?> member : set.values()) {
+                    members.add(resolveLocalReference(member, data));
                 }
+                resolved.add(new ValueSetSymbol(set.quantifier(), set.arity(),
+                        members));
             }
-            resolved.add(symbol);
+            else if(symbol instanceof ValueTokenSymbol) {
+                resolved.add(
+                        resolveLocalReference((ValueTokenSymbol<?>) symbol,
+                                data));
+            }
+            else {
+                resolved.add(symbol);
+            }
         }
         return parse(resolved);
+    }
+
+    /**
+     * Return {@code symbol} with a {@code $name} placeholder substituted
+     * against {@code data}, or {@code symbol} itself when it holds no
+     * placeholder.
+     *
+     * @param symbol the value to resolve
+     * @param data the {@link Multimap} of locally-bound values
+     * @return the resolved value
+     * @throws SyntaxException if the placeholder has no binding or multiple
+     *             bindings in {@code data}
+     */
+    private ValueTokenSymbol<?> resolveLocalReference(
+            ValueTokenSymbol<?> symbol, Multimap<String, Object> data) {
+        Object value = (symbol instanceof ValueSymbol)
+                ? ((ValueSymbol) symbol).value()
+                : null;
+        if(value instanceof String) {
+            String substituted = Parsing.resolveLocalReference((String) value,
+                    data);
+            if(substituted != null) {
+                return new ValueSymbol(valueParser.apply(substituted));
+            }
+            else {
+                return symbol;
+            }
+        }
+        else {
+            return symbol;
+        }
     }
 
     /**
@@ -990,9 +1072,7 @@ public abstract class Compiler {
                 ExpressionSymbol root = (ExpressionSymbol) tree.root();
                 symbols.add(root.key());
                 symbols.add(root.operator());
-                for (ValueTokenSymbol<?> symbol : root.values()) {
-                    symbols.add(symbol);
-                }
+                symbols.addAll(Parsing.valueTokens(root));
                 if(root.timestamp() != null
                         && root.timestamp() != TimestampSymbol.PRESENT) {
                     symbols.add(root.timestamp());
