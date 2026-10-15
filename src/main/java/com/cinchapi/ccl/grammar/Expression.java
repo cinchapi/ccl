@@ -92,6 +92,11 @@ public class Expression implements ExpressionSymbol {
     public OperatorSymbol operator() {
         return delegate.operator();
     }
+
+    @Override
+    public QuantifierSymbol quantifier() {
+        return delegate.quantifier();
+    }
     
     @Override
     public TimestampSymbol timestamp() {
