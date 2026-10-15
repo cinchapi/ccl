@@ -1306,11 +1306,11 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(1, ((List<Long>) ((KeyRecordsFunction) expression
-                .values().get(0).value()).source()).size());
+        Assert.assertEquals(1, ((KeyRecordsFunction) expression.values().get(0)
+                .value()).source().size());
         Assert.assertEquals((long) 1,
-                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
-                        .get(0).value()).source()).get(0));
+                (long) ((KeyRecordsFunction) expression.values().get(0).value())
+                        .source().get(0));
     }
 
     @Test
@@ -1386,14 +1386,14 @@ public class JavaCCParserLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(2, ((List<Long>) ((KeyRecordsFunction) expression
-                .values().get(0).value()).source()).size());
+        Assert.assertEquals(2, ((KeyRecordsFunction) expression.values().get(0)
+                .value()).source().size());
         Assert.assertEquals((long) 1,
-                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
-                        .get(0).value()).source()).get(0));
+                (long) ((KeyRecordsFunction) expression.values().get(0).value())
+                        .source().get(0));
         Assert.assertEquals((long) 2,
-                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
-                        .get(0).value()).source()).get(1));
+                (long) ((KeyRecordsFunction) expression.values().get(0).value())
+                        .source().get(1));
     }
 
     @Test
