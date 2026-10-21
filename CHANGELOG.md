@@ -1,6 +1,6 @@
 # Changelog
 
-#### Version 4.1.2 (TBD)
+#### Version 4.1.1 (TBD)
 ##### Bug Fixes
 * Fixed a bug that caused a syntax error for CCL that names a key spelled like a
   word that CCL reserves for a command, a preposition or a page, such as `from`,
