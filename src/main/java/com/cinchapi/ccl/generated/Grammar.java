@@ -4085,8 +4085,7 @@ KeyTokenSymbol.requireNotParameterized(key, "verify_or_set command");
     throw new Error("Missing return statement in function");
 }
 
-  
-final public CommandSymbol LinkCommand() throws ParseException {KeyTokenSymbol<?> key;
+  final public CommandSymbol LinkCommand() throws ParseException {KeyTokenSymbol<?> key;
     Token source;
     Token destination;
     Collection destinations = null;
