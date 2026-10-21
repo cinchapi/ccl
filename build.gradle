@@ -199,6 +199,15 @@ dependencies {
 
 task generateJavaCCParser(type: Exec) {
   commandLine './javacc-parser-generator.sh', 'generate', '--source', 'grammar/grammar.jjt', '--out', 'src/main/java/com/cinchapi/ccl/generated'
+  doLast {
+    // JavaCC copies the parser's imports into the token manager, which uses
+    // none of them, and has no option to annotate the class it generates.
+    def manager = file(
+        'src/main/java/com/cinchapi/ccl/generated/GrammarTokenManager.java')
+    manager.text = manager.text.replaceAll('(?m)^import .*\\R', '')
+        .replace('public class GrammarTokenManager',
+            '@SuppressWarnings("unused")\npublic class GrammarTokenManager')
+  }
 }
 
 tasks.withType(JavaCompile).configureEach {

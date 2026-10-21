@@ -810,28 +810,33 @@ public class AwaitCommandTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that the command names are reserved in any
-     * letter case, except as a stop in a navigation key.
+     * <strong>Goal:</strong> Verify that the command names are reserved as
+     * unquoted values in any letter case, and that a key may have a command
+     * name.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Parse statements that use a command name as an unquoted value, as a
-     * key, as a quoted value and as a stop in a navigation key.</li>
+     * quoted value, as a key and as a stop in a navigation key.</li>
      * <li>Parse {@code AWAITFIND} and {@code awaitFind}.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The unquoted values and the key fail with a
+     * <strong>Expected:</strong> The unquoted values fail with a
      * {@link SyntaxException} whose message names the command's token, such as
-     * {@code AWAIT_FIND}. The quoted value is {@code awaitGet}, the navigation
-     * key is {@code awaitGet.name}, and the two trees are equal.
+     * {@code AWAIT_FIND}. The quoted value is {@code awaitGet}, the key is
+     * {@code awaitGet}, the navigation key is {@code awaitGet.name}, and the
+     * two trees are equal.
      */
     @Test
-    public void testCommandNamesAreReservedExceptAsNavigationStop() {
+    public void testCommandNamesAreReservedOnlyAsUnquotedValues() {
         assertRejected("find status = awaitFind", "AWAIT_FIND");
         assertRejected("find status = Find_And_Set", "FIND_AND_SET");
-        assertRejected("select awaitGet where a = 1", "AWAIT_GET");
+        Assert.assertEquals(ImmutableList.of(new KeySymbol("awaitGet")),
+                ImmutableList.copyOf(((AwaitGetSymbol) parse("awaitGet "
+                        + "within \"1 s\" awaitGet where a = 1").root())
+                                .keys()));
         Assert.assertEquals(new ValueSymbol("awaitGet"),
                 ((AwaitFindAndSetSymbol) parse("awaitFindAndSet within "
                         + "\"1 s\" a = 1 set b as \"awaitGet\"").root())
