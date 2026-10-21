@@ -296,12 +296,12 @@ if (jjtc000) {
 // A key can be spelled like a command or page word, so a statement that starts
 // with such a word can be a condition, a function, a command or a page. No
 // command or page starts with a key and an operator, or with a word and a pipe.
-// So a statement that starts with a key and an operator is a condition, and one
-// that starts with a key and a pipe, or with a function call, is a function.
-// Any other statement that starts with a command word is a command, and any
-// other statement that starts with a page word is a page. The last alternative
-// takes every other condition, such as one that starts with `where` or a
-// parenthesis.
+// So a statement that starts with a key, including a key function such as
+// `from | count`, and an operator is a condition. Any other statement that
+// starts with a key and a pipe, or with a function call, is a function. Any
+// other statement that starts with a command word is a command, and any other
+// statement that starts with a page word is a page. The last alternative takes
+// every other condition, such as one that starts with `where` or a parenthesis.
   final public void Statement() throws ParseException {
     if (jj_2_3(2147483647)) {
       DisjunctionExpression();
@@ -6841,11 +6841,11 @@ KeyTokenSymbol.requireNotParameterized(key,
     }
 }
 
-// The keys an await command reads and the `where` that ends them, or only the
-// `where` when the command reads every key. The keys may follow an optional
-// `for`. A list of keys that starts with the key `for`, as in
-// `for, name where`, is a list of keys. Any other `for` before the keys is the
-// optional word, so `for where` is a missing list of keys.
+// The keys an await command reads, through the `where` that ends them. Return
+// null when only the `where` appears, because the command then reads every key.
+// The keys may follow an optional `for`. When a comma follows the first key, as
+// in `for, name where`, a leading `for` begins that first key. Any other
+// leading `for` is the optional word, so `for where` is a syntax error.
   final public Collection<KeyTokenSymbol<?>> AwaitKeys() throws ParseException {Collection<KeyTokenSymbol<?>> keys = null;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case WHERE:{

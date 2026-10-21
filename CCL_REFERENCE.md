@@ -84,10 +84,10 @@ A bare condition can optionally be prefixed with the `where` keyword. Order and 
 A key may be spelled like a command or page word (see [Keys](#4-keys)), so the
 start of a statement decides its type.
 
-- A statement that starts with a key and an operator, such as `set = 1` or
-  `limit > 3`, is a condition.
-- A statement that starts with a key and a pipe, such as `select | count`, is a
-  function.
+- A statement that starts with a key and an operator, such as `set = 1`,
+  `limit > 3` or `from | count > 3`, is a condition.
+- Any other statement that starts with a key and a pipe, such as
+  `select | count`, is a function.
 - Any other statement that starts with a command word is a command.
 - Any other statement that starts with `limit`, `skip` or `offset` is a page.
 

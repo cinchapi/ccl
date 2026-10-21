@@ -604,17 +604,18 @@ public class ReservedWordKeyTest {
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Parse {@code awaitFind} with {@code for = 1},
-     * {@code for for = 1} and {@code for name = 1}.</li>
+     * {@code for for = 1}, {@code for name = 1}, {@code for (name = 1)} and
+     * {@code for friends.(name = 1)}.</li>
      * <li>Parse {@code awaitSelect} with {@code for, name where},
      * {@code for[1700000000], name where}, {@code for for where} and
      * {@code for name where}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The {@code awaitFind} conditions are
-     * {@code for = 1}, {@code for = 1} and {@code name = 1}. The
-     * {@code awaitSelect} commands select {@code for} and {@code name},
-     * {@code for} at {@code 1700000000} and {@code name}, {@code for}, and
-     * {@code name}.
+     * {@code for = 1}, {@code for = 1}, {@code name = 1}, {@code name = 1} and
+     * the scoped condition {@code friends.(name = 1)}. The {@code awaitSelect}
+     * commands select {@code for} and {@code name}, {@code for} at
+     * {@code 1700000000} and {@code name}, {@code for}, and {@code name}.
      */
     @Test
     public void testOptionalForOfAwaitCommandYieldsToKeyNamedFor() {
@@ -625,6 +626,12 @@ public class ReservedWordKeyTest {
                 command(await + "for for = 1").conditionTree());
         Assert.assertEquals(equalsOne("name"),
                 command(await + "for name = 1").conditionTree());
+        Assert.assertEquals(equalsOne("name"),
+                command(await + "for (name = 1)").conditionTree());
+        Assert.assertEquals(
+                new ScopedConditionTree(new KeySymbol("friends"),
+                        equalsOne("name")),
+                command(await + "for friends.(name = 1)").conditionTree());
         await = "awaitSelect within \"1 s\" ";
         Assert.assertEquals(keys("for", "name"),
                 ImmutableList.copyOf(((AwaitSelectSymbol) command(
