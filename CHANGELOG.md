@@ -1,5 +1,22 @@
 # Changelog
 
+#### Version 4.2.0 (TBD)
+##### Bug Fixes
+* Fixed a bug that caused a syntax error for CCL that names a key spelled like a
+  word that CCL reserves for a command, a preposition or a page, such as `from`,
+  `to`, `in`, `as`, `set`, `link`, `limit` or `search`. For example,
+  `from LINKS_TO 1 OR to LINKS_TO 2` did not parse, so the text of a condition
+  on such a key, such as the CCL of a Concourse `Criteria`, did not parse back.
+  * Such a key parses wherever a key is expected, in any letter case. This
+    includes a condition, the keys and condition of a command, an order and a
+    function.
+  * A statement that starts with a key and an operator, such as `set = 1`, is a
+    condition. Each command keeps its meaning.
+  * In an await command, a `for` right after the duration that starts a
+    comparison or a list of keys is the key `for`, as in
+    `awaitFind within "1 s" for = 1`.
+  * A value spelled like a reserved word must be quoted.
+
 #### Version 4.1.0 (September 30, 2026)
 ##### New Commands
 CCL parses commands for Concourse's atomic read and set operations and for its

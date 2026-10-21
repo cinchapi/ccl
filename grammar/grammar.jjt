@@ -151,6 +151,8 @@ SKIP :
 }
 
 // Token definitions
+// NOTE: Each word token for a command, a preposition or a page also belongs in
+// ReservedWordKey, so that a key with that name keeps parsing.
 TOKEN [IGNORE_CASE] : {
   // Data modification commands
   < ADD: "add" >
@@ -332,35 +334,58 @@ TOKEN :
   < #PERIOD: "." >
 }
 
+// The alternatives and their order match those of Statement, which explains
+// them.
 ASTStart StartCommandLine() #Start : {}
 {
    (
+     LOOKAHEAD(Key() (UnaryOperator() | BinaryOperator() | LinksToOperator()
+         | RegexBasedOperator() | SearchOperator()))
+     DisjunctionExpression() (Order())? (Page())? "\n"
+   |
+     LOOKAHEAD(2)
+     Function() "\n"
+   |
+     LOOKAHEAD(1)
      Command() "\n"
    |
-     LOOKAHEAD(4)
-     (<WHERE>)? DisjunctionExpression() (Order())? (Page())? "\n"
-   |
+     LOOKAHEAD(1)
      Page() "\n"
    |
      Order() "\n"
    |
-     Function() "\n"
+     (<WHERE>)? DisjunctionExpression() (Order())? (Page())? "\n"
    )
    { return jjtThis; }
 }
 
+// A key can be spelled like a command or page word, so a statement that starts
+// with such a word can be a condition, a function, a command or a page. No
+// command or page starts with a key and an operator, or with a word and a pipe.
+// So a statement that starts with a key and an operator is a condition, and one
+// that starts with a key and a pipe, or with a function call, is a function.
+// Any other statement that starts with a command word is a command, and any
+// other statement that starts with a page word is a page. The last alternative
+// takes every other condition, such as one that starts with `where` or a
+// parenthesis.
 void Statement() : {}
 {
+     LOOKAHEAD(Key() (UnaryOperator() | BinaryOperator() | LinksToOperator()
+         | RegexBasedOperator() | SearchOperator()))
+     DisjunctionExpression() (Order())? (Page())?
+   |
+     LOOKAHEAD(2)
+     Function()
+   |
+     LOOKAHEAD(1)
      Command()
    |
-     LOOKAHEAD(4)
-     (<WHERE>)? DisjunctionExpression() (Order())? (Page())?
-   |
+     LOOKAHEAD(1)
      Page()
    |
      Order()
    |
-     Function()
+     (<WHERE>)? DisjunctionExpression() (Order())? (Page())?
 }
 
 // Used by unit tests to parse a single statement (expects EOF)
@@ -542,12 +567,39 @@ KeyTokenSymbol SearchKey() :
 }
 {
   (
-    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
+    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=ReservedWordKey())
     { return new KeySymbol(key.image); }
   |
     (key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
     { return new NavigationKeySymbol(key.image); }
   )
+}
+
+// A key spelled like a word that CCL reserves for a command, a preposition or a
+// page, such as `from`, `set` or `limit`. The returned token keeps the key's
+// spelling, in any letter case.
+Token ReservedWordKey() :
+{
+  Token word;
+}
+{
+  (
+    word=<ADD> | word=<SET> | word=<REMOVE> | word=<CLEAR>
+  | word=<VERIFY_AND_SWAP> | word=<VERIFY_OR_SET> | word=<FIND_AND_SET>
+  | word=<SELECT_AND_SET> | word=<GET_AND_SET> | word=<AWAIT_FIND>
+  | word=<AWAIT_SELECT> | word=<AWAIT_GET> | word=<AWAIT_FIND_AND_SET>
+  | word=<AWAIT_SELECT_AND_SET> | word=<AWAIT_GET_AND_SET> | word=<INSERT>
+  | word=<LINK> | word=<UNLINK> | word=<SELECT> | word=<GET> | word=<FIND>
+  | word=<FIND_OR_ADD> | word=<FIND_OR_INSERT> | word=<DESCRIBE>
+  | word=<VERIFY> | word=<SEARCH> | word=<BROWSE> | word=<CHRONICLE>
+  | word=<DIFF> | word=<INVENTORY> | word=<JSONIFY> | word=<NAVIGATE>
+  | word=<RECONCILE> | word=<AUDIT> | word=<TRACE> | word=<CALCULATE>
+  | word=<STAGE> | word=<COMMIT> | word=<ABORT> | word=<REVERT> | word=<PING>
+  | word=<HOLDS> | word=<CONSOLIDATE> | word=<IN> | word=<INTO>
+  | word=<WITHIN> | word=<FROM> | word=<TO> | word=<AS> | word=<FOR>
+  | word=<WITH> | word=<WITHOUT> | word=<OFFSET> | word=<SKIP_> | word=<LIMIT>
+  )
+  { return word; }
 }
 
 KeyTokenSymbol Key() :
@@ -564,7 +616,7 @@ KeyTokenSymbol Key() :
     (function=KeyFunction())
     { result = function; }
   |
-    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC>)
+    (key=<RESERVED_IDENTIFIER> | key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=ReservedWordKey())
     { result = new KeySymbol(key.image); }
   |
     (key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
@@ -958,7 +1010,7 @@ FunctionKeySymbol KeyFunction() :
   Token function;
 }
 {
-   (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <PIPE> function=<ALPHANUMERIC>
+   (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING> | key=ReservedWordKey()) <PIPE> function=<ALPHANUMERIC>
    { return new FunctionKeySymbol(new ImplicitKeyRecordFunction(function.image, key.image.substring(0, key.image.length())));}
 }
 
@@ -976,7 +1028,7 @@ FunctionValueSymbol ValueFunction() :
    (
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>)
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING> | key=ReservedWordKey())
      (
          <CLOSE_PARENTHESES>
          { return new FunctionValueSymbol(new IndexFunction(function.image, key.image));}
@@ -987,7 +1039,7 @@ FunctionValueSymbol ValueFunction() :
    |
      LOOKAHEAD(3)
 
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <COMMA>
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING> | key=ReservedWordKey()) <COMMA>
      (
         (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image);}
         (<COMMA> (word=<SIGNED_INTEGER> | word=<NUMERIC>){ records.add(word.image); })* <CLOSE_PARENTHESES>
@@ -1000,7 +1052,7 @@ FunctionValueSymbol ValueFunction() :
         { return new FunctionValueSymbol(new KeyRecordsFunction(function.image, key.image, records, timestamp.timestamp()));}
      )
    |
-     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING>) <COMMA> ccl=generateSubAST()
+     (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING> | key=ReservedWordKey()) <COMMA> ccl=generateSubAST()
      {
        // The function holds its own condition, so the node for that condition
        // must not become a child of the node that encloses the function, where
@@ -2004,7 +2056,7 @@ CommandSymbol AwaitFindCommand() : {
     Duration timeout;
 }
 {
-    <AWAIT_FIND> timeout=Within() (<FOR>)?
+    <AWAIT_FIND> timeout=Within() ForBeforeCondition()
     DisjunctionExpression() (NoCommandTimestamp("await_find command"))?
     (Order())? (Page())?
     { return new AwaitFindSymbol(timeout); }
@@ -2016,7 +2068,7 @@ CommandSymbol AwaitSelectCommand() : {
 }
 {
     <AWAIT_SELECT> timeout=Within()
-    (<WHERE> | (<FOR>)? keys=KeyOrKeyCollection() <WHERE>)
+    keys=AwaitKeys()
     DisjunctionExpression() (NoCommandTimestamp("await_select command"))?
     (Order())? (Page())?
     { return new AwaitSelectSymbol(timeout, keys); }
@@ -2028,7 +2080,7 @@ CommandSymbol AwaitGetCommand() : {
 }
 {
     <AWAIT_GET> timeout=Within()
-    (<WHERE> | (<FOR>)? keys=KeyOrKeyCollection() <WHERE>)
+    keys=AwaitKeys()
     DisjunctionExpression() (NoCommandTimestamp("await_get command"))?
     (Order())? (Page())?
     { return new AwaitGetSymbol(timeout, keys); }
@@ -2040,7 +2092,7 @@ CommandSymbol AwaitFindAndSetCommand() : {
     ValueTokenSymbol<?> value;
 }
 {
-    <AWAIT_FIND_AND_SET> timeout=Within() (<FOR>)?
+    <AWAIT_FIND_AND_SET> timeout=Within() ForBeforeCondition()
     DisjunctionExpression() (NoCommandTimestamp("await_find_and_set command"))?
     (Order())? (Page())?
     <SET> key=Key()
@@ -2060,7 +2112,7 @@ CommandSymbol AwaitSelectAndSetCommand() : {
 }
 {
     <AWAIT_SELECT_AND_SET> timeout=Within()
-    (<WHERE> | (<FOR>)? keys=KeyOrKeyCollection() <WHERE>)
+    keys=AwaitKeys()
     DisjunctionExpression() (NoCommandTimestamp("await_select_and_set command"))?
     (Order())? (Page())?
     <SET> key=Key()
@@ -2080,7 +2132,7 @@ CommandSymbol AwaitGetAndSetCommand() : {
 }
 {
     <AWAIT_GET_AND_SET> timeout=Within()
-    (<WHERE> | (<FOR>)? keys=KeyOrKeyCollection() <WHERE>)
+    keys=AwaitKeys()
     DisjunctionExpression() (NoCommandTimestamp("await_get_and_set command"))?
     (Order())? (Page())?
     <SET> key=Key()
@@ -2100,6 +2152,36 @@ Duration Within() : {
 {
     <WITHIN> duration=<QUOTED_STRING>
     { return Parsing.parseDuration(duration.image); }
+}
+
+// The optional `for` before the condition of an await command. A `for` that a
+// key, a parenthesis or a scoped condition follows is this word, and any other
+// `for` is the key that starts the condition, as in `for = 1`.
+void ForBeforeCondition() : {}
+{
+    ( LOOKAHEAD(<FOR> (<OPEN_PARENTHESES> | <NAVIGATION_SCOPE_OPEN> | Key()))
+      <FOR> )?
+}
+
+// The keys an await command reads and the `where` that ends them, or only the
+// `where` when the command reads every key. The keys may follow an optional
+// `for`. A list of keys that starts with the key `for`, as in
+// `for, name where`, is a list of keys. Any other `for` before the keys is the
+// optional word, so `for where` is a missing list of keys.
+Collection<KeyTokenSymbol<?>> AwaitKeys() :
+{
+    Collection<KeyTokenSymbol<?>> keys = null;
+}
+{
+    (
+        <WHERE>
+      |
+        LOOKAHEAD(Key() <COMMA>)
+        keys=KeyCollection() <WHERE>
+      |
+        ( LOOKAHEAD(1) <FOR> )? keys=KeyOrKeyCollection() <WHERE>
+    )
+    { return keys; }
 }
 
 // A comparison takes an at, on or during clause that directly follows it, so

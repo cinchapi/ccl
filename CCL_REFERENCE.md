@@ -81,6 +81,16 @@ Statement :=
 
 A bare condition can optionally be prefixed with the `where` keyword. Order and page clauses can follow a condition.
 
+A key may be spelled like a command or page word (see [Keys](#4-keys)), so the
+start of a statement decides its type.
+
+- A statement that starts with a key and an operator, such as `set = 1` or
+  `limit > 3`, is a condition.
+- A statement that starts with a key and a pipe, such as `select | count`, is a
+  function.
+- Any other statement that starts with a command word is a command.
+- Any other statement that starts with `limit`, `skip` or `offset` is a page.
+
 ---
 
 ## 3. Data Types and Values
@@ -170,6 +180,22 @@ age
 favorite_color
 $id$
 ```
+
+A key may be spelled like a word that CCL reserves for a command, a preposition
+or a page, such as `from`, `to`, `in`, `as`, `set`, `link`, `limit` or `search`.
+Such a key parses in any letter case and keeps its spelling, as in these
+statements:
+
+```
+from LINKS_TO 1 OR to LINKS_TO 1
+select set, limit from 1
+find name = jeff order by From
+```
+
+The other reserved words cannot be keys. These are the words that start or join
+conditions, such as `where`, `and` and `or`, the operator words, such as `eq`
+and `like`, the timestamp words `at`, `on` and `during`, and the order
+directions `asc` and `desc`.
 
 ### Navigation Keys
 
@@ -795,9 +821,8 @@ avg(score, age > 30)
 
 Commands are database operations. All command keywords are case-insensitive.
 Command names, including their snake_case aliases, are reserved words in any
-letter case. A key cannot be one of them, although one may be a stop in a
-navigation key, such as `awaitGet.name`. A value that matches one must be
-quoted.
+letter case. A value that matches one must be quoted. A key may have a command
+name, as [Keys](#4-keys) describes.
 
 ---
 
@@ -1457,11 +1482,15 @@ such as `"1h 30m"`, are syntax errors. The parser accepts any longer duration;
 the server enforces its own minimum and maximum.
 
 An optional `for` may come before the condition or the keys, and adds no
-meaning; it cannot come directly before `where`. Everything else after the
-duration follows the form of the same command without `await` that reads by
-condition. These commands read the present state, so a command-level timestamp
-is a syntax error. Each command also has a snake_case alias, such as
-`await_find`.
+meaning; it cannot come directly before `where`. A `for` that starts a
+comparison or a list of keys is the key `for`, as in
+`awaitFind within "1 s" for = 1` or
+`awaitSelect within "1 s" for, name where a = 1`. Before a single key, `for` is
+the optional word, so a command that reads only the key `for` writes
+`for for where`. Everything else after the duration follows the form of the same
+command without `await` that reads by condition. These commands read the present
+state, so a command-level timestamp is a syntax error. Each command also has a
+snake_case alias, such as `await_find`.
 
 #### AWAIT_FIND
 
@@ -1612,7 +1641,10 @@ Expression        ::= Key Operator Value [Timestamp]
 
 (* Keys *)
 Key               ::= FunctionKey | SimpleKey | NavigationKey
-SimpleKey         ::= ALPHANUMERIC | NUMERIC | SIGNED_INTEGER | SIGNED_DECIMAL | '$id$'
+SimpleKey         ::= ALPHANUMERIC | NUMERIC | SIGNED_INTEGER | SIGNED_DECIMAL | '$id$' | ReservedWord
+ReservedWord      ::= CommandName | 'as' | 'for' | 'from' | 'in' | 'into' | 'to'
+                    | 'with' | 'within' | 'without' | 'limit' | 'offset' | 'skip'
+                                                       (* CommandName is any command name or alias *)
 NavigationKey     ::= PERIOD_SEPARATED_STRING          (* e.g., friends.name, children*.name *)
 FunctionKey       ::= Key '|' ALPHANUMERIC             (* e.g., score | avg *)
 
