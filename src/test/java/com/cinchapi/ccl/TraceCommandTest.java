@@ -77,39 +77,49 @@ public class TraceCommandTest {
     /**
      * <strong>Goal:</strong> Verify that {@code trace <key> from <record>}
      * parses to a {@link TraceSymbol} that carries the key, and that each
-     * preposition and the collection and timestamp forms are accepted.
+     * preposition accepts a single record, a bracketed collection and a bare
+     * collection, with or without a timestamp.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse {@code trace manager from 42}.</li>
-     * <li>Parse {@code trace manager in [1, 2]} and
-     * {@code trace manager within 1, 2}.</li>
-     * <li>Parse {@code trace manager from 42 at 1700000000}.</li>
+     * <li>For each of {@code from}, {@code in} and {@code within}, parse
+     * {@code trace manager <preposition> 42},
+     * {@code trace manager <preposition> [1, 2]} and
+     * {@code trace manager <preposition> 1, 2}.</li>
+     * <li>Parse {@code trace manager from 42 at 1700000000} and
+     * {@code trace manager from [1, 2] at 1700000000}.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The first has the key {@code manager}, record
-     * 42, no records and no timestamp. The collection forms have the key and
-     * the records 1 and 2. The timed form has the timestamp {@code 1700000000}.
+     * <strong>Expected:</strong> Each single-record form has the key
+     * {@code manager}, record 42, no records and no timestamp. Each collection
+     * form has the key, the records 1 and 2, and no record. Each timed form has
+     * the timestamp {@code 1700000000}.
      */
     @Test
     public void testTraceAcceptsAKey() {
-        TraceSymbol single = trace("trace manager from 42");
-        Assert.assertEquals(new KeySymbol("manager"), single.key());
-        Assert.assertEquals(Long.valueOf(42), single.record());
-        Assert.assertNull(single.records());
-        Assert.assertNull(single.timestamp());
-        for (String ccl : ImmutableList.of("trace manager in [1, 2]",
-                "trace manager within 1, 2")) {
-            TraceSymbol many = trace(ccl);
-            Assert.assertEquals(ccl, new KeySymbol("manager"), many.key());
-            Assert.assertEquals(ccl, ImmutableList.of(1L, 2L),
-                    ImmutableList.copyOf(many.records()));
-            Assert.assertNull(ccl, many.record());
+        for (String preposition : ImmutableList.of("from", "in", "within")) {
+            String ccl = "trace manager " + preposition + " 42";
+            TraceSymbol single = trace(ccl);
+            Assert.assertEquals(ccl, new KeySymbol("manager"), single.key());
+            Assert.assertEquals(ccl, Long.valueOf(42), single.record());
+            Assert.assertNull(ccl, single.records());
+            Assert.assertNull(ccl, single.timestamp());
+            for (String records : ImmutableList.of("[1, 2]", "1, 2")) {
+                ccl = "trace manager " + preposition + " " + records;
+                TraceSymbol many = trace(ccl);
+                Assert.assertEquals(ccl, new KeySymbol("manager"), many.key());
+                Assert.assertEquals(ccl, ImmutableList.of(1L, 2L),
+                        ImmutableList.copyOf(many.records()));
+                Assert.assertNull(ccl, many.record());
+            }
         }
         Assert.assertEquals(1700000000L,
                 trace("trace manager from 42 at 1700000000").timestamp()
+                        .timestamp());
+        Assert.assertEquals(1700000000L,
+                trace("trace manager from [1, 2] at 1700000000").timestamp()
                         .timestamp());
     }
 

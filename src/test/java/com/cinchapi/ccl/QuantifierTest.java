@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeySymbol;
+import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.QuantifierSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
@@ -389,6 +390,38 @@ public class QuantifierTest {
         Assert.assertEquals(every, parse("name not_in [\"a\", \"b\"]"));
         Assert.assertEquals(every, parse("name nin [\"a\", \"b\"]"));
         Assert.assertEquals(every, parse("name notin [\"a\", \"b\"]"));
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that {@code not_in}, {@code nin} and
+     * {@code notin} are reserved words in any letter case: each is a syntax
+     * error as an unquoted value or as a key, parses as a string when quoted,
+     * and still parses as a stop in a navigation key.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>For each of {@code not_in}, {@code nin}, {@code notin} and
+     * {@code NIN}, parse {@code status = <word>} and {@code <word> = 1}.</li>
+     * <li>For each word, parse {@code status = "<word>"} and
+     * {@code <word>.name = 1}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The unquoted value and the key fail with a
+     * {@link SyntaxException}. The quoted form has the string value
+     * {@code <word>}, and the navigation form has the key {@code <word>.name}.
+     */
+    @Test
+    public void testNotInWordsAreReserved() {
+        for (String word : ImmutableList.of("not_in", "nin", "notin", "NIN")) {
+            assertRejected("status = " + word);
+            assertRejected(word + " = 1");
+            Assert.assertEquals(word, ImmutableList.of(word),
+                    expression("status = \"" + word + "\"").raw().values());
+            Assert.assertEquals(word, new NavigationKeySymbol(word + ".name"),
+                    expression(word + ".name = 1").key());
+        }
     }
 
     /**

@@ -182,10 +182,11 @@ public class SubqueryTest {
      * </ul>
      * <p>
      * <strong>Expected:</strong> The {@code get} subquery has a
-     * {@link GetSymbol} root with the timestamp {@code 1700000000}, an order
-     * tree and a page tree. The {@code find} subquery has a {@link FindSymbol}
-     * root and the condition {@code group = "vip"}. The {@code trace} subquery
-     * has a {@link TraceSymbol} for the key {@code manager} and record 42. The
+     * {@link GetSymbol} root with the timestamp {@code 1700000000}, and the
+     * order and page of the same command parsed on its own. The {@code find}
+     * subquery has a {@link FindSymbol} root and the condition
+     * {@code group = "vip"}. The {@code trace} subquery has a
+     * {@link TraceSymbol} for the key {@code manager} and record 42. The
      * {@code navigate} subquery has a {@link NavigateSymbol} for the navigation
      * key {@code team.members} from record 7.
      */
@@ -195,8 +196,11 @@ public class SubqueryTest {
                 + "as of 1700000000 order by name limit 5]").value();
         Assert.assertEquals(1700000000L,
                 ((GetSymbol) get.root()).timestamp().timestamp());
-        Assert.assertNotNull(get.orderTree());
-        Assert.assertNotNull(get.pageTree());
+        CommandTree standalone = (CommandTree) compiler().parse(
+                "get name where age > 30 as of 1700000000 "
+                        + "order by name limit 5");
+        Assert.assertEquals(standalone.orderTree(), get.orderTree());
+        Assert.assertEquals(standalone.pageTree(), get.pageTree());
         Assert.assertEquals(parse("age > 30").root(),
                 get.conditionTree().root());
         CommandTree find = subquery("manager lnks2 every[find group = \"vip\"]")
