@@ -144,7 +144,8 @@ publishing {
 }
 
 signing {
-  required { publishToMavenCentral && !mavenVersion.endsWith('SNAPSHOT') }
+  // A GA release is signed wherever it is published
+  required { currentBranch == 'master' && isRelease }
   // CI supplies the release key as properties instead of a keyring file
   def signingKey = findProperty('signingKey')
   if(signingKey) {
