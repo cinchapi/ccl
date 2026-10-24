@@ -54,7 +54,14 @@ ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+", "").trim()
 ext.mavenVersion = ext.mavenVersion.join(".").replace(".-", "-").replaceAll('\\.$', "")
 
 ext.isRelease = mavenVersion.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+)?$')
-ext.publishToMavenCentral = (currentBranch == 'master' && isRelease) || (currentBranch == 'develop' && mavenVersion.endsWith('-SNAPSHOT'))
+
+// Whether releases are public: published to Maven Central through Sonatype as
+// well as to Cloudsmith. When it is false, every Sonatype task skips and no
+// artifact includes a sources jar. The configuration below stays in place, so
+// setting it to true is enough to publish publicly again.
+ext.shouldPublishPublicly = false
+
+ext.publishToMavenCentral = shouldPublishPublicly && ((currentBranch == 'master' && isRelease) || (currentBranch == 'develop' && mavenVersion.endsWith('-SNAPSHOT')))
 
 jar {
   manifest {
@@ -63,7 +70,9 @@ jar {
 }
 
 java {
-  withSourcesJar()
+  if(shouldPublishPublicly) {
+    withSourcesJar()
+  }
   withJavadocJar()
 }
 
@@ -135,7 +144,8 @@ publishing {
 }
 
 signing {
-  required { publishToMavenCentral && !mavenVersion.endsWith('SNAPSHOT') }
+  // A GA release is signed wherever it is published
+  required { currentBranch == 'master' && isRelease }
   // CI supplies the release key as properties instead of a keyring file
   def signingKey = findProperty('signingKey')
   if(signingKey) {

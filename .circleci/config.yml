@@ -142,7 +142,8 @@ jobs:
           name: Build and Publish
           command: |
             cd ~/$CIRCLE_PROJECT_REPONAME
-            # Only develop and master publish to Maven Central, and only
+            # Only develop and master sign their artifacts, and publish to
+            # Maven Central when shouldPublishPublicly is on, and only
             # their workflow entry gives this job the release-publishing
             # context
             case "$CIRCLE_BRANCH" in

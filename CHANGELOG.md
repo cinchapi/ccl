@@ -1,5 +1,19 @@
 # Changelog
 
+#### Version 4.2.0 (TBD)
+##### Distribution
+CCL is published to Cinchapi's Cloudsmith repository instead of Maven Central,
+and its releases include no sources jar. Versions already on Maven Central stay
+there. To use this version or a later one, add the Cloudsmith repository to your
+build beside Maven Central, which still hosts CCL's dependencies.
+
+```groovy
+repositories {
+    mavenCentral()
+    maven { url 'https://packages.cinchapi.com/public/open-source/maven/' }
+}
+```
+
 #### Version 4.1.1 (TBD)
 ##### Bug Fixes
 * Fixed a bug that caused a syntax error for CCL that names a key spelled like a
