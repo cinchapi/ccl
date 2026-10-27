@@ -90,10 +90,22 @@ public class TimestampSymbol implements Symbol {
     /**
      * Return the timestamp (in microseconds) associated with this
      * {@link Symbol}.
-     * 
+     *
      * @return the timestamp
      */
     public long timestamp() {
+        return timestamp;
+    }
+
+    /**
+     * Alias for {@link #timestamp()}; reads more naturally at call sites
+     * that already navigate through a {@code timestamp()} accessor (e.g.
+     * {@code stop.timestamp().value()} instead of
+     * {@code stop.timestamp().timestamp()}).
+     *
+     * @return the timestamp (in microseconds)
+     */
+    public long value() {
         return timestamp;
     }
 

@@ -17,7 +17,6 @@ package com.cinchapi.ccl.syntax;
 
 import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-
 import java.util.Collection;
 import java.util.Collections;
 

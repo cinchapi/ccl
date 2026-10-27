@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Cinchapi Inc.
+ * Copyright (c) 2013-2026 Cinchapi Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,43 @@ package com.cinchapi.ccl.grammar;
  * A {@link Symbol} that represents a key (e.g. selection key or evaluation key).
  */
 public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
+
+    /**
+     * Throw an {@link IllegalArgumentException} when {@code key} carries any
+     * read-time parameter. Called from grammar actions for commands whose
+     * semantics forbid per-key parameters (writes and range-history reads) so
+     * the rejection happens at parse time.
+     *
+     * @param key the {@link KeyTokenSymbol} to verify
+     * @param context a short label naming the rejecting context, used in the
+     *            exception message
+     * @throws IllegalArgumentException when {@code key} is annotated
+     */
+    public static void requireNotParameterized(KeyTokenSymbol<?> key,
+            String context) {
+        if(key.isParameterized()) {
+            throw new IllegalArgumentException(String.format(
+                    "%s does not accept a bracket-timestamp parameter on "
+                            + "the key; got: %s",
+                    context, key));
+        }
+    }
+
+    /**
+     * Apply {@link #requireNotParameterized(KeyTokenSymbol, String)} to every
+     * {@link KeyTokenSymbol} in {@code keys}.
+     *
+     * @param keys the {@link KeyTokenSymbol KeyTokenSymbols} to verify
+     * @param context a short label naming the rejecting context
+     * @throws IllegalArgumentException when any element is annotated
+     */
+    public static void requireNotParameterized(
+            Iterable<? extends KeyTokenSymbol<?>> keys, String context) {
+        for (KeyTokenSymbol<?> key : keys) {
+            requireNotParameterized(key, context);
+        }
+    }
+
 
     /**
      * The content of the {@link Symbol}.
@@ -48,16 +85,52 @@ public abstract class KeyTokenSymbol<T> implements PostfixNotationSymbol {
     public int hashCode() {
         return key.hashCode();
     }
-    
+
     /**
      * Return the key that this symbol expresses.
-     * 
+     *
      * @return the key
      */
     public T key() {
         return key;
     }
-    
+
+    /**
+     * Return the canonical key string this {@link KeyTokenSymbol} represents
+     * with all read-time parameters stripped. Subclasses that carry
+     * parameters override to return the parameter-free form; the default
+     * returns {@link #key()} as a string.
+     *
+     * @return the base key string
+     */
+    public String baseKey() {
+        return key.toString();
+    }
+
+    /**
+     * Return {@code true} when this {@link KeyTokenSymbol} carries a read-time
+     * parameter anywhere in its structure (the leaf, a navigation stop, or a
+     * wrapped key). Used by command grammars to reject parameters where they
+     * are semantically invalid (writes) and by analysis tools that surface
+     * which keys are annotated.
+     *
+     * @return {@code true} if any parameter is present
+     */
+    public boolean isParameterized() {
+        return false;
+    }
+
+    /**
+     * Return a {@link KeyTokenSymbol} equivalent to this one with every
+     * read-time parameter removed. Returns {@code this} when there is no
+     * parameter to strip.
+     *
+     * @return the {@link KeyTokenSymbol} in its base form
+     */
+    public KeyTokenSymbol<?> stripParameters() {
+        return this;
+    }
+
     @Override
     public String toString() {
         return key.toString();

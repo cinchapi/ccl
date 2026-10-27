@@ -55,7 +55,7 @@ public class ASTPage extends SimpleNode {
     }
 
     /**
-    * Get the page number
+    * Get the page
     */
     public PageSymbol page() {
         return page;
