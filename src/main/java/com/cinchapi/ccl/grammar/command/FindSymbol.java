@@ -10,10 +10,7 @@
 package com.cinchapi.ccl.grammar.command;
 
 import javax.annotation.Nullable;
-import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
-import com.cinchapi.ccl.grammar.OrderSymbol;
-import com.cinchapi.ccl.grammar.PageSymbol;
 
 /**
  * A {@link CommandSymbol} that represents a FIND command.
