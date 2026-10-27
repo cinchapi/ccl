@@ -2,10 +2,6 @@ package com.cinchapi.ccl.syntax;
 
 import com.cinchapi.ccl.grammar.FunctionTokenSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.BaseAbstractSyntaxTree;
-import com.cinchapi.ccl.syntax.Visitor;
-
 import java.util.Collection;
 import java.util.Collections;
 

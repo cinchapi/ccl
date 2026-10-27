@@ -15,8 +15,6 @@
  */
 package com.cinchapi.ccl.syntax;
 
-import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
-
 /**
  * An abstraction for a condition node in a {@link AbstractSyntaxTree}
  */

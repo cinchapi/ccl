@@ -9,7 +9,6 @@
  */
 package com.cinchapi.ccl.grammar.command;
 
-import com.cinchapi.ccl.generated.ASTStart;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 
 import javax.annotation.Nullable;

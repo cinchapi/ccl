@@ -30,6 +30,7 @@ import com.cinchapi.ccl.syntax.OrderTree;
 import com.cinchapi.ccl.syntax.PageTree;
 import com.cinchapi.ccl.syntax.ScopedConditionTree;
 import com.cinchapi.ccl.grammar.command.SelectSymbol;
+import com.cinchapi.ccl.grammar.command.SetSymbol;
 import com.cinchapi.ccl.grammar.command.NavigateSymbol;
 import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
@@ -40,6 +41,7 @@ import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.DirectionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
+import com.cinchapi.ccl.grammar.FunctionValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
@@ -51,6 +53,7 @@ import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
 import com.cinchapi.ccl.syntax.Visitor;
+import com.cinchapi.ccl.type.function.KeyConditionFunction;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.cinchapi.common.reflect.Reflection;
 import com.cinchapi.concourse.Tag;
@@ -1625,20 +1628,11 @@ public abstract class CompilerTest {
                 .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
                 .value(42).build();
         Compiler compiler = createCompiler();
-        // The lexer reserves command keywords as global tokens, so the text
-        // path cannot parse a condition whose key collides with one. The
-        // symbols path bypasses the lexer and is the supported route.
-        try {
-            compiler.parse("select = 42");
-            Assert.fail(
-                    "Expected text parse of \"select = 42\" to fail "
-                            + "because \"select\" is a reserved keyword");
-        }
-        catch (Exception expected) {/* text path is structurally broken */}
         ConditionTree tree = compiler.parse(criteria.symbols());
         Assert.assertTrue(tree instanceof ExpressionTree);
         ExpressionSymbol root = (ExpressionSymbol) tree.root();
         Assert.assertEquals("select", root.raw().key());
+        Assert.assertEquals(compiler.parse("select = 42"), tree);
     }
 
     @Test
@@ -1754,6 +1748,32 @@ public abstract class CompilerTest {
                 resolved instanceof String);
         Assert.assertTrue(resolved instanceof Number);
         Assert.assertEquals(42, ((Number) resolved).intValue());
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the condition inside a function value
+     * stays with the function and does not become the command's condition.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Parse {@code set b as avg(age, c > 1) in 1}.</li>
+     * <li>Parse {@code c > 1}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The {@link CommandTree} has no condition tree,
+     * and the function's condition equals the tree for {@code c > 1}.
+     */
+    @Test
+    public void testCommandValueFunctionConditionIsNotCommandCondition() {
+        CommandTree tree = (CommandTree) createCompiler()
+                .parse("set b as avg(age, c > 1) in 1");
+        Assert.assertNull(tree.conditionTree());
+        FunctionValueSymbol value = (FunctionValueSymbol) ((SetSymbol) tree
+                .root()).value();
+        Assert.assertEquals(createCompiler().parse("c > 1"),
+                ((KeyConditionFunction) value.function()).source());
     }
 
 }
