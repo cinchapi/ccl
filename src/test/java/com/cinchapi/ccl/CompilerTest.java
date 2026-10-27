@@ -1628,20 +1628,11 @@ public abstract class CompilerTest {
                 .operator(com.cinchapi.concourse.thrift.Operator.EQUALS)
                 .value(42).build();
         Compiler compiler = createCompiler();
-        // The lexer reserves command keywords as global tokens, so the text
-        // path cannot parse a condition whose key collides with one. The
-        // symbols path bypasses the lexer and is the supported route.
-        try {
-            compiler.parse("select = 42");
-            Assert.fail(
-                    "Expected text parse of \"select = 42\" to fail "
-                            + "because \"select\" is a reserved keyword");
-        }
-        catch (Exception expected) {/* text path is structurally broken */}
         ConditionTree tree = compiler.parse(criteria.symbols());
         Assert.assertTrue(tree instanceof ExpressionTree);
         ExpressionSymbol root = (ExpressionSymbol) tree.root();
         Assert.assertEquals("select", root.raw().key());
+        Assert.assertEquals(compiler.parse("select = 42"), tree);
     }
 
     @Test
