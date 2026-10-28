@@ -61,8 +61,8 @@ import com.google.common.collect.Multimap;
 public final class Parsing {
 
     /**
-     * The form of a {@code within} or {@code per} duration: a whole or decimal
-     * amount, optional whitespace, then a unit name.
+     * The form of a {@code within} or {@code per} duration, which is a whole or
+     * decimal amount, optional whitespace, then a unit name.
      */
     private static final Pattern DURATION = Pattern
             .compile("(\\d+(?:\\.\\d+)?)\\s*(\\p{L}+)");

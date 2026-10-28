@@ -1387,7 +1387,7 @@ calculate avg score in 1
 calculate avg score from 1
 calculate count name within [1, 2, 3]
 calculate sum salary where department = engineering
-calculate avg score where score > 50 at "yesterday"
+calculate avg score where score > 50 as of "yesterday"
 calculate countDistinct email where _ = User
 calculate median age
 calculate percentile 0.99 latency where service = api as of "yesterday"
@@ -1427,7 +1427,9 @@ group by <key>, <key>, ...
   duration.
 * `between` bounds the ranges and asks for every range in them, including an
   empty one. The bounds are numbers for number ranges and timestamps for time
-  ranges.
+  ranges. A timestamp bound or an `at` timestamp that names a date without a
+  time takes the current time of day, so write an explicit time, such as
+  `"2026-01-01 00:00:00"`, for the start of a day.
 * `having` keeps the groups whose result satisfies a comparison.
 * `order by` orders the groups by a result. A grouped statement cannot order its
   groups by a key.
