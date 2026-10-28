@@ -1447,9 +1447,9 @@ calculate count $id$ group by price per 10 between 0 and 100
 calculate count $id$, sum price, avg price where active = true group by category
 ```
 
-The phrase `group by` is reserved in any letter case. A value that contains it
-must be quoted. The words `per` and `having` are not reserved, so a key may have
-either name.
+The text `group by` is reserved in any letter case, even when a longer word
+starts with `by`, as in `group bypass`. A value that contains it must be quoted.
+The words `per` and `having` are not reserved, so a key may have either name.
 
 ---
 

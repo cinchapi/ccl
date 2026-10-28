@@ -202,7 +202,7 @@ public class CalculateCommandTest {
                 calculate("calculate average price group by category "
                         + "order by AVG desc").group().order().calculation());
         Assert.assertEquals(calculation("avg", "price"), calculate(
-                "calculate avg price group by category " + "having average > 3")
+                "calculate avg price group by category having average > 3")
                 .group().having().calculation());
     }
 
@@ -218,11 +218,14 @@ public class CalculateCommandTest {
      * <li>Build one whose having clause names a calculation the statement
      * lacks.</li>
      * <li>Build one whose order names a function two calculations share.</li>
-     * <li>Build a valid one and parse its text.</li>
+     * <li>Build one whose having clause has a calculation that shares its
+     * function, but not its key, with the statement's only calculation.</li>
+     * <li>Build a valid one with a list of records and parse its text.</li>
+     * <li>Build one with a set of records and parse its text.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each invalid build fails with an
-     * {@link IllegalArgumentException}, and the valid one parses back from its
+     * {@link IllegalArgumentException}, and each valid one parses back from its
      * text.
      */
     @Test
@@ -231,23 +234,27 @@ public class CalculateCommandTest {
         CalculationSymbol sum = calculation("sum", "price");
         CalculationSymbol cost = calculation("sum", "cost");
         List<KeyTokenSymbol<?>> category = keys("category");
-        for (Runnable invalid : ImmutableList
-                .<Runnable> of(
-                        () -> new CalculateSymbol(ImmutableList.of(count, sum),
-                                null, null, null),
-                        () -> new CalculateSymbol(ImmutableList.of(count), null,
-                                null, GroupSymbol.builder(category)
-                                        .having(new HavingSymbol(sum,
-                                                new OperatorSymbol(
-                                                        Operator.EQUALS),
-                                                new ValueSymbol(1)))
-                                        .build()),
-                        () -> new CalculateSymbol(ImmutableList.of(sum, cost),
-                                null, null,
-                                GroupSymbol.builder(category)
-                                        .order(new ResultOrderSymbol(sum,
-                                                DirectionSymbol.ASCENDING))
-                                        .build()))) {
+        for (Runnable invalid : ImmutableList.<Runnable> of(
+                () -> new CalculateSymbol(ImmutableList.of(count, sum), null,
+                        null, null),
+                () -> new CalculateSymbol(ImmutableList.of(count), null, null,
+                        GroupSymbol.builder(category)
+                                .having(new HavingSymbol(sum,
+                                        new OperatorSymbol(Operator.EQUALS),
+                                        new ValueSymbol(1)))
+                                .build()),
+                () -> new CalculateSymbol(ImmutableList.of(sum, cost), null,
+                        null,
+                        GroupSymbol.builder(category)
+                                .order(new ResultOrderSymbol(sum,
+                                        DirectionSymbol.ASCENDING))
+                                .build()),
+                () -> new CalculateSymbol(ImmutableList.of(sum), null, null,
+                        GroupSymbol.builder(category)
+                                .having(new HavingSymbol(cost,
+                                        new OperatorSymbol(Operator.EQUALS),
+                                        new ValueSymbol(1)))
+                                .build()))) {
             try {
                 invalid.run();
                 Assert.fail("expected an IllegalArgumentException");
@@ -265,6 +272,11 @@ public class CalculateCommandTest {
                                 DirectionSymbol.DESCENDING))
                         .page(PageSymbol.fromLimit(3)).build());
         Assert.assertEquals(built, calculate(built.toString()));
+        CalculateSymbol set = new CalculateSymbol("sum", new KeySymbol("age"),
+                ImmutableSet.of(1L, 2L), null);
+        CalculateSymbol parsed = calculate(set.toString());
+        Assert.assertEquals(set, parsed);
+        Assert.assertEquals(set.hashCode(), parsed.hashCode());
     }
 
     /**
@@ -309,11 +321,15 @@ public class CalculateCommandTest {
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Parse a grouped statement twice.</li>
+     * <li>Parse it with {@code bw} for {@code between} and {@code 10.0} for the
+     * width.</li>
      * <li>Parse statements that differ from it in one part.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> The two parses are equal with equal hash
-     * codes, and each differing statement parses to an unequal tree.
+     * codes, as is the parse that spells {@code between} as {@code bw} and the
+     * width as {@code 10.0}. Each differing statement parses to an unequal
+     * tree.
      */
     @Test
     public void testEquivalentStatementsParseToEqualTrees() {
@@ -322,8 +338,10 @@ public class CalculateCommandTest {
                 + "having count >= 2 order by sum desc limit 10";
         Assert.assertEquals(parse(ccl), parse(ccl));
         Assert.assertEquals(parse(ccl).hashCode(), parse(ccl).hashCode());
-        Assert.assertEquals(parse(ccl), parse(
-                ccl.replace("between", "bw").replace("10 bw", "10.0 bw")));
+        String decimal = ccl.replace("between", "bw").replace("10 bw",
+                "10.0 bw");
+        Assert.assertEquals(parse(ccl), parse(decimal));
+        Assert.assertEquals(parse(ccl).hashCode(), parse(decimal).hashCode());
         for (String other : ImmutableList.of(
                 ccl.replace("sum price", "sum price, max price"),
                 ccl.replace("sum price", "sum cost"),
@@ -491,25 +509,28 @@ public class CalculateCommandTest {
     }
 
     /**
-     * <strong>Goal:</strong> Verify that the phrase {@code group by} ends an
-     * unquoted value, and that a quoted value keeps it.
+     * <strong>Goal:</strong> Verify that the text {@code group by} ends an
+     * unquoted value, even at the start of a longer word, and that a quoted
+     * value keeps it.
      * <p>
      * <strong>Start state:</strong> No prior state needed.
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
      * <li>Parse {@code find name = rock group by sea}.</li>
+     * <li>Parse {@code find name = group bypass}.</li>
      * <li>Parse {@code find name = "rock group by sea"}.</li>
      * <li>Parse {@code find group = 1}.</li>
      * </ul>
      * <p>
-     * <strong>Expected:</strong> The first parse fails with a
-     * {@link SyntaxException}. The second has the value
-     * {@code rock group by sea}. The third has the key {@code group}.
+     * <strong>Expected:</strong> The first two parses fail with a
+     * {@link SyntaxException}. The third has the value
+     * {@code rock group by sea}. The fourth has the key {@code group}.
      */
     @Test
     public void testGroupByPhraseIsReserved() {
         assertRejected("find name = rock group by sea", null);
+        assertRejected("find name = group bypass", null);
         ExpressionSymbol quoted = (ExpressionSymbol) condition(
                 "name = \"rock group by sea\"").root();
         Assert.assertEquals(
@@ -661,6 +682,37 @@ public class CalculateCommandTest {
     }
 
     /**
+     * <strong>Goal:</strong> Verify that {@code per} and {@code having} parse
+     * as keys where a key is expected, because CCL does not reserve them.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Parse
+     * {@code calculate count per group by per, having per 10 having count >= 2}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> The calculation is {@code count} of the key
+     * {@code per}, the group keys are {@code per} and {@code having}, the width
+     * is {@code 10}, and the having clause tests whether the {@code count}
+     * calculation is at least {@code 2}.
+     */
+    @Test
+    public void testPerAndHavingParseAsKeys() {
+        CalculateSymbol symbol = calculate("calculate count per group by per, "
+                + "having per 10 having count >= 2");
+        Assert.assertEquals(ImmutableList.of(calculation("count", "per")),
+                symbol.calculations());
+        GroupSymbol group = symbol.group();
+        Assert.assertEquals(keys("per", "having"), group.keys());
+        Assert.assertEquals(10, group.width());
+        Assert.assertEquals(new HavingSymbol(calculation("count", "per"),
+                new OperatorSymbol(Operator.GREATER_THAN_OR_EQUALS),
+                new ValueSymbol(2)), group.having());
+    }
+
+    /**
      * <strong>Goal:</strong> Verify that {@code percentile} needs a fraction
      * from 0 to 1, and that no other function takes one.
      * <p>
@@ -672,13 +724,13 @@ public class CalculateCommandTest {
      * with {@code -0.5}.</li>
      * <li>Construct a {@link CalculationSymbol} for {@code median} with a
      * fraction and one for {@code percentile} without one.</li>
-     * <li>Parse the fractions {@code 0} and {@code 1}.</li>
+     * <li>Parse the fractions {@code 0}, {@code 1} and {@code -0}.</li>
      * </ul>
      * <p>
      * <strong>Expected:</strong> Each parse of a missing or out of range
      * fraction fails with a {@link SyntaxException}, each construction fails
      * with an {@link IllegalArgumentException}, and the bounds {@code 0} and
-     * {@code 1} parse.
+     * {@code 1} parse. The fraction {@code -0} is {@code 0}.
      */
     @Test
     public void testPercentileRequiresFractionFromZeroToOne() {
@@ -706,6 +758,9 @@ public class CalculateCommandTest {
                         .get(0).fraction());
         Assert.assertEquals(Double.valueOf(1),
                 calculate("calculate percentile 1 latency").calculations()
+                        .get(0).fraction());
+        Assert.assertEquals(Double.valueOf(0),
+                calculate("calculate percentile -0 latency").calculations()
                         .get(0).fraction());
     }
 
@@ -888,7 +943,7 @@ public class CalculateCommandTest {
         assertRejected("calculate count $id$ group by category having sum > 2",
                 "names none of");
         assertRejected(
-                "calculate count $id$ group by category " + "order by category",
+                "calculate count $id$ group by category order by category",
                 "names none of");
         assertRejected("calculate sum price, sum cost group by category "
                 + "order by sum desc", "names more than one of");
@@ -1071,8 +1126,9 @@ public class CalculateCommandTest {
                         + "between 1700000000000000 and 1700086400000000 "
                         + "having max = \"a b\" skip 3",
                 "calculate variancePopulation age[1700000000] from 1",
-                "calculate sum age at 1700000000",
-                "calculate avg score from 1");
+                "calculate sum age at 1700000000", "calculate avg score from 1",
+                "calculate count per group by per, having per 10 having count "
+                        + ">= 2");
     }
 
     /**

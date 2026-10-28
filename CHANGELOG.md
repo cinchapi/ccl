@@ -41,9 +41,10 @@ calculate count $id$, sum price, avg price where active = true group by category
 ```
 
 ##### API Breaks and Deprecations
-* The phrase `group by` is reserved in any letter case. A statement with the
-  phrase in an unquoted value, such as `name = rock group by sea`, is a syntax
-  error. Quote the value, as in `name = "rock group by sea"`.
+* The text `group by` is reserved in any letter case, even when a longer word
+  starts with `by`, as in `group bypass`. A statement with that text in an
+  unquoted value, such as `name = rock group by sea`, is a syntax error. Quote
+  the value, as in `name = "rock group by sea"`.
 
 ##### Distribution
 CCL is published to Cinchapi's Cloudsmith repository instead of Maven Central,

@@ -155,7 +155,10 @@ public final class CalculationSymbol implements Symbol {
         }
         else {
             this.function = canonical;
-            this.fraction = fraction;
+            // Negative zero is the fraction zero, whose text has no sign.
+            this.fraction = fraction != null && fraction == 0
+                    ? Double.valueOf(0)
+                    : fraction;
             this.key = key;
         }
     }

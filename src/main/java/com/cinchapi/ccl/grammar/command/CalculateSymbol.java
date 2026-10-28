@@ -33,9 +33,10 @@ import com.google.common.collect.ImmutableList;
  * symbol.
  * </p>
  * <p>
- * Two symbols are equal when their calculations, records, timestamp and group
- * are equal. The {@link #toString() text} of a symbol is its statement without
- * the condition, which parses to an equal symbol.
+ * Two symbols are equal when their calculations, timestamp and group are equal
+ * and they list the same records in the same order. The
+ * {@link #toString() text} of a symbol is its statement without the condition,
+ * which parses to an equal symbol.
  * </p>
  *
  * @author Jeff Nelson
@@ -175,7 +176,7 @@ public class CalculateSymbol implements CommandSymbol {
         if(obj instanceof CalculateSymbol) {
             CalculateSymbol other = (CalculateSymbol) obj;
             return calculations.equals(other.calculations)
-                    && Objects.equals(records, other.records)
+                    && Objects.equals(recordList(), other.recordList())
                     && Objects.equals(timestamp, other.timestamp)
                     && Objects.equals(group, other.group);
         }
@@ -207,7 +208,7 @@ public class CalculateSymbol implements CommandSymbol {
 
     @Override
     public int hashCode() {
-        return Objects.hash(calculations, records, timestamp, group);
+        return Objects.hash(calculations, recordList(), timestamp, group);
     }
 
     /**
@@ -261,6 +262,17 @@ public class CalculateSymbol implements CommandSymbol {
     @Override
     public String type() {
         return "CALCULATE";
+    }
+
+    /**
+     * Return the records as a {@link List}, in the order the statement lists
+     * them.
+     *
+     * @return the records, or {@code null} if the statement has none
+     */
+    @Nullable
+    private List<Long> recordList() {
+        return records != null ? ImmutableList.copyOf(records) : null;
     }
 
 }
