@@ -140,13 +140,19 @@ public final class GroupSymbol implements Symbol {
     }
 
     /**
-     * Return the CCL for {@code number}, without an exponent.
+     * Return the CCL for {@code number}, without an exponent. A {@link Double}
+     * or a {@link Float} keeps at least one decimal place, so its text parses
+     * to a decimal of any size.
      *
      * @param number the number
      * @return the text of the number
      */
     private static String plain(Number number) {
-        return decimal(number).toPlainString();
+        BigDecimal value = decimal(number);
+        if(number instanceof Double || number instanceof Float) {
+            value = value.setScale(Math.max(value.scale(), 1));
+        }
+        return value.toPlainString();
     }
 
     /**

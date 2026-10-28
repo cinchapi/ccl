@@ -40,6 +40,18 @@ import com.cinchapi.common.base.AnyStrings;
 public final class HavingSymbol implements Symbol {
 
     /**
+     * Return the CCL for the text {@code value}, which is the text in double
+     * quotes with each double quote in it escaped. That CCL parses to the same
+     * text, whatever words or punctuation it holds.
+     *
+     * @param value the text
+     * @return the quoted text
+     */
+    private static String quote(String value) {
+        return "\"" + value.replace("\"", "\\\"") + "\"";
+    }
+
+    /**
      * The calculation whose result the comparison tests.
      */
     private final CalculationSymbol calculation;
@@ -107,8 +119,11 @@ public final class HavingSymbol implements Symbol {
 
     @Override
     public String toString() {
+        Object text = value.value() instanceof String
+                ? quote((String) value.value())
+                : value;
         return AnyStrings.format("having {} {} {}", calculation.function(),
-                operator, value);
+                operator, text);
     }
 
     /**

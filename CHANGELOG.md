@@ -59,6 +59,12 @@ repositories {
 }
 ```
 
+##### Bug Fixes
+* Fixed a bug that caused two equal functions to have different hash codes, such
+  as the key functions of two parses of `age | avg > 3`. So a
+  `FunctionKeySymbol`, a `FunctionValueSymbol` or a tree that held one could
+  fail to match an equal one in a hash set or as a hash map key.
+
 #### Version 4.1.1 (TBD)
 ##### Bug Fixes
 * Fixed a bug that caused a syntax error for CCL that names a key spelled like a

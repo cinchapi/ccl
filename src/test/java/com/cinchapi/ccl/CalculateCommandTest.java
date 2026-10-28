@@ -1090,7 +1090,10 @@ public class CalculateCommandTest {
      * <p>
      * <strong>Workflow:</strong>
      * <ul>
-     * <li>Parse each statement of the issue and each extra form.</li>
+     * <li>Parse each statement of the issue and each extra form, including
+     * having values that are text spelled like a reserved word, a punctuation
+     * mark, a boolean or a quote, function keys, and numbers too large for a
+     * {@link Long}.</li>
      * <li>Parse the text of each symbol.</li>
      * </ul>
      * <p>
@@ -1128,7 +1131,20 @@ public class CalculateCommandTest {
                 "calculate variancePopulation age[1700000000] from 1",
                 "calculate sum age at 1700000000", "calculate avg score from 1",
                 "calculate count per group by per, having per 10 having count "
-                        + ">= 2");
+                        + ">= 2",
+                "calculate max name group by a having max = \"in\"",
+                "calculate max name group by a having max = \"limit\"",
+                "calculate max name group by a having max = \"a,b\"",
+                "calculate max name group by a having max = \"x(y\"",
+                "calculate max name group by a having max = \"true\"",
+                "calculate max name group by a having max = "
+                        + "\"say \\\"hi\\\"\"",
+                "calculate sum age | avg",
+                "calculate count $id$ group by age | avg",
+                "calculate count $id$ group by price "
+                        + "per 10000000000000000000.0",
+                "calculate count $id$ group by price per 10 between 0 and "
+                        + "10000000000000000000.0");
     }
 
     /**
