@@ -61,15 +61,15 @@ import com.google.common.collect.Multimap;
 public final class Parsing {
 
     /**
-     * The form of a {@code within} duration: a whole or decimal amount,
-     * optional whitespace, then a unit name.
+     * The form of a {@code within} or {@code per} duration: a whole or decimal
+     * amount, optional whitespace, then a unit name.
      */
     private static final Pattern DURATION = Pattern
             .compile("(\\d+(?:\\.\\d+)?)\\s*(\\p{L}+)");
 
     /**
      * The exact number of nanoseconds in one unit, for each lower case unit
-     * name that a {@code within} duration accepts.
+     * name that a {@code within} or {@code per} duration accepts.
      */
     private static final Map<String, BigDecimal> DURATION_UNIT_NANOS =
             ImmutableMap.<String, BigDecimal> builder()
@@ -97,7 +97,8 @@ public final class Parsing {
 
     /**
      * The number of nanoseconds in {@link Long#MAX_VALUE} milliseconds, which
-     * is the longest duration that a {@code within} clause resolves to.
+     * is the longest duration that a {@code within} or {@code per} clause
+     * resolves to.
      */
     private static final BigInteger MAX_DURATION_NANOS = BigInteger
             .valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(1_000_000));
@@ -167,7 +168,7 @@ public final class Parsing {
     }
 
     /**
-     * Return the duration of a {@code within} clause, such as
+     * Return the duration of a {@code within} or {@code per} clause, such as
      * {@code "5 seconds"}, {@code "500ms"} or {@code "1.5 h"}.
      * <p>
      * A duration is a whole or decimal amount, optional whitespace, and one
@@ -208,9 +209,8 @@ public final class Parsing {
         }
         else {
             throw new SyntaxException(AnyStrings.format(
-                    "A within duration must be an amount and a unit of time, "
-                            + "such as \"5 s\", of at least 1 ns, but got "
-                            + "\"{}\"",
+                    "A duration must be an amount and a unit of time, such as "
+                            + "\"5 s\", of at least 1 ns, but got \"{}\"",
                     duration));
         }
     }

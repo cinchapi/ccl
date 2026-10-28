@@ -138,6 +138,40 @@ public class Grammar {
         }
         return braceCount == 0;
     }
+
+    /**
+     * Return whether the next token is {@code word}, in any letter case. A
+     * clause that starts with a word CCL does not reserve, such as
+     * {@code per}, uses this to tell the word from a key.
+     *
+     * @param word the word
+     * @return {@code true} if the next token is {@code word}
+     */
+    private boolean nextIs(String word) {
+        return word.equalsIgnoreCase(getToken(1).image);
+    }
+
+    /**
+     * Return the number that a numeric token spells. A token with a decimal
+     * point is a {@link Double}. Any other token is an {@link Integer} when
+     * its value fits in one, and a {@link Long} otherwise, as a Java literal
+     * with the same text would be.
+     *
+     * @param image the image of a numeric token
+     * @return the number
+     * @throws NumberFormatException if the value of {@code image} does not fit
+     *             in a {@link Long}
+     */
+    private static Number parseNumber(String image) {
+        if(image.contains(".")) {
+            return Double.valueOf(image);
+        }
+        else {
+            long value = Long.parseLong(image);
+            return value == (int) value ? (Number) Integer.valueOf((int) value)
+                    : (Number) Long.valueOf(value);
+        }
+    }
 }
 
 PARSER_END(Grammar)
@@ -285,6 +319,8 @@ TOKEN [IGNORE_CASE]:
   < LIMIT : "limit" >
 |
   < ORDER : "order by" >
+|
+  < GROUP_BY : "group by" >
 |
   < ASC : "asc" >
 |
@@ -878,16 +914,27 @@ TimestampSymbol TimestampSingleToken() :
 
 void Page() #Page :
 {
+  PageSymbol page;
+}
+{
+  page=PageClause()
+  { jjtThis.page(page); }
+}
+
+// The offset and limit of a page, in either order. Page() makes the page a node
+// of the statement's tree, and a grouped calculation keeps it in its group.
+PageSymbol PageClause() :
+{
   String skip = null;
   String limit = null;
 }
 {
   (
     skip=Offset() (limit=Limit())?
-    { jjtThis.page(PageSymbol.fromSkipLimit(Integer.parseInt(skip), limit != null ? Integer.parseInt(limit) : null)); }
+    { return PageSymbol.fromSkipLimit(Integer.parseInt(skip), limit != null ? Integer.parseInt(limit) : null); }
   |
     limit=Limit() (skip=Offset())?
-    { jjtThis.page(PageSymbol.fromSkipLimit(skip != null ? Integer.parseInt(skip) : 0, Integer.parseInt(limit))); }
+    { return PageSymbol.fromSkipLimit(skip != null ? Integer.parseInt(skip) : 0, Integer.parseInt(limit)); }
   )
 }
 
@@ -1935,34 +1982,141 @@ CommandSymbol ConsolidateCommand() : {
     )
 }
 
+// A grouped statement may list several calculations. The timestamp comes
+// before the group, as it comes before the order and page of a find.
 CommandSymbol CalculateCommand() : {
-    Token function;
-    KeyTokenSymbol<?> key;
+    List<CalculationSymbol> calculations = new ArrayList<CalculationSymbol>();
+    CalculationSymbol calculation;
     Token record = null;
     Collection<Long> records = null;
     TimestampSymbol timestamp = null;
+    GroupSymbol group = null;
 }
 {
-    <CALCULATE> function=<ALPHANUMERIC> key=Key()
+    <CALCULATE> calculation=Calculation() { calculations.add(calculation); }
+    ( <COMMA> calculation=Calculation() { calculations.add(calculation); } )*
     (
         LOOKAHEAD((<FROM> | <IN> | <WITHIN>) (<OPEN_BRACKET> | <NUMERIC> <COMMA>))
-        (<FROM> | <IN> | <WITHIN>) records=RecordCollection() (timestamp=TimestampReadCommand())?
-        { return new CalculateSymbol(function.image, key, records, timestamp); }
+        (<FROM> | <IN> | <WITHIN>) records=RecordCollection()
       |
         LOOKAHEAD((<FROM> | <IN> | <WITHIN>) <NUMERIC>)
-        (<FROM> | <IN> | <WITHIN>) record=<NUMERIC> (timestamp=TimestampReadCommand())?
+        (<FROM> | <IN> | <WITHIN>) record=<NUMERIC>
         {
             records = new ArrayList<Long>();
             records.add(Long.parseLong(record.image));
-            return new CalculateSymbol(function.image, key, records, timestamp);
         }
       |
-        <WHERE> DisjunctionExpression() (timestamp=TimestampReadCommand())?
-        { return new CalculateSymbol(function.image, key, timestamp); }
-      |
-        (timestamp=TimestampReadCommand())?
-        { return new CalculateSymbol(function.image, key, timestamp); }
-    )
+        <WHERE> DisjunctionExpression()
+    )?
+    (timestamp=TimestampReadCommand())?
+    (group=Group(calculations))?
+    { return new CalculateSymbol(calculations, records, timestamp, group); }
+}
+
+// A function and the key it applies to. A percentile takes its fraction
+// between the two. The choice reads the function token, so no syntactic
+// lookahead may scan this production.
+CalculationSymbol Calculation() : {
+    Token function;
+    Token fraction = null;
+    KeyTokenSymbol<?> key;
+}
+{
+    function=<ALPHANUMERIC>
+    (
+        LOOKAHEAD({ function.image.equalsIgnoreCase("percentile") })
+        (fraction=<NUMERIC> | fraction=<SIGNED_INTEGER>
+            | fraction=<SIGNED_DECIMAL>)
+    )?
+    key=Key()
+    {
+        return new CalculationSymbol(function.image,
+                fraction != null ? Double.valueOf(fraction.image) : null, key);
+    }
+}
+
+// The group clause of a calculate statement. The words per and having are not
+// reserved, so each clause starts only where the word appears after the keys
+// or the clause before it. A having clause and a result order name one of
+// the statement's calculations by function.
+GroupSymbol Group(List<CalculationSymbol> calculations) : {
+    Collection<KeyTokenSymbol<?>> keys;
+    GroupSymbol.Builder group;
+    Token period;
+    Number width;
+    Number lowerBound;
+    Number upperBound;
+    TimestampSymbol start;
+    TimestampSymbol end;
+    Token function;
+    OperatorSymbol operator;
+    ValueTokenSymbol<?> value;
+    DirectionSymbol direction = DirectionSymbol.ASCENDING;
+    PageSymbol page;
+}
+{
+    <GROUP_BY> keys=KeyOrKeyCollection()
+    { group = GroupSymbol.builder(keys); }
+    (
+        LOOKAHEAD({ nextIs("per") })
+        <ALPHANUMERIC>
+        (
+            period=<QUOTED_STRING>
+            { group.per(Parsing.parseDuration(period.image)); }
+            (
+                <BINARY_OPERATOR> start=TimestampBound() <CONJUNCTION>
+                end=TimestampBound()
+                { group.between(start, end); }
+            )?
+          |
+            width=NumberLiteral()
+            { group.per(width); }
+            (
+                <BINARY_OPERATOR> lowerBound=NumberLiteral() <CONJUNCTION>
+                upperBound=NumberLiteral()
+                { group.between(lowerBound, upperBound); }
+            )?
+        )
+    )?
+    (
+        LOOKAHEAD({ nextIs("having") })
+        <ALPHANUMERIC> function=<ALPHANUMERIC> operator=UnaryOperator()
+        value=BinaryValue()
+        {
+            group.having(new HavingSymbol(
+                    CalculationSymbol.resolve(function.image, calculations),
+                    operator, value));
+        }
+    )?
+    (
+        <ORDER> function=<ALPHANUMERIC> (direction=WordDirection())?
+        {
+            group.order(new ResultOrderSymbol(
+                    CalculationSymbol.resolve(function.image, calculations),
+                    direction));
+        }
+    )?
+    ( page=PageClause() { group.page(page); } )?
+    { return group.build(); }
+}
+
+// A number that bounds or sizes number ranges.
+Number NumberLiteral() : {
+    Token number;
+}
+{
+    (number=<NUMERIC> | number=<SIGNED_INTEGER> | number=<SIGNED_DECIMAL>)
+    { return parseNumber(number.image); }
+}
+
+// One token that bounds time ranges, read the way an at clause reads it. A
+// bound is a single token, so it cannot run into the clause after it.
+TimestampSymbol TimestampBound() : {
+    Token word;
+}
+{
+    (word=<QUOTED_STRING> | word=<NUMERIC> | word=<SIGNED_INTEGER>)
+    { return new TimestampSymbol(NaturalLanguage.parseMicros(word.image)); }
 }
 
 CommandSymbol ReadAndSetOperations() : {

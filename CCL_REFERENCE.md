@@ -1369,13 +1369,16 @@ consolidate 1 [2, 3, 4]
 
 #### CALCULATE
 
-Perform aggregate calculations.
+Perform aggregate calculations. A calculation applies a function to the values
+of a key, across every record, a list of records, or the records that match a
+condition, at the present or at a timestamp.
 
 ```
-calculate <function> <key> [timestamp]
-calculate <function> <key> (from|in|within) <record> [timestamp]
-calculate <function> <key> (from|in|within) [<records>] [timestamp]
-calculate <function> <key> where <condition> [timestamp]
+calculate <calculation> [timestamp]
+calculate <calculation> (from|in|within) <record> [timestamp]
+calculate <calculation> (from|in|within) [<records>] [timestamp]
+calculate <calculation> where <condition> [timestamp]
+calculate <calculation>, <calculation>, ... [scope] [timestamp] <group>
 ```
 
 ```
@@ -1385,9 +1388,68 @@ calculate avg score from 1
 calculate count name within [1, 2, 3]
 calculate sum salary where department = engineering
 calculate avg score where score > 50 at "yesterday"
+calculate countDistinct email where _ = User
+calculate median age
+calculate percentile 0.99 latency where service = api as of "yesterday"
+calculate stddev salary in 1, 2, 3
 ```
 
-Supported function names: `sum`, `avg`, `average`, `count`, `min`, `max` (and any name the backend supports).
+A calculation is a function name and a key. The function names are `sum`, `avg`,
+`average`, `count`, `min`, `max`, `countDistinct`, `median`, `percentile`,
+`stddev`, `stddevPopulation`, `variance` and `variancePopulation`, in any letter
+case. `percentile` takes a fraction from 0 to 1 before its key, as in
+`percentile 0.99 latency`.
+
+An `at` right after a comparison belongs to that comparison, as it does for
+`find`. To calculate at a timestamp after a condition, use `as of` or put the
+condition in parentheses.
+
+#### Grouped Calculations
+
+A `group by` clause calculates a result for each group of records instead of one
+result for all of them. A grouped statement may list several calculations,
+separated by commas. The group clause comes after the scope and the timestamp,
+and its parts come in this order.
+
+```
+group by <key>, <key>, ...
+    [per <width> [between <number> and <number>]]
+    [per "<duration>" [between <timestamp> and <timestamp>]]
+    [having <function> <operator> <value>]
+    [order by <function> [asc|desc]]
+    [page]
+```
+
+* The group keys may be navigation keys.
+* `per` groups the values of the last key into ranges. A number gives the width
+  of number ranges, and a quoted duration, such as `"1 day"`, gives the period
+  of time ranges. A duration has the form of a [`within`](#await-operations)
+  duration.
+* `between` bounds the ranges and asks for every range in them, including an
+  empty one. The bounds are numbers for number ranges and timestamps for time
+  ranges.
+* `having` keeps the groups whose result satisfies a comparison.
+* `order by` orders the groups by a result. A grouped statement cannot order its
+  groups by a key.
+* `limit` and `offset` page the groups.
+
+The function in `having` and `order by` names one of the statement's
+calculations, in any letter case. `avg` and `average` name the same function. A
+function that names none of the calculations, or more than one, is a syntax
+error.
+
+```
+calculate count $id$ where _ = Application group by opportunity
+calculate count $id$ where active = true group by education.school.name order by count desc limit 10
+calculate count $id$ where _ = Application group by candidate, opportunity having count >= 2
+calculate count $id$ where _ = Credential group by lastUsed per "1 day"
+calculate count $id$ group by price per 10 between 0 and 100
+calculate count $id$, sum price, avg price where active = true group by category
+```
+
+The phrase `group by` is reserved in any letter case. A value that contains it
+must be quoted. The words `per` and `having` are not reserved, so a key may have
+either name.
 
 ---
 
@@ -1762,10 +1824,21 @@ NavigateCommand   ::= 'navigate' Key ReadPreposition NUMERIC [TimestampCommand]
                     | 'navigate' KeyCollection ReadPreposition RecordCollection [TimestampCommand]
                     | 'navigate' Key 'where' Condition [TimestampCommand]
                     | 'navigate' KeyCollection 'where' Condition [TimestampCommand]
-CalculateCommand  ::= 'calculate' ALPHANUMERIC Key [TimestampCommand]
-                    | 'calculate' ALPHANUMERIC Key ReadPreposition NUMERIC [TimestampCommand]
-                    | 'calculate' ALPHANUMERIC Key ReadPreposition RecordCollection [TimestampCommand]
-                    | 'calculate' ALPHANUMERIC Key 'where' Condition [TimestampCommand]
+CalculateCommand  ::= 'calculate' Calculation [CalculateScope] [TimestampCommand]
+                    | 'calculate' Calculation (',' Calculation)* [CalculateScope] [TimestampCommand] Group
+CalculateScope    ::= ReadPreposition NUMERIC
+                    | ReadPreposition RecordCollection
+                    | 'where' Condition
+Calculation       ::= ALPHANUMERIC Key                 (* e.g., sum price *)
+                    | 'percentile' Number Key          (* fraction from 0 to 1 *)
+Group             ::= 'group by' (Key | KeyCollection) [Range] [Having] [ResultOrder] [Page]
+Range             ::= 'per' Number [BinaryOperator Number RangeAnd Number]
+                    | 'per' QUOTED_STRING [BinaryOperator TimestampBound RangeAnd TimestampBound]
+Having            ::= 'having' ALPHANUMERIC UnaryOperator Value
+ResultOrder       ::= 'order by' ALPHANUMERIC [DirectionWord]
+Number            ::= NUMERIC | SIGNED_INTEGER | SIGNED_DECIMAL
+TimestampBound    ::= QUOTED_STRING | NUMERIC | SIGNED_INTEGER
+RangeAnd          ::= 'and' | '&&' | '&'
 
 VerifyCommand     ::= 'verify' Key 'as' Value InspectPreposition NUMERIC [TimestampCommand]
 VerifyAndSwapCommand ::= 'verify_and_swap' Key 'as' Value InspectPreposition NUMERIC 'with' Value
@@ -1854,6 +1927,34 @@ await commands have these symbols:
 - These symbols implement `equals` and `hashCode`, so equivalent statements
   parse to equal trees. For example, `awaitFind within "2 s" a = 1` and
   `await_find within "2000 ms" for a = 1` are equal.
+
+The root of a calculate statement is a `CalculateSymbol`, whose `type()` is
+`CALCULATE`.
+
+| Symbol | Accessors |
+|--------|-----------|
+| `CalculateSymbol` | `calculations()`, `records()`, `timestamp()`, `group()`, and `function()` and `key()` of the first calculation |
+| `CalculationSymbol` | `function()`, `fraction()`, `key()` |
+| `GroupSymbol` | `keys()`, `width()`, `lowerBound()`, `upperBound()`, `period()`, `start()`, `end()`, `having()`, `order()`, `page()` |
+| `HavingSymbol` | `calculation()`, `operator()`, `value()` |
+| `ResultOrderSymbol` | `calculation()`, `direction()` |
+
+- `function()` is the canonical name of the function. It is lower case for
+  `sum`, `avg`, `average`, `count`, `min` and `max`, and camelCase for the
+  others, such as `countDistinct`.
+- `fraction()` is the fraction of a `percentile`, and `null` for the other
+  functions.
+- `group()` is `null` when the statement does not group. The condition is a
+  child of the `CommandTree`, and the having clause, result order and page of a
+  grouped statement belong to its `GroupSymbol`.
+- A whole number in a range is an `Integer` or a `Long`, and a decimal is a
+  `Double`. `period()` is a `java.time.Duration`, and the bounds of time ranges
+  are `TimestampSymbol`s.
+- The `calculation()` of a having clause or a result order is the one of
+  `calculations()` that its function names.
+- These symbols implement `equals` and `hashCode`. The text of a
+  `CalculateSymbol` is its statement without the condition, and that text parses
+  to an equal symbol.
 
 ---
 
