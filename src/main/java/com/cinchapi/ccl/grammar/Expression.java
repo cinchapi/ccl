@@ -63,6 +63,7 @@ public class Expression implements ExpressionSymbol {
      *             {@link ExpressionSymbol#create(TimestampSymbol, KeyTokenSymbol, OperatorSymbol, ValueTokenSymbol...)}
      *             instead.
      */
+    @Deprecated
     public Expression(TimestampSymbol timestamp, KeySymbol key,
             OperatorSymbol operator, ValueSymbol... values) {
         this.delegate = ExpressionSymbol.create(key, operator, values);
