@@ -40,7 +40,10 @@ import com.cinchapi.ccl.type.function.ImplicitKeyRecordFunction;
 import com.cinchapi.ccl.type.function.IndexFunction;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.NullValueSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.QuantifierSymbol;
+import com.cinchapi.ccl.grammar.SubquerySymbol;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
 import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
@@ -49,16 +52,20 @@ import com.cinchapi.ccl.grammar.PageSymbol;
 import com.cinchapi.ccl.grammar.OrderSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.syntax.AbstractSyntaxTree;
+import com.cinchapi.ccl.syntax.CommandTree;
 import com.cinchapi.ccl.syntax.ConditionTree;
 import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.ccl.util.NaturalLanguage;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -70,6 +77,15 @@ public class Grammar {
     private Function<String, Object> valueTransformFunction;
     private Function<String, Operator> operatorTransformFunction;
     private GrammarVisitor visitor;
+
+    /**
+     * The CCL that stands for each {@code $name} placeholder substituted from
+     * {@code data}, keyed by the placeholder's first token and paired with its
+     * last token. The text of a subquery holds this CCL in place of the
+     * placeholder.
+     */
+    private final Map<Token, Map.Entry<Token, String>> substitutions =
+            new IdentityHashMap<Token, Map.Entry<Token, String>>();
 
     public Grammar(java.io.InputStream stream,
                 Function<String, Object> valueTransformFunction,
@@ -126,6 +142,109 @@ public class Grammar {
         }
         jj_consume_token(GrammarConstants.EOF);
         return statements;
+    }
+
+    /**
+     * Return true if the next tokens are a quantifier word followed by an
+     * opening bracket, which starts a quantified value set. The words are not
+     * reserved, so the same word is an ordinary value elsewhere.
+     *
+     * @return {@code true} if a quantified value set starts at the next token
+     */
+    private boolean isQuantifiedValueSet() {
+        Token word = getToken(1);
+        return word.kind == GrammarConstants.ALPHANUMERIC
+                && QuantifierSymbol.parse(word.image) != null
+                && getToken(2).kind == GrammarConstants.OPEN_BRACKET;
+    }
+
+    /**
+     * Return {@code value}, unless the value production that produced it
+     * consumed only the unquoted word {@code null}, which is the literal for an
+     * absent value. A word that follows {@code null} makes the two part of a
+     * multi-word string value, which is returned unchanged.
+     *
+     * @param first the first token the value production consumed
+     * @param value the value the production returned
+     * @param nullable whether the operator accepts the {@code null} literal
+     * @return {@link NullValueSymbol#INSTANCE} for the literal, or
+     *         {@code value}
+     * @throws SyntaxException if {@code value} is the literal and
+     *             {@code nullable} is {@code false}
+     */
+    private ValueTokenSymbol nullLiteralOrValue(Token first,
+            ValueTokenSymbol value, boolean nullable) {
+        if(first == getToken(0) && first.kind == GrammarConstants.ALPHANUMERIC
+                && first.image.equalsIgnoreCase("null")) {
+            if(nullable) {
+                return NullValueSymbol.INSTANCE;
+            }
+            else {
+                throw new SyntaxException(
+                        "null may only be compared with = or !=");
+            }
+        }
+        else {
+            return value;
+        }
+    }
+
+    /**
+     * Return the CCL from {@code first} through {@code last} with one space
+     * between consecutive tokens and each substituted {@code $name}
+     * placeholder replaced by the CCL of its bound value.
+     *
+     * @param first the first token of the text
+     * @param last the last token of the text
+     * @return the CCL
+     */
+    private String text(Token first, Token last) {
+        List<String> words = new ArrayList<String>();
+        Token token = first;
+        boolean done = false;
+        while(!done) {
+            Map.Entry<Token, String> substitution = substitutions.get(token);
+            if(substitution != null) {
+                words.add(substitution.getValue());
+                token = substitution.getKey();
+            }
+            else {
+                words.add(token.image);
+            }
+            done = token == last;
+            token = token.next;
+        }
+        return String.join(" ", words);
+    }
+
+    /**
+     * Return the {@link ValueSymbol} for the unquoted {@code value} that spans
+     * {@code first} through {@code last}, with a {@code $name} placeholder
+     * substituted from {@code data} and an escaped {@code \@} unwrapped. A
+     * substituted placeholder is recorded, so the text of a subquery that holds
+     * it renders the bound value.
+     *
+     * @param value the unquoted value
+     * @param first the first token of {@code value}
+     * @param last the last token of {@code value}
+     * @return the {@link ValueSymbol}
+     * @throws SyntaxException if {@code value} is a {@code $name} placeholder
+     *             that does not have exactly one binding in {@code data}
+     */
+    private ValueSymbol unquotedValue(String value, Token first, Token last) {
+        String resolved = Parsing.resolveLocalReference(value, data);
+        if(resolved == null) {
+            return new ValueSymbol(transformValue(value.replace("\\@", "@")));
+        }
+        else if(value.startsWith("$")) {
+            ValueSymbol symbol = new ValueSymbol(transformValue(resolved));
+            substitutions.put(first,
+                    Maps.immutableEntry(last, symbol.toString()));
+            return symbol;
+        }
+        else {
+            return new ValueSymbol(transformValue(resolved));
+        }
     }
 
     private boolean isValidJson(String json) {
@@ -246,7 +365,9 @@ TOKEN [IGNORE_CASE]:
 
 TOKEN [IGNORE_CASE]:
 {
-  < UNARY_OPERATOR: <EQUALS> | <NOT_EQUALS> | <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> >
+  < EQUALITY_OPERATOR: <EQUALS> | <NOT_EQUALS> >
+|
+  < UNARY_OPERATOR: <LESS_THAN> | <LESS_THAN_OR_EQUALS> | <GREATER_THAN> | <GREATER_THAN_OR_EQUALS> >
 |
   < BINARY_OPERATOR: <BETWEEN> >
 |
@@ -277,6 +398,8 @@ TOKEN [IGNORE_CASE]:
   < NOT_LIKE: "nlike" | "not_like" >
 |
   < #BETWEEN: "><" | "bw" | "between" >
+|
+  < NOT_IN: "not_in" | "nin" | "notin" >
 |
   < OFFSET : "offset" >
 |
@@ -450,24 +573,24 @@ void RelationalExpression() #Expression :
 {
     KeyTokenSymbol key = null;
     OperatorSymbol operator = null;
-    ValueTokenSymbol value1 = null;
-    ValueTokenSymbol value2 = null;
     TimestampSymbol timestamp = null;
 }
 {
     (
       LOOKAHEAD(2)
-      key=SearchKey() operator=SearchOperator() value1=SearchValue()
+      key=SearchKey() operator=SearchOperator() SearchOperand(jjtThis)
     |
       key=Key()
       (
-        operator=LinksToOperator() value1=LinksToValue() (LOOKAHEAD(2) timestamp=Timestamp())?
+        operator=LinksToOperator() LinksToOperand(jjtThis) (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=RegexBasedOperator() value1=RegexValue() (LOOKAHEAD(2) timestamp=Timestamp())?
+        operator=RegexBasedOperator() RegexOperand(jjtThis) (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=UnaryOperator() value1=UnaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
+        // Only an equality operator accepts the null literal, so the operand
+        // learns whether the operator token just consumed was one.
+        operator=UnaryOperator() UnaryOperand(jjtThis, getToken(0).kind == GrammarConstants.EQUALITY_OPERATOR) (LOOKAHEAD(2) timestamp=Timestamp())?
       |
-        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
+        operator=BinaryOperator() BinaryOperand(jjtThis) (LOOKAHEAD(2) timestamp=Timestamp())?
       |
         // Search operators are reachable here only when the Search-side
         // LOOKAHEAD(2) above fell through — typically because a bracket
@@ -475,16 +598,255 @@ void RelationalExpression() #Expression :
         // (e.g. `name[t] contains "X"`). The bracket-less form
         // `name contains "X"` is consumed by the SearchKey/SearchOperator
         // alternative.
-        operator=SearchOperator() value1=SearchValue() (LOOKAHEAD(2) timestamp=Timestamp())?
+        operator=SearchOperator() SearchOperand(jjtThis) (LOOKAHEAD(2) timestamp=Timestamp())?
+      |
+        MembershipOperand(jjtThis) (LOOKAHEAD(2) timestamp=Timestamp())?
       )
     )
     {
       jjtThis.key(key);
-      jjtThis.operator(operator);
-      jjtThis.addValue(value1);
-      if(value2 != null) jjtThis.addValue(value2);
+      if(operator != null) jjtThis.operator(operator);
       if(timestamp != null) jjtThis.timestamp(timestamp);
     }
+}
+
+// An operand is a single value, a quantified value set such as any[v1, v2], or,
+// after `in` / `not_in`, a value set with the quantifier implied. Each operator
+// family has its own operand production because each calls for its own value
+// production. Only the equality operators accept the unquoted null literal,
+// which `nullable` conveys; every other family rejects it.
+
+void UnaryOperand(ASTExpression expression, boolean nullable) :
+{
+    QuantifierSymbol quantifier;
+    ValueTokenSymbol value;
+}
+{
+    LOOKAHEAD({ isQuantifiedValueSet() })
+    quantifier=Quantifier() { expression.quantifier(quantifier); }
+    <OPEN_BRACKET> UnaryValueSet(expression, nullable) <CLOSE_BRACKET>
+  |
+    value=UnaryConditionValue(nullable) { expression.addValue(value); }
+}
+
+void UnaryValueSet(ASTExpression expression, boolean nullable) :
+{
+    ValueTokenSymbol value;
+}
+{
+    value=Subquery() { expression.addValue(value); }
+  |
+    value=UnaryConditionValue(nullable) { expression.addValue(value); }
+    (<COMMA> value=UnaryConditionValue(nullable) { expression.addValue(value); })*
+}
+
+ValueTokenSymbol UnaryConditionValue(boolean nullable) :
+{
+    Token first;
+    ValueTokenSymbol value;
+}
+{
+    { first = getToken(1); }
+    value=UnaryValue()
+    { return nullLiteralOrValue(first, value, nullable); }
+}
+
+void RegexOperand(ASTExpression expression) :
+{
+    QuantifierSymbol quantifier;
+    ValueTokenSymbol value;
+}
+{
+    LOOKAHEAD({ isQuantifiedValueSet() })
+    quantifier=Quantifier() { expression.quantifier(quantifier); }
+    <OPEN_BRACKET>
+    (
+      value=Subquery() { expression.addValue(value); }
+    |
+      value=RegexConditionValue() { expression.addValue(value); }
+      (<COMMA> value=RegexConditionValue() { expression.addValue(value); })*
+    )
+    <CLOSE_BRACKET>
+  |
+    value=RegexConditionValue() { expression.addValue(value); }
+}
+
+ValueTokenSymbol RegexConditionValue() :
+{
+    Token first;
+    ValueTokenSymbol value;
+}
+{
+    { first = getToken(1); }
+    value=RegexValue()
+    { return nullLiteralOrValue(first, value, false); }
+}
+
+void SearchOperand(ASTExpression expression) :
+{
+    QuantifierSymbol quantifier;
+    ValueTokenSymbol value;
+}
+{
+    LOOKAHEAD({ isQuantifiedValueSet() })
+    quantifier=Quantifier() { expression.quantifier(quantifier); }
+    <OPEN_BRACKET>
+    (
+      value=Subquery() { expression.addValue(value); }
+    |
+      value=SearchConditionValue() { expression.addValue(value); }
+      (<COMMA> value=SearchConditionValue() { expression.addValue(value); })*
+    )
+    <CLOSE_BRACKET>
+  |
+    value=SearchConditionValue() { expression.addValue(value); }
+}
+
+ValueTokenSymbol SearchConditionValue() :
+{
+    Token first;
+    ValueTokenSymbol value;
+}
+{
+    { first = getToken(1); }
+    value=SearchValue()
+    { return nullLiteralOrValue(first, value, false); }
+}
+
+void LinksToOperand(ASTExpression expression) :
+{
+    QuantifierSymbol quantifier;
+    ValueTokenSymbol value;
+}
+{
+    LOOKAHEAD({ isQuantifiedValueSet() })
+    quantifier=Quantifier() { expression.quantifier(quantifier); }
+    <OPEN_BRACKET>
+    (
+      value=Subquery() { expression.addValue(value); }
+    |
+      value=LinksToConditionValue() { expression.addValue(value); }
+      (<COMMA> value=LinksToConditionValue() { expression.addValue(value); })*
+    )
+    <CLOSE_BRACKET>
+  |
+    value=LinksToConditionValue() { expression.addValue(value); }
+}
+
+ValueTokenSymbol LinksToConditionValue() :
+{
+    Token first;
+    ValueTokenSymbol value;
+}
+{
+    { first = getToken(1); }
+    value=LinksToValue()
+    { return nullLiteralOrValue(first, value, false); }
+}
+
+// A two-operand operator takes a pair of values, or a quantified set of
+// parenthesized pairs such as any[(1, 5), (10, 20)]. A subquery yields single
+// values, so it cannot supply the set.
+void BinaryOperand(ASTExpression expression) :
+{
+    QuantifierSymbol quantifier;
+    ValueTokenSymbol value;
+}
+{
+    LOOKAHEAD({ isQuantifiedValueSet() })
+    quantifier=Quantifier() { expression.quantifier(quantifier); }
+    <OPEN_BRACKET> ValueTuple(expression) (<COMMA> ValueTuple(expression))* <CLOSE_BRACKET>
+  |
+    value=BinaryConditionValue() { expression.addValue(value); }
+    value=BinaryConditionValue() { expression.addValue(value); }
+}
+
+void ValueTuple(ASTExpression expression) :
+{
+    ValueTokenSymbol first;
+    ValueTokenSymbol second;
+}
+{
+    <OPEN_PARENTHESES> first=BinaryConditionValue() <COMMA> second=BinaryConditionValue() <CLOSE_PARENTHESES>
+    {
+      expression.addValue(first);
+      expression.addValue(second);
+    }
+}
+
+ValueTokenSymbol BinaryConditionValue() :
+{
+    Token first;
+    ValueTokenSymbol value;
+}
+{
+    { first = getToken(1); }
+    value=BinaryValue()
+    { return nullLiteralOrValue(first, value, false); }
+}
+
+// `in` is sugar for `= any[...]` and `not_in` for `!= every[...]`.
+void MembershipOperand(ASTExpression expression) :
+{
+    String operator;
+    QuantifierSymbol quantifier;
+}
+{
+    (
+      <IN> { operator = "="; quantifier = QuantifierSymbol.ANY; }
+    |
+      <NOT_IN> { operator = "!="; quantifier = QuantifierSymbol.EVERY; }
+    )
+    {
+      expression.operator(new OperatorSymbol(transformOperator(operator)));
+      expression.quantifier(quantifier);
+    }
+    <OPEN_BRACKET> UnaryValueSet(expression, true) <CLOSE_BRACKET>
+}
+
+QuantifierSymbol Quantifier() :
+{
+    Token word;
+}
+{
+    word=<ALPHANUMERIC> { return QuantifierSymbol.parse(word.image); }
+}
+
+// A read command whose result supplies a value set. The command's own nodes
+// (its condition, order and page) are detached from the enclosing expression
+// so that they do not read as the outer condition.
+ValueTokenSymbol Subquery() :
+{
+    ASTCommand node;
+    Token first;
+}
+{
+    { first = getToken(1); }
+    node=SubqueryCommand()
+    {
+      jjtree.popNode();
+      CommandTree command = (CommandTree) node.jjtAccept(visitor, null);
+      return new SubquerySymbol(command, text(first, getToken(0)));
+    }
+}
+
+ASTCommand SubqueryCommand() #Command :
+{
+    CommandSymbol cmd;
+}
+{
+    (
+        cmd = SelectCommand()
+      |
+        cmd = GetCommand()
+      |
+        cmd = FindCommand()
+      |
+        cmd = TraceCommand()
+      |
+        cmd = NavigateCommand()
+    )
+    { jjtThis.command(cmd); return jjtThis; }
 }
 
 // --- No-timestamp expression variants ---
@@ -529,35 +891,33 @@ void RelationalExpressionNoTimestamp() #Expression :
 {
     KeyTokenSymbol key = null;
     OperatorSymbol operator = null;
-    ValueTokenSymbol value1 = null;
-    ValueTokenSymbol value2 = null;
 }
 {
     (
       LOOKAHEAD(2)
-      key=SearchKey() operator=SearchOperator() value1=SearchValue()
+      key=SearchKey() operator=SearchOperator() SearchOperand(jjtThis)
     |
       key=Key()
       (
-        operator=LinksToOperator() value1=LinksToValue()
+        operator=LinksToOperator() LinksToOperand(jjtThis)
       |
-        operator=RegexBasedOperator() value1=RegexValue()
+        operator=RegexBasedOperator() RegexOperand(jjtThis)
       |
-        operator=UnaryOperator() value1=UnaryValue()
+        operator=UnaryOperator() UnaryOperand(jjtThis, getToken(0).kind == GrammarConstants.EQUALITY_OPERATOR)
       |
-        operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue()
+        operator=BinaryOperator() BinaryOperand(jjtThis)
       |
         // See RelationalExpression — the Search alternative covers the
         // bracket-between-key-and-operator case the LOOKAHEAD above
         // can't see past.
-        operator=SearchOperator() value1=SearchValue()
+        operator=SearchOperator() SearchOperand(jjtThis)
+      |
+        MembershipOperand(jjtThis)
       )
     )
     {
       jjtThis.key(key);
-      jjtThis.operator(operator);
-      jjtThis.addValue(value1);
-      if(value2 != null) jjtThis.addValue(value2);
+      if(operator != null) jjtThis.operator(operator);
     }
 }
 
@@ -637,6 +997,7 @@ KeyTokenSymbol Key() :
 
 ValueTokenSymbol UnaryValue() :
 {
+  Token first = getToken(1);
   FunctionValueSymbol function;
   Token key;
   Token word;
@@ -651,16 +1012,7 @@ ValueTokenSymbol UnaryValue() :
   { return function; }
 |
   ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
-  {
-    String resolved = Parsing.resolveLocalReference(value, data);
-    if(resolved != null) {
-        value = resolved;
-    }
-    else {
-        value = value.replace("\\@", "@");
-    }
-    return new ValueSymbol(transformValue(value));
-  }
+  { return unquotedValue(value, first, getToken(0)); }
 |
   (word=<QUOTED_STRING>)
   { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
@@ -716,6 +1068,7 @@ ValueTokenSymbol RegexValue() :
 
 ValueTokenSymbol SearchValue() :
 {
+  Token first = getToken(1);
   FunctionValueSymbol function;
   Token key;
   Token word;
@@ -730,16 +1083,7 @@ ValueTokenSymbol SearchValue() :
   { return function; }
 |
   ( LOOKAHEAD(2) (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC> | word=<ASTERISK_SUFFIXED_STRING>) { value += (value.equals("")) ? word.image : " " + word.image; })+
-  {
-    String resolved = Parsing.resolveLocalReference(value, data);
-    if(resolved != null) {
-        value = resolved;
-    }
-    else {
-        value = value.replace("\\@", "@");
-    }
-    return new ValueSymbol(transformValue(value));
-  }
+  { return unquotedValue(value, first, getToken(0)); }
 |
   (word=<QUOTED_STRING>)
   { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
@@ -750,7 +1094,6 @@ ValueTokenSymbol BinaryValue() :
   FunctionValueSymbol function;
   Token key;
   Token word;
-  String value = "";
   List<String> records = Lists.newArrayList();
   ASTStart ccl;
 }
@@ -761,17 +1104,7 @@ ValueTokenSymbol BinaryValue() :
   { return function; }
 |
   (word=<SIGNED_INTEGER> | word=<SIGNED_DECIMAL> | word=<NUMERIC> | word=<ALPHANUMERIC> | word=<NON_ALPHANUMERIC_AND_ALPHANUMERIC>  | word=<PERIOD_SEPARATED_STRING> | word=<ASTERISK_SUFFIXED_STRING>)
-  {
-    value = word.image;
-    String resolved = Parsing.resolveLocalReference(value, data);
-    if(resolved != null) {
-        value = resolved;
-    }
-    else {
-        value = value.replace("\\@", "@");
-    }
-    return new ValueSymbol(transformValue(value));
-  }
+  { return unquotedValue(word.image, word, word); }
 |
   (word=<QUOTED_STRING>)
   { return new ValueSymbol(transformValue(word.image.replace("\\\"", "\""))); }
@@ -798,7 +1131,7 @@ OperatorSymbol UnaryOperator() :
   Token operator;
 }
 {
-  (operator=<UNARY_OPERATOR> | operator=<OPEN_ANGLE_BRACKET> | operator=<CLOSE_ANGLE_BRACKET> ) { return new OperatorSymbol(transformOperator(operator.image)); }
+  (operator=<EQUALITY_OPERATOR> | operator=<UNARY_OPERATOR> | operator=<OPEN_ANGLE_BRACKET> | operator=<CLOSE_ANGLE_BRACKET> ) { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
 OperatorSymbol BinaryOperator() :
@@ -1789,6 +2122,7 @@ CommandSymbol AuditCommand() : {
 }
 
 CommandSymbol TraceCommand() : {
+    KeyTokenSymbol<?> key = null;
     Token record = null;
     Collection<Long> records = null;
     TimestampSymbol timestamp = null;
@@ -1796,6 +2130,18 @@ CommandSymbol TraceCommand() : {
 {
     <TRACE>
     (
+        // Key-qualified, as in trace manager from 42 or trace manager in [1, 2]
+        LOOKAHEAD( Key() (<FROM> | <IN> | <WITHIN>) )
+        key=Key() { KeyTokenSymbol.requireNotParameterized(key, "trace command"); } (<FROM> | <IN> | <WITHIN>)
+        (
+            LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
+            records=RecordCollection() (timestamp=TimestampReadCommand())?
+            { return new TraceSymbol(key, records, timestamp); }
+          |
+            record=<NUMERIC> (timestamp=TimestampReadCommand())?
+            { return new TraceSymbol(key, Long.parseLong(record.image), timestamp); }
+        )
+      |
         LOOKAHEAD( <OPEN_BRACKET> | <NUMERIC> <COMMA> )
         records=RecordCollection() (timestamp=TimestampReadCommand())?
         { return new TraceSymbol(records, timestamp); }

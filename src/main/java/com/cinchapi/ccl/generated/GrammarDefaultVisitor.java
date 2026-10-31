@@ -24,6 +24,9 @@ public class GrammarDefaultVisitor implements GrammarVisitor{
   public Object visit(ASTExpression node, Object data){
     return defaultVisit(node, data);
   }
+  public Object visit(ASTCommand node, Object data){
+    return defaultVisit(node, data);
+  }
   public Object visit(ASTPage node, Object data){
     return defaultVisit(node, data);
   }
@@ -33,8 +36,5 @@ public class GrammarDefaultVisitor implements GrammarVisitor{
   public Object visit(ASTFunction node, Object data){
     return defaultVisit(node, data);
   }
-  public Object visit(ASTCommand node, Object data){
-    return defaultVisit(node, data);
-  }
 }
-/* JavaCC - OriginalChecksum=de216bc5e925c198e18be72654125289 (do not edit this line) */
+/* JavaCC - OriginalChecksum=7c7cc8dfa072379968e136e9995b2ef2 (do not edit this line) */

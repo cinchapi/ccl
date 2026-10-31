@@ -44,10 +44,12 @@ import com.cinchapi.ccl.grammar.ScopeEndSymbol;
 import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
+import com.cinchapi.ccl.grammar.ValueSetSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.Array;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -111,6 +113,12 @@ public final class Parsing {
     /**
      * Go through a list of symbols and group the expressions together in a
      * {@link ExpressionSymbol} object.
+     * <p>
+     * A key, an operator and the operator's operands form one expression. A
+     * {@link ValueSetSymbol} in the value position is the whole operand list
+     * and yields a quantified expression. A {@link TimestampSymbol} that
+     * follows an expression becomes that expression's timestamp.
+     * </p>
      * 
      * @param symbols
      * @return the expression
@@ -131,7 +139,11 @@ public final class Parsing {
                     OperatorSymbol operator = (OperatorSymbol) it.next();
                     ValueTokenSymbol<?> value = (ValueTokenSymbol<?>) it.next();
                     ExpressionSymbol expression;
-                    if(operator.operator().operands() == 2) {
+                    if(value instanceof ValueSetSymbol) {
+                        expression = ExpressionSymbol.create(key, operator,
+                                value);
+                    }
+                    else if(operator.operator().operands() == 2) {
                         ValueTokenSymbol<?> value2 = (ValueTokenSymbol<?>) it
                                 .next();
                         expression = ExpressionSymbol.create(key, operator,
@@ -153,6 +165,7 @@ public final class Parsing {
                     grouped.set(grouped.size() - 1,
                             ExpressionSymbol.create((TimestampSymbol) symbol,
                                     prev.key(), prev.operator(),
+                                    prev.quantifier(),
                                     prev.values().toArray(Array.containing())));
                 }
                 else {
@@ -383,8 +396,10 @@ public final class Parsing {
     }
 
     /**
-     * Go through the list of symbols and break up any {@link ExpressionSymbol
-     * expressions} into individual symbol tokens.
+     * Go through the list of symbols and break up any
+     * {@link ExpressionSymbol expressions} into individual symbol tokens. A
+     * quantified expression contributes one {@link ValueSetSymbol} in place of
+     * its values.
      * 
      * @param symbols
      * @return the list of symbols with no expressions
@@ -396,7 +411,7 @@ public final class Parsing {
                 ExpressionSymbol expression = (ExpressionSymbol) symbol;
                 ungrouped.add(expression.key());
                 ungrouped.add(expression.operator());
-                ungrouped.addAll(expression.values());
+                ungrouped.addAll(valueTokens(expression));
                 if(expression.timestamp().timestamp() > 0) {
                     ungrouped.add(expression.timestamp());
                 }
@@ -406,6 +421,27 @@ public final class Parsing {
             }
         });
         return ungrouped;
+    }
+
+    /**
+     * Return the tokens that stand in the value position when
+     * {@code expression} is flattened: its values for a plain comparison, or
+     * one {@link ValueSetSymbol} that holds the quantifier and every member for
+     * a quantified expression.
+     *
+     * @param expression the expression to flatten
+     * @return the value tokens
+     */
+    public static List<ValueTokenSymbol<?>> valueTokens(
+            ExpressionSymbol expression) {
+        if(expression.quantifier() == null) {
+            return expression.values();
+        }
+        else {
+            return ImmutableList.of(new ValueSetSymbol(expression.quantifier(),
+                    expression.operator().operator().operands(),
+                    expression.values()));
+        }
     }
 
     /**
