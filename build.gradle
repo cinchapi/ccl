@@ -24,6 +24,17 @@ def getVersion = { ->
   return stdout.toString().trim()
 }
 
+// The version that a build version publishes as, also from the "version.sh"
+// script, which drops only the build number and keeps the branch's name whole.
+def getPublishedVersion = { buildVersion ->
+  def stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine 'bash', 'version.sh', '--published', buildVersion
+    standardOutput = stdout
+  }
+  return stdout.toString().trim()
+}
+
 def getBranch = { ->
   def branch = System.getenv('CIRCLE_BRANCH')
       ?: System.getenv('GITHUB_HEAD_REF')
@@ -46,14 +57,9 @@ group = 'com.cinchapi'
 version  = getVersion()
 ext.currentBranch = getBranch()
 
-// Drop the build component from version number and use that for
-// publishing
-ext.mavenVersion = version.split('\\.')
-ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+-", "-")
-ext.mavenVersion[3] = ext.mavenVersion[3].replaceAll("[0-9]+", "").trim()
-ext.mavenVersion = ext.mavenVersion.join(".").replace(".-", "-").replaceAll('\\.$', "")
+ext.mavenVersion = getPublishedVersion(version)
 
-ext.isRelease = mavenVersion.matches('^[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+)?$')
+ext.isRelease = mavenVersion.matches('^[0-9]+\\.[0-9]+\\.[0-9]+$')
 
 // Whether releases are public: published to Maven Central through Sonatype as
 // well as to Cloudsmith. When it is false, every Sonatype task skips and no
