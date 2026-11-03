@@ -14,6 +14,37 @@ repositories {
 }
 ```
 
+##### Custom Operators
+A condition can use an operator that CCL does not define, such as one that a
+Concourse plugin provides. A word in the operator position that is not a
+built-in operator, alone or qualified with periods, names a custom operator. One
+or more values follow it, as in `bio about "red running shoes" 10` or
+`bio vec.about "red running shoes"`. The parser's operator function resolves the
+word to an `Operator`, and fails the parse when it cannot.
+
+* `Operator` has three default methods that describe the values it accepts.
+  `minOperands()` and `maxOperands()` bound how many values a condition may
+  give, and both return `operands()` by default. `validate(List<Object>)` throws
+  `IllegalArgumentException` for values the operator rejects, and accepts any
+  values by default.
+* The parser checks the values of every condition against its operator, for CCL
+  text and for a list of symbols alike. A condition with too few or too many
+  values, or with values that `validate` rejects, fails with a `SyntaxException`
+  that names the operator.
+* A list of symbols groups as many values after an operator as its
+  `maxOperands()` allows, so a `Criteria` can give a custom operator more than
+  two values.
+* `Parsing.isOperatorName(String)` returns whether a custom operator can use a
+  name. A name must read as one plain word, so a built-in operator symbol or a
+  reserved word such as `and`, `at` or `limit` cannot name one.
+* A function key in an order can name a qualified function, as in
+  `order by bio | vec.about desc`.
+* In `findOrInsert`, the values of a custom operator stop before the quoted JSON
+  that ends the command.
+* A word in the operator position that the operator function cannot resolve,
+  such as the misspelling in `name eqq x`, fails with a message that names the
+  word and the reason the operator function gave.
+
 #### Version 4.1.1 (TBD)
 ##### Bug Fixes
 * Fixed a bug that caused a syntax error for CCL that names a key spelled like a

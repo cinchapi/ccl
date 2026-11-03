@@ -15,12 +15,32 @@
  */
 package com.cinchapi.ccl.type;
 
+import java.util.List;
+
 /**
  * An interface representing the input to an {@link OperatorSymbol}.
  *
  * @author Jeff Nelson
  */
 public interface Operator {
+
+    /**
+     * Return the most operands this {@link Operator} accepts.
+     *
+     * @return the maximum number of operands, {@link #operands()} by default
+     */
+    public default int maxOperands() {
+        return operands();
+    }
+
+    /**
+     * Return the fewest operands this {@link Operator} accepts.
+     *
+     * @return the minimum number of operands, {@link #operands()} by default
+     */
+    public default int minOperands() {
+        return operands();
+    }
 
     /**
      * Return the number of operands operated on by this {@link Operator}.
@@ -35,5 +55,15 @@ public interface Operator {
      * @return the operator's symbol
      */
     public String symbol();
+
+    /**
+     * Check that {@code operands} are valid for this {@link Operator}. The
+     * parser calls this after it checks the number of operands against
+     * {@link #minOperands()} and {@link #maxOperands()}.
+     *
+     * @param operands the parsed values of the operands, in order
+     * @throws IllegalArgumentException if the operands are not valid
+     */
+    public default void validate(List<Object> operands) {}
 
 }
