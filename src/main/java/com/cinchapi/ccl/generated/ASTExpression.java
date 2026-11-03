@@ -17,8 +17,10 @@ package com.cinchapi.ccl.generated;
 
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
+import com.cinchapi.ccl.grammar.QuantifierSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
+import com.cinchapi.ccl.grammar.ValueSetSymbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
 import com.google.common.collect.Lists;
 
@@ -38,6 +40,12 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      * The operator
      */
     private OperatorSymbol operator;
+
+    /**
+     * How the operator combines with the values, or null for a plain
+     * comparison.
+     */
+    private QuantifierSymbol quantifier;
 
     /**
      * The values
@@ -141,6 +149,24 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     }
 
     /**
+     * Get the quantifier
+     *
+     * @return the quantifier, or null for a plain comparison
+     */
+    public QuantifierSymbol quantifier() {
+        return quantifier;
+    }
+
+    /**
+     * Set the quantifier.
+     *
+     * @param quantifier the quantifier, or null for a plain comparison
+     */
+    public void quantifier(QuantifierSymbol quantifier) {
+        this.quantifier = quantifier;
+    }
+
+    /**
      * Get the timestamp
      *
      * @return the timestamp
@@ -159,14 +185,22 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
     }
 
     /**
-     * Convert the node a string representation.
+     * Convert the node a string representation. The result is CCL that parses
+     * to an equal node, so a quantified set renders as
+     * {@code quantifier[member, ...]}.
      *
      * @return the node as a string
      */
     public String toString() {
         String string = key.toString() + " " + operator.toString();
-        for (ValueTokenSymbol<?> value : values) {
-            string += " " + value.toString();
+        if(quantifier == null) {
+            for (ValueTokenSymbol<?> value : values) {
+                string += " " + value.toString();
+            }
+        }
+        else {
+            string += " " + new ValueSetSymbol(quantifier,
+                    operator.operator().operands(), values);
         }
         if (timestamp != null) {
             string += " " + timestamp.toString();
