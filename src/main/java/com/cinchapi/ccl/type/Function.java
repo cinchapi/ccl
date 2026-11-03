@@ -15,6 +15,7 @@
  */
 package com.cinchapi.ccl.type;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import com.cinchapi.common.base.ArrayBuilder;
@@ -30,6 +31,16 @@ import com.cinchapi.common.describe.Empty;
  * @author Jeff Nelson
  */
 public abstract class Function {
+
+    /**
+     * The name of the function.
+     */
+    private final String operation;
+
+    /**
+     * The arguments that are supplied to the function.
+     */
+    protected final Object[] args;
 
     /**
      * Construct a new instance.
@@ -51,39 +62,6 @@ public abstract class Function {
         this.args = $args.build();
     }
 
-    /**
-     * The name of the function.
-     */
-    private final String operation;
-
-    /**
-     * The arguments that are supplied to the function.
-     */
-    protected final Object[] args;
-
-    /**
-     * Return the name of the function's operation.
-     * 
-     * @return the operation
-     */
-    public String operation() {
-        return operation;
-    }
-
-    /**
-     * Return the key of the index to which the function is applied.
-     * 
-     * @return the index key
-     */
-    public final String key() {
-        return (String) args[0];
-    }
-      
-    @Override
-    public int hashCode() {
-        return Objects.hash(operation, args);
-    }
-
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Function) {
@@ -103,6 +81,29 @@ public abstract class Function {
             }
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(operation, Arrays.hashCode(args));
+    }
+
+    /**
+     * Return the key of the index to which the function is applied.
+     * 
+     * @return the index key
+     */
+    public final String key() {
+        return (String) args[0];
+    }
+
+    /**
+     * Return the name of the function's operation.
+     * 
+     * @return the operation
+     */
+    public String operation() {
+        return operation;
     }
 
 }

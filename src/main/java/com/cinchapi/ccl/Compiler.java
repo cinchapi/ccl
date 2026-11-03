@@ -55,6 +55,7 @@ import com.cinchapi.ccl.grammar.command.AwaitSelectAndSetSymbol;
 import com.cinchapi.ccl.grammar.command.AwaitSelectSymbol;
 import com.cinchapi.ccl.grammar.command.BrowseSymbol;
 import com.cinchapi.ccl.grammar.command.CalculateSymbol;
+import com.cinchapi.ccl.grammar.command.CalculationSymbol;
 import com.cinchapi.ccl.grammar.command.ChronicleSymbol;
 import com.cinchapi.ccl.grammar.command.ClearSymbol;
 import com.cinchapi.ccl.grammar.command.CommandSymbol;
@@ -1232,7 +1233,13 @@ public abstract class Compiler {
             }
         }
         else if(command instanceof CalculateSymbol) {
-            result.add(((CalculateSymbol) command).key());
+            CalculateSymbol calculate = (CalculateSymbol) command;
+            for (CalculationSymbol calculation : calculate.calculations()) {
+                result.add(calculation.key());
+            }
+            if(calculate.group() != null) {
+                addAll(result, calculate.group().keys());
+            }
         }
         else if(command instanceof SearchSymbol) {
             result.add(((SearchSymbol) command).key());
