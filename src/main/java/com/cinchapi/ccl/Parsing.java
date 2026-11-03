@@ -15,11 +15,13 @@
  */
 package com.cinchapi.ccl;
 
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -34,6 +36,11 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
+import com.cinchapi.ccl.generated.GrammarConstants;
+import com.cinchapi.ccl.generated.GrammarTokenManager;
+import com.cinchapi.ccl.generated.SimpleCharStream;
+import com.cinchapi.ccl.generated.Token;
+import com.cinchapi.ccl.generated.TokenMgrError;
 import com.cinchapi.ccl.grammar.ConjunctionSymbol;
 import com.cinchapi.ccl.grammar.ExpressionSymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
@@ -45,6 +52,7 @@ import com.cinchapi.ccl.grammar.ScopeSymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.Symbol;
 import com.cinchapi.ccl.grammar.ValueTokenSymbol;
+import com.cinchapi.ccl.type.Operator;
 import com.cinchapi.common.base.AnyStrings;
 import com.cinchapi.common.base.Array;
 import com.google.common.base.Preconditions;
@@ -61,52 +69,44 @@ import com.google.common.collect.Multimap;
 public final class Parsing {
 
     /**
-     * The form of a {@code within} duration: a whole or decimal amount,
-     * optional whitespace, then a unit name.
+     * Check that {@code values} are a valid set of operands for
+     * {@code operator}: their count lies within {@link Operator#minOperands()}
+     * and {@link Operator#maxOperands()}, and {@link Operator#validate(List)}
+     * accepts their values.
+     *
+     * @param operator the operator of an expression
+     * @param values the operands of that expression, in order
+     * @throws SyntaxException if the operands are not valid for
+     *             {@code operator}
      */
-    private static final Pattern DURATION = Pattern
-            .compile("(\\d+(?:\\.\\d+)?)\\s*(\\p{L}+)");
-
-    /**
-     * The exact number of nanoseconds in one unit, for each lower case unit
-     * name that a {@code within} duration accepts.
-     */
-    private static final Map<String, BigDecimal> DURATION_UNIT_NANOS =
-            ImmutableMap.<String, BigDecimal> builder()
-                    .putAll(aliases(ChronoUnit.NANOS, "ns", "nsec", "nsecs",
-                            "nano", "nanos", "nanosecond", "nanoseconds"))
-                    .putAll(aliases(ChronoUnit.MICROS, "us", "\u00b5s",
-                            "\u03bcs", "usec", "usecs", "micro", "micros",
-                            "microsecond", "microseconds"))
-                    .putAll(aliases(ChronoUnit.MILLIS, "ms", "msec", "msecs",
-                            "milli", "millis", "millisecond", "milliseconds"))
-                    .putAll(aliases(ChronoUnit.SECONDS, "s", "sec", "secs",
-                            "second", "seconds"))
-                    .putAll(aliases(ChronoUnit.MINUTES, "m", "min", "mins",
-                            "minute", "minutes"))
-                    .putAll(aliases(ChronoUnit.HOURS, "h", "hr", "hrs",
-                            "hour", "hours"))
-                    .putAll(aliases(ChronoUnit.DAYS, "d", "day", "days"))
-                    .putAll(aliases(ChronoUnit.WEEKS, "w", "wk", "wks",
-                            "week", "weeks"))
-                    .putAll(aliases(ChronoUnit.MONTHS, "mo", "mos", "month",
-                            "months"))
-                    .putAll(aliases(ChronoUnit.YEARS, "y", "yr", "yrs",
-                            "year", "years"))
-                    .build();
-
-    /**
-     * The number of nanoseconds in {@link Long#MAX_VALUE} milliseconds, which
-     * is the longest duration that a {@code within} clause resolves to.
-     */
-    private static final BigInteger MAX_DURATION_NANOS = BigInteger
-            .valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(1_000_000));
-
-    /**
-     * The number of nanoseconds in one second.
-     */
-    private static final BigInteger NANOS_PER_SECOND = BigInteger
-            .valueOf(1_000_000_000);
+    public static void checkOperands(OperatorSymbol operator,
+            List<ValueTokenSymbol<?>> values) {
+        Operator op = operator.operator();
+        int min = op.minOperands();
+        int max = op.maxOperands();
+        if(values.size() < min || values.size() > max) {
+            String expected = min == max ? String.valueOf(min)
+                    : min + " to " + max;
+            throw new SyntaxException(AnyStrings.format(
+                    "The {} operator takes {} operand(s), but got {}",
+                    op.symbol(), expected, values.size()));
+        }
+        else {
+            List<Object> operands = Lists
+                    .newArrayListWithCapacity(values.size());
+            for (ValueTokenSymbol<?> value : values) {
+                operands.add(value.value());
+            }
+            try {
+                op.validate(operands);
+            }
+            catch (IllegalArgumentException e) {
+                throw new SyntaxException(AnyStrings.format(
+                        "Invalid operands for the {} operator: {}", op.symbol(),
+                        e.getMessage()));
+            }
+        }
+    }
 
     /**
      * Go through a list of symbols and group the expressions together in a
@@ -129,18 +129,23 @@ public final class Parsing {
                     // operator and one or more symbols. If this is not the
                     // case, this method will throw a ClassCastException
                     OperatorSymbol operator = (OperatorSymbol) it.next();
-                    ValueTokenSymbol<?> value = (ValueTokenSymbol<?>) it.next();
-                    ExpressionSymbol expression;
-                    if(operator.operator().operands() == 2) {
-                        ValueTokenSymbol<?> value2 = (ValueTokenSymbol<?>) it
-                                .next();
-                        expression = ExpressionSymbol.create(key, operator,
-                                value, value2);
+                    int max = operator.operator().maxOperands();
+                    List<ValueTokenSymbol<?>> values = new ArrayList<>();
+                    boolean reading = true;
+                    while (reading && values.size() < max && it.hasNext()) {
+                        Symbol next = it.next();
+                        if(next instanceof ValueTokenSymbol) {
+                            values.add((ValueTokenSymbol<?>) next);
+                        }
+                        else {
+                            it.previous();
+                            reading = false;
+                        }
                     }
-                    else {
-                        expression = ExpressionSymbol.create(key, operator,
-                                value);
-                    }
+                    checkOperands(operator, values);
+                    ExpressionSymbol expression = ExpressionSymbol.create(key,
+                            operator,
+                            values.toArray(new ValueTokenSymbol<?>[0]));
                     grouped.add(expression);
                 }
                 else if(symbol instanceof TimestampSymbol) { // Add the
@@ -163,6 +168,34 @@ public final class Parsing {
         }
         catch (ClassCastException e) {
             throw new SyntaxException(e.getMessage());
+        }
+    }
+
+    /**
+     * Return whether an {@link Operator} that CCL does not define, such as one
+     * a Concourse plugin provides, can use {@code name} as its symbol.
+     * <p>
+     * CCL reads a word in the operator position as such an operator only if its
+     * lexer reads the word as one plain alphanumeric token. A built-in operator
+     * symbol, a reserved word such as {@code and}, {@code at} or {@code limit},
+     * and a word with punctuation all fail that test.
+     * </p>
+     *
+     * @param name the candidate symbol
+     * @return {@code true} if a condition can name an operator {@code name}
+     */
+    public static boolean isOperatorName(String name) {
+        GrammarTokenManager lexer = new GrammarTokenManager(
+                new SimpleCharStream(new StringReader(name)));
+        try {
+            Token first = lexer.getNextToken();
+            Token second = lexer.getNextToken();
+            return first.kind == GrammarConstants.ALPHANUMERIC
+                    && first.image.equals(name)
+                    && second.kind == GrammarConstants.EOF;
+        }
+        catch (TokenMgrError e) {
+            return false;
         }
     }
 
@@ -427,4 +460,51 @@ public final class Parsing {
         return Arrays.stream(names).collect(
                 ImmutableMap.toImmutableMap(name -> name, name -> nanos));
     }
+
+    /**
+     * The form of a {@code within} duration: a whole or decimal amount,
+     * optional whitespace, then a unit name.
+     */
+    private static final Pattern DURATION = Pattern
+            .compile("(\\d+(?:\\.\\d+)?)\\s*(\\p{L}+)");
+
+    /**
+     * The exact number of nanoseconds in one unit, for each lower case unit
+     * name that a {@code within} duration accepts.
+     */
+    private static final Map<String, BigDecimal> DURATION_UNIT_NANOS = ImmutableMap
+            .<String, BigDecimal> builder()
+            .putAll(aliases(ChronoUnit.NANOS, "ns", "nsec", "nsecs", "nano",
+                    "nanos", "nanosecond", "nanoseconds"))
+            .putAll(aliases(ChronoUnit.MICROS, "us", "\u00b5s", "\u03bcs",
+                    "usec", "usecs", "micro", "micros", "microsecond",
+                    "microseconds"))
+            .putAll(aliases(ChronoUnit.MILLIS, "ms", "msec", "msecs", "milli",
+                    "millis", "millisecond", "milliseconds"))
+            .putAll(aliases(ChronoUnit.SECONDS, "s", "sec", "secs", "second",
+                    "seconds"))
+            .putAll(aliases(ChronoUnit.MINUTES, "m", "min", "mins", "minute",
+                    "minutes"))
+            .putAll(aliases(ChronoUnit.HOURS, "h", "hr", "hrs", "hour",
+                    "hours"))
+            .putAll(aliases(ChronoUnit.DAYS, "d", "day", "days"))
+            .putAll(aliases(ChronoUnit.WEEKS, "w", "wk", "wks", "week",
+                    "weeks"))
+            .putAll(aliases(ChronoUnit.MONTHS, "mo", "mos", "month", "months"))
+            .putAll(aliases(ChronoUnit.YEARS, "y", "yr", "yrs", "year",
+                    "years"))
+            .build();
+
+    /**
+     * The number of nanoseconds in {@link Long#MAX_VALUE} milliseconds, which
+     * is the longest duration that a {@code within} clause resolves to.
+     */
+    private static final BigInteger MAX_DURATION_NANOS = BigInteger
+            .valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(1_000_000));
+
+    /**
+     * The number of nanoseconds in one second.
+     */
+    private static final BigInteger NANOS_PER_SECOND = BigInteger
+            .valueOf(1_000_000_000);
 }
