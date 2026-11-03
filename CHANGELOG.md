@@ -30,6 +30,28 @@ repositories {
     comparison or a list of keys is the key `for`, as in
     `awaitFind within "1 s" for = 1`.
   * A value spelled like a reserved word must be quoted.
+* [GH-79](https://github.com/cinchapi/ccl/issues/79): Fixed a bug that caused
+  the text of a string value, such as a value in the CCL of a Concourse
+  `Criteria`, to not parse back as the same string. A string that holds a
+  character CCL reads as syntax, such as `a)`, `[a]`, `a;b` or a tab, or that
+  CCL reads as a token of its own, such as `$id$`, `and` or `where`, printed
+  without quotes, so its text did not parse or parsed as another value. A string
+  within quotes, such as `'a'`, printed as is and parsed back without its
+  quotes.
+  * A `ValueSymbol` prints a string without quotes when CCL reads that text,
+    unquoted, as the same one string. A string that printed without quotes and
+    parsed back keeps its text, and so does a local reference such as `$name`.
+  * Any other string prints within quotes. They are single quotes when single
+    quotes can hold the string and either it holds a double quote and no single
+    quote, or double quotes cannot hold it. Otherwise they are double quotes.
+  * A quoted string prints with the backslashes that keep it intact, so a string
+    that holds both quote characters, or a backslash before a double quote or at
+    its end, parses back.
+  * CCL cannot express the empty string, which prints as empty text. It also
+    cannot express a string that needs quotes when neither quote character can
+    hold it, such as `it's \\`, which holds a single quote and ends with two
+    backslashes. Such a string prints within double quotes, and its text does
+    not parse back as the string.
 
 #### Version 4.1.0 (September 30, 2026)
 ##### New Commands
