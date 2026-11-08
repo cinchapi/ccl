@@ -1618,9 +1618,8 @@ public class CompilerJavaCCLogicTest {
                 .get(0).value();
         Assert.assertEquals("avg", function.operation());
         Assert.assertEquals("children*.name", function.key());
-        Assert.assertEquals(1, ((List<Long>) function.source()).size());
-        Assert.assertEquals((long) 1,
-                (long) ((List<Long>) function.source()).get(0));
+        Assert.assertEquals(1, function.source().size());
+        Assert.assertEquals((long) 1, (long) function.source().get(0));
     }
 
     @Test
@@ -1719,11 +1718,11 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(1, ((List<Long>) ((KeyRecordsFunction) expression
-                .values().get(0).value()).source()).size());
+        Assert.assertEquals(1, ((KeyRecordsFunction) expression.values().get(0)
+                .value()).source().size());
         Assert.assertEquals((long) 1,
-                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
-                        .get(0).value()).source()).get(0));
+                (long) ((KeyRecordsFunction) expression.values().get(0).value())
+                        .source().get(0));
     }
 
     @Test
@@ -1815,14 +1814,14 @@ public class CompilerJavaCCLogicTest {
         Assert.assertEquals("age",
                 ((KeyRecordsFunction) expression.values().get(0).value())
                         .key());
-        Assert.assertEquals(2, ((List<Long>) ((KeyRecordsFunction) expression
-                .values().get(0).value()).source()).size());
+        Assert.assertEquals(2, ((KeyRecordsFunction) expression.values().get(0)
+                .value()).source().size());
         Assert.assertEquals((long) 1,
-                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
-                        .get(0).value()).source()).get(0));
+                (long) ((KeyRecordsFunction) expression.values().get(0).value())
+                        .source().get(0));
         Assert.assertEquals((long) 2,
-                (long) ((List<Long>) ((KeyRecordsFunction) expression.values()
-                        .get(0).value()).source()).get(1));
+                (long) ((KeyRecordsFunction) expression.values().get(0).value())
+                        .source().get(1));
     }
 
     @Test
@@ -2644,11 +2643,10 @@ public class CompilerJavaCCLogicTest {
                 ((KeyRecordsFunction) symbol.function()).key());
 
         Assert.assertEquals(1,
-                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
-                        .size());
+                ((KeyRecordsFunction) symbol.function()).source().size());
         Assert.assertEquals((long) 1,
-                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
-                        .source()).get(0));
+                (long) ((KeyRecordsFunction) symbol.function())
+                        .source().get(0));
     }
 
     @Test
@@ -2670,11 +2668,10 @@ public class CompilerJavaCCLogicTest {
                 ((KeyRecordsFunction) symbol.function()).key());
 
         Assert.assertEquals(5,
-                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
-                        .size());
+                ((KeyRecordsFunction) symbol.function()).source().size());
         Assert.assertEquals((long) 1,
-                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
-                        .source()).get(0));
+                (long) ((KeyRecordsFunction) symbol.function())
+                        .source().get(0));
     }
 
     @Test
@@ -2696,11 +2693,10 @@ public class CompilerJavaCCLogicTest {
                 ((KeyRecordsFunction) symbol.function()).key());
 
         Assert.assertEquals(5,
-                ((List<Long>) ((KeyRecordsFunction) symbol.function()).source())
-                        .size());
+                ((KeyRecordsFunction) symbol.function()).source().size());
         Assert.assertEquals((long) 1,
-                (long) ((List<Long>) ((KeyRecordsFunction) symbol.function())
-                        .source()).get(0));
+                (long) ((KeyRecordsFunction) symbol.function())
+                        .source().get(0));
         Assert.assertEquals(
                 TimeUnit.DAYS.convert(
                         ((KeyRecordsFunction) symbol.function()).timestamp(),

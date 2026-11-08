@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * A node that representation a CCL expression
  */
+@SuppressWarnings("unchecked")
 public class ASTExpression extends SimpleNode implements ExpressionSymbol {
 
     /**
@@ -108,7 +109,6 @@ public class ASTExpression extends SimpleNode implements ExpressionSymbol {
      *
      * @return the key
      */
-    @SuppressWarnings("unchecked")
     public KeyTokenSymbol<?> key() {
         return key;
     }
