@@ -143,89 +143,93 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int DISJUNCTION = 68;
   /** RegularExpression Id. */
-  int UNARY_OPERATOR = 69;
+  int EQUALITY_OPERATOR = 69;
   /** RegularExpression Id. */
-  int BINARY_OPERATOR = 70;
+  int UNARY_OPERATOR = 70;
   /** RegularExpression Id. */
-  int OPEN_ANGLE_BRACKET = 71;
+  int BINARY_OPERATOR = 71;
   /** RegularExpression Id. */
-  int CLOSE_ANGLE_BRACKET = 72;
+  int OPEN_ANGLE_BRACKET = 72;
   /** RegularExpression Id. */
-  int EQUALS = 73;
+  int CLOSE_ANGLE_BRACKET = 73;
   /** RegularExpression Id. */
-  int NOT_EQUALS = 74;
+  int EQUALS = 74;
   /** RegularExpression Id. */
-  int GREATER_THAN = 75;
+  int NOT_EQUALS = 75;
   /** RegularExpression Id. */
-  int GREATER_THAN_OR_EQUALS = 76;
+  int GREATER_THAN = 76;
   /** RegularExpression Id. */
-  int LESS_THAN = 77;
+  int GREATER_THAN_OR_EQUALS = 77;
   /** RegularExpression Id. */
-  int LESS_THAN_OR_EQUALS = 78;
+  int LESS_THAN = 78;
   /** RegularExpression Id. */
-  int LINKS_TO = 79;
+  int LESS_THAN_OR_EQUALS = 79;
   /** RegularExpression Id. */
-  int REGEX = 80;
+  int LINKS_TO = 80;
   /** RegularExpression Id. */
-  int NOT_REGEX = 81;
+  int REGEX = 81;
   /** RegularExpression Id. */
-  int LIKE = 82;
+  int NOT_REGEX = 82;
   /** RegularExpression Id. */
-  int NOT_LIKE = 83;
+  int LIKE = 83;
   /** RegularExpression Id. */
-  int BETWEEN = 84;
+  int NOT_LIKE = 84;
   /** RegularExpression Id. */
-  int OFFSET = 85;
+  int BETWEEN = 85;
   /** RegularExpression Id. */
-  int SKIP_ = 86;
+  int NOT_IN = 86;
   /** RegularExpression Id. */
-  int LIMIT = 87;
+  int OFFSET = 87;
   /** RegularExpression Id. */
-  int ORDER = 88;
+  int SKIP_ = 88;
   /** RegularExpression Id. */
-  int ASC = 89;
+  int LIMIT = 89;
   /** RegularExpression Id. */
-  int DESC = 90;
+  int ORDER = 90;
   /** RegularExpression Id. */
-  int SEARCH_MATCH = 91;
+  int ASC = 91;
   /** RegularExpression Id. */
-  int SEARCH_EXCLUDE = 92;
+  int DESC = 92;
   /** RegularExpression Id. */
-  int PIPE = 93;
+  int SEARCH_MATCH = 93;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 94;
+  int SEARCH_EXCLUDE = 94;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 95;
+  int PIPE = 95;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 96;
+  int QUOTED_STRING = 96;
   /** RegularExpression Id. */
-  int NUMERIC = 97;
+  int DOUBLE_QUOTED_STRING = 97;
   /** RegularExpression Id. */
-  int COMMA = 98;
+  int SINGLE_QUOTED_STRING = 98;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 99;
+  int NUMERIC = 99;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 100;
+  int COMMA = 100;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 101;
+  int SIGNED_INTEGER = 101;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 102;
+  int SIGNED_DECIMAL = 102;
   /** RegularExpression Id. */
-  int NAVIGATION_SCOPE_OPEN = 103;
+  int ALPHANUMERIC = 103;
   /** RegularExpression Id. */
-  int KEY_BRACKET = 104;
+  int PERIOD_SEPARATED_STRING = 104;
   /** RegularExpression Id. */
-  int ASTERISK_SUFFIXED_STRING = 105;
+  int NAVIGATION_SCOPE_OPEN = 105;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 106;
+  int KEY_BRACKET = 106;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 107;
+  int ASTERISK_SUFFIXED_STRING = 107;
   /** RegularExpression Id. */
-  int LETTER = 108;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 108;
   /** RegularExpression Id. */
-  int DIGIT = 109;
+  int NON_ALPHANUMERIC = 109;
   /** RegularExpression Id. */
-  int PERIOD = 110;
+  int LETTER = 110;
+  /** RegularExpression Id. */
+  int DIGIT = 111;
+  /** RegularExpression Id. */
+  int PERIOD = 112;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -301,6 +305,7 @@ public interface GrammarConstants {
     "\"$id$\"",
     "<CONJUNCTION>",
     "<DISJUNCTION>",
+    "<EQUALITY_OPERATOR>",
     "<UNARY_OPERATOR>",
     "<BINARY_OPERATOR>",
     "\"<\"",
@@ -317,6 +322,7 @@ public interface GrammarConstants {
     "\"like\"",
     "<NOT_LIKE>",
     "<BETWEEN>",
+    "<NOT_IN>",
     "\"offset\"",
     "\"skip\"",
     "\"limit\"",

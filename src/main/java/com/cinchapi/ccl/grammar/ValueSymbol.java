@@ -49,6 +49,12 @@ public class ValueSymbol extends ValueTokenSymbol<Object> {
             // instead of using the #Tag.create() method.
             return "\"" + value + "\"";
         }
+        else if(value instanceof String
+                && ((String) value).equalsIgnoreCase("null")) {
+            // The unquoted word null is the literal for an absent value, so the
+            // string must keep its quotes to be read back as a string.
+            return "\"" + value + "\"";
+        }
         else if((value instanceof String || value.getClass().getName()
                 .equals("com.cinchapi.concourse.Tag"))
                 && AnyStrings.tryParseNumberStrict(value.toString()) != null) {

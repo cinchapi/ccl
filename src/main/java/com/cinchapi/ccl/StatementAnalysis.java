@@ -22,8 +22,14 @@ import java.util.Set;
 import com.cinchapi.ccl.type.Operator;
 
 /**
- * The {@link StatementAnalysis} provides metatadata about the nature of a CCL
+ * The {@link StatementAnalysis} provides metadata about the nature of a CCL
  * statement.
+ * <p>
+ * A subquery that supplies a quantified value set is a separate statement, so
+ * its keys, operators and timestamps are not part of this analysis. Analyze the
+ * {@link com.cinchapi.ccl.syntax.CommandTree} that
+ * {@link com.cinchapi.ccl.grammar.SubquerySymbol#value()} holds to get them.
+ * </p>
  *
  * @author Jeff Nelson
  */
