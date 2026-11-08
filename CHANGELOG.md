@@ -1,6 +1,51 @@
 # Changelog
 
 #### Version 4.2.0 (TBD)
+##### Calculations
+CCL parses the calculations that Concourse adds, which are new functions,
+grouped calculations, ranges of numbers or time, and several calculations in one
+statement.
+
+* The new function names are `countDistinct`, `median`, `percentile`, `stddev`,
+  `stddevPopulation`, `variance` and `variancePopulation`, in any letter case.
+  `percentile` takes a fraction from 0 to 1 before its key.
+* A `group by` clause calculates a result for each group of records. It comes
+  after the scope and the timestamp, and takes one or more keys, which may be
+  navigation keys.
+  * `per` groups the values of the last key into ranges. A number gives the
+    width of number ranges, and a quoted duration gives the period of time
+    ranges. `between <a> and <b>` bounds the ranges and asks for empty ones.
+  * `having <function> <operator> <value>` keeps the groups whose result
+    satisfies a comparison.
+  * `order by <function> [asc|desc]` orders the groups by a result, and `limit`
+    and `offset` page them.
+  * The function in `having` and `order by` must name exactly one of the
+    statement's calculations.
+* A grouped statement may list several calculations, separated by commas.
+* `CalculateSymbol` exposes the calculations through `calculations()` and the
+  group through `group()`, which is `null` for an ungrouped statement.
+  `function()` and `key()` return those of the first calculation.
+  * A `CalculationSymbol` exposes `function()`, `fraction()` and `key()`, and a
+    `GroupSymbol` exposes each part of the group clause.
+  * `function()` returns the camelCase name of a new function, such as
+    `countDistinct`, and the lower case name of any other function.
+  * `CalculateSymbol` implements `equals` and `hashCode`, and its text, which
+    leaves out the condition, parses to an equal symbol.
+
+```
+calculate percentile 0.99 latency where service = api
+calculate count $id$ where active = true group by education.school.name order by count desc limit 10
+calculate count $id$ where _ = Credential group by lastUsed per "1 day"
+calculate count $id$ group by price per 10 between 0 and 100
+calculate count $id$, sum price, avg price where active = true group by category
+```
+
+##### API Breaks and Deprecations
+* The text `group by` is reserved in any letter case, even when a longer word
+  starts with `by`, as in `group bypass`. A statement with that text in an
+  unquoted value, such as `name = rock group by sea`, is a syntax error. Quote
+  the value, as in `name = "rock group by sea"`.
+
 ##### Distribution
 CCL is published to Cinchapi's Cloudsmith repository instead of Maven Central,
 and its releases include no sources jar. Versions already on Maven Central stay
@@ -13,6 +58,12 @@ repositories {
     maven { url 'https://packages.cinchapi.com/public/open-source/maven/' }
 }
 ```
+
+##### Bug Fixes
+* Fixed a bug that caused two equal functions to have different hash codes, such
+  as the key functions of two parses of `age | avg > 3`. So a
+  `FunctionKeySymbol`, a `FunctionValueSymbol` or a tree that held one could
+  fail to match an equal one in a hash set or as a hash map key.
 
 #### Version 4.1.1 (TBD)
 ##### Bug Fixes

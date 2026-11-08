@@ -183,49 +183,51 @@ public interface GrammarConstants {
   /** RegularExpression Id. */
   int ORDER = 88;
   /** RegularExpression Id. */
-  int ASC = 89;
+  int GROUP_BY = 89;
   /** RegularExpression Id. */
-  int DESC = 90;
+  int ASC = 90;
   /** RegularExpression Id. */
-  int SEARCH_MATCH = 91;
+  int DESC = 91;
   /** RegularExpression Id. */
-  int SEARCH_EXCLUDE = 92;
+  int SEARCH_MATCH = 92;
   /** RegularExpression Id. */
-  int PIPE = 93;
+  int SEARCH_EXCLUDE = 93;
   /** RegularExpression Id. */
-  int QUOTED_STRING = 94;
+  int PIPE = 94;
   /** RegularExpression Id. */
-  int DOUBLE_QUOTED_STRING = 95;
+  int QUOTED_STRING = 95;
   /** RegularExpression Id. */
-  int SINGLE_QUOTED_STRING = 96;
+  int DOUBLE_QUOTED_STRING = 96;
   /** RegularExpression Id. */
-  int NUMERIC = 97;
+  int SINGLE_QUOTED_STRING = 97;
   /** RegularExpression Id. */
-  int COMMA = 98;
+  int NUMERIC = 98;
   /** RegularExpression Id. */
-  int SIGNED_INTEGER = 99;
+  int COMMA = 99;
   /** RegularExpression Id. */
-  int SIGNED_DECIMAL = 100;
+  int SIGNED_INTEGER = 100;
   /** RegularExpression Id. */
-  int ALPHANUMERIC = 101;
+  int SIGNED_DECIMAL = 101;
   /** RegularExpression Id. */
-  int PERIOD_SEPARATED_STRING = 102;
+  int ALPHANUMERIC = 102;
   /** RegularExpression Id. */
-  int NAVIGATION_SCOPE_OPEN = 103;
+  int PERIOD_SEPARATED_STRING = 103;
   /** RegularExpression Id. */
-  int KEY_BRACKET = 104;
+  int NAVIGATION_SCOPE_OPEN = 104;
   /** RegularExpression Id. */
-  int ASTERISK_SUFFIXED_STRING = 105;
+  int KEY_BRACKET = 105;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 106;
+  int ASTERISK_SUFFIXED_STRING = 106;
   /** RegularExpression Id. */
-  int NON_ALPHANUMERIC = 107;
+  int NON_ALPHANUMERIC_AND_ALPHANUMERIC = 107;
   /** RegularExpression Id. */
-  int LETTER = 108;
+  int NON_ALPHANUMERIC = 108;
   /** RegularExpression Id. */
-  int DIGIT = 109;
+  int LETTER = 109;
   /** RegularExpression Id. */
-  int PERIOD = 110;
+  int DIGIT = 110;
+  /** RegularExpression Id. */
+  int PERIOD = 111;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -321,6 +323,7 @@ public interface GrammarConstants {
     "\"skip\"",
     "\"limit\"",
     "\"order by\"",
+    "\"group by\"",
     "\"asc\"",
     "\"desc\"",
     "<SEARCH_MATCH>",
