@@ -19,7 +19,6 @@ import com.cinchapi.ccl.grammar.NavigationKeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.OperatorSymbol;
 import com.cinchapi.ccl.grammar.OrderComponentSymbol;
-import com.cinchapi.ccl.grammar.TemporalKeySymbol;
 import com.cinchapi.ccl.grammar.TimestampSymbol;
 import com.cinchapi.ccl.grammar.ValueSymbol;
 import com.cinchapi.ccl.grammar.PageSymbol;
@@ -1669,7 +1668,7 @@ if (jjtc000) {
   final public KeyTokenSymbol Key() throws ParseException {FunctionKeySymbol function;
   Token key;
   KeyTokenSymbol result;
-  TimestampSymbol ts = null;
+  String parameter = null;
     if (jj_2_12(2)) {
       function = KeyFunction();
 result = function;
@@ -1849,19 +1848,15 @@ result = new NavigationKeySymbol(key.image);
     }
     if (jj_2_13(2)) {
       jj_consume_token(OPEN_BRACKET);
-      ts = BracketedTimestamp();
+      parameter = KeyBracketParameter();
       jj_consume_token(CLOSE_BRACKET);
     } else {
       ;
     }
-if(ts == null) {
+if(parameter == null) {
       {if ("" != null) return result;}
     }
-    if(result instanceof NavigationKeySymbol) {
-      {if ("" != null) return NavigationKeySymbol.withTimestampOnLastStop(
-          (NavigationKeySymbol) result, ts);}
-    }
-    {if ("" != null) return new TemporalKeySymbol(result, ts);}
+    {if ("" != null) return Parsing.applyKeyBracket(result, parameter);}
     throw new Error("Missing return statement in function");
 }
 
@@ -2396,11 +2391,13 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
     throw new Error("Missing return statement in function");
 }
 
-// Bracket-form timestamp: the brackets themselves are the timestamp pivot,
-// so the leading at/on/during keyword is optional. The keyword form is
-// accepted for backward compatibility.
-  final public TimestampSymbol BracketedTimestamp() throws ParseException {Token word;
-  String timestamp = "";
+// Bracket-form key parameter: the raw content between a leaf key's
+// brackets. The leading at/on/during keyword is optional (the brackets
+// themselves are the pivot) and is consumed without being returned.
+// Interpreting the content -- single instant vs. temporal range -- is
+// deferred to Parsing.applyKeyBracket so the meaning lives in one place.
+  final public String KeyBracketParameter() throws ParseException {Token word;
+  String parameter = "";
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TIMESTAMP:{
       jj_consume_token(TIMESTAMP);
@@ -2446,14 +2443,14 @@ timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
         jj_consume_token(-1);
         throw new ParseException();
       }
-timestamp += (timestamp.equals("")) ? word.image : " " + word.image;
+parameter += (parameter.equals("")) ? word.image : " " + word.image;
       if (jj_2_22(2)) {
         ;
       } else {
         break label_10;
       }
     }
-{if ("" != null) return new TimestampSymbol(NaturalLanguage.parseMicros(timestamp));}
+{if ("" != null) return parameter;}
     throw new Error("Missing return statement in function");
 }
 
@@ -7896,10 +7893,35 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     finally { jj_save(75, xla); }
   }
 
+  private boolean jj_3_4()
+ {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_24()
+ {
+    if (jj_3R_80()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_76()
+ {
+    if (jj_3R_22()) return true;
+    if (jj_scan_token(COMMA)) return true;
+    return false;
+  }
+
   private boolean jj_3R_60()
  {
     if (jj_scan_token(NUMERIC)) return true;
     if (jj_scan_token(COMMA)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_27()
+ {
+    if (jj_3R_36()) return true;
     return false;
   }
 
@@ -7914,12 +7936,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_27()
- {
-    if (jj_3R_36()) return true;
-    return false;
-  }
-
   private boolean jj_3_20()
  {
     if (jj_3R_39()) return true;
@@ -7930,6 +7946,12 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
  {
     if (jj_scan_token(NUMERIC)) return true;
     if (jj_scan_token(COMMA)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_23()
+ {
+    if (jj_3R_79()) return true;
     return false;
   }
 
@@ -7956,12 +7978,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     jj_scanpos = xsp;
     if (jj_3R_76()) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_23()
- {
-    if (jj_3R_79()) return true;
     return false;
   }
 
@@ -8015,6 +8031,12 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_26()
+ {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
   private boolean jj_3_52()
  {
     if (jj_3R_51()) return true;
@@ -8030,9 +8052,15 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_26()
+  private boolean jj_3R_91()
  {
-    if (jj_3R_82()) return true;
+    if (jj_3R_87()) return true;
+    return false;
+  }
+
+  private boolean jj_3_2()
+ {
+    if (jj_3R_28()) return true;
     return false;
   }
 
@@ -8059,28 +8087,10 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_91()
- {
-    if (jj_3R_87()) return true;
-    return false;
-  }
-
-  private boolean jj_3_2()
- {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
   private boolean jj_3_51()
  {
     if (jj_3R_22()) return true;
     if (jj_scan_token(WHERE)) return true;
-    return false;
-  }
-
-  private boolean jj_3_19()
- {
-    if (jj_3R_39()) return true;
     return false;
   }
 
@@ -8092,6 +8102,12 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     jj_scanpos = xsp;
     if (jj_3R_70()) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3_19()
+ {
+    if (jj_3R_39()) return true;
     return false;
   }
 
@@ -8428,6 +8444,17 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3_39()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(62)) {
+    jj_scanpos = xsp;
+    if (jj_3R_54()) return true;
+    }
+    return false;
+  }
+
   private boolean jj_3_14()
  {
     Token xsp;
@@ -8450,17 +8477,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     }
     }
     }
-    }
-    return false;
-  }
-
-  private boolean jj_3_39()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(62)) {
-    jj_scanpos = xsp;
-    if (jj_3R_54()) return true;
     }
     return false;
   }
@@ -8654,13 +8670,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_67()
- {
-    if (jj_3R_22()) return true;
-    if (jj_scan_token(COMMA)) return true;
-    return false;
-  }
-
   private boolean jj_3R_77()
  {
     Token xsp;
@@ -8684,19 +8693,26 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_67()
+ {
+    if (jj_3R_22()) return true;
+    if (jj_scan_token(COMMA)) return true;
+    return false;
+  }
+
   private boolean jj_3R_83()
  {
     if (jj_3R_39()) return true;
     return false;
   }
 
-  private boolean jj_3_25()
+  private boolean jj_3_12()
  {
     if (jj_3R_37()) return true;
     return false;
   }
 
-  private boolean jj_3_12()
+  private boolean jj_3_25()
  {
     if (jj_3R_37()) return true;
     return false;
@@ -8991,16 +9007,16 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3_8()
+ {
+    if (jj_3R_34()) return true;
+    return false;
+  }
+
   private boolean jj_3R_52()
  {
     if (jj_scan_token(NUMERIC)) return true;
     if (jj_scan_token(COMMA)) return true;
-    return false;
-  }
-
-  private boolean jj_3_8()
- {
-    if (jj_3R_34()) return true;
     return false;
   }
 
@@ -9220,17 +9236,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3_32()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(62)) {
-    jj_scanpos = xsp;
-    if (jj_3R_50()) return true;
-    }
-    return false;
-  }
-
   private boolean jj_3_10()
  {
     if (jj_3R_35()) return true;
@@ -9238,28 +9243,13 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3_21()
+  private boolean jj_3_32()
  {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_scan_token(94)) {
+    if (jj_scan_token(62)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(99)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(100)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(97)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(101)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(106)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(105)) return true;
-    }
-    }
-    }
-    }
-    }
+    if (jj_3R_50()) return true;
     }
     return false;
   }
@@ -9300,6 +9290,32 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     if (jj_scan_token(46)) {
     jj_scanpos = xsp;
     if (jj_scan_token(48)) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_21()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(94)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(99)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(100)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(97)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(101)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(106)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(105)) return true;
+    }
+    }
+    }
+    }
     }
     }
     return false;
@@ -9392,6 +9408,12 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_31()
+ {
+    if (jj_3R_81()) return true;
+    return false;
+  }
+
   private boolean jj_3R_36()
  {
     Token xsp;
@@ -9419,12 +9441,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     jj_scanpos = xsp;
     if (jj_3R_74()) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_31()
- {
-    if (jj_3R_81()) return true;
     return false;
   }
 
@@ -9473,32 +9489,15 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_43()
- {
-    if (jj_3R_87()) return true;
-    return false;
-  }
-
   private boolean jj_3R_30()
  {
     if (jj_3R_80()) return true;
     return false;
   }
 
-  private boolean jj_3R_82()
+  private boolean jj_3R_43()
  {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(80)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(81)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(82)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(83)) return true;
-    }
-    }
-    }
+    if (jj_3R_87()) return true;
     return false;
   }
 
@@ -9527,6 +9526,29 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_33()
+ {
+    if (jj_3R_36()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_82()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(80)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(81)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(82)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(83)) return true;
+    }
+    }
+    }
+    return false;
+  }
+
   private boolean jj_3_55()
  {
     if (jj_scan_token(NUMERIC)) return true;
@@ -9541,12 +9563,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_33()
- {
-    if (jj_3R_36()) return true;
-    return false;
-  }
-
   private boolean jj_3_29()
  {
     Token xsp;
@@ -9558,9 +9574,9 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_81()
+  private boolean jj_3R_25()
  {
-    if (jj_scan_token(LINKS_TO)) return true;
+    if (jj_3R_81()) return true;
     return false;
   }
 
@@ -9577,9 +9593,9 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_25()
+  private boolean jj_3R_81()
  {
-    if (jj_3R_81()) return true;
+    if (jj_scan_token(LINKS_TO)) return true;
     return false;
   }
 
@@ -9659,25 +9675,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
   private boolean jj_3R_32()
  {
     if (jj_3R_82()) return true;
-    return false;
-  }
-
-  private boolean jj_3_4()
- {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_24()
- {
-    if (jj_3R_80()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_76()
- {
-    if (jj_3R_22()) return true;
-    if (jj_scan_token(COMMA)) return true;
     return false;
   }
 
