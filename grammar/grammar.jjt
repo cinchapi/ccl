@@ -452,6 +452,8 @@ void RelationalExpression() #Expression :
     OperatorSymbol operator = null;
     ValueTokenSymbol value1 = null;
     ValueTokenSymbol value2 = null;
+    ValueTokenSymbol v = null;
+    List<ValueTokenSymbol<?>> values = Lists.newArrayList();
     TimestampSymbol timestamp = null;
 }
 {
@@ -469,6 +471,10 @@ void RelationalExpression() #Expression :
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue() (LOOKAHEAD(2) timestamp=Timestamp())?
       |
+        // An operator that CCL does not define, such as one a plugin provides,
+        // followed by one or more values. The operator bounds their number.
+        operator=CustomOperator() (LOOKAHEAD(2) v=BinaryValue() { values.add(v); })+ (LOOKAHEAD(2) timestamp=Timestamp())?
+      |
         // Search operators are reachable here only when the Search-side
         // LOOKAHEAD(2) above fell through — typically because a bracket
         // parameter sits between the key and the search operator
@@ -479,10 +485,12 @@ void RelationalExpression() #Expression :
       )
     )
     {
+      if(value1 != null) values.add(0, value1);
+      if(value2 != null) values.add(1, value2);
+      Parsing.checkOperands(operator, values);
       jjtThis.key(key);
       jjtThis.operator(operator);
-      jjtThis.addValue(value1);
-      if(value2 != null) jjtThis.addValue(value2);
+      for(ValueTokenSymbol<?> value : values) jjtThis.addValue(value);
       if(timestamp != null) jjtThis.timestamp(timestamp);
     }
 }
@@ -531,6 +539,8 @@ void RelationalExpressionNoTimestamp() #Expression :
     OperatorSymbol operator = null;
     ValueTokenSymbol value1 = null;
     ValueTokenSymbol value2 = null;
+    ValueTokenSymbol v = null;
+    List<ValueTokenSymbol<?>> values = Lists.newArrayList();
 }
 {
     (
@@ -547,6 +557,13 @@ void RelationalExpressionNoTimestamp() #Expression :
       |
         operator=BinaryOperator() value1=BinaryValue() value2=BinaryValue()
       |
+        // The trailing quoted string of a findOrInsert is its JSON, not a value.
+        operator=CustomOperator() v=BinaryValue() { values.add(v); }
+        (
+          LOOKAHEAD(2, { getToken(1).kind != QUOTED_STRING || (getToken(2).kind != EOF && getToken(2).kind != SEMICOLON) })
+          v=BinaryValue() { values.add(v); }
+        )*
+      |
         // See RelationalExpression — the Search alternative covers the
         // bracket-between-key-and-operator case the LOOKAHEAD above
         // can't see past.
@@ -554,10 +571,12 @@ void RelationalExpressionNoTimestamp() #Expression :
       )
     )
     {
+      if(value1 != null) values.add(0, value1);
+      if(value2 != null) values.add(1, value2);
+      Parsing.checkOperands(operator, values);
       jjtThis.key(key);
       jjtThis.operator(operator);
-      jjtThis.addValue(value1);
-      if(value2 != null) jjtThis.addValue(value2);
+      for(ValueTokenSymbol<?> value : values) jjtThis.addValue(value);
     }
 }
 
@@ -809,6 +828,27 @@ OperatorSymbol BinaryOperator() :
   operator=<BINARY_OPERATOR> { return new OperatorSymbol(transformOperator(operator.image)); }
 }
 
+// An operator that CCL does not reserve a token for, such as one a plugin
+// provides. The operator parser resolves the word, and fails if it does not
+// know it.
+OperatorSymbol CustomOperator() :
+{
+  Token operator;
+}
+{
+  (operator=<ALPHANUMERIC> | operator=<PERIOD_SEPARATED_STRING>)
+  {
+    try {
+      return new OperatorSymbol(transformOperator(operator.image));
+    }
+    catch (RuntimeException e) {
+      throw new ParseException("Cannot use \"" + operator.image
+          + "\" as an operator at line " + operator.beginLine + ", column "
+          + operator.beginColumn + ": " + e.getMessage());
+    }
+  }
+}
+
 OperatorSymbol SearchOperator() :
 {
   Token operator;
@@ -1010,7 +1050,7 @@ FunctionKeySymbol KeyFunction() :
   Token function;
 }
 {
-   (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING> | key=ReservedWordKey()) <PIPE> function=<ALPHANUMERIC>
+   (key=<SIGNED_INTEGER> | key=<SIGNED_DECIMAL> | key=<NUMERIC> | key=<ALPHANUMERIC> | key=<PERIOD_SEPARATED_STRING> | key=<ASTERISK_SUFFIXED_STRING> | key=ReservedWordKey()) <PIPE> (function=<ALPHANUMERIC> | function=<PERIOD_SEPARATED_STRING>)
    { return new FunctionKeySymbol(new ImplicitKeyRecordFunction(function.image, key.image.substring(0, key.image.length())));}
 }
 
