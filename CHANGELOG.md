@@ -14,6 +14,36 @@ repositories {
 }
 ```
 
+##### Collections of One
+A parsed command reports whether it names its keys, records or destinations as a
+collection, so a caller can return a result shaped for a collection even when
+the collection holds one item. A command names a collection when it lists the
+items in brackets, even one item as in `select [name] from 1`, or lists more
+than one item, as in `select name, age from 1`. One item without brackets, as in
+`select name from 1`, is not a collection.
+
+* `hasKeysInCollection()` is `true` when the command names its keys as a
+  collection. `SelectSymbol`, `GetSymbol`, `NavigateSymbol` and `BrowseSymbol`
+  have it for their keys, and `SelectAndSetSymbol`, `GetAndSetSymbol`,
+  `AwaitSelectSymbol`, `AwaitGetSymbol`, `AwaitSelectAndSetSymbol` and
+  `AwaitGetAndSetSymbol` have it for the keys they read.
+* `CalculateSymbol#hasRecordsInCollection()` and
+  `LinkSymbol#hasDestinationsInCollection()` are `true` when the command names
+  its records or its destinations as a collection.
+* `keys()`, `CalculateSymbol#records()` and `LinkSymbol#destinations()` return
+  the same items either way. Equality ignores the difference, so `[name]` and
+  `name` parse to equal trees for the symbols that implement `equals`.
+* Each of these symbols has a constructor that takes whether the command names
+  the items as a collection. Its other constructors treat more than one item as
+  a collection.
+
+```java
+SelectSymbol select = (SelectSymbol) compiler.parse("select [name] from 1")
+        .root();
+select.keys(); // [name]
+select.hasKeysInCollection(); // true
+```
+
 #### Version 4.1.1 (TBD)
 ##### Bug Fixes
 * Fixed a bug that caused a syntax error for CCL that names a key spelled like a

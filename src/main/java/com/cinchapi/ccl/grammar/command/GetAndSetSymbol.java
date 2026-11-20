@@ -48,6 +48,11 @@ public final class GetAndSetSymbol implements CommandSymbol {
     private final Collection<KeyTokenSymbol<?>> keys;
 
     /**
+     * Whether the command names {@link #keys} as a collection.
+     */
+    private final boolean hasKeysInCollection;
+
+    /**
      * The key that the set clause writes.
      */
     private final KeyTokenSymbol<?> key;
@@ -61,48 +66,31 @@ public final class GetAndSetSymbol implements CommandSymbol {
      * Construct a new instance.
      *
      * @param keys the keys to read, or {@code null} to read every key
+     * @param hasKeysInCollection whether the command names {@code keys} as a
+     *        collection, as {@link #hasKeysInCollection()} defines it
+     * @param key the key that the set clause writes
+     * @param value the value that the set clause writes
+     */
+    public GetAndSetSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
+            boolean hasKeysInCollection, KeyTokenSymbol<?> key,
+            ValueTokenSymbol<?> value) {
+        this.keys = keys != null ? ImmutableList.copyOf(keys) : null;
+        this.hasKeysInCollection = hasKeysInCollection;
+        this.key = key;
+        this.value = value;
+    }
+
+    /**
+     * Construct a new instance. {@link #hasKeysInCollection()} is {@code true}
+     * when {@code keys} holds more than one key.
+     *
+     * @param keys the keys to read, or {@code null} to read every key
      * @param key the key that the set clause writes
      * @param value the value that the set clause writes
      */
     public GetAndSetSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
             KeyTokenSymbol<?> key, ValueTokenSymbol<?> value) {
-        this.keys = keys != null ? ImmutableList.copyOf(keys) : null;
-        this.key = key;
-        this.value = value;
-    }
-
-    @Override
-    public String type() {
-        return "GET_AND_SET";
-    }
-
-    /**
-     * Return the keys to read.
-     *
-     * @return an unmodifiable {@link Collection} of the keys in the order the
-     *         command lists them, or {@code null} to read every key
-     */
-    @Nullable
-    public Collection<KeyTokenSymbol<?>> keys() {
-        return keys;
-    }
-
-    /**
-     * Return the key that the set clause writes.
-     *
-     * @return the key
-     */
-    public KeyTokenSymbol<?> key() {
-        return key;
-    }
-
-    /**
-     * Return the value that the set clause writes.
-     *
-     * @return the value
-     */
-    public ValueTokenSymbol<?> value() {
-        return value;
+        this(keys, CommandSymbols.holdsMoreThanOne(keys), key, value);
     }
 
     @Override
@@ -120,6 +108,57 @@ public final class GetAndSetSymbol implements CommandSymbol {
     @Override
     public int hashCode() {
         return Objects.hash(keys, key, value);
+    }
+
+    /**
+     * Return whether the command names the {@link #keys() keys to read} as a
+     * collection. A command names a collection when it lists the keys in
+     * brackets, even one key as in {@code [name]}, or lists more than one key,
+     * as in {@code name, age}. A command that names one key without brackets,
+     * as in {@code name}, or names no keys, does not. {@link #equals(Object)}
+     * and {@link #hashCode()} do not depend on this form, so a command that
+     * names {@code [name]} and one that names {@code name} parse to equal
+     * symbols.
+     *
+     * @return {@code true} if the command names the keys to read as a
+     *         collection
+     */
+    public boolean hasKeysInCollection() {
+        return hasKeysInCollection;
+    }
+
+    /**
+     * Return the key that the set clause writes.
+     *
+     * @return the key
+     */
+    public KeyTokenSymbol<?> key() {
+        return key;
+    }
+
+    /**
+     * Return the keys to read.
+     *
+     * @return an unmodifiable {@link Collection} of the keys in the order the
+     *         command lists them, or {@code null} to read every key
+     */
+    @Nullable
+    public Collection<KeyTokenSymbol<?>> keys() {
+        return keys;
+    }
+
+    @Override
+    public String type() {
+        return "GET_AND_SET";
+    }
+
+    /**
+     * Return the value that the set clause writes.
+     *
+     * @return the value
+     */
+    public ValueTokenSymbol<?> value() {
+        return value;
     }
 
 }

@@ -143,6 +143,11 @@ Multiple record IDs listed comma-separated. Brackets are optional:
 1, 2, 3
 ```
 
+Brackets around one record ID, as in `[1]`, also form a collection. The symbols
+for `calculate` and `link` report whether the command names its records as a
+collection through `hasRecordsInCollection()` and
+`hasDestinationsInCollection()`.
+
 ### Key Collections
 
 Multiple keys listed comma-separated. Brackets are optional:
@@ -151,6 +156,11 @@ Multiple keys listed comma-separated. Brackets are optional:
 [name, age, email]
 name, age, email
 ```
+
+Brackets around one key, as in `[name]`, also form a collection. The symbols for
+`select`, `get`, `navigate` and `browse`, and for the read and set and await
+commands that read keys, report whether the command names its keys as a
+collection through `hasKeysInCollection()`.
 
 ### Value Collections
 
@@ -1836,24 +1846,28 @@ await commands have these symbols:
 | Symbol | `type()` | Accessors |
 |--------|----------|-----------|
 | `FindAndSetSymbol` | `FIND_AND_SET` | `key()`, `value()` |
-| `SelectAndSetSymbol` | `SELECT_AND_SET` | `keys()`, `key()`, `value()` |
-| `GetAndSetSymbol` | `GET_AND_SET` | `keys()`, `key()`, `value()` |
+| `SelectAndSetSymbol` | `SELECT_AND_SET` | `keys()`, `hasKeysInCollection()`, `key()`, `value()` |
+| `GetAndSetSymbol` | `GET_AND_SET` | `keys()`, `hasKeysInCollection()`, `key()`, `value()` |
 | `AwaitFindSymbol` | `AWAIT_FIND` | `timeout()` |
-| `AwaitSelectSymbol` | `AWAIT_SELECT` | `timeout()`, `keys()` |
-| `AwaitGetSymbol` | `AWAIT_GET` | `timeout()`, `keys()` |
+| `AwaitSelectSymbol` | `AWAIT_SELECT` | `timeout()`, `keys()`, `hasKeysInCollection()` |
+| `AwaitGetSymbol` | `AWAIT_GET` | `timeout()`, `keys()`, `hasKeysInCollection()` |
 | `AwaitFindAndSetSymbol` | `AWAIT_FIND_AND_SET` | `timeout()`, `key()`, `value()` |
-| `AwaitSelectAndSetSymbol` | `AWAIT_SELECT_AND_SET` | `timeout()`, `keys()`, `key()`, `value()` |
-| `AwaitGetAndSetSymbol` | `AWAIT_GET_AND_SET` | `timeout()`, `keys()`, `key()`, `value()` |
+| `AwaitSelectAndSetSymbol` | `AWAIT_SELECT_AND_SET` | `timeout()`, `keys()`, `hasKeysInCollection()`, `key()`, `value()` |
+| `AwaitGetAndSetSymbol` | `AWAIT_GET_AND_SET` | `timeout()`, `keys()`, `hasKeysInCollection()`, `key()`, `value()` |
 
 - `timeout()` is the `within` duration as a `java.time.Duration`.
 - `keys()` holds the keys to read, and is `null` when the command reads every
   key.
+- `hasKeysInCollection()` is `true` when the command names the keys to read as a
+  collection, in brackets as in `[name]` or as more than one key as in
+  `name, age`, and `false` for one key without brackets or no keys.
 - `key()` and `value()` are the key and value of the `set` clause.
 - The condition, order and page are children of the `CommandTree`, the same as
   for `find` and `select`.
 - These symbols implement `equals` and `hashCode`, so equivalent statements
   parse to equal trees. For example, `awaitFind within "2 s" a = 1` and
-  `await_find within "2000 ms" for a = 1` are equal.
+  `await_find within "2000 ms" for a = 1` are equal. Equality ignores
+  `hasKeysInCollection()`, so `[name]` and `name` parse to equal trees.
 
 ---
 

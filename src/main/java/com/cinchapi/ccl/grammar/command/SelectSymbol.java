@@ -19,46 +19,129 @@ import com.cinchapi.ccl.grammar.TimestampSymbol;
  */
 public class SelectSymbol implements CommandSymbol {
     private final Collection<KeyTokenSymbol<?>> keys;
+
+    /**
+     * Whether the command names {@link #keys} as a collection.
+     */
+    private final boolean hasKeysInCollection;
     private final Long record;
     private final Collection<Long> records;
     private final TimestampSymbol timestamp;
 
     /**
-     * Construct a new instance for selecting from a single record.
-     */
-    public SelectSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys, long record,
-                        @Nullable TimestampSymbol timestamp) {
-        this.keys = keys;
-        this.record = record;
-        this.records = null;
-        this.timestamp = timestamp;
-    }
-
-    /**
      * Construct a new instance for selecting from multiple records.
+     *
+     * @param keys the keys to select, or {@code null} to select every key
+     * @param hasKeysInCollection whether the command names {@code keys} as a
+     *        collection, as {@link #hasKeysInCollection()} defines it
+     * @param records the records to select from
+     * @param timestamp the timestamp for a historical select, or {@code null}
+     *        to select the present state
      */
-    public SelectSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys, Collection<Long> records,
-                        @Nullable TimestampSymbol timestamp) {
+    public SelectSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
+            boolean hasKeysInCollection, Collection<Long> records,
+            @Nullable TimestampSymbol timestamp) {
         this.keys = keys;
+        this.hasKeysInCollection = hasKeysInCollection;
         this.record = null;
         this.records = records;
         this.timestamp = timestamp;
     }
 
     /**
-     * Construct a new instance for expression-based selecting.
+     * Construct a new instance for selecting from a single record.
+     *
+     * @param keys the keys to select, or {@code null} to select every key
+     * @param hasKeysInCollection whether the command names {@code keys} as a
+     *        collection, as {@link #hasKeysInCollection()} defines it
+     * @param record the record to select from
+     * @param timestamp the timestamp for a historical select, or {@code null}
+     *        to select the present state
      */
     public SelectSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
-                        @Nullable TimestampSymbol timestamp) {
+            boolean hasKeysInCollection, long record,
+            @Nullable TimestampSymbol timestamp) {
         this.keys = keys;
+        this.hasKeysInCollection = hasKeysInCollection;
+        this.record = record;
+        this.records = null;
+        this.timestamp = timestamp;
+    }
+
+    /**
+     * Construct a new instance for expression-based selecting.
+     *
+     * @param keys the keys to select, or {@code null} to select every key
+     * @param hasKeysInCollection whether the command names {@code keys} as a
+     *        collection, as {@link #hasKeysInCollection()} defines it
+     * @param timestamp the timestamp for a historical select, or {@code null}
+     *        to select the present state
+     */
+    public SelectSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
+            boolean hasKeysInCollection, @Nullable TimestampSymbol timestamp) {
+        this.keys = keys;
+        this.hasKeysInCollection = hasKeysInCollection;
         this.timestamp = timestamp;
         this.record = null;
         this.records = null;
     }
 
-    @Override
-    public String type() {
-        return "SELECT";
+    /**
+     * Construct a new instance for selecting from multiple records.
+     * {@link #hasKeysInCollection()} is {@code true} when {@code keys} holds
+     * more than one key.
+     *
+     * @param keys the keys to select, or {@code null} to select every key
+     * @param records the records to select from
+     * @param timestamp the timestamp for a historical select, or {@code null}
+     *        to select the present state
+     */
+    public SelectSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
+            Collection<Long> records, @Nullable TimestampSymbol timestamp) {
+        this(keys, CommandSymbols.holdsMoreThanOne(keys), records, timestamp);
+    }
+
+    /**
+     * Construct a new instance for selecting from a single record.
+     * {@link #hasKeysInCollection()} is {@code true} when {@code keys} holds
+     * more than one key.
+     *
+     * @param keys the keys to select, or {@code null} to select every key
+     * @param record the record to select from
+     * @param timestamp the timestamp for a historical select, or {@code null}
+     *        to select the present state
+     */
+    public SelectSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
+            long record, @Nullable TimestampSymbol timestamp) {
+        this(keys, CommandSymbols.holdsMoreThanOne(keys), record, timestamp);
+    }
+
+    /**
+     * Construct a new instance for expression-based selecting.
+     * {@link #hasKeysInCollection()} is {@code true} when {@code keys} holds
+     * more than one key.
+     *
+     * @param keys the keys to select, or {@code null} to select every key
+     * @param timestamp the timestamp for a historical select, or {@code null}
+     *        to select the present state
+     */
+    public SelectSymbol(@Nullable Collection<KeyTokenSymbol<?>> keys,
+            @Nullable TimestampSymbol timestamp) {
+        this(keys, CommandSymbols.holdsMoreThanOne(keys), timestamp);
+    }
+
+    /**
+     * Return whether the command names its {@link #keys() keys} as a
+     * collection. A command names a collection when it lists its keys in
+     * brackets, even one key as in {@code select [name] from 1}, or lists more
+     * than one key, as in {@code select name, age from 1}. A command that names
+     * one key without brackets, as in {@code select name from 1}, or names no
+     * keys, does not.
+     *
+     * @return {@code true} if the command names its keys as a collection
+     */
+    public boolean hasKeysInCollection() {
+        return hasKeysInCollection;
     }
 
     /**
@@ -91,5 +174,10 @@ public class SelectSymbol implements CommandSymbol {
     @Nullable
     public TimestampSymbol timestamp() {
         return timestamp;
+    }
+
+    @Override
+    public String type() {
+        return "SELECT";
     }
 }

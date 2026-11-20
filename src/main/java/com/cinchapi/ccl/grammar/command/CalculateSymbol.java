@@ -24,16 +24,50 @@ public class CalculateSymbol implements CommandSymbol {
     /**
      * The set of valid calculation function names.
      */
-    private static final Set<String> VALID_FUNCTIONS = ImmutableSet.of(
-            "sum", "avg", "average", "count", "min", "max");
+    private static final Set<String> VALID_FUNCTIONS = ImmutableSet.of("sum",
+            "avg", "average", "count", "min", "max");
 
     private final String function;
     private final KeyTokenSymbol<?> key;
     private final Collection<Long> records;
+
+    /**
+     * Whether the command names {@link #records} as a collection.
+     */
+    private final boolean hasRecordsInCollection;
     private final TimestampSymbol timestamp;
 
     /**
      * Construct a new instance for calculating across specific records.
+     *
+     * @param function the calculation function (e.g., sum, average, count, min,
+     *        max)
+     * @param key the key to calculate on
+     * @param records the records to include
+     * @param hasRecordsInCollection whether the command names {@code records}
+     *        as a collection, as {@link #hasRecordsInCollection()} defines it
+     * @param timestamp optional timestamp for historical calculation
+     * @throws IllegalArgumentException if the function is not a valid
+     *             calculation function
+     */
+    public CalculateSymbol(String function, KeyTokenSymbol<?> key,
+            @Nullable Collection<Long> records, boolean hasRecordsInCollection,
+            @Nullable TimestampSymbol timestamp) {
+        if(!VALID_FUNCTIONS.contains(function.toLowerCase())) {
+            throw new IllegalArgumentException("Invalid calculation function '"
+                    + function + "'. Must be one of: " + VALID_FUNCTIONS);
+        }
+        this.function = function.toLowerCase();
+        this.key = key;
+        this.records = records;
+        this.hasRecordsInCollection = hasRecordsInCollection;
+        this.timestamp = timestamp;
+    }
+
+    /**
+     * Construct a new instance for calculating across specific records.
+     * {@link #hasRecordsInCollection()} is {@code true} when {@code records}
+     * holds more than one record.
      *
      * @param function the calculation function (e.g., sum, average, count, min, max)
      * @param key the key to calculate on
@@ -43,17 +77,10 @@ public class CalculateSymbol implements CommandSymbol {
      *             calculation function
      */
     public CalculateSymbol(String function, KeyTokenSymbol<?> key,
-                           @Nullable Collection<Long> records,
-                           @Nullable TimestampSymbol timestamp) {
-        if(!VALID_FUNCTIONS.contains(function.toLowerCase())) {
-            throw new IllegalArgumentException(
-                    "Invalid calculation function '" + function
-                            + "'. Must be one of: " + VALID_FUNCTIONS);
-        }
-        this.function = function.toLowerCase();
-        this.key = key;
-        this.records = records;
-        this.timestamp = timestamp;
+            @Nullable Collection<Long> records,
+            @Nullable TimestampSymbol timestamp) {
+        this(function, key, records, CommandSymbols.holdsMoreThanOne(records),
+                timestamp);
     }
 
     /**
@@ -65,13 +92,8 @@ public class CalculateSymbol implements CommandSymbol {
      * @param timestamp optional timestamp for historical calculation
      */
     public CalculateSymbol(String function, KeyTokenSymbol<?> key,
-                           @Nullable TimestampSymbol timestamp) {
+            @Nullable TimestampSymbol timestamp) {
         this(function, key, null, timestamp);
-    }
-
-    @Override
-    public String type() {
-        return "CALCULATE";
     }
 
     /**
@@ -79,6 +101,20 @@ public class CalculateSymbol implements CommandSymbol {
      */
     public String function() {
         return function;
+    }
+
+    /**
+     * Return whether the command names its {@link #records() records} as a
+     * collection. A command names a collection when it lists its records in
+     * brackets, even one record as in {@code calculate sum age in [1]}, or
+     * lists more than one record, as in {@code calculate sum age in 1, 2}. A
+     * command that names one record without brackets, as in
+     * {@code calculate sum age in 1}, or names no records, does not.
+     *
+     * @return {@code true} if the command names its records as a collection
+     */
+    public boolean hasRecordsInCollection() {
+        return hasRecordsInCollection;
     }
 
     /**
@@ -103,5 +139,10 @@ public class CalculateSymbol implements CommandSymbol {
     @Nullable
     public TimestampSymbol timestamp() {
         return timestamp;
+    }
+
+    @Override
+    public String type() {
+        return "CALCULATE";
     }
 }

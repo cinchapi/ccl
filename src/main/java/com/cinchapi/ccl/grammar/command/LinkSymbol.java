@@ -21,21 +21,64 @@ public class LinkSymbol implements CommandSymbol {
     private final Collection<Long> destinations;
 
     /**
-     * Construct a new instance.
+     * Whether the command names {@link #destinations} as a collection.
+     */
+    private final boolean hasDestinationsInCollection;
+
+    /**
+     * Construct a new instance. {@link #hasDestinationsInCollection()} is
+     * {@code true} when {@code destinations} holds more than one record.
      *
      * @param key the key to link
      * @param source the source record
      * @param destinations the destination records
      */
-    public LinkSymbol(KeyTokenSymbol<?> key, long source, Collection<Long> destinations) {
+    public LinkSymbol(KeyTokenSymbol<?> key, long source,
+            Collection<Long> destinations) {
+        this(key, source, destinations,
+                CommandSymbols.holdsMoreThanOne(destinations));
+    }
+
+    /**
+     * Construct a new instance.
+     *
+     * @param key the key to link
+     * @param source the source record
+     * @param destinations the destination records
+     * @param hasDestinationsInCollection whether the command names
+     *        {@code destinations} as a collection, as
+     *        {@link #hasDestinationsInCollection()} defines it
+     */
+    public LinkSymbol(KeyTokenSymbol<?> key, long source,
+            Collection<Long> destinations,
+            boolean hasDestinationsInCollection) {
         this.key = key;
         this.source = source;
         this.destinations = destinations;
+        this.hasDestinationsInCollection = hasDestinationsInCollection;
     }
 
-    @Override
-    public String type() {
-        return "LINK";
+    /**
+     * Return the destination records.
+     */
+    public Collection<Long> destinations() {
+        return destinations;
+    }
+
+    /**
+     * Return whether the command names its {@link #destinations() destinations}
+     * as a collection. A command names a collection when it lists its
+     * destinations in brackets, even one destination as in
+     * {@code link friends from 1 to [2]}, or lists more than one destination,
+     * as in {@code link friends from 1 to 2, 3}. A command that names one
+     * destination without brackets, as in {@code link friends from 1 to 2},
+     * does not.
+     *
+     * @return {@code true} if the command names its destinations as a
+     *         collection
+     */
+    public boolean hasDestinationsInCollection() {
+        return hasDestinationsInCollection;
     }
 
     /**
@@ -52,10 +95,8 @@ public class LinkSymbol implements CommandSymbol {
         return source;
     }
 
-    /**
-     * Return the destination records.
-     */
-    public Collection<Long> destinations() {
-        return destinations;
+    @Override
+    public String type() {
+        return "LINK";
     }
 }
