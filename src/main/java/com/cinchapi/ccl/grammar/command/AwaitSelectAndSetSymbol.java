@@ -55,6 +55,11 @@ public final class AwaitSelectAndSetSymbol implements CommandSymbol {
     private final Collection<KeyTokenSymbol<?>> keys;
 
     /**
+     * Whether the command names {@link #keys} as a collection.
+     */
+    private final boolean hasKeysInCollection;
+
+    /**
      * The key that the set clause writes.
      */
     private final KeyTokenSymbol<?> key;
@@ -69,31 +74,79 @@ public final class AwaitSelectAndSetSymbol implements CommandSymbol {
      *
      * @param timeout the longest time that the command may wait
      * @param keys the keys to read, or {@code null} to read every key
+     * @param hasKeysInCollection whether the command names {@code keys} as a
+     *        collection, as {@link #hasKeysInCollection()} defines it
      * @param key the key that the set clause writes
      * @param value the value that the set clause writes
      */
     public AwaitSelectAndSetSymbol(Duration timeout,
             @Nullable Collection<KeyTokenSymbol<?>> keys,
-            KeyTokenSymbol<?> key, ValueTokenSymbol<?> value) {
+            boolean hasKeysInCollection, KeyTokenSymbol<?> key,
+            ValueTokenSymbol<?> value) {
         this.timeout = timeout;
         this.keys = keys != null ? ImmutableList.copyOf(keys) : null;
+        this.hasKeysInCollection = hasKeysInCollection;
         this.key = key;
         this.value = value;
     }
 
+    /**
+     * Construct a new instance. {@link #hasKeysInCollection()} is {@code true}
+     * when {@code keys} holds more than one key.
+     *
+     * @param timeout the longest time that the command may wait
+     * @param keys the keys to read, or {@code null} to read every key
+     * @param key the key that the set clause writes
+     * @param value the value that the set clause writes
+     */
+    public AwaitSelectAndSetSymbol(Duration timeout,
+            @Nullable Collection<KeyTokenSymbol<?>> keys, KeyTokenSymbol<?> key,
+            ValueTokenSymbol<?> value) {
+        this(timeout, keys, CommandSymbols.holdsMoreThanOne(keys), key, value);
+    }
+
     @Override
-    public String type() {
-        return "AWAIT_SELECT_AND_SET";
+    public boolean equals(Object obj) {
+        if(obj instanceof AwaitSelectAndSetSymbol) {
+            AwaitSelectAndSetSymbol other = (AwaitSelectAndSetSymbol) obj;
+            return timeout.equals(other.timeout)
+                    && Objects.equals(keys, other.keys) && key.equals(other.key)
+                    && value.equals(other.value);
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(timeout, keys, key, value);
     }
 
     /**
-     * Return the longest time that the command may wait for its read to have a
-     * non-empty result.
+     * Return whether the command names the {@link #keys() keys to read} as a
+     * collection. A command names a collection when it lists the keys in
+     * brackets, even one key as in {@code [name]}, or lists more than one key,
+     * as in {@code name, age}. A command that names one key without brackets,
+     * as in {@code name}, or names no keys, does not. {@link #equals(Object)}
+     * and {@link #hashCode()} do not depend on this form, so a command that
+     * names {@code [name]} and one that names {@code name} parse to equal
+     * symbols.
      *
-     * @return the timeout
+     * @return {@code true} if the command names the keys to read as a
+     *         collection
      */
-    public Duration timeout() {
-        return timeout;
+    public boolean hasKeysInCollection() {
+        return hasKeysInCollection;
+    }
+
+    /**
+     * Return the key that the set clause writes.
+     *
+     * @return the key
+     */
+    public KeyTokenSymbol<?> key() {
+        return key;
     }
 
     /**
@@ -108,12 +161,18 @@ public final class AwaitSelectAndSetSymbol implements CommandSymbol {
     }
 
     /**
-     * Return the key that the set clause writes.
+     * Return the longest time that the command may wait for its read to have a
+     * non-empty result.
      *
-     * @return the key
+     * @return the timeout
      */
-    public KeyTokenSymbol<?> key() {
-        return key;
+    public Duration timeout() {
+        return timeout;
+    }
+
+    @Override
+    public String type() {
+        return "AWAIT_SELECT_AND_SET";
     }
 
     /**
@@ -123,24 +182,6 @@ public final class AwaitSelectAndSetSymbol implements CommandSymbol {
      */
     public ValueTokenSymbol<?> value() {
         return value;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof AwaitSelectAndSetSymbol) {
-            AwaitSelectAndSetSymbol other = (AwaitSelectAndSetSymbol) obj;
-            return timeout.equals(other.timeout)
-                    && Objects.equals(keys, other.keys)
-                    && key.equals(other.key) && value.equals(other.value);
-        }
-        else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(timeout, keys, key, value);
     }
 
 }

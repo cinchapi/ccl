@@ -19,10 +19,17 @@ import com.cinchapi.ccl.grammar.TimestampSymbol;
  */
 public class BrowseSymbol implements CommandSymbol {
     private final Collection<KeyTokenSymbol<?>> keys;
+
+    /**
+     * Whether the command names {@link #keys} as a collection.
+     */
+    private final boolean hasKeysInCollection;
     private final TimestampSymbol timestamp;
 
     /**
      * Construct a new instance for browsing current values.
+     * {@link #hasKeysInCollection()} is {@code true} when {@code keys} holds
+     * more than one key.
      *
      * @param keys a collection of field names
      */
@@ -34,16 +41,41 @@ public class BrowseSymbol implements CommandSymbol {
      * Construct a new instance for browsing historical values.
      *
      * @param keys a collection of field names
+     * @param hasKeysInCollection whether the command names {@code keys} as a
+     *        collection, as {@link #hasKeysInCollection()} defines it
      * @param timestamp optional timestamp for historical browsing
      */
-    public BrowseSymbol(Collection<KeyTokenSymbol<?>> keys, @Nullable TimestampSymbol timestamp) {
+    public BrowseSymbol(Collection<KeyTokenSymbol<?>> keys,
+            boolean hasKeysInCollection, @Nullable TimestampSymbol timestamp) {
         this.keys = keys;
+        this.hasKeysInCollection = hasKeysInCollection;
         this.timestamp = timestamp;
     }
 
-    @Override
-    public String type() {
-        return "BROWSE";
+    /**
+     * Construct a new instance for browsing historical values.
+     * {@link #hasKeysInCollection()} is {@code true} when {@code keys} holds
+     * more than one key.
+     *
+     * @param keys a collection of field names
+     * @param timestamp optional timestamp for historical browsing
+     */
+    public BrowseSymbol(Collection<KeyTokenSymbol<?>> keys,
+            @Nullable TimestampSymbol timestamp) {
+        this(keys, CommandSymbols.holdsMoreThanOne(keys), timestamp);
+    }
+
+    /**
+     * Return whether the command names its {@link #keys() keys} as a
+     * collection. A command names a collection when it lists its keys in
+     * brackets, even one key as in {@code browse [name]}, or lists more than
+     * one key, as in {@code browse name, age}. A command that names one key
+     * without brackets, as in {@code browse name}, does not.
+     *
+     * @return {@code true} if the command names its keys as a collection
+     */
+    public boolean hasKeysInCollection() {
+        return hasKeysInCollection;
     }
 
     /**
@@ -63,5 +95,10 @@ public class BrowseSymbol implements CommandSymbol {
     @Nullable
     public TimestampSymbol timestamp() {
         return timestamp;
+    }
+
+    @Override
+    public String type() {
+        return "BROWSE";
     }
 }

@@ -53,41 +53,36 @@ public final class AwaitGetSymbol implements CommandSymbol {
     private final Collection<KeyTokenSymbol<?>> keys;
 
     /**
-     * Construct a new instance.
+     * Whether the command names {@link #keys} as a collection.
+     */
+    private final boolean hasKeysInCollection;
+
+    /**
+     * Construct a new instance. {@link #hasKeysInCollection()} is {@code true}
+     * when {@code keys} holds more than one key.
      *
      * @param timeout the longest time that the command may wait
      * @param keys the keys to read, or {@code null} to read every key
      */
     public AwaitGetSymbol(Duration timeout,
             @Nullable Collection<KeyTokenSymbol<?>> keys) {
+        this(timeout, keys, CommandSymbols.holdsMoreThanOne(keys));
+    }
+
+    /**
+     * Construct a new instance.
+     *
+     * @param timeout the longest time that the command may wait
+     * @param keys the keys to read, or {@code null} to read every key
+     * @param hasKeysInCollection whether the command names {@code keys} as a
+     *        collection, as {@link #hasKeysInCollection()} defines it
+     */
+    public AwaitGetSymbol(Duration timeout,
+            @Nullable Collection<KeyTokenSymbol<?>> keys,
+            boolean hasKeysInCollection) {
         this.timeout = timeout;
         this.keys = keys != null ? ImmutableList.copyOf(keys) : null;
-    }
-
-    @Override
-    public String type() {
-        return "AWAIT_GET";
-    }
-
-    /**
-     * Return the longest time that the command may wait for its read to have a
-     * non-empty result.
-     *
-     * @return the timeout
-     */
-    public Duration timeout() {
-        return timeout;
-    }
-
-    /**
-     * Return the keys to read.
-     *
-     * @return an unmodifiable {@link Collection} of the keys in the order the
-     *         command lists them, or {@code null} to read every key
-     */
-    @Nullable
-    public Collection<KeyTokenSymbol<?>> keys() {
-        return keys;
+        this.hasKeysInCollection = hasKeysInCollection;
     }
 
     @Override
@@ -105,6 +100,49 @@ public final class AwaitGetSymbol implements CommandSymbol {
     @Override
     public int hashCode() {
         return Objects.hash(timeout, keys);
+    }
+
+    /**
+     * Return whether the command names the {@link #keys() keys to read} as a
+     * collection. A command names a collection when it lists the keys in
+     * brackets, even one key as in {@code [name]}, or lists more than one key,
+     * as in {@code name, age}. A command that names one key without brackets,
+     * as in {@code name}, or names no keys, does not. {@link #equals(Object)}
+     * and {@link #hashCode()} do not depend on this form, so a command that
+     * names {@code [name]} and one that names {@code name} parse to equal
+     * symbols.
+     *
+     * @return {@code true} if the command names the keys to read as a
+     *         collection
+     */
+    public boolean hasKeysInCollection() {
+        return hasKeysInCollection;
+    }
+
+    /**
+     * Return the keys to read.
+     *
+     * @return an unmodifiable {@link Collection} of the keys in the order the
+     *         command lists them, or {@code null} to read every key
+     */
+    @Nullable
+    public Collection<KeyTokenSymbol<?>> keys() {
+        return keys;
+    }
+
+    /**
+     * Return the longest time that the command may wait for its read to have a
+     * non-empty result.
+     *
+     * @return the timeout
+     */
+    public Duration timeout() {
+        return timeout;
+    }
+
+    @Override
+    public String type() {
+        return "AWAIT_GET";
     }
 
 }
