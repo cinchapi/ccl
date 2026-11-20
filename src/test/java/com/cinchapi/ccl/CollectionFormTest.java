@@ -15,6 +15,8 @@
  */
 package com.cinchapi.ccl;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +25,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.cinchapi.ccl.generated.Grammar;
+import com.cinchapi.ccl.generated.ParseException;
 import com.cinchapi.ccl.grammar.KeySymbol;
 import com.cinchapi.ccl.grammar.KeyTokenSymbol;
 import com.cinchapi.ccl.grammar.NavigationKeySymbol;
@@ -74,6 +78,18 @@ public class CollectionFormTest {
             Assert.assertNotNull(ccl, actual);
             Assert.assertEquals(ccl, expected, ImmutableList.copyOf(actual));
         }
+    }
+
+    /**
+     * Return a {@link Grammar} that reads {@code ccl}.
+     *
+     * @param ccl the text for the {@link Grammar} to read
+     * @return the {@link Grammar}
+     */
+    private static Grammar grammar(String ccl) {
+        return new Grammar(
+                new ByteArrayInputStream(ccl.getBytes(StandardCharsets.UTF_8)),
+                Convert::stringToJava, Convert::stringToOperator, null);
     }
 
     /**
@@ -647,6 +663,48 @@ public class CollectionFormTest {
             Assert.assertEquals(command, bare, bracketed);
             Assert.assertEquals(command, bare.hashCode(), bracketed.hashCode());
         }
+    }
+
+    /**
+     * <strong>Goal:</strong> Verify that the public
+     * {@link Grammar#KeyOrKeyCollection()} and {@link Grammar#AwaitKeys()}
+     * productions return only the keys, as they do for callers that use the
+     * parser directly.
+     * <p>
+     * <strong>Start state:</strong> No prior state needed.
+     * <p>
+     * <strong>Workflow:</strong>
+     * <ul>
+     * <li>Call {@link Grammar#KeyOrKeyCollection()} on {@code name},
+     * {@code [name]} and {@code name, age}.</li>
+     * <li>Call {@link Grammar#AwaitKeys()} on {@code where},
+     * {@code name where}, {@code [name] where}, {@code for name, age where} and
+     * {@code for, name where}.</li>
+     * </ul>
+     * <p>
+     * <strong>Expected:</strong> {@link Grammar#KeyOrKeyCollection()} returns
+     * {@code [name]}, {@code [name]} and {@code [name, age]}.
+     * {@link Grammar#AwaitKeys()} returns {@code null} for {@code where}, and
+     * {@code [name]}, {@code [name]}, {@code [name, age]} and
+     * {@code [for, name]} for the others.
+     */
+    @Test
+    public void testPublicKeyProductionsReturnOnlyTheKeys()
+            throws ParseException {
+        assertKeys("name", keys("name"), grammar("name").KeyOrKeyCollection());
+        assertKeys("[name]", keys("name"),
+                grammar("[name]").KeyOrKeyCollection());
+        assertKeys("name, age", keys("name", "age"),
+                grammar("name, age").KeyOrKeyCollection());
+        assertKeys("where", null, grammar("where").AwaitKeys());
+        assertKeys("name where", keys("name"),
+                grammar("name where").AwaitKeys());
+        assertKeys("[name] where", keys("name"),
+                grammar("[name] where").AwaitKeys());
+        assertKeys("for name, age where", keys("name", "age"),
+                grammar("for name, age where").AwaitKeys());
+        assertKeys("for, name where", keys("for", "name"),
+                grammar("for, name where").AwaitKeys());
     }
 
     /**

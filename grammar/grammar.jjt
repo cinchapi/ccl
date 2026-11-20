@@ -1683,7 +1683,7 @@ CommandSymbol BrowseCommand() : {
     TimestampSymbol timestamp = null;
 }
 {
-    <BROWSE> named=KeyOrKeyCollection()
+    <BROWSE> named=NamedKeyOrKeyCollection()
     (timestamp=TimestampReadCommand())?
     { return new BrowseSymbol(named.keys, named.isCollection, timestamp); }
 }
@@ -1762,7 +1762,7 @@ CommandSymbol NavigateCommand() : {
     TimestampSymbol timestamp = null;
 }
 {
-    <NAVIGATE> named=KeyOrKeyCollection()
+    <NAVIGATE> named=NamedKeyOrKeyCollection()
     (
         (<WHERE> DisjunctionExpression()) (timestamp=TimestampReadCommand())?
         { return new NavigateSymbol(named.keys, named.isCollection, (String)null, timestamp); }
@@ -2022,7 +2022,7 @@ CommandSymbol SelectAndSetCommand() : {
     ValueTokenSymbol<?> value;
 }
 {
-    <SELECT_AND_SET> (named=KeyOrKeyCollection())? <WHERE>
+    <SELECT_AND_SET> (named=NamedKeyOrKeyCollection())? <WHERE>
     DisjunctionExpression() (NoCommandTimestamp("select_and_set command"))?
     (Order())? (Page())?
     <SET> key=Key()
@@ -2040,7 +2040,7 @@ CommandSymbol GetAndSetCommand() : {
     ValueTokenSymbol<?> value;
 }
 {
-    <GET_AND_SET> (named=KeyOrKeyCollection())? <WHERE>
+    <GET_AND_SET> (named=NamedKeyOrKeyCollection())? <WHERE>
     DisjunctionExpression() (NoCommandTimestamp("get_and_set command"))?
     (Order())? (Page())?
     <SET> key=Key()
@@ -2088,7 +2088,7 @@ CommandSymbol AwaitSelectCommand() : {
 }
 {
     <AWAIT_SELECT> timeout=Within()
-    named=AwaitKeys()
+    named=NamedAwaitKeys()
     DisjunctionExpression() (NoCommandTimestamp("await_select command"))?
     (Order())? (Page())?
     { return new AwaitSelectSymbol(timeout, named.keys, named.isCollection); }
@@ -2100,7 +2100,7 @@ CommandSymbol AwaitGetCommand() : {
 }
 {
     <AWAIT_GET> timeout=Within()
-    named=AwaitKeys()
+    named=NamedAwaitKeys()
     DisjunctionExpression() (NoCommandTimestamp("await_get command"))?
     (Order())? (Page())?
     { return new AwaitGetSymbol(timeout, named.keys, named.isCollection); }
@@ -2132,7 +2132,7 @@ CommandSymbol AwaitSelectAndSetCommand() : {
 }
 {
     <AWAIT_SELECT_AND_SET> timeout=Within()
-    named=AwaitKeys()
+    named=NamedAwaitKeys()
     DisjunctionExpression() (NoCommandTimestamp("await_select_and_set command"))?
     (Order())? (Page())?
     <SET> key=Key()
@@ -2152,7 +2152,7 @@ CommandSymbol AwaitGetAndSetCommand() : {
 }
 {
     <AWAIT_GET_AND_SET> timeout=Within()
-    named=AwaitKeys()
+    named=NamedAwaitKeys()
     DisjunctionExpression() (NoCommandTimestamp("await_get_and_set command"))?
     (Order())? (Page())?
     <SET> key=Key()
@@ -2183,13 +2183,27 @@ void ForBeforeCondition() : {}
       <FOR> )?
 }
 
-// The keys an await command reads, through the `where` that ends them. Return
-// NamedKeys.NONE when only the `where` appears, because the command then reads
-// every key. The keys may follow an optional `for`. When a comma follows the
-// first key, as in `for, name where`, a leading `for` begins that first key.
-// Any other leading `for` is the optional word, so `for where` is a syntax
-// error.
-NamedKeys AwaitKeys() :
+// The keys an await command reads, through the `where` that ends them, or null
+// when only the `where` appears, because the command then reads every key. The
+// generated parser exposes this production as a public method, so it keeps this
+// signature, and it accepts what NamedAwaitKeys() accepts.
+Collection<KeyTokenSymbol<?>> AwaitKeys() :
+{
+    NamedKeys named;
+}
+{
+    named=NamedAwaitKeys()
+    { return named.keys; }
+}
+
+// The keys an await command reads, through the `where` that ends them, with
+// whether the command names them as a collection. Return NamedKeys.NONE when
+// only the `where` appears, because the command then reads every key. The keys
+// may follow an optional `for`. When a comma follows the first key, as in
+// `for, name where`, a leading `for` begins that first key. Any other leading
+// `for` is the optional word, so `for where` is a syntax error. The production
+// is private because NamedKeys is private to the parser.
+private NamedKeys NamedAwaitKeys() :
 {
     Collection<KeyTokenSymbol<?>> keys;
     NamedKeys named = NamedKeys.NONE;
@@ -2202,7 +2216,7 @@ NamedKeys AwaitKeys() :
         keys=KeyCollection() <WHERE>
         { named = new NamedKeys(keys, true); }
       |
-        ( LOOKAHEAD(1) <FOR> )? named=KeyOrKeyCollection() <WHERE>
+        ( LOOKAHEAD(1) <FOR> )? named=NamedKeyOrKeyCollection() <WHERE>
     )
     { return named; }
 }
@@ -2274,9 +2288,22 @@ Collection KeyCollection() :
     { return keys; }
 }
 
+// One key, or a collection of keys, as the keys in the order the command names
+// them. The generated parser exposes this production as a public method, so it
+// keeps this signature, and it accepts what NamedKeyOrKeyCollection() accepts.
+Collection<KeyTokenSymbol<?>> KeyOrKeyCollection() :
+{
+    NamedKeys named;
+}
+{
+    named=NamedKeyOrKeyCollection()
+    { return named.keys; }
+}
+
 // One key, or a collection of keys, with whether the command names them as a
-// collection.
-NamedKeys KeyOrKeyCollection() :
+// collection. The production is private because NamedKeys is private to the
+// parser.
+private NamedKeys NamedKeyOrKeyCollection() :
 {
     KeyTokenSymbol<?> key;
     Collection<KeyTokenSymbol<?>> keys;

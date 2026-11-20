@@ -5262,7 +5262,7 @@ KeyTokenSymbol.requireNotParameterized(key, "find_or_add command");
   final public CommandSymbol BrowseCommand() throws ParseException {NamedKeys named;
     TimestampSymbol timestamp = null;
     jj_consume_token(BROWSE);
-    named = KeyOrKeyCollection();
+    named = NamedKeyOrKeyCollection();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case AS_OF:
     case TIMESTAMP:{
@@ -5523,7 +5523,7 @@ if(record != null) {
     Collection<Long> records = null;
     TimestampSymbol timestamp = null;
     jj_consume_token(NAVIGATE);
-    named = KeyOrKeyCollection();
+    named = NamedKeyOrKeyCollection();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case WHERE:{
       jj_consume_token(WHERE);
@@ -6245,7 +6245,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     case ALPHANUMERIC:
     case PERIOD_SEPARATED_STRING:
     case ASTERISK_SUFFIXED_STRING:{
-      named = KeyOrKeyCollection();
+      named = NamedKeyOrKeyCollection();
       break;
       }
     default:
@@ -6362,7 +6362,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     case ALPHANUMERIC:
     case PERIOD_SEPARATED_STRING:
     case ASTERISK_SUFFIXED_STRING:{
-      named = KeyOrKeyCollection();
+      named = NamedKeyOrKeyCollection();
       break;
       }
     default:
@@ -6489,7 +6489,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     NamedKeys named;
     jj_consume_token(AWAIT_SELECT);
     timeout = Within();
-    named = AwaitKeys();
+    named = NamedAwaitKeys();
     DisjunctionExpression();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case AS_OF:
@@ -6529,7 +6529,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     NamedKeys named;
     jj_consume_token(AWAIT_GET);
     timeout = Within();
-    named = AwaitKeys();
+    named = NamedAwaitKeys();
     DisjunctionExpression();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case AS_OF:
@@ -6618,7 +6618,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     ValueTokenSymbol<?> value;
     jj_consume_token(AWAIT_SELECT_AND_SET);
     timeout = Within();
-    named = AwaitKeys();
+    named = NamedAwaitKeys();
     DisjunctionExpression();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case AS_OF:
@@ -6666,7 +6666,7 @@ KeyTokenSymbol.requireNotParameterized(key,
     ValueTokenSymbol<?> value;
     jj_consume_token(AWAIT_GET_AND_SET);
     timeout = Within();
-    named = AwaitKeys();
+    named = NamedAwaitKeys();
     DisjunctionExpression();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case AS_OF:
@@ -6728,13 +6728,17 @@ KeyTokenSymbol.requireNotParameterized(key,
     }
 }
 
-// The keys an await command reads, through the `where` that ends them. Return
-// NamedKeys.NONE when only the `where` appears, because the command then reads
-// every key. The keys may follow an optional `for`. When a comma follows the
-// first key, as in `for, name where`, a leading `for` begins that first key.
-// Any other leading `for` is the optional word, so `for where` is a syntax
-// error.
-  final public NamedKeys AwaitKeys() throws ParseException {Collection<KeyTokenSymbol<?>> keys;
+// The keys an await command reads, through the `where` that ends them, or null
+// when only the `where` appears, because the command then reads every key. The
+// generated parser exposes this production as a public method, so it keeps this
+// signature, and it accepts what NamedAwaitKeys() accepts.
+  final public Collection<KeyTokenSymbol<?>> AwaitKeys() throws ParseException {NamedKeys named;
+    named = NamedAwaitKeys();
+{if ("" != null) return named.keys;}
+    throw new Error("Missing return statement in function");
+}
+
+  final private NamedKeys NamedAwaitKeys() throws ParseException {Collection<KeyTokenSymbol<?>> keys;
     NamedKeys named = NamedKeys.NONE;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case WHERE:{
@@ -6821,7 +6825,7 @@ named = new NamedKeys(keys, true);
             jj_la1[246] = jj_gen;
             ;
           }
-          named = KeyOrKeyCollection();
+          named = NamedKeyOrKeyCollection();
           jj_consume_token(WHERE);
           break;
           }
@@ -7090,9 +7094,16 @@ keys.add(key);
     throw new Error("Missing return statement in function");
 }
 
-// One key, or a collection of keys, with whether the command names them as a
-// collection.
-  final public NamedKeys KeyOrKeyCollection() throws ParseException {KeyTokenSymbol<?> key;
+// One key, or a collection of keys, as the keys in the order the command names
+// them. The generated parser exposes this production as a public method, so it
+// keeps this signature, and it accepts what NamedKeyOrKeyCollection() accepts.
+  final public Collection<KeyTokenSymbol<?>> KeyOrKeyCollection() throws ParseException {NamedKeys named;
+    named = NamedKeyOrKeyCollection();
+{if ("" != null) return named.keys;}
+    throw new Error("Missing return statement in function");
+}
+
+  final private NamedKeys NamedKeyOrKeyCollection() throws ParseException {KeyTokenSymbol<?> key;
     Collection<KeyTokenSymbol<?>> keys;
     boolean isCollection = false;
     if (jj_2_74(2147483647)) {
@@ -7775,6 +7786,32 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     finally { jj_save(73, xla); }
   }
 
+  private boolean jj_3R_92()
+ {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_22()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_91()
+ {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_22()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_87()
+ {
+    if (jj_3R_22()) return true;
+    Token xsp;
+    if (jj_3R_92()) return true;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_92()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
   private boolean jj_3_66()
  {
     Token xsp;
@@ -7783,6 +7820,19 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     jj_scanpos = xsp;
     if (jj_3R_69()) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3R_86()
+ {
+    if (jj_scan_token(OPEN_BRACKET)) return true;
+    if (jj_3R_22()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_91()) { jj_scanpos = xsp; break; }
+    }
+    if (jj_scan_token(CLOSE_BRACKET)) return true;
     return false;
   }
 
@@ -7818,17 +7868,14 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_92()
+  private boolean jj_3R_51()
  {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_22()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_91()
- {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_22()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_86()) {
+    jj_scanpos = xsp;
+    if (jj_3R_87()) return true;
+    }
     return false;
   }
 
@@ -7839,18 +7886,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     if (jj_scan_token(62)) {
     jj_scanpos = xsp;
     if (jj_3R_68()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_87()
- {
-    if (jj_3R_22()) return true;
-    Token xsp;
-    if (jj_3R_92()) return true;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_92()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -7894,23 +7929,16 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_94()
+ {
+    if (jj_scan_token(NUMERIC)) return true;
+    return false;
+  }
+
   private boolean jj_3_46()
  {
     if (jj_scan_token(NUMERIC)) return true;
     if (jj_scan_token(COMMA)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_86()
- {
-    if (jj_scan_token(OPEN_BRACKET)) return true;
-    if (jj_3R_22()) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_91()) { jj_scanpos = xsp; break; }
-    }
-    if (jj_scan_token(CLOSE_BRACKET)) return true;
     return false;
   }
 
@@ -7926,20 +7954,20 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_51()
+  private boolean jj_3R_93()
  {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_86()) {
-    jj_scanpos = xsp;
-    if (jj_3R_87()) return true;
-    }
+    if (jj_scan_token(OPEN_BRACKET)) return true;
     return false;
   }
 
-  private boolean jj_3R_94()
+  private boolean jj_3R_88()
  {
-    if (jj_scan_token(NUMERIC)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_93()) {
+    jj_scanpos = xsp;
+    if (jj_3R_94()) return true;
+    }
     return false;
   }
 
@@ -7960,12 +7988,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
-  private boolean jj_3R_93()
- {
-    if (jj_scan_token(OPEN_BRACKET)) return true;
-    return false;
-  }
-
   private boolean jj_3R_59()
  {
     if (jj_scan_token(NUMERIC)) return true;
@@ -7975,17 +7997,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
   private boolean jj_3R_73()
  {
     if (jj_3R_22()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_88()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_93()) {
-    jj_scanpos = xsp;
-    if (jj_3R_94()) return true;
-    }
     return false;
   }
 
@@ -8105,6 +8116,13 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3_73()
+ {
+    if (jj_3R_22()) return true;
+    if (jj_scan_token(COMMA)) return true;
+    return false;
+  }
+
   private boolean jj_3_14()
  {
     Token xsp;
@@ -8203,13 +8221,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
   private boolean jj_3R_55()
  {
     if (jj_3R_88()) return true;
-    return false;
-  }
-
-  private boolean jj_3_73()
- {
-    if (jj_3R_22()) return true;
-    if (jj_scan_token(COMMA)) return true;
     return false;
   }
 
@@ -9254,6 +9265,13 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3R_74()
+ {
+    if (jj_3R_22()) return true;
+    if (jj_scan_token(COMMA)) return true;
+    return false;
+  }
+
   private boolean jj_3_28()
  {
     Token xsp;
@@ -9352,6 +9370,17 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     return false;
   }
 
+  private boolean jj_3_74()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(62)) {
+    jj_scanpos = xsp;
+    if (jj_3R_74()) return true;
+    }
+    return false;
+  }
+
   private boolean jj_3_68()
  {
     Token xsp;
@@ -9375,13 +9404,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
     if (jj_scan_token(48)) return true;
     }
     }
-    return false;
-  }
-
-  private boolean jj_3R_74()
- {
-    if (jj_3R_22()) return true;
-    if (jj_scan_token(COMMA)) return true;
     return false;
   }
 
@@ -9483,17 +9505,6 @@ keys = new ArrayList<KeyTokenSymbol<?>>();
   private boolean jj_3_2()
  {
     if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3_74()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(62)) {
-    jj_scanpos = xsp;
-    if (jj_3R_74()) return true;
-    }
     return false;
   }
 
