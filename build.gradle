@@ -196,7 +196,7 @@ repositories {
   }
 }
 
-ext.concourseVersion = '0.12.5'
+ext.concourseVersion = '0.12.9'
 
 dependencies {
   implementation platform('com.cinchapi:cinchapi-bom:1.0.0')
