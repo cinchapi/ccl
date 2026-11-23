@@ -199,7 +199,7 @@ repositories {
 ext.concourseVersion = '0.12.5'
 
 dependencies {
-  implementation platform('com.cinchapi:cinchapi-bom:1.0.0')
+  implementation platform('com.cinchapi:cinchapi-bom:1.1.0')
   implementation 'com.google.code.findbugs:jsr305:2.0.1'
   implementation 'com.google.guava:guava'
   implementation 'com.joestelmach:natty:0.13'
